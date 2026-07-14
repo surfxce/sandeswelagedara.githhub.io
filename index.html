@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sandes Welagedara</title>
+<meta name="description" content="Sandes Welagedara — medical student, developer, and builder of Beyond15.">
+
+<!-- Google Fonts: loaded by the visitor's browser, not built here -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+/* ============================================================
+   TOKENS
+   ============================================================ */
+:root{
+  --ink:#0b0c10;
+  --ink-2:#15171d;
+  --ink-3:#1c1f27;
+  --line-dark: rgba(245,241,234,0.14);
+  --cream:#f3ede1;
+  --cream-2:#eae1cf;
+  --cream-line: rgba(28,26,22,0.12);
+  --text-light:#f5f1ea;
+  --text-light-dim: rgba(245,241,234,0.62);
+  --text-dark:#1c1a16;
+  --text-dark-dim: rgba(28,26,22,0.62);
+
+  --coral:#ff6a45;
+  --pink:#ff3e8f;
+  --teal:#2fd9c4;
+  --violet:#6a5cff;
+  --gold:#ffb35a;
+
+  --display: 'Fraunces', serif;
+  --body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --mono: 'IBM Plex Mono', monospace;
+
+  --maxw: 1180px;
+  --pad: clamp(20px, 5vw, 64px);
+  --radius: 18px;
+  --ease: cubic-bezier(.16,.84,.44,1);
+}
+
+*,*::before,*::after{ box-sizing:border-box; }
+html{ scroll-behavior:smooth; }
+@media (prefers-reduced-motion: reduce){
+  html{ scroll-behavior:auto; }
+  *,*::before,*::after{ animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important; scroll-behavior:auto !important; }
+}
+body{
+  margin:0;
+  background:var(--ink);
+  color:var(--text-light);
+  font-family:var(--body);
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+img{ max-width:100%; display:block; }
+a{ color:inherit; text-decoration:none; }
+button{ font-family:inherit; cursor:pointer; }
+h1,h2,h3,h4{ margin:0; font-family:var(--display); font-weight:500; }
+p{ margin:0; }
+::selection{ background:var(--coral); color:var(--ink); }
+
+/* focus visibility */
+a:focus-visible, button:focus-visible, [tabindex]:focus-visible{
+  outline:2px solid var(--coral);
+  outline-offset:3px;
+  border-radius:4px;
+}
+
+.wrap{ max-width:var(--maxw); margin:0 auto; padding-left:var(--pad); padding-right:var(--pad); }
+
+/* ============================================================
+   GRAIN OVERLAY (signature texture — shared across the page)
+   ============================================================ */
+.grain{
+  position:fixed; inset:0; z-index:999; pointer-events:none;
+  opacity:0.05; mix-blend-mode:overlay;
+}
+
+/* ============================================================
+   AURA ORBS — the blurred gradient blobs from the mood boards
+   ============================================================ */
+.aura{ position:absolute; inset:0; overflow:hidden; z-index:0; pointer-events:none; }
+.orb{
+  position:absolute; border-radius:50%;
+  filter:blur(70px);
+  opacity:0.75;
+  animation:drift 26s ease-in-out infinite;
+}
+@keyframes drift{
+  0%,100%{ transform:translate(0,0) scale(1); }
+  33%{ transform:translate(3%,-4%) scale(1.08); }
+  66%{ transform:translate(-3%,3%) scale(0.95); }
+}
+
+/* ============================================================
+   NAV
+   ============================================================ */
+.nav{
+  position:fixed; top:0; left:0; right:0; z-index:500;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:18px var(--pad);
+  background:rgba(11,12,16,0.0);
+  border-bottom:1px solid transparent;
+  transition:background .4s var(--ease), border-color .4s var(--ease), backdrop-filter .4s var(--ease);
+}
+.nav.solid{
+  background:rgba(11,12,16,0.72);
+  backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--line-dark);
+}
+.nav.on-cream{ color:var(--text-dark); }
+.nav.on-cream.solid{ background:rgba(243,237,225,0.78); border-bottom:1px solid var(--cream-line); }
+
+.nav-logo{ font-family:var(--display); font-size:1.15rem; letter-spacing:0.01em; }
+.nav-links{ display:flex; gap:2.1rem; list-style:none; margin:0; padding:0; }
+.nav-links a{
+  font-size:0.86rem; font-family:var(--mono); letter-spacing:0.04em; text-transform:lowercase;
+  opacity:0.7; transition:opacity .25s;
+  position:relative;
+}
+.nav-links a::after{
+  content:''; position:absolute; left:0; right:0; bottom:-6px; height:1px;
+  background:currentColor; transform:scaleX(0); transform-origin:left; transition:transform .3s var(--ease);
+}
+.nav-links a:hover, .nav-links a.active{ opacity:1; }
+.nav-links a.active::after{ transform:scaleX(1); }
+
+.nav-burger{ display:none; background:none; border:0; color:inherit; padding:6px; }
+.nav-burger svg{ width:22px; height:22px; }
+
+.nav-mobile{
+  position:fixed; inset:0; z-index:600; background:var(--ink); color:var(--text-light);
+  display:flex; flex-direction:column; align-items:flex-start; justify-content:center; gap:1.6rem;
+  padding:var(--pad);
+  transform:translateY(-100%); transition:transform .5s var(--ease);
+}
+.nav-mobile.open{ transform:translateY(0); }
+.nav-mobile a{ font-family:var(--display); font-size:2.2rem; }
+.nav-mobile-close{ position:absolute; top:18px; right:var(--pad); background:none; border:0; color:inherit; }
+.nav-mobile-close svg{ width:26px; height:26px; }
+
+@media (max-width:760px){
+  .nav-links{ display:none; }
+  .nav-burger{ display:block; }
+}
+
+/* ============================================================
+   HERO
+   ============================================================ */
+.hero{
+  position:relative; min-height:100svh; display:flex; align-items:center;
+  padding-top:80px; overflow:hidden;
+}
+.hero .aura .orb:nth-child(1){ width:46vw; height:46vw; left:-12vw; top:8vh; background:radial-gradient(circle at 35% 35%, var(--coral), transparent 70%); }
+.hero .aura .orb:nth-child(2){ width:34vw; height:34vw; right:-6vw; top:22vh; background:radial-gradient(circle at 40% 40%, var(--violet), transparent 70%); animation-delay:-8s; }
+.hero .aura .orb:nth-child(3){ width:28vw; height:28vw; right:12vw; bottom:-8vh; background:radial-gradient(circle at 50% 50%, var(--teal), transparent 70%); animation-delay:-15s; }
+
+.hero-grid{
+  position:relative; z-index:2; width:100%;
+  display:grid; grid-template-columns:1.15fr 0.85fr; align-items:center; gap:2rem;
+}
+.hero-name{
+  font-size:clamp(3rem, 8.5vw, 6.4rem);
+  line-height:0.96; letter-spacing:-0.01em;
+}
+.hero-name .first{
+  display:block;
+  color:transparent;
+  -webkit-text-stroke:1.5px var(--text-light);
+  font-weight:400; font-style:italic;
+}
+.hero-name .last{
+  display:block;
+  font-weight:600;
+}
+.hero-eyebrow{
+  font-family:var(--mono); font-size:0.8rem; letter-spacing:0.08em; text-transform:lowercase;
+  color:var(--text-light-dim); margin-bottom:1.1rem; display:flex; align-items:center; gap:.6rem;
+}
+.hero-eyebrow .dot{ width:7px; height:7px; border-radius:50%; background:var(--coral); display:inline-block; animation:pulse 2s ease-in-out infinite; }
+@keyframes pulse{ 0%,100%{ opacity:1;} 50%{ opacity:.35;} }
+
+.hero-sub{
+  margin-top:1.4rem; max-width:34ch; font-size:1.02rem; line-height:1.6; color:var(--text-light-dim);
+}
+.hero-scroll{
+  margin-top:2.4rem; display:inline-flex; align-items:center; gap:.6rem;
+  font-family:var(--mono); font-size:0.78rem; letter-spacing:.06em; color:var(--text-light-dim);
+}
+.hero-scroll svg{ width:14px; height:14px; animation:bob 1.8s ease-in-out infinite; }
+@keyframes bob{ 0%,100%{ transform:translateY(0);} 50%{ transform:translateY(5px);} }
+
+.hero-portrait{
+  position:relative; aspect-ratio:4/5; border-radius:24px; overflow:hidden;
+  justify-self:end; width:min(100%, 380px);
+  background:
+    radial-gradient(circle at 30% 20%, var(--pink), transparent 55%),
+    radial-gradient(circle at 70% 80%, var(--teal), transparent 55%),
+    linear-gradient(160deg, var(--ink-3), var(--ink));
+  border:1px solid var(--line-dark);
+  display:flex; align-items:flex-end;
+}
+.hero-portrait img{
+  width:100%; height:100%; object-fit:cover; position:absolute; inset:0;
+}
+.hero-portrait .fallback{
+  position:relative; z-index:2; width:100%; padding:1.1rem 1.2rem;
+  font-family:var(--mono); font-size:0.72rem; letter-spacing:.04em; color:var(--text-light-dim);
+  background:linear-gradient(0deg, rgba(11,12,16,.75), transparent);
+}
+
+@media (max-width:820px){
+  .hero-grid{ grid-template-columns:1fr; gap:2.8rem; }
+  .hero-portrait{ justify-self:start; width:min(100%, 280px); order:-1; }
+}
+
+/* ============================================================
+   SECTION SCAFFOLDING
+   ============================================================ */
+.section{ position:relative; padding:clamp(70px,10vw,120px) 0; }
+.section-dark{ background:var(--ink); color:var(--text-light); }
+.section-cream{ background:var(--cream); color:var(--text-dark); }
+
+.section-head{ display:flex; align-items:flex-end; justify-content:space-between; gap:2rem; flex-wrap:wrap; margin-bottom:3rem; }
+.section-eyebrow{ display:flex; align-items:center; gap:.65rem; font-family:var(--mono); font-size:0.78rem; letter-spacing:.08em; text-transform:lowercase; margin-bottom:.9rem; }
+.section-eyebrow .orb-chip{ width:9px; height:9px; border-radius:50%; }
+.section-title{ font-size:clamp(2.1rem, 5vw, 3.3rem); letter-spacing:-0.01em; }
+.section-note{ max-width:36ch; font-size:0.95rem; line-height:1.6; opacity:0.65; }
+
+.reveal{ opacity:0; transform:translateY(28px); transition:opacity .7s var(--ease), transform .7s var(--ease); }
+.reveal.in-view{ opacity:1; transform:translateY(0); }
+
+/* ============================================================
+   CV / RÉSUMÉ
+   ============================================================ */
+.cv-tabs{ display:flex; gap:.5rem; flex-wrap:wrap; }
+.cv-tab{
+  background:none; border:1px solid var(--line-dark); color:var(--text-light-dim);
+  padding:.55rem 1.1rem; border-radius:999px; font-family:var(--mono); font-size:0.78rem;
+  letter-spacing:.04em; transition:all .25s var(--ease);
+}
+.cv-tab:hover{ color:var(--text-light); border-color:var(--text-light-dim); }
+.cv-tab.active{ background:var(--text-light); color:var(--ink); border-color:var(--text-light); }
+
+.timeline{ position:relative; margin-top:3rem; }
+.timeline::before{
+  content:''; position:absolute; left:20px; top:0; bottom:0; width:1px;
+  background:linear-gradient(var(--line-dark), var(--line-dark)) ;
+}
+@media (min-width:761px){
+  .timeline::before{ left:50%; transform:translateX(-50%); }
+}
+
+.tl-item{ position:relative; display:none; margin-bottom:2.6rem; }
+.tl-item.tl-show{ display:block; }
+.tl-dot{
+  position:absolute; left:20px; top:8px; width:11px; height:11px; border-radius:50%;
+  background:var(--coral); transform:translateX(-50%);
+  box-shadow:0 0 0 5px var(--ink);
+}
+@media (min-width:761px){ .tl-dot{ left:50%; } }
+
+.tl-row{ padding-left:52px; }
+@media (min-width:761px){
+  .tl-row{ padding-left:0; width:46%; }
+  .tl-item:nth-child(odd) .tl-row{ margin-left:0; text-align:right; }
+  .tl-item:nth-child(even) .tl-row{ margin-left:54%; }
+}
+
+.tl-date{ font-family:var(--mono); font-size:0.76rem; letter-spacing:.04em; opacity:0.55; margin-bottom:.5rem; }
+
+/* --- flip card --- */
+.flip{ perspective:1400px; cursor:pointer; }
+.flip-inner{
+  position:relative; width:100%; min-height:190px;
+  transform-style:preserve-3d; transition:transform .65s var(--ease);
+}
+.flip.flipped .flip-inner{ transform:rotateY(180deg); }
+.flip-face{
+  position:absolute; inset:0; backface-visibility:hidden; -webkit-backface-visibility:hidden;
+  border-radius:var(--radius); border:1px solid var(--line-dark);
+  background:var(--ink-2);
+  padding:1.4rem 1.5rem;
+  display:flex; flex-direction:column; justify-content:center; gap:.5rem;
+}
+.flip-face.back{ transform:rotateY(180deg); justify-content:flex-start; overflow-y:auto; }
+.flip-org{ font-family:var(--mono); font-size:0.72rem; letter-spacing:.04em; opacity:0.55; }
+.flip-title{ font-family:var(--display); font-size:1.35rem; line-height:1.2; }
+.flip-hint{ margin-top:.6rem; font-family:var(--mono); font-size:0.68rem; opacity:0.4; letter-spacing:.04em; }
+.flip-desc{ font-size:0.92rem; line-height:1.55; opacity:0.85; }
+.flip-tags{ display:flex; flex-wrap:wrap; gap:.4rem; margin-top:.8rem; }
+.flip-tag{ font-family:var(--mono); font-size:0.66rem; padding:.25rem .55rem; border-radius:999px; border:1px solid var(--line-dark); opacity:0.7; }
+.flip-photos{ display:flex; gap:.5rem; margin-top:.9rem; flex-wrap:wrap; }
+.flip-photo{ width:56px; height:56px; border-radius:8px; flex-shrink:0; }
+
+/* mini course list inside education back-of-card */
+.tl-detail-list{ margin:.5rem 0 0; padding-left:1.1rem; font-size:0.82rem; opacity:0.8; line-height:1.6; }
+
+/* --- Nepalese club style event mini-grid (bigger equal cards) --- */
+.event-grid{
+  margin-top:1.6rem; display:grid; gap:1.1rem;
+  grid-template-columns:repeat(auto-fit, minmax(230px,1fr));
+}
+.event-card{ perspective:1400px; cursor:pointer; }
+.event-inner{
+  position:relative; width:100%; aspect-ratio:4/5;
+  transform-style:preserve-3d; transition:transform .65s var(--ease);
+}
+.event-card.flipped .event-inner{ transform:rotateY(180deg); }
+.event-face{
+  position:absolute; inset:0; backface-visibility:hidden; -webkit-backface-visibility:hidden;
+  border-radius:16px; overflow:hidden; border:1px solid var(--line-dark);
+}
+.event-face.front{
+  display:flex; align-items:flex-end; padding:1rem;
+}
+.event-face.front .cover-tint{ position:absolute; inset:0; z-index:0; }
+.event-face.front .cover-label{ position:relative; z-index:1; font-family:var(--display); font-size:1.3rem; color:#fff; text-shadow:0 2px 12px rgba(0,0,0,.35); }
+.event-face.back{
+  transform:rotateY(180deg); background:var(--ink-2); padding:1.1rem; display:flex; flex-direction:column; gap:.6rem; overflow-y:auto;
+}
+.event-back-title{ font-family:var(--display); font-size:1.05rem; }
+.event-back-desc{ font-size:0.82rem; line-height:1.5; opacity:0.85; }
+.event-album{ display:flex; gap:.4rem; flex-wrap:wrap; margin-top:auto; }
+.event-album span{ width:38px; height:38px; border-radius:6px; }
+
+/* ============================================================
+   SKILLS STRIP (inside CV section)
+   ============================================================ */
+.skills-strip{ margin-top:4.5rem; display:grid; grid-template-columns:1fr 1fr; gap:2.5rem; }
+@media (max-width:700px){ .skills-strip{ grid-template-columns:1fr; } }
+.skills-block h3{ font-size:1.05rem; margin-bottom:.9rem; font-weight:500; }
+.chip-row{ display:flex; flex-wrap:wrap; gap:.5rem; }
+.chip{ font-family:var(--mono); font-size:0.74rem; padding:.4rem .75rem; border-radius:999px; border:1px solid var(--line-dark); opacity:0.85; }
+.skills-block p{ font-size:0.9rem; line-height:1.65; opacity:0.72; }
+
+/* ============================================================
+   PHOTOS
+   ============================================================ */
+.photo-grid{
+  columns:3 220px; column-gap:14px; margin-top:2.5rem;
+}
+@media (max-width:700px){ .photo-grid{ columns:2 160px; } }
+.photo-tile{
+  break-inside:avoid; margin-bottom:14px; border-radius:12px; overflow:hidden; position:relative;
+  border:1px solid var(--cream-line); cursor:pointer;
+  background:#000;
+}
+.photo-tile img{ width:100%; display:block; transition:transform .5s var(--ease); }
+.photo-tile:hover img{ transform:scale(1.045); }
+.photo-tile .cap{
+  position:absolute; left:0; right:0; bottom:0; padding:.6rem .7rem;
+  font-family:var(--mono); font-size:0.68rem; color:#fff; letter-spacing:.03em;
+  background:linear-gradient(0deg, rgba(0,0,0,.55), transparent);
+  opacity:0; transition:opacity .25s;
+}
+.photo-tile:hover .cap{ opacity:1; }
+.photo-fallback{ width:100%; aspect-ratio:var(--ar, 4/5); }
+
+/* lightbox */
+.lightbox{
+  position:fixed; inset:0; z-index:900; background:rgba(8,8,10,0.92);
+  display:none; align-items:center; justify-content:center; padding:5vh 4vw;
+}
+.lightbox.open{ display:flex; }
+.lightbox-inner{ position:relative; max-width:900px; width:100%; text-align:center; }
+.lightbox-inner img, .lightbox-fallback{ max-height:78vh; margin:0 auto; border-radius:10px; width:auto; max-width:100%; }
+.lightbox-fallback{ width:min(500px,80vw); aspect-ratio:4/5; }
+.lightbox-cap{ margin-top:1rem; font-family:var(--mono); font-size:0.8rem; color:var(--text-light-dim); }
+.lightbox-btn{
+  position:absolute; top:50%; transform:translateY(-50%); background:rgba(255,255,255,0.08);
+  border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:50%; width:44px; height:44px;
+  display:flex; align-items:center; justify-content:center;
+}
+.lightbox-btn:hover{ background:rgba(255,255,255,0.18); }
+.lightbox-prev{ left:-56px; }
+.lightbox-next{ right:-56px; }
+@media (max-width:760px){ .lightbox-prev{ left:6px; } .lightbox-next{ right:6px; } }
+.lightbox-close{ position:absolute; top:-46px; right:0; background:none; border:0; color:#fff; }
+.lightbox-close svg, .lightbox-btn svg{ width:18px; height:18px; }
+
+/* ============================================================
+   BLOG
+   ============================================================ */
+.blog-grid{ margin-top:2.5rem; display:grid; gap:1.4rem; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); }
+.blog-card{
+  border:1px solid var(--cream-line); border-radius:16px; padding:1.6rem; background:var(--cream-2);
+  display:flex; flex-direction:column; gap:.9rem; min-height:220px;
+}
+.blog-card.soon{ opacity:0.55; }
+.blog-tag{ font-family:var(--mono); font-size:0.7rem; letter-spacing:.05em; text-transform:uppercase; }
+.blog-title{ font-family:var(--display); font-size:1.3rem; line-height:1.25; }
+.blog-excerpt{ font-size:0.9rem; line-height:1.6; opacity:0.75; }
+.blog-meta{ margin-top:auto; font-family:var(--mono); font-size:0.72rem; opacity:0.55; }
+
+/* ============================================================
+   PROJECTS
+   ============================================================ */
+.project-hero{
+  border-radius:22px; border:1px solid var(--line-dark); background:var(--ink-2);
+  padding:clamp(1.6rem,4vw,3rem); position:relative; overflow:hidden;
+}
+.project-hero .aura .orb:nth-child(1){ width:40vw; height:40vw; right:-10vw; top:-14vw; background:radial-gradient(circle, var(--violet), transparent 70%); }
+.project-hero .aura .orb:nth-child(2){ width:26vw; height:26vw; left:-8vw; bottom:-10vw; background:radial-gradient(circle, var(--coral), transparent 70%); animation-delay:-10s; }
+.project-hero-inner{ position:relative; z-index:2; }
+.project-kicker{ font-family:var(--mono); font-size:0.78rem; letter-spacing:.06em; opacity:0.6; margin-bottom:.8rem; }
+.project-name{ font-size:clamp(2.1rem,5vw,3.2rem); margin-bottom:1rem; }
+.project-tagline{ max-width:56ch; font-size:1.02rem; line-height:1.65; opacity:0.78; }
+
+.project-feature-grid{ margin-top:2.6rem; display:grid; gap:1.4rem; grid-template-columns:1fr 1fr; }
+@media (max-width:760px){ .project-feature-grid{ grid-template-columns:1fr; } }
+.feature-card{ border:1px solid var(--line-dark); border-radius:16px; padding:1.6rem; background:var(--ink); }
+.feature-card h4{ font-size:1.15rem; margin-bottom:.6rem; }
+.feature-card p{ font-size:0.9rem; line-height:1.6; opacity:0.75; }
+
+.project-chip-row{ margin-top:1.8rem; display:flex; flex-wrap:wrap; gap:.5rem; }
+
+.origin-strip{ margin-top:3rem; display:flex; gap:0; flex-wrap:wrap; }
+.origin-step{ flex:1; min-width:150px; padding:1.1rem 1.3rem 1.1rem 0; border-left:1px solid var(--line-dark); padding-left:1.1rem; }
+.origin-step .num{ font-family:var(--mono); font-size:0.7rem; opacity:0.5; }
+.origin-step .lbl{ font-family:var(--display); font-size:1.1rem; margin-top:.3rem; }
+.origin-step .txt{ font-size:0.82rem; opacity:0.65; margin-top:.4rem; line-height:1.5; }
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+footer{ background:var(--ink); color:var(--text-light); padding:60px var(--pad) 40px; border-top:1px solid var(--line-dark); }
+.footer-row{ max-width:var(--maxw); margin:0 auto; display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:2rem; }
+.footer-name{ font-family:var(--display); font-size:1.6rem; }
+.footer-links{ display:flex; gap:1.6rem; flex-wrap:wrap; }
+.footer-links a{ font-family:var(--mono); font-size:0.8rem; opacity:0.65; transition:opacity .2s; }
+.footer-links a:hover{ opacity:1; }
+.footer-bottom{ max-width:var(--maxw); margin:2.4rem auto 0; padding-top:1.4rem; border-top:1px solid var(--line-dark); font-family:var(--mono); font-size:0.7rem; opacity:0.4; display:flex; justify-content:space-between; flex-wrap:wrap; gap:.6rem; }
+
+</style>
+</head>
+<body>
+
+<!-- grain texture, shared -->
+<svg class="grain" width="100%" height="100%">
+  <filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" stitchTiles="stitch"/></filter>
+  <rect width="100%" height="100%" filter="url(#noise)"/>
+</svg>
+
+<!-- ============ NAV ============ -->
+<nav class="nav" id="mainNav">
+  <a href="#top" class="nav-logo">SW</a>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="#cv" data-nav="cv">cv / resume</a></li>
+    <li><a href="#photos" data-nav="photos">photos</a></li>
+    <li><a href="#blog" data-nav="blog">blog</a></li>
+    <li><a href="#projects" data-nav="projects">projects</a></li>
+  </ul>
+  <button class="nav-burger" id="burgerBtn" aria-label="Open menu" aria-expanded="false">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+  </button>
+</nav>
+
+<div class="nav-mobile" id="navMobile">
+  <button class="nav-mobile-close" id="navMobileClose" aria-label="Close menu">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 6l12 12M18 6L6 18"/></svg>
+  </button>
+  <a href="#cv">cv / resume</a>
+  <a href="#photos">photos</a>
+  <a href="#blog">blog</a>
+  <a href="#projects">projects</a>
+</div>
+
+<!-- ============ HERO ============ -->
+<header class="hero" id="top">
+  <div class="aura"><span class="orb"></span><span class="orb"></span><span class="orb"></span></div>
+  <div class="wrap hero-grid">
+    <div class="hero-copy reveal in-view">
+      <p class="hero-eyebrow"><span class="dot"></span> Brisbane, Australia — med student &amp; developer</p>
+      <h1 class="hero-name">
+        <span class="first">Sandes</span>
+        <span class="last">Welagedara</span>
+      </h1>
+      <p class="hero-sub">
+        Studying medicine at UQ, building on-device health software as
+        <a href="#projects" style="text-decoration:underline; text-underline-offset:3px;">Beyond15</a>,
+        and running socials for a couple of student clubs on the side.
+      </p>
+      <a href="#cv" class="hero-scroll">scroll for the cv
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 4v16M6 14l6 6 6-6"/></svg>
+      </a>
+    </div>
+    <div class="hero-portrait">
+      <!-- EDIT ME: drop a real photo at assets/headshot/headshot.jpg and it will replace this gradient placeholder -->
+      <img src="assets/headshot/headshot.jpg" alt="Portrait of Sandes Welagedara" onerror="this.style.display='none'">
+      <div class="fallback">/ headshot.jpg not found yet — drop one in assets/headshot/ and it'll show here /</div>
+    </div>
+  </div>
+</header>
+
+<!-- ============ CV / RESUME ============ -->
+<section class="section section-dark" id="cv">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div>
+        <p class="section-eyebrow"><span class="orb-chip" style="background:var(--coral)"></span>01 — the paper trail</p>
+        <h2 class="section-title">CV / Résumé</h2>
+      </div>
+      <div class="cv-tabs" role="tablist" aria-label="CV category">
+        <button class="cv-tab active" data-cat="education" role="tab" aria-selected="true">education</button>
+        <button class="cv-tab" data-cat="occupation" role="tab" aria-selected="false">occupation</button>
+        <button class="cv-tab" data-cat="volunteering" role="tab" aria-selected="false">volunteering</button>
+      </div>
+    </div>
+
+    <div class="timeline" id="timeline"></div>
+
+    <div class="skills-strip reveal">
+      <div class="skills-block">
+        <h3>Technical</h3>
+        <div class="chip-row">
+          <span class="chip">Swift / SwiftUI</span>
+          <span class="chip">Python</span>
+          <span class="chip">R</span>
+          <span class="chip">Xcode</span>
+          <span class="chip">GitHub</span>
+          <span class="chip">GraphPad Prism</span>
+          <span class="chip">LabChart</span>
+          <span class="chip">Final Cut Pro</span>
+        </div>
+      </div>
+      <div class="skills-block">
+        <h3>Intrapersonal</h3>
+        <p><!-- EDIT ME: pulled straight from your CV, feel free to rewrite -->
+          Executive roles, tutoring, and hospitality work have built up communication,
+          teamwork, event planning, and cultural-appreciation skills. Formal study adds
+          biomedical research, scientific communication, and lab competence on top.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PHOTOS ============ -->
+<section class="section section-cream" id="photos">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div>
+        <p class="section-eyebrow"><span class="orb-chip" style="background:var(--pink)"></span>02 — the reel</p>
+        <h2 class="section-title">photos i'm too scared to post</h2>
+        <p class="section-note" style="margin-top:.8rem;">Instagram killed profile posts, so this is where the nice ones live instead. Click any tile.</p>
+      </div>
+    </div>
+    <div class="photo-grid reveal" id="photoGrid"></div>
+  </div>
+</section>
+
+<!-- lightbox -->
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Photo viewer">
+  <div class="lightbox-inner">
+    <button class="lightbox-close" id="lbClose" aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+    <button class="lightbox-btn lightbox-prev" id="lbPrev" aria-label="Previous photo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div id="lbMedia"></div>
+    <p class="lightbox-cap" id="lbCap"></p>
+    <button class="lightbox-btn lightbox-next" id="lbNext" aria-label="Next photo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 6l6 6-6 6"/></svg>
+    </button>
+  </div>
+</div>
+
+<!-- ============ BLOG ============ -->
+<section class="section section-cream" id="blog" style="padding-top:0;">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div>
+        <p class="section-eyebrow"><span class="orb-chip" style="background:var(--gold)"></span>03 — notes</p>
+        <h2 class="section-title">Blog</h2>
+        <p class="section-note" style="margin-top:.8rem;">Scaffolded and ready — first real post goes here whenever you write it.</p>
+      </div>
+    </div>
+    <div class="blog-grid reveal">
+      <div class="blog-card">
+        <p class="blog-tag">building</p>
+        <h3 class="blog-title">Why Beyond15 runs entirely on-device</h3>
+        <!-- EDIT ME: sample teaser, swap for a real excerpt once the post exists -->
+        <p class="blog-excerpt">A short case for keeping patient data on the phone instead of a server — and what that trade-off costs in model size.</p>
+        <p class="blog-meta">draft — not yet published</p>
+      </div>
+      <div class="blog-card soon">
+        <p class="blog-tag">med school</p>
+        <h3 class="blog-title">Coming soon</h3>
+        <p class="blog-excerpt">Reserved for whatever you want to write next.</p>
+        <p class="blog-meta">—</p>
+      </div>
+      <div class="blog-card soon">
+        <p class="blog-tag">life</p>
+        <h3 class="blog-title">Coming soon</h3>
+        <p class="blog-excerpt">Reserved for whatever you want to write next.</p>
+        <p class="blog-meta">—</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PROJECTS ============ -->
+<section class="section section-dark" id="projects">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <p class="section-eyebrow"><span class="orb-chip" style="background:var(--teal)"></span>04 — what i'm building</p>
+    </div>
+    <div class="project-hero reveal">
+      <div class="aura"><span class="orb"></span><span class="orb"></span></div>
+      <div class="project-hero-inner">
+        <p class="project-kicker">personal project — 2026 —</p>
+        <h2 class="project-name">Beyond15</h2>
+        <p class="project-tagline">
+          A suite of apps built to stretch the healthcare experience past the standard
+          fifteen-minute GP consult — from patient to clinic, running entirely on-device
+          and on-premise instead of in someone else's cloud.
+        </p>
+
+        <div class="project-feature-grid">
+          <div class="feature-card">
+            <h4>Patient-facing app</h4>
+            <p>Turns a person's own health data into real statistical analysis, calculated right on their phone — nothing leaves the device.</p>
+          </div>
+          <div class="feature-card">
+            <h4>Clinic-facing app</h4>
+            <p>Acts as a scribe for practitioners, using speech transcription and note generation to chip away at the paperwork burden.</p>
+          </div>
+        </div>
+
+        <div class="project-chip-row">
+          <span class="chip">Swift / SwiftUI</span>
+          <span class="chip">Phi-4</span>
+          <span class="chip">GPT-oss</span>
+          <span class="chip">Whisper</span>
+          <span class="chip">Apple FoundationModels</span>
+          <span class="chip">on-device only</span>
+        </div>
+
+        <div class="origin-strip">
+          <div class="origin-step">
+            <p class="num">jan</p>
+            <p class="lbl">January Capital Hackathon</p>
+            <p class="txt">Hosted by UQIES — the team's first markup, built with Lovable.</p>
+          </div>
+          <div class="origin-step">
+            <p class="num">next</p>
+            <p class="lbl">Working prototype</p>
+            <p class="txt">Rebuilt in Swift, wired up to open-weight LLMs for note generation.</p>
+          </div>
+          <div class="origin-step">
+            <p class="num">now</p>
+            <p class="lbl">New features, most weeks</p>
+            <p class="txt">On-device transcription, journaling, and dashboards keep getting added.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="footer-row">
+    <p class="footer-name">Let's talk.</p>
+    <div class="footer-links">
+      <a href="mailto:careers@sandeswelagedara.com">careers@sandeswelagedara.com</a>
+      <a href="https://instagram.com/_.s.a.n.d.e.s._" target="_blank" rel="noopener">Instagram</a>
+      <a href="#top">back to top ↑</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>Sandes Welagedara — Brisbane, QLD</span>
+    <span id="year"></span>
+  </div>
+</footer>
+
+<script>
+/* ============================================================
+   DATA — edit these arrays to update the CV timeline.
+   Every item can optionally include `detail` (bullet list),
+   `photos` (array of {color,label} used as gallery placeholders),
+   and `events` (sub-cards, used for the Nepalese Club style grid).
+   ============================================================ */
+const CV_DATA = {
+  education: [
+    {
+      org: 'ABC Training & Consulting', date: '2021', title: 'Certificate III in Laboratory Skills',
+      desc: 'EDIT ME — a line or two on what this covered and why you did it.'
+    },
+    {
+      org: 'ABC Training & Consulting', date: '2021', title: 'Certificate IV in Measurement & Sampling',
+      desc: 'EDIT ME — a line or two on what this covered and why you did it.'
+    },
+    {
+      org: 'Queensland Academy of Health Science', date: '2023', title: 'International Baccalaureate',
+      desc: 'IB 37/45, ATAR 98.9 (adjusted and converted).',
+      detail: [
+        'HL — Biology (6), Psychology (7), Chemistry (5)',
+        'SL — English Lang & Lit (5), Spanish ab initio (6), Maths AI (7)'
+      ]
+    },
+    {
+      org: 'The University of Queensland', date: '2024 – 2026', title: 'B. Biomedical Science',
+      desc: 'EDIT ME — a sentence on the degree overall. Full semester breakdown below.',
+      detail: [
+        '2024 Sem. 1 — Chemistry I, Theory & Practice in Science, Analysis of Scientific Data',
+        '2024 Sem. 2 — Cells to Organisms, Intro Microeconomics, Intro Spanish B',
+        '2025 Sem. 1 — Integrative Cell & Tissue Biology, Human Anatomy, Molecular Cell Biology, Intro to Criminology',
+        '2025 Summer — Anthropology of Current World Issues, Health & Fitness through Diet & Exercise',
+        '2025 Sem. 2 — Systems Physiology, Principles of Pharmacology, Genetics, Writing & Editing for the Professions',
+        '2026 Sem. 1 — Human Molecular Genetics in Health & Disease, Systems Pharmacology, Integrated Endocrinology'
+      ]
+    },
+    {
+      org: 'The University of Queensland', date: '2027 – 2030', title: 'Dr. of Medicine (Provisional Entry)',
+      desc: 'Starts once the Biomedical Science degree wraps up in 2026.'
+    }
+  ],
+  occupation: [
+    {
+      org: 'McDonald\'s Australia', date: '2022', title: 'Crew Member',
+      desc: 'EDIT ME — front counter / kitchen / drive-thru, whatever the day-to-day actually looked like.'
+    },
+    {
+      org: 'Strive Tuition', date: '2024 – 2025', title: 'Tutor',
+      desc: 'EDIT ME — subjects taught and year levels.'
+    },
+    {
+      org: 'Alchemy Tuition', date: '2025 – 2026', title: 'Tutor',
+      desc: 'EDIT ME — subjects taught and year levels. Currently ongoing.'
+    }
+  ],
+  volunteering: [
+    {
+      org: 'Ladies in Technology (UQLIT)', date: '2026 –', title: 'Socials Executive',
+      desc: 'EDIT ME — coordinating events and community for women in tech at UQ.',
+      photos: [ {color:'linear-gradient(135deg,var(--violet),var(--pink))', label:'socials'}, {color:'linear-gradient(135deg,var(--teal),var(--violet))', label:'mixer'} ]
+    },
+    {
+      org: 'Indian Students Club (UQISC)', date: '2026 –', title: 'Operations Executive',
+      desc: 'EDIT ME — running the logistics side of club events and general operations.',
+      photos: [ {color:'linear-gradient(135deg,var(--gold),var(--coral))', label:'ops'}, {color:'linear-gradient(135deg,var(--coral),var(--pink))', label:'event day'} ]
+    },
+    {
+      org: 'Nepalese Club (UQNC)', date: '2025', title: 'General Executive',
+      desc: 'A year of running socials for UQNC — games nights, trivia, and a Halloween party. Flip the cards below for each one.',
+      events: [
+        {
+          title: 'Games Night', color: 'linear-gradient(135deg,var(--teal),var(--violet))',
+          desc: 'EDIT ME — what games, how many people showed up, best moment of the night.',
+          album: ['var(--teal)','var(--violet)','var(--coral)']
+        },
+        {
+          title: 'Trivia Night', color: 'linear-gradient(135deg,var(--coral),var(--gold))',
+          desc: 'EDIT ME — trivia format, categories, who won.',
+          album: ['var(--gold)','var(--coral)','var(--pink)']
+        },
+        {
+          title: 'Fright Night', color: 'linear-gradient(135deg,var(--pink),var(--ink-3))',
+          desc: 'EDIT ME — the Halloween party. Costumes, decorations, turnout.',
+          album: ['var(--pink)','var(--violet)','var(--ink-3)']
+        }
+      ]
+    }
+  ]
+};
+
+const ORB_COLORS = ['var(--coral)','var(--violet)','var(--teal)','var(--gold)','var(--pink)'];
+
+function el(tag, cls, html){
+  const e = document.createElement(tag);
+  if(cls) e.className = cls;
+  if(html !== undefined) e.innerHTML = html;
+  return e;
+}
+
+/* ---------- render timeline ---------- */
+function renderTimeline(cat){
+  const container = document.getElementById('timeline');
+  container.innerHTML = '';
+  CV_DATA[cat].forEach((item, i) => {
+    const wrap = el('div', 'tl-item tl-show reveal');
+    const dot = el('div', 'tl-dot');
+    const row = el('div', 'tl-row');
+
+    const flip = el('div', 'flip');
+    flip.setAttribute('tabindex','0');
+    flip.setAttribute('role','button');
+    flip.setAttribute('aria-expanded','false');
+    flip.setAttribute('aria-label', item.title + ', click to flip for details');
+
+    const inner = el('div', 'flip-inner');
+
+    const front = el('div', 'flip-face front');
+    front.innerHTML = `
+      <p class="flip-org">${item.org}</p>
+      <h3 class="flip-title">${item.title}</h3>
+      <p class="tl-date" style="margin:0;">${item.date}</p>
+      <p class="flip-hint">tap to flip →</p>
+    `;
+
+    const back = el('div', 'flip-face back');
+    let backHtml = `<p class="flip-org">${item.org} — ${item.date}</p><p class="flip-desc">${item.desc || ''}</p>`;
+    if(item.detail){
+      backHtml += '<ul class="tl-detail-list">' + item.detail.map(d=>`<li>${d}</li>`).join('') + '</ul>';
+    }
+    if(item.photos){
+      backHtml += '<div class="flip-photos">' + item.photos.map(p=>`<span class="flip-photo" style="background:${p.color}" title="${p.label}"></span>`).join('') + '</div>';
+    }
+    back.innerHTML = backHtml;
+
+    inner.append(front, back);
+    flip.append(inner);
+    row.append(flip);
+
+    const toggle = () => {
+      const open = flip.classList.toggle('flipped');
+      flip.setAttribute('aria-expanded', open ? 'true' : 'false');
+    };
+    flip.addEventListener('click', toggle);
+    flip.addEventListener('keydown', (e) => { if(e.key==='Enter'||e.key===' '){ e.preventDefault(); toggle(); } });
+
+    wrap.append(dot, row);
+    container.append(wrap);
+
+    /* sub-events grid (Nepalese Club style) rendered as its own full-width timeline item */
+    if(item.events){
+      const evWrap = el('div', 'tl-item tl-show reveal');
+      const evRow = el('div', 'tl-row');
+      evRow.style.width = '100%';
+      evRow.style.margin = '0';
+      evRow.style.paddingLeft = '52px';
+      evRow.style.textAlign = 'left';
+
+      const grid = el('div', 'event-grid');
+      item.events.forEach(ev => {
+        const card = el('div', 'event-card');
+        card.setAttribute('tabindex','0');
+        card.setAttribute('role','button');
+        card.setAttribute('aria-label', ev.title + ', click to flip for details');
+        const evInner = el('div', 'event-inner');
+        const evFront = el('div', 'event-face front');
+        evFront.innerHTML = `<span class="cover-tint" style="background:${ev.color}"></span><span class="cover-label">${ev.title}</span>`;
+        const evBack = el('div', 'event-face back');
+        evBack.innerHTML = `
+          <p class="event-back-title">${ev.title}</p>
+          <p class="event-back-desc">${ev.desc}</p>
+          <div class="event-album">${ev.album.map(c=>`<span style="background:${c}"></span>`).join('')}</div>
+        `;
+        evInner.append(evFront, evBack);
+        card.append(evInner);
+        const evToggle = () => card.classList.toggle('flipped');
+        card.addEventListener('click', evToggle);
+        card.addEventListener('keydown', (e) => { if(e.key==='Enter'||e.key===' '){ e.preventDefault(); evToggle(); } });
+        grid.append(card);
+      });
+      evRow.append(grid);
+      evWrap.append(el('div','tl-dot'), evRow);
+      container.append(evWrap);
+    }
+  });
+  observeReveal();
+}
+
+document.querySelectorAll('.cv-tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.cv-tab').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-selected','false'); });
+    btn.classList.add('active'); btn.setAttribute('aria-selected','true');
+    renderTimeline(btn.dataset.cat);
+  });
+});
+renderTimeline('education');
+
+/* ---------- photos ---------- */
+/* EDIT ME: give each entry a real `src` (e.g. 'assets/photos/kyoto-1.jpg') once you have files.
+   Until then it gracefully falls back to a gradient tile. */
+const PHOTOS = [
+  { src:'assets/photos/kyoto-1.jpg', cap:'Kyoto', ar:'4/5', color:'linear-gradient(160deg,var(--coral),var(--gold))' },
+  { src:'assets/photos/osaka-1.jpg', cap:'Osaka', ar:'3/4', color:'linear-gradient(160deg,var(--violet),var(--pink))' },
+  { src:'assets/photos/tokyo-1.jpg', cap:'Tokyo', ar:'1/1', color:'linear-gradient(160deg,var(--teal),var(--violet))' },
+  { src:'assets/photos/miyajima-1.jpg', cap:'Miyajima', ar:'4/5', color:'linear-gradient(160deg,var(--gold),var(--coral))' },
+  { src:'assets/photos/hiroshima-1.jpg', cap:'Hiroshima', ar:'3/4', color:'linear-gradient(160deg,var(--pink),var(--violet))' },
+  { src:'assets/photos/kyoto-2.jpg', cap:'Kyoto, again', ar:'1/1', color:'linear-gradient(160deg,var(--teal),var(--gold))' },
+  { src:'assets/photos/tokyo-2.jpg', cap:'Tokyo at night', ar:'4/5', color:'linear-gradient(160deg,var(--coral),var(--violet))' },
+  { src:'assets/photos/osaka-2.jpg', cap:'Osaka streets', ar:'3/4', color:'linear-gradient(160deg,var(--violet),var(--teal))' },
+  { src:'assets/photos/benny-1.jpg', cap:'Benny', ar:'1/1', color:'linear-gradient(160deg,var(--gold),var(--pink))' }
+];
+
+const photoGrid = document.getElementById('photoGrid');
+PHOTOS.forEach((p, i) => {
+  const tile = el('div', 'photo-tile');
+  tile.dataset.index = i;
+  tile.innerHTML = `
+    <img src="${p.src}" alt="${p.cap}" loading="lazy" style="aspect-ratio:${p.ar}; object-fit:cover;" onerror="this.remove(); this.parentNode.classList.add('has-fallback');">
+    <div class="photo-fallback" style="--ar:${p.ar}; background:${p.color};"></div>
+    <div class="cap">${p.cap}</div>
+  `;
+  photoGrid.append(tile);
+});
+/* hide fallback if real image loaded */
+photoGrid.querySelectorAll('img').forEach(img => {
+  img.addEventListener('load', () => { img.nextElementSibling.style.display = 'none'; });
+});
+
+/* lightbox logic */
+const lightbox = document.getElementById('lightbox');
+const lbMedia = document.getElementById('lbMedia');
+const lbCap = document.getElementById('lbCap');
+let lbIndex = 0;
+
+function openLightbox(i){
+  lbIndex = i;
+  renderLightbox();
+  lightbox.classList.add('open');
+  document.getElementById('lbClose').focus();
+}
+function renderLightbox(){
+  const p = PHOTOS[lbIndex];
+  lbMedia.innerHTML = `<img src="${p.src}" alt="${p.cap}" onerror="this.outerHTML='<div class=&quot;lightbox-fallback&quot; style=&quot;background:${p.color}&quot;></div>'">`;
+  lbCap.textContent = p.cap + ' — ' + (lbIndex+1) + ' / ' + PHOTOS.length;
+}
+function closeLightbox(){ lightbox.classList.remove('open'); }
+photoGrid.addEventListener('click', (e) => {
+  const tile = e.target.closest('.photo-tile');
+  if(tile) openLightbox(Number(tile.dataset.index));
+});
+document.getElementById('lbClose').addEventListener('click', closeLightbox);
+document.getElementById('lbPrev').addEventListener('click', () => { lbIndex = (lbIndex - 1 + PHOTOS.length) % PHOTOS.length; renderLightbox(); });
+document.getElementById('lbNext').addEventListener('click', () => { lbIndex = (lbIndex + 1) % PHOTOS.length; renderLightbox(); });
+lightbox.addEventListener('click', (e) => { if(e.target === lightbox) closeLightbox(); });
+document.addEventListener('keydown', (e) => {
+  if(!lightbox.classList.contains('open')) return;
+  if(e.key === 'Escape') closeLightbox();
+  if(e.key === 'ArrowLeft') document.getElementById('lbPrev').click();
+  if(e.key === 'ArrowRight') document.getElementById('lbNext').click();
+});
+
+/* ---------- nav: scroll state + active link + mobile menu ---------- */
+const nav = document.getElementById('mainNav');
+const creamSections = ['photos','blog'];
+function updateNavAppearance(){
+  nav.classList.toggle('solid', window.scrollY > 40);
+}
+window.addEventListener('scroll', updateNavAppearance);
+updateNavAppearance();
+
+const navLinks = document.querySelectorAll('.nav-links a');
+const sections = ['cv','photos','blog','projects'].map(id => document.getElementById(id));
+const navObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if(entry.isIntersecting){
+      const id = entry.target.id;
+      navLinks.forEach(a => a.classList.toggle('active', a.dataset.nav === id));
+      nav.classList.toggle('on-cream', creamSections.includes(id));
+    }
+  });
+}, { rootMargin: '-45% 0px -45% 0px' });
+sections.forEach(s => navObserver.observe(s));
+
+const burgerBtn = document.getElementById('burgerBtn');
+const navMobile = document.getElementById('navMobile');
+const navMobileClose = document.getElementById('navMobileClose');
+function openMobile(){ navMobile.classList.add('open'); burgerBtn.setAttribute('aria-expanded','true'); }
+function closeMobile(){ navMobile.classList.remove('open'); burgerBtn.setAttribute('aria-expanded','false'); }
+burgerBtn.addEventListener('click', openMobile);
+navMobileClose.addEventListener('click', closeMobile);
+navMobile.querySelectorAll('a').forEach(a => a.addEventListener('click', closeMobile));
+
+/* ---------- scroll reveal ---------- */
+function observeReveal(){
+  const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if(entry.isIntersecting){
+        entry.target.classList.add('in-view');
+        revealObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal:not(.in-view)').forEach(el => revealObserver.observe(el));
+}
+observeReveal();
+
+document.getElementById('year').textContent = '© ' + new Date().getFullYear();
+</script>
+</body>
+</html>
