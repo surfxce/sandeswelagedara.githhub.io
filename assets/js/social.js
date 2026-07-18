@@ -13,7 +13,7 @@
    3. Paste the key below. Your handle is already filled in. */
 const YOUTUBE_CONFIG = {
   handle: 'surfxcestudy',   // from youtube.com/@surfxcestudy
-  apiKey: '',               // EDIT ME — paste your API key here
+  apiKey: 'AIzaSyCQmMaL7BY9KzUB2fOHrr9L3B4a9C0B_yE',               // EDIT ME — paste your API key here
   maxResults: 6
 };
 
@@ -22,8 +22,16 @@ const YOUTUBE_CONFIG = {
    (or just copy the post's URL from the address bar, either works).
    Paste as many as you like below. */
 const INSTAGRAM_POST_URLS = [
-  // 'https://www.instagram.com/p/XXXXXXXXXXX/',
-  // 'https://www.instagram.com/p/YYYYYYYYYYY/',
+  // 'https://www.instagram.com/p/DYmYpvmEyea/?img_index=1',
+  // 'https://www.instagram.com/p/DYFJ7sME2Zj/?img_index=1',
+  // 'https://www.instagram.com/p/DS9azQ1EzC5/?img_index=1',
+  // 'https://www.instagram.com/p/DQjIjYBExJx/?img_index=1',   
+  // 'https://www.instagram.com/p/DPidMwbE_ca/?img_index=5',    
+  // 'https://www.instagram.com/p/DPc8Ij7k-U6/?img_index=5', 
+  // 'https://www.instagram.com/p/DOpySxPkypw/?img_index=5', 
+  // 'https://www.instagram.com/p/DNrgVR05qYh/?img_index=5', 
+  // 'https://www.instagram.com/p/DM_5XemJOkB/?img_index=5', 
+  // 'https://www.instagram.com/p/DMr8umGpsDe/?img_index=5', 
 ];
 
 /* ---- LinkedIn: official embed, only where the author enabled it. ----
@@ -32,7 +40,10 @@ const INSTAGRAM_POST_URLS = [
    out to it instead). Copy the iframe's `src` value only, not the
    whole snippet, and paste it below. */
 const LINKEDIN_EMBED_SRCS = [
-  // 'https://www.linkedin.com/embed/feed/update/urn:li:share:XXXXXXXXXXXXXXXXXX',
+  // 'https://www.linkedin.com/embed/feed/update/urn:li:ugcPost:7476862595333906432?collapsed=1',
+  // 'https://www.linkedin.com/embed/feed/update/urn:li:ugcPost:7435617339305324544?collapsed=1',
+  // 'https://www.linkedin.com/embed/feed/update/urn:li:ugcPost:7354137686804230147?collapsed=1',
+  // 'https://www.linkedin.com/embed/feed/update/urn:li:ugcPost:7326165434473295873?collapsed=1',
 ];
 
 /* ============================================================
