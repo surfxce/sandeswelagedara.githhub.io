@@ -1,97 +1,187 @@
 /* ============================================================
-   SOCIALS DATA
-   EDIT ME: swap placeholder posts for real ones. Each post can take
-   a `src` (real image path) — falls back to a gradient tile if missing.
-   Set the real profile URLs for LinkedIn / YouTube below.
+   SOCIALS CONFIG — this is the only part you should need to touch.
    ============================================================ */
-const SOCIAL_PLATFORMS = [
-  {
-    id: 'instagram',
-    name: 'Instagram',
-    handle: '@_.s.a.n.d.e.s._',
-    url: 'https://instagram.com/_.s.a.n.d.e.s._',
-    posts: [
-      { src:'assets/social/insta-1.jpg', cap:'Kyoto', color:'linear-gradient(160deg,var(--coral),var(--gold))' },
-      { src:'assets/social/insta-2.jpg', cap:'Osaka', color:'linear-gradient(160deg,var(--violet),var(--pink))' },
-      { src:'assets/social/insta-3.jpg', cap:'Tokyo', color:'linear-gradient(160deg,var(--teal),var(--violet))' },
-      { src:'assets/social/insta-4.jpg', cap:'Benny', color:'linear-gradient(160deg,var(--gold),var(--pink))' },
-      { src:'assets/social/insta-5.jpg', cap:'Miyajima', color:'linear-gradient(160deg,var(--pink),var(--violet))' },
-      { src:'assets/social/insta-6.jpg', cap:'Brisbane', color:'linear-gradient(160deg,var(--coral),var(--violet))' }
-    ]
-  },
-  {
-    id: 'linkedin',
-    name: 'LinkedIn',
-    handle: 'EDIT ME — add your LinkedIn URL',
-    url: '#', /* EDIT ME */
-    posts: [
-      { src:'assets/social/li-1.jpg', cap:'Beyond15 launch', color:'linear-gradient(160deg,var(--violet),var(--teal))' },
-      { src:'assets/social/li-2.jpg', cap:'Hackathon', color:'linear-gradient(160deg,var(--coral),var(--gold))' },
-      { src:'assets/social/li-3.jpg', cap:'UQLIT socials', color:'linear-gradient(160deg,var(--pink),var(--gold))' },
-      { src:'assets/social/li-4.jpg', cap:'Graduation', color:'linear-gradient(160deg,var(--teal),var(--coral))' }
-    ]
-  },
-  {
-    id: 'youtube',
-    name: 'YouTube',
-    handle: 'EDIT ME — add your YouTube URL',
-    url: '#', /* EDIT ME */
-    posts: [
-      { src:'assets/social/yt-1.jpg', cap:'Beyond15 demo', color:'linear-gradient(160deg,var(--gold),var(--violet))' },
-      { src:'assets/social/yt-2.jpg', cap:'Dev log 01', color:'linear-gradient(160deg,var(--coral),var(--teal))' },
-      { src:'assets/social/yt-3.jpg', cap:'Dev log 02', color:'linear-gradient(160deg,var(--violet),var(--pink))' }
-    ]
-  }
+
+/* ---- YouTube: genuinely live. ----
+   1. Go to https://console.cloud.google.com/ → create a project (free)
+      → "APIs & Services" → Library → enable "YouTube Data API v3"
+      → "Credentials" → Create API key.
+   2. Restrict the key: Application restrictions → "Websites" →
+      add your domain (e.g. sandeswelagedara.com/*). This makes the
+      key safe to leave visible in this file — it can only be used
+      from your site and can only read public data.
+   3. Paste the key below. Your handle is already filled in. */
+const YOUTUBE_CONFIG = {
+  handle: 'surfxcestudy',   // from youtube.com/@surfxcestudy
+  apiKey: '',               // EDIT ME — paste your API key here
+  maxResults: 6
+};
+
+/* ---- Instagram: official embed, picked by hand. ----
+   Open a post on instagram.com → "..." → Embed → Copy Link
+   (or just copy the post's URL from the address bar, either works).
+   Paste as many as you like below. */
+const INSTAGRAM_POST_URLS = [
+  // 'https://www.instagram.com/p/XXXXXXXXXXX/',
+  // 'https://www.instagram.com/p/YYYYYYYYYYY/',
 ];
 
+/* ---- LinkedIn: official embed, only where the author enabled it. ----
+   Open a post on linkedin.com → "..." on the post → "Embed this post"
+   (if you don't see this option, that post can't be embedded — link
+   out to it instead). Copy the iframe's `src` value only, not the
+   whole snippet, and paste it below. */
+const LINKEDIN_EMBED_SRCS = [
+  // 'https://www.linkedin.com/embed/feed/update/urn:li:share:XXXXXXXXXXXXXXXXXX',
+];
+
+/* ============================================================
+   PLATFORM SHELL
+   ============================================================ */
+const SOCIAL_PLATFORMS = [
+  { id:'instagram', name:'Instagram', handle:'@_.s.a.n.d.e.s._', url:'https://www.instagram.com/_.s.a.n.d.e.s._/' },
+  { id:'linkedin',  name:'LinkedIn',  handle:'/in/sandes-welagedara', url:'https://www.linkedin.com/in/sandes-welagedara/' },
+  { id:'youtube',   name:'YouTube',   handle:'@' + YOUTUBE_CONFIG.handle, url:'https://www.youtube.com/@' + YOUTUBE_CONFIG.handle }
+];
+
+function emptyStateCard(platformUrl, message){
+  const card = document.createElement('a');
+  card.className = 'social-post embed empty-state';
+  card.href = platformUrl;
+  card.target = '_blank';
+  card.rel = 'noopener';
+  card.innerHTML = `
+    <span class="tint" style="background:linear-gradient(160deg,var(--ink-3),var(--ink))"></span>
+    <span class="cap" style="position:relative; opacity:1; background:none; padding:1rem;">${message}</span>
+  `;
+  return card;
+}
+
+function buildTrackShell(plat){
+  const block = document.createElement('div');
+  block.className = 'social-block';
+  block.dataset.platform = plat.id;
+
+  const sticky = document.createElement('div');
+  sticky.className = 'social-sticky';
+
+  const head = document.createElement('div');
+  head.className = 'wrap social-head';
+  head.innerHTML = `
+    <p class="plat-name">${plat.name}</p>
+    <a class="plat-handle" href="${plat.url}" target="_blank" rel="noopener">${plat.handle} ↗</a>
+  `;
+
+  const track = document.createElement('div');
+  track.className = 'social-track';
+  track.id = 'track-' + plat.id;
+  track.style.paddingLeft = 'var(--pad)';
+  track.style.paddingRight = 'var(--pad)';
+
+  sticky.append(head, track);
+  block.append(sticky);
+  return { block, track };
+}
+
+/* ============================================================
+   RENDER: Instagram — official blockquote embeds
+   ============================================================ */
+function renderInstagram(track, plat){
+  if(!INSTAGRAM_POST_URLS.length){
+    track.append(emptyStateCard(plat.url, 'Add post URLs in social.js to show real Instagram embeds here — for now, visit the profile →'));
+    return;
+  }
+  INSTAGRAM_POST_URLS.forEach(url => {
+    const wrap = document.createElement('div');
+    wrap.className = 'social-post embed';
+    wrap.innerHTML = `<blockquote class="instagram-media" data-instgrm-permalink="${url}" data-instgrm-version="14" style="margin:0;"></blockquote>`;
+    track.append(wrap);
+  });
+  // load Instagram's embed script once, or re-process if already present
+  if(window.instgrm){
+    window.instgrm.Embeds.process();
+  } else if(!document.getElementById('ig-embed-script')){
+    const s = document.createElement('script');
+    s.id = 'ig-embed-script';
+    s.async = true;
+    s.src = 'https://www.instagram.com/embed.js';
+    s.onload = () => { if(window.instgrm) window.instgrm.Embeds.process(); recalcAllTracks(); };
+    document.body.appendChild(s);
+  }
+}
+
+/* ============================================================
+   RENDER: LinkedIn — official iframe embeds
+   ============================================================ */
+function renderLinkedIn(track, plat){
+  if(!LINKEDIN_EMBED_SRCS.length){
+    track.append(emptyStateCard(plat.url, 'Add "Embed this post" src URLs in social.js to show real LinkedIn embeds here — for now, visit the profile →'));
+    return;
+  }
+  LINKEDIN_EMBED_SRCS.forEach(src => {
+    const wrap = document.createElement('div');
+    wrap.className = 'social-post embed';
+    wrap.innerHTML = `<iframe src="${src}" height="380" width="280" frameborder="0" allowfullscreen="" title="LinkedIn post"></iframe>`;
+    track.append(wrap);
+  });
+}
+
+/* ============================================================
+   RENDER: YouTube — live via Data API v3
+   ============================================================ */
+async function renderYouTube(track, plat){
+  if(!YOUTUBE_CONFIG.apiKey){
+    track.append(emptyStateCard(plat.url, 'Add a YouTube API key in social.js to pull real videos here — for now, visit the channel →'));
+    return;
+  }
+  try{
+    const key = YOUTUBE_CONFIG.apiKey;
+    const chRes = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=contentDetails&forHandle=${YOUTUBE_CONFIG.handle}&key=${key}`);
+    const chData = await chRes.json();
+    const uploadsPlaylist = chData?.items?.[0]?.contentDetails?.relatedPlaylists?.uploads;
+    if(!uploadsPlaylist) throw new Error('channel not found');
+
+    const vidRes = await fetch(`https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=${YOUTUBE_CONFIG.maxResults}&playlistId=${uploadsPlaylist}&key=${key}`);
+    const vidData = await vidRes.json();
+    const items = vidData.items || [];
+    if(!items.length) throw new Error('no videos');
+
+    items.forEach(item => {
+      const videoId = item.snippet.resourceId.videoId;
+      const wrap = document.createElement('div');
+      wrap.className = 'social-post embed';
+      wrap.innerHTML = `<iframe width="280" height="380" src="https://www.youtube.com/embed/${videoId}" title="${item.snippet.title}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+      track.append(wrap);
+    });
+    recalcAllTracks();
+  } catch(err){
+    track.innerHTML = '';
+    track.append(emptyStateCard(plat.url, 'Couldn\u2019t load videos (check the API key/handle in social.js) — visit the channel →'));
+  }
+}
+
+/* ============================================================
+   BOOT
+   ============================================================ */
 function renderSocials(){
   const root = document.getElementById('socialRoot');
   if(!root) return;
 
   SOCIAL_PLATFORMS.forEach(plat => {
-    const block = document.createElement('div');
-    block.className = 'social-block';
-    block.dataset.platform = plat.id;
-
-    const sticky = document.createElement('div');
-    sticky.className = 'social-sticky';
-
-    const head = document.createElement('div');
-    head.className = 'wrap social-head';
-    head.innerHTML = `
-      <p class="plat-name">${plat.name}</p>
-      <a class="plat-handle" href="${plat.url}" target="_blank" rel="noopener">${plat.handle} ↗</a>
-    `;
-
-    const track = document.createElement('div');
-    track.className = 'social-track';
-    track.style.paddingLeft = 'var(--pad)';
-    track.style.paddingRight = 'var(--pad)';
-
-    plat.posts.forEach(post => {
-      const card = document.createElement('a');
-      card.className = 'social-post';
-      card.href = plat.url;
-      card.target = '_blank';
-      card.rel = 'noopener';
-      card.innerHTML = `
-        <span class="tint" style="background:${post.color}"></span>
-        <img alt="${post.cap}" loading="lazy">
-        <span class="cap">${post.cap}</span>
-      `;
-      const img = card.querySelector('img');
-      SW.loadFirstWorkingImage(img, [post.src]);
-      track.append(card);
-    });
-
-    sticky.append(head, track);
-    block.append(sticky);
+    const { block, track } = buildTrackShell(plat);
     root.append(block);
+    if(plat.id === 'instagram') renderInstagram(track, plat);
+    if(plat.id === 'linkedin') renderLinkedIn(track, plat);
+    if(plat.id === 'youtube') renderYouTube(track, plat);
   });
 
   initScrollJack();
+  // embeds (esp. Instagram) can resize after their scripts finish — recalc shortly after
+  setTimeout(recalcAllTracks, 1200);
+  setTimeout(recalcAllTracks, 2500);
 }
 
+let scrollJackUpdate = null;
 function initScrollJack(){
   const blocks = Array.from(document.querySelectorAll('.social-block'));
   if(!blocks.length) return;
@@ -113,11 +203,13 @@ function initScrollJack(){
     });
     ticking = false;
   }
+  scrollJackUpdate = update;
   window.addEventListener('scroll', () => {
     if(!ticking){ requestAnimationFrame(update); ticking = true; }
   }, { passive:true });
   window.addEventListener('resize', update);
   update();
 }
+function recalcAllTracks(){ if(scrollJackUpdate) scrollJackUpdate(); }
 
 document.addEventListener('DOMContentLoaded', renderSocials);

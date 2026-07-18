@@ -355,6 +355,16 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible{
 .social-post .tint{ position:absolute; inset:0; }
 .social-post .cap{ position:absolute; left:0; right:0; bottom:0; padding:.7rem .8rem; font-family:var(--mono); font-size:0.7rem; color:#fff; background:linear-gradient(0deg, rgba(0,0,0,.55), transparent); }
 
+/* real platform embeds — no forced aspect ratio, sizing comes from the widget itself */
+.social-post.embed{ width:auto; aspect-ratio:auto; background:none; border:0; display:flex; align-items:flex-start; }
+.social-post.embed iframe{ border-radius:16px; display:block; }
+.social-post.embed blockquote.instagram-media{ border-radius:16px !important; }
+.social-post.embed.empty-state{
+  width:min(70vw,320px); aspect-ratio:4/5; border-radius:16px; border:1px dashed var(--line-dark);
+  display:flex; align-items:center; justify-content:center; text-align:left;
+}
+.social-post.empty-state .cap{ font-family:var(--body); font-size:0.85rem; line-height:1.5; opacity:0.75; }
+
 @media (prefers-reduced-motion: reduce), (max-width:640px){
   .social-block, .social-block:last-of-type{ height:auto; }
   .social-sticky{ position:relative; height:auto; padding:2rem 0; }
