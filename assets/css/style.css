@@ -266,8 +266,15 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible{
 .detail-desc{ font-size:1rem; line-height:1.7; opacity:0.9; margin-top:.9rem; max-width:64ch; }
 .detail-tags{ display:flex; flex-wrap:wrap; gap:.45rem; margin-top:1.1rem; }
 
+/* course lists inside the education panels */
+.course-block{ margin-top:1.5rem; }
+.course-term{ font-family:var(--mono); font-size:0.76rem; letter-spacing:.04em; opacity:0.55; }
+
+.moments-heading{ margin-top:2.6rem; font-size:1.15rem; font-weight:500; padding-top:1.6rem; border-top:1px solid var(--line-dark); }
+.moment-face.front .moment-photo{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
 .moments-grid{ margin-top:2rem; display:grid; gap:1.1rem; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); }
-.moment-card{ perspective:1400px; cursor:pointer; }
+/* max-width stops two lone moments from stretching to half the panel each */
+.moment-card{ perspective:1400px; cursor:pointer; width:100%; max-width:280px; }
 .moment-inner{ position:relative; width:100%; aspect-ratio:4/5; transform-style:preserve-3d; transition:transform .6s var(--ease); }
 .moment-card.flipped .moment-inner{ transform:rotateY(180deg); }
 .moment-face{ position:absolute; inset:0; backface-visibility:hidden; -webkit-backface-visibility:hidden; border-radius:14px; overflow:hidden; border:1px solid var(--line-dark); }

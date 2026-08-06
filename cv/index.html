@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CV — Sandes Welagedara</title>
+<meta name="description" content="Education, experience and projects — Sandes Welagedara, medical student and developer in Brisbane.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+
+<svg class="grain" width="100%" height="100%">
+  <filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" stitchTiles="stitch"/></filter>
+  <rect width="100%" height="100%" filter="url(#noise)"/>
+</svg>
+
+<nav class="nav" id="mainNav">
+  <a href="../" class="nav-logo">SW</a>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="./" data-nav="cv">cv / resume</a></li>
+    <li><a href="../photos/" data-nav="photos">photos</a></li>
+    <li><a href="../blog/" data-nav="blog">blog</a></li>
+    <li><a href="../projects/" data-nav="projects">projects</a></li>
+  </ul>
+  <button class="nav-burger" id="burgerBtn" aria-label="Open menu" aria-expanded="false">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+  </button>
+</nav>
+
+<div class="nav-mobile" id="navMobile">
+  <button class="nav-mobile-close" id="navMobileClose" aria-label="Close menu">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 6l12 12M18 6L6 18"/></svg>
+  </button>
+  <a href="./" data-nav="cv">cv / resume</a>
+  <a href="../photos/" data-nav="photos">photos</a>
+  <a href="../blog/" data-nav="blog">blog</a>
+  <a href="../projects/" data-nav="projects">projects</a>
+</div>
+
+<!-- ============ HERO ============ -->
+<header class="subpage-hero section-dark">
+  <div class="aura"><span class="orb"></span><span class="orb"></span><span class="orb"></span></div>
+  <div class="wrap" style="position:relative; z-index:2;">
+    <a href="../" class="crumb">← back home</a>
+    <p class="section-eyebrow"><span class="orb-chip" style="background:var(--coral)"></span>cv / résumé</p>
+    <h1 class="section-title" style="font-size:clamp(2.6rem,7vw,4.6rem);">Where I've been</h1>
+    <p class="section-note" style="margin-top:1rem; max-width:52ch;">
+      Six years of clubs, tutoring, coursework and one stubborn side project.
+      Click any card and it opens up — the long version is inside, photos underneath.
+    </p>
+  </div>
+</header>
+
+<!-- ============ TIMELINE ============ -->
+<section class="section section-dark" style="padding-top:20px;">
+  <div class="wrap">
+    <div class="cv-tabs">
+      <button class="cv-tab active" data-group="all">everything</button>
+      <button class="cv-tab" data-group="experience">experience</button>
+      <button class="cv-tab" data-group="education">education</button>
+      <button class="cv-tab" data-group="projects">projects</button>
+    </div>
+
+    <div class="timeline" id="timeline"></div>
+
+    <!-- ============ SKILLS ============ -->
+    <div class="skills-strip reveal">
+      <div class="skills-block">
+        <h3>Intrapersonal</h3>
+        <p>
+          Across my executive roles and my roles in tutoring and hospitality, I've had the privilege of
+          developing a lot of intrapersonal skills — communication, teamwork, collaboration, organisation
+          and preparedness, event planning, cultural appreciation, and a whole host of others.
+        </p>
+        <div class="chip-row" style="margin-top:1rem;">
+          <span class="chip">Communication</span>
+          <span class="chip">Teamwork</span>
+          <span class="chip">Collaboration</span>
+          <span class="chip">Organisation</span>
+          <span class="chip">Event planning</span>
+          <span class="chip">Cultural appreciation</span>
+        </div>
+        <p style="margin-top:1.4rem;">
+          In my formal education, skills such as biomedical research, scientific communication, data
+          analysis and laboratory competence are expected of me as I finish my third year of biomedical
+          sciences.
+        </p>
+      </div>
+
+      <div class="skills-block">
+        <h3>Programming languages</h3>
+        <div class="chip-row">
+          <span class="chip">R — statistical analysis</span>
+          <span class="chip">Python — logic &amp; programming</span>
+          <span class="chip">Swift — edge-based Apple apps</span>
+        </div>
+
+        <h3 style="margin-top:1.8rem;">Data &amp; software tools</h3>
+        <div class="chip-row">
+          <span class="chip">GraphPad Prism</span>
+          <span class="chip">LabChart</span>
+          <span class="chip">Xcode</span>
+          <span class="chip">GitHub</span>
+          <span class="chip">Excel</span>
+          <span class="chip">Word</span>
+          <span class="chip">PowerPoint</span>
+        </div>
+
+        <h3 style="margin-top:1.8rem;">Multimedia</h3>
+        <div class="chip-row">
+          <span class="chip">Final Cut Pro</span>
+          <span class="chip">Canva</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DETAIL MODAL ============ -->
+<div class="detail-backdrop" id="detailBackdrop"></div>
+<div class="detail-panel" id="detailPanel" role="dialog" aria-modal="true" style="display:none;"></div>
+<button class="detail-close" id="detailClose" aria-label="Close">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 6l12 12M18 6L6 18"/></svg>
+</button>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="footer-row">
+    <p class="footer-name">Let's talk.</p>
+    <div class="footer-links">
+      <a href="mailto:careers@sandeswelagedara.com">careers@sandeswelagedara.com</a>
+      <a href="https://www.linkedin.com/in/sandes-welagedara/" target="_blank" rel="noopener">LinkedIn</a>
+      <a href="../">home</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>Sandes Welagedara — Brisbane, QLD</span>
+    <span id="year"></span>
+  </div>
+</footer>
+
+<script src="../assets/js/site.js"></script>
+<script src="../assets/js/cv.js"></script>
+<script>
+  SW.initNav({ page: 'cv' });
+  document.getElementById('year').textContent = '© ' + new Date().getFullYear();
+</script>
+</body>
+</html>
