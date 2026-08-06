@@ -17,21 +17,45 @@ const YOUTUBE_CONFIG = {
   maxResults: 6
 };
 
-/* ---- Instagram: official embed, picked by hand. ----
-   Open a post on instagram.com → "..." → Embed → Copy Link
-   (or just copy the post's URL from the address bar, either works).
-   Paste as many as you like below. */
-const INSTAGRAM_POST_URLS = [
-  'https://www.instagram.com/p/DYmYpvmEyea/',
-  'https://www.instagram.com/p/DYFJ7sME2Zj/',
-  'https://www.instagram.com/p/DS9azQ1EzC5/',
-  'https://www.instagram.com/p/DQjIjYBExJx/',
-  'https://www.instagram.com/p/DPidMwbE_ca/',
-  'https://www.instagram.com/p/DPc8Ij7k-U6/',
-  'https://www.instagram.com/p/DOpySxPkypw/',
-  'https://www.instagram.com/p/DNrgVR05qYh/',
-  'https://www.instagram.com/p/DM_5XemJOkB/',
-  'https://www.instagram.com/p/DMr8umGpsDe/',
+/* ---- Instagram: screenshot + link out. ----
+   NOT the official embed. Instagram's embed.js builds its iframe at
+   height="0" and only resizes it once instagram.com posts a message
+   back with the measured height. That message no longer arrives
+   reliably, so every embed collapsed to 2px tall — invisible.
+   Their oEmbed API doesn't fix it either: it needs a Meta app with
+   `oembed_read` granted through App Review, and it just hands back
+   the same embed.js snippet that's failing.
+
+   So: take a screenshot of the post, drop it in assets/social/,
+   and the card links out to the real thing.
+
+   TO ADD A POST:
+   1. Open the post, screenshot it (Cmd+Shift+4). A 4:5 portrait crop
+      fits the card best — anything else gets center-cropped.
+   2. Save it to assets/social/ with the filename below.
+   3. Fill in `caption`. Leave it '' to fall back to "view on Instagram →".
+   Missing images degrade to a coloured gradient, so a wrong filename
+   looks intentional rather than broken. */
+const INSTAGRAM_POSTS = [
+  { url:'https://www.instagram.com/p/DYmYpvmEyea/', img:'assets/social/ig-01.jpg', caption:'' },
+  { url:'https://www.instagram.com/p/DYFJ7sME2Zj/', img:'assets/social/ig-02.jpg', caption:'' },
+  { url:'https://www.instagram.com/p/DS9azQ1EzC5/', img:'assets/social/ig-03.jpg', caption:'' },
+  { url:'https://www.instagram.com/p/DQjIjYBExJx/', img:'assets/social/ig-04.jpg', caption:'' },
+  { url:'https://www.instagram.com/p/DPidMwbE_ca/', img:'assets/social/ig-05.jpg', caption:'' },
+  { url:'https://www.instagram.com/p/DPc8Ij7k-U6/', img:'assets/social/ig-06.jpg', caption:'' },
+  { url:'https://www.instagram.com/p/DOpySxPkypw/', img:'assets/social/ig-07.jpg', caption:'' },
+  { url:'https://www.instagram.com/p/DNrgVR05qYh/', img:'assets/social/ig-08.jpg', caption:'' },
+  { url:'https://www.instagram.com/p/DM_5XemJOkB/', img:'assets/social/ig-09.jpg', caption:'' },
+  { url:'https://www.instagram.com/p/DMr8umGpsDe/', img:'assets/social/ig-10.jpg', caption:'' },
+];
+
+/* gradient shown behind each card until its screenshot exists */
+const IG_TINTS = [
+  'linear-gradient(160deg, var(--pink), var(--violet))',
+  'linear-gradient(160deg, var(--coral), var(--gold))',
+  'linear-gradient(160deg, var(--violet), var(--teal))',
+  'linear-gradient(160deg, var(--teal), var(--ink-3))',
+  'linear-gradient(160deg, var(--gold), var(--pink))'
 ];
 
 /* ---- LinkedIn: official embed, only where the author enabled it. ----
@@ -95,30 +119,43 @@ function buildTrackShell(plat){
 }
 
 /* ============================================================
-   RENDER: Instagram — official blockquote embeds
+   RENDER: Instagram — screenshot cards that link out
    ============================================================ */
 function renderInstagram(track, plat){
-  if(!INSTAGRAM_POST_URLS.length){
-    track.append(emptyStateCard(plat.url, 'Add post URLs in social.js to show real Instagram embeds here — for now, visit the profile →'));
+  if(!INSTAGRAM_POSTS.length){
+    track.append(emptyStateCard(plat.url, 'Add posts in social.js to show them here — for now, visit the profile →'));
     return;
   }
-  INSTAGRAM_POST_URLS.forEach(url => {
-    const wrap = document.createElement('div');
-    wrap.className = 'social-post embed';
-    wrap.innerHTML = `<blockquote class="instagram-media" data-instgrm-permalink="${url}" data-instgrm-version="14" style="margin:0;"></blockquote>`;
-    track.append(wrap);
+  INSTAGRAM_POSTS.forEach((post, i) => {
+    const card = document.createElement('a');
+    card.className = 'social-post';
+    card.href = post.url;
+    card.target = '_blank';
+    card.rel = 'noopener';
+
+    const tint = document.createElement('span');
+    tint.className = 'tint';
+    tint.style.background = IG_TINTS[i % IG_TINTS.length];
+    card.append(tint);
+
+    if(post.img){
+      const img = document.createElement('img');
+      img.alt = post.caption || 'Instagram post';
+      // no loading="lazy" here on purpose — it defers the request, which
+      // defers the 404, which leaves a broken-image icon sitting on top
+      // of the gradient until you scroll to it. Resolve it up front.
+      SW.loadFirstWorkingImage(img, [post.img], () => {});
+      card.append(img);
+    }
+
+    const cap = document.createElement('span');
+    cap.className = 'cap';
+    cap.textContent = post.caption || 'view on Instagram →';
+    card.append(cap);
+
+    track.append(card);
   });
-  // load Instagram's embed script once, or re-process if already present
-  if(window.instgrm){
-    window.instgrm.Embeds.process();
-  } else if(!document.getElementById('ig-embed-script')){
-    const s = document.createElement('script');
-    s.id = 'ig-embed-script';
-    s.async = true;
-    s.src = 'https://www.instagram.com/embed.js';
-    s.onload = () => { if(window.instgrm) window.instgrm.Embeds.process(); recalcAllTracks(); };
-    document.body.appendChild(s);
-  }
+  recalcAllTracks();
 }
 
 /* ============================================================
