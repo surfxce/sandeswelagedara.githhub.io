@@ -22,16 +22,16 @@ const YOUTUBE_CONFIG = {
    (or just copy the post's URL from the address bar, either works).
    Paste as many as you like below. */
 const INSTAGRAM_POST_URLS = [
-  // 'https://www.instagram.com/p/DYmYpvmEyea/?img_index=1',
-  // 'https://www.instagram.com/p/DYFJ7sME2Zj/?img_index=1',
-  // 'https://www.instagram.com/p/DS9azQ1EzC5/?img_index=1',
-  // 'https://www.instagram.com/p/DQjIjYBExJx/?img_index=1',   
-  // 'https://www.instagram.com/p/DPidMwbE_ca/?img_index=5',    
-  // 'https://www.instagram.com/p/DPc8Ij7k-U6/?img_index=5', 
-  // 'https://www.instagram.com/p/DOpySxPkypw/?img_index=5', 
-  // 'https://www.instagram.com/p/DNrgVR05qYh/?img_index=5', 
-  // 'https://www.instagram.com/p/DM_5XemJOkB/?img_index=5', 
-  // 'https://www.instagram.com/p/DMr8umGpsDe/?img_index=5', 
+  'https://www.instagram.com/p/DYmYpvmEyea/',
+  'https://www.instagram.com/p/DYFJ7sME2Zj/',
+  'https://www.instagram.com/p/DS9azQ1EzC5/',
+  'https://www.instagram.com/p/DQjIjYBExJx/',
+  'https://www.instagram.com/p/DPidMwbE_ca/',
+  'https://www.instagram.com/p/DPc8Ij7k-U6/',
+  'https://www.instagram.com/p/DOpySxPkypw/',
+  'https://www.instagram.com/p/DNrgVR05qYh/',
+  'https://www.instagram.com/p/DM_5XemJOkB/',
+  'https://www.instagram.com/p/DMr8umGpsDe/',
 ];
 
 /* ---- LinkedIn: official embed, only where the author enabled it. ----
@@ -40,10 +40,10 @@ const INSTAGRAM_POST_URLS = [
    out to it instead). Copy the iframe's `src` value only, not the
    whole snippet, and paste it below. */
 const LINKEDIN_EMBED_SRCS = [
-  // 'https://www.linkedin.com/embed/feed/update/urn:li:ugcPost:7476862595333906432?collapsed=1',
-  // 'https://www.linkedin.com/embed/feed/update/urn:li:ugcPost:7435617339305324544?collapsed=1',
-  // 'https://www.linkedin.com/embed/feed/update/urn:li:ugcPost:7354137686804230147?collapsed=1',
-  // 'https://www.linkedin.com/embed/feed/update/urn:li:ugcPost:7326165434473295873?collapsed=1',
+  'https://www.linkedin.com/embed/feed/update/urn:li:ugcPost:7476862595333906432?collapsed=1',
+  'https://www.linkedin.com/embed/feed/update/urn:li:ugcPost:7435617339305324544?collapsed=1',
+  'https://www.linkedin.com/embed/feed/update/urn:li:ugcPost:7354137686804230147?collapsed=1',
+  'https://www.linkedin.com/embed/feed/update/urn:li:ugcPost:7326165434473295873?collapsed=1',
 ];
 
 /* ============================================================
@@ -131,8 +131,9 @@ function renderLinkedIn(track, plat){
   }
   LINKEDIN_EMBED_SRCS.forEach(src => {
     const wrap = document.createElement('div');
-    wrap.className = 'social-post embed';
-    wrap.innerHTML = `<iframe src="${src}" height="380" width="280" frameborder="0" allowfullscreen="" title="LinkedIn post"></iframe>`;
+    wrap.className = 'social-post embed embed-li';
+    // 504x626 is LinkedIn's own embed size; CSS scales it down on short/narrow viewports.
+    wrap.innerHTML = `<iframe src="${src}" height="626" width="504" frameborder="0" allowfullscreen="" title="LinkedIn post" loading="lazy"></iframe>`;
     track.append(wrap);
   });
 }

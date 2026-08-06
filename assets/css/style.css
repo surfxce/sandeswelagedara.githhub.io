@@ -358,6 +358,8 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible{
 /* real platform embeds — no forced aspect ratio, sizing comes from the widget itself */
 .social-post.embed{ width:auto; aspect-ratio:auto; background:none; border:0; display:flex; align-items:flex-start; }
 .social-post.embed iframe{ border-radius:16px; display:block; }
+/* LinkedIn ships 504x626 embeds — keep them inside the 100vh sticky pane on short/narrow screens */
+.social-post.embed-li iframe{ width:min(86vw, 504px); height:min(626px, 66vh); }
 .social-post.embed blockquote.instagram-media{ border-radius:16px !important; }
 .social-post.embed.empty-state{
   width:min(70vw,320px); aspect-ratio:4/5; border-radius:16px; border:1px dashed var(--line-dark);
