@@ -50,7 +50,18 @@ html{ scroll-behavior:smooth; }
 }
 body{
   margin:0;
-  background:var(--paper);
+  /* containing block for .grain, so it can stretch to the whole document */
+  position:relative;
+  background-color:var(--paper);
+  /* a standing wash of green and brown so no page is ever a flat cream
+     rectangle. Fixed, so it behaves like light in the room rather than
+     something that scrolls past. */
+  background-image:
+    radial-gradient(58vw 48vw at 6% 4%,   rgba(74,97,70,0.20),  transparent 62%),
+    radial-gradient(46vw 40vw at 97% 18%, rgba(109,79,52,0.15), transparent 64%),
+    radial-gradient(66vw 52vw at 52% 104%,rgba(125,154,109,0.20),transparent 66%);
+  background-attachment:fixed;
+  background-repeat:no-repeat;
   color:var(--text);
   font-family:var(--body);
   -webkit-font-smoothing:antialiased;
@@ -72,9 +83,42 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible{
 
 .wrap{ max-width:var(--maxw); margin:0 auto; padding-left:var(--pad); padding-right:var(--pad); }
 
-/* grain overlay — multiply, not overlay: on cream it reads as paper tooth
-   rather than the glow `overlay` produced against the old dark ground */
-.grain{ position:fixed; inset:0; z-index:999; pointer-events:none; opacity:0.045; mix-blend-mode:multiply; }
+/* ---------- layer scale, bottom to top ----------
+     0     page content
+     999   .grain          paper texture, drawn over the page
+     1000  .hero-grid      the hero — lifts the headshot ABOVE the grain, so the
+                           photo reads as a photograph rather than something
+                           printed on the same stock as the page. It has to be
+                           the grid, not the portrait: .hero-grid is a stacking
+                           context, so a z-index on the portrait alone can never
+                           escape it. Grain over the hero *text* is imperceptible
+                           at 0.42, so nothing is lost by lifting the whole grid.
+     1001  .nav            must clear the hero, or the photo scrolls over it
+     1002  .nav-mobile
+     1050  .lightbox
+     1100+ .detail-*       overlays clear everything, including the nav
+   Anything added later belongs on this scale, not next to it. */
+
+/* paper tooth — a tileable 128px greyscale noise PNG, multiplied over the page.
+   This used to be an inline SVG feTurbulence filter. It was abandoned because
+   feTurbulence randomises the ALPHA channel as well as RGB, so the layer came
+   out ~50% transparent over near-white noise: about 1.5% variation, invisible
+   at any opacity worth using. A baked tile is deterministic, renders the same
+   in every browser, and costs 12KB once.
+   multiply (not overlay) is deliberate: overlay glowed against the old dark
+   ground; multiply reads as fibre in the stock. */
+.grain{
+  /* absolute, not fixed, so the tooth belongs to the sheet and scrolls with
+     it. Fixed made it sit on the glass — the texture stayed put while the
+     page moved underneath, which reads as a screen effect, not as paper.
+     `inset:0` resolves against body (position:relative), so this stretches
+     to the full document height rather than one viewport. */
+  position:absolute; inset:0; z-index:999; pointer-events:none;
+  background-image:url('../img/paper-grain.png');
+  background-repeat:repeat;
+  background-size:128px 128px;
+  opacity:0.42; mix-blend-mode:multiply;
+}
 
 /* aura orbs, shared across hero-style blocks.
    Far lower opacity than the dark build — at 0.75 these washed the paper out */
@@ -90,7 +134,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible{
    NAV
    ============================================================ */
 .nav{
-  position:fixed; top:0; left:0; right:0; z-index:500;
+  position:fixed; top:0; left:0; right:0; z-index:1001;
   display:flex; align-items:center; justify-content:space-between;
   padding:18px var(--pad);
   background:rgba(244,239,226,0);
@@ -113,7 +157,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible{
 .nav-burger svg{ width:22px; height:22px; }
 
 .nav-mobile{
-  position:fixed; inset:0; z-index:600; background:var(--paper); color:var(--text);
+  position:fixed; inset:0; z-index:1002; background:var(--paper); color:var(--text);
   display:flex; flex-direction:column; align-items:flex-start; justify-content:center; gap:1.6rem;
   padding:var(--pad); transform:translateY(-100%); transition:transform .5s var(--ease);
 }
@@ -131,11 +175,12 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible{
    HERO (home page)
    ============================================================ */
 .hero{ position:relative; min-height:100svh; display:flex; align-items:center; padding-top:80px; overflow:hidden; }
-.hero .aura .orb:nth-child(1){ width:46vw; height:46vw; left:-12vw; top:8vh; background:radial-gradient(circle at 35% 35%, var(--clay), transparent 70%); }
-.hero .aura .orb:nth-child(2){ width:34vw; height:34vw; right:-6vw; top:22vh; background:radial-gradient(circle at 40% 40%, var(--moss), transparent 70%); animation-delay:-8s; }
+/* greens and browns only — clay here blurred out to a salmon spotlight on cream */
+.hero .aura .orb:nth-child(1){ width:46vw; height:46vw; left:-12vw; top:8vh; background:radial-gradient(circle at 35% 35%, var(--moss), transparent 70%); }
+.hero .aura .orb:nth-child(2){ width:34vw; height:34vw; right:-6vw; top:22vh; background:radial-gradient(circle at 40% 40%, var(--bark), transparent 70%); animation-delay:-8s; }
 .hero .aura .orb:nth-child(3){ width:28vw; height:28vw; right:12vw; bottom:-8vh; background:radial-gradient(circle at 50% 50%, var(--fern), transparent 70%); animation-delay:-15s; }
 
-.hero-grid{ position:relative; z-index:2; width:100%; display:grid; grid-template-columns:1.15fr 0.85fr; align-items:center; gap:2rem; }
+.hero-grid{ position:relative; z-index:1000; width:100%; display:grid; grid-template-columns:1.15fr 0.85fr; align-items:center; gap:2rem; }
 .hero-name{ font-size:clamp(3rem, 8.5vw, 6.4rem); line-height:0.96; letter-spacing:-0.01em; }
 .hero-name .first{ display:block; color:transparent; -webkit-text-stroke:1.2px var(--moss); font-weight:400; font-style:italic; }
 .hero-name .last{ display:block; font-weight:600; }
@@ -251,11 +296,11 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible{
 /* ============================================================
    DETAIL MODAL (flip -> expand-to-center interaction)
    ============================================================ */
-.detail-backdrop{ position:fixed; inset:0; background:rgba(44,51,39,.38); backdrop-filter:blur(6px); opacity:0; transition:opacity .45s var(--ease); z-index:940; pointer-events:none; }
+.detail-backdrop{ position:fixed; inset:0; background:rgba(44,51,39,.38); backdrop-filter:blur(6px); opacity:0; transition:opacity .45s var(--ease); z-index:1100; pointer-events:none; }
 .detail-backdrop.open{ opacity:1; pointer-events:auto; }
 
 .detail-panel{
-  position:fixed; z-index:950; overflow:hidden; background:var(--paper-2); border:1px solid var(--line);
+  position:fixed; z-index:1110; overflow:hidden; background:var(--paper-2); border:1px solid var(--line);
   box-shadow:0 30px 80px rgba(61,48,32,.24);
   transition:top .55s var(--ease), left .55s var(--ease), width .55s var(--ease), height .55s var(--ease), border-radius .55s var(--ease);
 }
@@ -263,7 +308,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible{
 .detail-panel.content-visible .detail-scroll{ opacity:1; }
 
 .detail-close{
-  position:fixed; z-index:960; top:18px; right:18px; background:rgba(244,239,226,.94); border:1px solid var(--line-2);
+  position:fixed; z-index:1120; top:18px; right:18px; background:rgba(244,239,226,.94); border:1px solid var(--line-2);
   color:var(--text); border-radius:50%; width:38px; height:38px; display:flex; align-items:center; justify-content:center;
   opacity:0; transition:opacity .3s ease; pointer-events:none;
 }
@@ -317,7 +362,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible{
 .photo-fallback{ width:100%; aspect-ratio:var(--ar, 4/5); }
 
 /* the lightbox stays dark on purpose — photos read best against a dark ground */
-.lightbox{ position:fixed; inset:0; z-index:900; background:rgba(35,40,31,0.94); display:none; align-items:center; justify-content:center; padding:5vh 4vw; }
+.lightbox{ position:fixed; inset:0; z-index:1050; background:rgba(35,40,31,0.94); display:none; align-items:center; justify-content:center; padding:5vh 4vw; }
 .lightbox.open{ display:flex; }
 .lightbox-inner{ position:relative; max-width:900px; width:100%; text-align:center; }
 .lightbox-inner img, .lightbox-fallback{ max-height:78vh; margin:0 auto; border-radius:10px; width:auto; max-width:100%; }
