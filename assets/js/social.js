@@ -51,11 +51,11 @@ const INSTAGRAM_POSTS = [
 
 /* gradient shown behind each card until its screenshot exists */
 const IG_TINTS = [
-  'linear-gradient(160deg, var(--pink), var(--violet))',
-  'linear-gradient(160deg, var(--coral), var(--gold))',
-  'linear-gradient(160deg, var(--violet), var(--teal))',
-  'linear-gradient(160deg, var(--teal), var(--ink-3))',
-  'linear-gradient(160deg, var(--gold), var(--pink))'
+  'linear-gradient(160deg, var(--moss), var(--fern))',
+  'linear-gradient(160deg, var(--clay), var(--wheat))',
+  'linear-gradient(160deg, var(--bark), var(--clay))',
+  'linear-gradient(160deg, var(--fern), var(--wheat))',
+  'linear-gradient(160deg, var(--wheat), var(--bark))'
 ];
 
 /* ---- LinkedIn: official embed, only where the author enabled it. ----
@@ -86,7 +86,7 @@ function emptyStateCard(platformUrl, message){
   card.target = '_blank';
   card.rel = 'noopener';
   card.innerHTML = `
-    <span class="tint" style="background:linear-gradient(160deg,var(--ink-3),var(--ink))"></span>
+    <span class="tint" style="background:linear-gradient(160deg,var(--paper-3),var(--paper))"></span>
     <span class="cap" style="position:relative; opacity:1; background:none; padding:1rem;">${message}</span>
   `;
   return card;
