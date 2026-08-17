@@ -83,37 +83,27 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible{
 
 .wrap{ max-width:var(--maxw); margin:0 auto; padding-left:var(--pad); padding-right:var(--pad); }
 
-/* ---------- layer scale, bottom to top ----------
-     0     page content
-     999   .grain          paper texture, drawn over the page
-     1000  .hero-grid      the hero — lifts the headshot ABOVE the grain, so the
-                           photo reads as a photograph rather than something
-                           printed on the same stock as the page. It has to be
-                           the grid, not the portrait: .hero-grid is a stacking
-                           context, so a z-index on the portrait alone can never
-                           escape it. Grain over the hero *text* is imperceptible
-                           at 0.42, so nothing is lost by lifting the whole grid.
-     1001  .nav            must clear the hero, or the photo scrolls over it
-     1002  .nav-mobile
-     1050  .lightbox
-     1100+ .detail-*       overlays clear everything, including the nav
-   Anything added later belongs on this scale, not next to it. */
-
-/* paper tooth — a tileable 128px greyscale noise PNG, multiplied over the page.
+/* paper tooth — a tileable 128px greyscale noise PNG.
    This used to be an inline SVG feTurbulence filter. It was abandoned because
    feTurbulence randomises the ALPHA channel as well as RGB, so the layer came
    out ~50% transparent over near-white noise: about 1.5% variation, invisible
    at any opacity worth using. A baked tile is deterministic, renders the same
    in every browser, and costs 12KB once.
-   multiply (not overlay) is deliberate: overlay glowed against the old dark
-   ground; multiply reads as fibre in the stock. */
+
+   z-index:-1 puts it BEHIND the page instead of over it — it's the stock the
+   page is printed on, not a filter laid across the top. Cards, buttons and
+   photos keep their own opaque backgrounds and so stay crisp, with no
+   per-element z-index needed to rescue them.
+
+   The catch: anything with an opaque background now hides it. That's why
+   .section-paper and footer are transparent below — they were painting a flat
+   cream rectangle straight over the texture.
+
+   absolute, not fixed, so the tooth belongs to the sheet and scrolls with it.
+   Fixed made it sit on the glass. `inset:0` resolves against body
+   (position:relative), so it spans the whole document, not one viewport. */
 .grain{
-  /* absolute, not fixed, so the tooth belongs to the sheet and scrolls with
-     it. Fixed made it sit on the glass — the texture stayed put while the
-     page moved underneath, which reads as a screen effect, not as paper.
-     `inset:0` resolves against body (position:relative), so this stretches
-     to the full document height rather than one viewport. */
-  position:absolute; inset:0; z-index:999; pointer-events:none;
+  position:absolute; inset:0; z-index:-1; pointer-events:none;
   background-image:url('../img/paper-grain.png');
   background-repeat:repeat;
   background-size:128px 128px;
@@ -134,7 +124,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible{
    NAV
    ============================================================ */
 .nav{
-  position:fixed; top:0; left:0; right:0; z-index:1001;
+  position:fixed; top:0; left:0; right:0; z-index:500;
   display:flex; align-items:center; justify-content:space-between;
   padding:18px var(--pad);
   background:rgba(244,239,226,0);
@@ -157,7 +147,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible{
 .nav-burger svg{ width:22px; height:22px; }
 
 .nav-mobile{
-  position:fixed; inset:0; z-index:1002; background:var(--paper); color:var(--text);
+  position:fixed; inset:0; z-index:600; background:var(--paper); color:var(--text);
   display:flex; flex-direction:column; align-items:flex-start; justify-content:center; gap:1.6rem;
   padding:var(--pad); transform:translateY(-100%); transition:transform .5s var(--ease);
 }
@@ -180,7 +170,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible{
 .hero .aura .orb:nth-child(2){ width:34vw; height:34vw; right:-6vw; top:22vh; background:radial-gradient(circle at 40% 40%, var(--bark), transparent 70%); animation-delay:-8s; }
 .hero .aura .orb:nth-child(3){ width:28vw; height:28vw; right:12vw; bottom:-8vh; background:radial-gradient(circle at 50% 50%, var(--fern), transparent 70%); animation-delay:-15s; }
 
-.hero-grid{ position:relative; z-index:1000; width:100%; display:grid; grid-template-columns:1.15fr 0.85fr; align-items:center; gap:2rem; }
+.hero-grid{ position:relative; z-index:2; width:100%; display:grid; grid-template-columns:1.15fr 0.85fr; align-items:center; gap:2rem; }
 .hero-name{ font-size:clamp(3rem, 8.5vw, 6.4rem); line-height:0.96; letter-spacing:-0.01em; }
 /* solid given name, outlined surname — and upright, not italic */
 .hero-name .first{ display:block; font-weight:600; }
@@ -220,7 +210,9 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible{
    SECTION SCAFFOLDING
    ============================================================ */
 .section{ position:relative; padding:clamp(60px,10vw,110px) 0; }
-.section-paper{ background:var(--paper); color:var(--text); }
+/* transparent, not var(--paper): identical colour, but an opaque fill here
+   would paint straight over the .grain sitting behind the page */
+.section-paper{ background:transparent; color:var(--text); }
 .section-alt{ background:var(--paper-2); color:var(--text); }
 
 .section-head{ display:flex; align-items:flex-end; justify-content:space-between; gap:2rem; flex-wrap:wrap; margin-bottom:3rem; }
@@ -263,10 +255,12 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible{
 @media (min-width:761px){ .tl-dot{ left:50%; } }
 
 .tl-row{ padding-left:52px; }
+/* sides come from .tl-left/.tl-right, set in restripe(). Not nth-child —
+   that counts filtered-out siblings and strands cards on one side. */
 @media (min-width:761px){
   .tl-row{ padding-left:0; width:46%; }
-  .tl-item:nth-child(odd) .tl-row{ margin-left:0; text-align:right; }
-  .tl-item:nth-child(even) .tl-row{ margin-left:54%; }
+  .tl-item.tl-left .tl-row{ margin-left:0; text-align:right; }
+  .tl-item.tl-right .tl-row{ margin-left:54%; }
 }
 .tl-date{ font-family:var(--label); font-size:0.76rem; letter-spacing:.04em; opacity:0.72; margin-bottom:.5rem; }
 
@@ -297,11 +291,11 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible{
 /* ============================================================
    DETAIL MODAL (flip -> expand-to-center interaction)
    ============================================================ */
-.detail-backdrop{ position:fixed; inset:0; background:rgba(44,51,39,.38); backdrop-filter:blur(6px); opacity:0; transition:opacity .45s var(--ease); z-index:1100; pointer-events:none; }
+.detail-backdrop{ position:fixed; inset:0; background:rgba(44,51,39,.38); backdrop-filter:blur(6px); opacity:0; transition:opacity .45s var(--ease); z-index:940; pointer-events:none; }
 .detail-backdrop.open{ opacity:1; pointer-events:auto; }
 
 .detail-panel{
-  position:fixed; z-index:1110; overflow:hidden; background:var(--paper-2); border:1px solid var(--line);
+  position:fixed; z-index:950; overflow:hidden; background:var(--paper-2); border:1px solid var(--line);
   box-shadow:0 30px 80px rgba(61,48,32,.24);
   transition:top .55s var(--ease), left .55s var(--ease), width .55s var(--ease), height .55s var(--ease), border-radius .55s var(--ease);
 }
@@ -309,7 +303,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible{
 .detail-panel.content-visible .detail-scroll{ opacity:1; }
 
 .detail-close{
-  position:fixed; z-index:1120; top:18px; right:18px; background:rgba(244,239,226,.94); border:1px solid var(--line-2);
+  position:fixed; z-index:960; top:18px; right:18px; background:rgba(244,239,226,.94); border:1px solid var(--line-2);
   color:var(--text); border-radius:50%; width:38px; height:38px; display:flex; align-items:center; justify-content:center;
   opacity:0; transition:opacity .3s ease; pointer-events:none;
 }
@@ -363,7 +357,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible{
 .photo-fallback{ width:100%; aspect-ratio:var(--ar, 4/5); }
 
 /* the lightbox stays dark on purpose — photos read best against a dark ground */
-.lightbox{ position:fixed; inset:0; z-index:1050; background:rgba(35,40,31,0.94); display:none; align-items:center; justify-content:center; padding:5vh 4vw; }
+.lightbox{ position:fixed; inset:0; z-index:900; background:rgba(35,40,31,0.94); display:none; align-items:center; justify-content:center; padding:5vh 4vw; }
 .lightbox.open{ display:flex; }
 .lightbox-inner{ position:relative; max-width:900px; width:100%; text-align:center; }
 .lightbox-inner img, .lightbox-fallback{ max-height:78vh; margin:0 auto; border-radius:10px; width:auto; max-width:100%; }
@@ -410,44 +404,36 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible{
 .origin-step .txt{ font-size:0.82rem; opacity:0.85; margin-top:.4rem; line-height:1.5; }
 
 /* ============================================================
-   SOCIALS — scroll-jacked horizontal strips (home page)
+   CONNECT — icon row (home page)
    ============================================================ */
-.social-block{ position:relative; height:230vh; }
-.social-block:last-of-type{ height:210vh; }
-.social-sticky{ position:sticky; top:0; height:100vh; overflow:hidden; display:flex; flex-direction:column; justify-content:center; }
-.social-head{ position:relative; z-index:2; margin-bottom:1.8rem; }
-.social-head .plat-name{ font-family:var(--display); font-size:clamp(1.8rem,4vw,2.6rem); }
-.social-head .plat-handle{ font-family:var(--label); font-size:0.82rem; opacity:0.72; margin-top:.3rem; display:inline-flex; gap:.5rem; align-items:center; }
-.social-head .plat-handle:hover{ opacity:0.9; }
-.social-track{ display:flex; gap:1.1rem; will-change:transform; padding-bottom:.5rem; }
-.social-post{ flex:0 0 auto; width:min(64vw,300px); aspect-ratio:4/5; border-radius:16px; position:relative; overflow:hidden; border:1px solid var(--line); }
-.social-post img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
-.social-post .tint{ position:absolute; inset:0; }
-.social-post .cap{ position:absolute; left:0; right:0; bottom:0; padding:.7rem .8rem; font-family:var(--label); font-size:0.7rem; color:#fff; background:linear-gradient(0deg, rgba(35,40,31,.62), transparent); }
-
-/* real platform embeds — no forced aspect ratio, sizing comes from the widget itself */
-.social-post.embed{ width:auto; aspect-ratio:auto; background:none; border:0; display:flex; align-items:flex-start; }
-.social-post.embed iframe{ border-radius:16px; display:block; }
-/* LinkedIn ships 504x626 embeds — keep them inside the 100vh sticky pane on short/narrow screens */
-.social-post.embed-li iframe{ width:min(86vw, 504px); height:min(626px, 66vh); }
-.social-post.embed blockquote.instagram-media{ border-radius:16px !important; }
-.social-post.embed.empty-state{
-  width:min(70vw,320px); aspect-ratio:4/5; border-radius:16px; border:1px dashed var(--line);
-  display:flex; align-items:center; justify-content:center; text-align:left;
+.icon-row{ display:flex; flex-wrap:wrap; gap:1.6rem 1.4rem; margin-top:2.6rem; }
+.icon-link{ display:flex; flex-direction:column; align-items:center; gap:.7rem; width:84px; }
+.icon-badge{
+  width:60px; height:60px; border-radius:50%;
+  border:1px solid var(--line); background:var(--paper-2); color:var(--moss);
+  display:flex; align-items:center; justify-content:center;
+  transition:transform .3s var(--ease), background .3s var(--ease), color .3s var(--ease), border-color .3s var(--ease);
 }
-.social-post.empty-state .cap{ font-family:var(--body); font-size:0.85rem; line-height:1.5; opacity:0.75; }
+.icon-badge svg{ width:23px; height:23px; }
+.icon-name{ font-family:var(--label); font-size:0.74rem; letter-spacing:.02em; opacity:0.72; text-align:center; transition:opacity .3s; }
+.icon-link:hover .icon-badge{ transform:translateY(-4px); background:var(--moss); color:var(--paper); border-color:var(--moss); }
+.icon-link:hover .icon-name{ opacity:1; }
+.icon-link:focus-visible{ outline:none; }
+.icon-link:focus-visible .icon-badge{ outline:2px solid var(--moss); outline-offset:3px; }
 
-@media (prefers-reduced-motion: reduce), (max-width:640px){
-  .social-block, .social-block:last-of-type{ height:auto; }
-  .social-sticky{ position:relative; height:auto; padding:2rem 0; }
-  .social-track{ overflow-x:auto; scroll-snap-type:x proximity; -webkit-overflow-scrolling:touch; }
-  .social-post{ scroll-snap-align:start; }
+@media (max-width:520px){
+  .icon-row{ gap:1.3rem 1rem; }
+  .icon-link{ width:72px; }
+  .icon-badge{ width:52px; height:52px; }
+  .icon-badge svg{ width:20px; height:20px; }
 }
 
 /* ============================================================
    FOOTER
    ============================================================ */
-footer{ background:var(--paper-2); color:var(--text); padding:60px var(--pad) 40px; border-top:1px solid var(--line); }
+/* transparent for the same reason as .section-paper — the border-top is what
+   separates the footer, not a fill */
+footer{ background:transparent; color:var(--text); padding:60px var(--pad) 40px; border-top:1px solid var(--line); }
 .footer-row{ max-width:var(--maxw); margin:0 auto; display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:2rem; }
 .footer-name{ font-family:var(--display); font-size:1.6rem; }
 .footer-links{ display:flex; gap:1.6rem; flex-wrap:wrap; }

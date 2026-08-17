@@ -8,6 +8,9 @@
 
    FIELDS
      id       unique slug, used for the deep link (cv/#uqisc)
+     group    volunteering | work | education | projects — drives the tabs
+     start    year it began. Sorts the timeline; nothing renders it.
+     end      year it finished, or null if ongoing. Tie-breaks the sort.
      title    the role / qualification
      org      club, employer or institution
      date     free text, shown above the card
@@ -34,15 +37,16 @@ const CV_TINTS = {
 };
 
 const CV_DATA = [
-  /* ---------------- EXPERIENCE ---------------- */
+  /* ---------------- VOLUNTEERING ---------------- */
   {
-    group:'experience', id:'uqisc', title:'Operations Executive',
+    group:'volunteering', id:'uqisc', start:2026, end:null, title:'Operations Executive',
     org:'Indian Students Club (UQISC)', date:'2026 —', tint:CV_TINTS.clay,
-    blurb:'Running operations for one of UQ’s largest cultural clubs.',
-    tags:['Operations','Event planning','Teamwork'],
+    blurb:'Planning, organising, and running a whole range of events, from Dosti to Indian Ball.',
+    tags:['Operations','Event planning','Sponsorships','Teamwork'],
     detail:[
-      'Operations executive on the UQISC committee, working across the club’s event calendar.',
-      'EDIT ME — write a paragraph here about what the operations role actually involves day to day: what you’re responsible for, how big the committee is, what a typical event takes to pull off.'
+      'The Operations team keeps ISC running smoothly, dealing with sponsorships and contracts, liaising with venues and executing big budget experiences for our members.',
+      'Running operations for one of Australia’s largest cultural powerhouses is no small feat. UQ ISC has over 1,000 members, with consistently high attendance for events such as Mauja, Indian Ball, and smaller events like Dosti, International and First Year Mixers, and Charity Badminton. On top of this, all executives attend regular dance rehearsals, showcasing the beauty that is Indian folk dancing.',
+      'ISC hopes to augment appreciation of Indian culture throughout our campus and beyond.'
     ],
     moments:[
       { title:'EDIT ME — name a key event', desc:'What it was, what you ran, how many people came, what you’d do differently.', photos:[] },
@@ -50,13 +54,14 @@ const CV_DATA = [
     ]
   },
   {
-    group:'experience', id:'uqlit', title:'Socials Executive',
+    group:'volunteering', id:'uqlit', start:2026, end:null, title:'Socials Executive',
     org:'Ladies in Technology (UQLIT)', date:'2026 —', tint:CV_TINTS.bark,
-    blurb:'Socials and content for UQ’s women-in-tech society.',
-    tags:['Social media','Content','Community'],
+    blurb:'Facilitating novel experiences for young women in computer science, software engineering, IT and more.',
+    tags:['Event planning','Community','Content'],
     detail:[
-      'Socials executive for UQLIT, handling the club’s social presence and event promotion.',
-      'EDIT ME — what does running socials for LIT involve? Which platforms, what kind of content, how you plan a campaign around an event, anything you’re proud of reach-wise.'
+      'As an executive under the Socials team, I’m tasked with coordinating our more casual experiences, like our Launch Picnics, Trivia Nights, Games Night and Slime Making.',
+      'These experiences help other ladies in technology bond over shared interests and make friends within their degree and faculty.',
+      'On top of that, I have been featured quite extensively throughout UQ LIT’s socials, and understand what makes a piece of content good, as well as how to market events.'
     ],
     moments:[
       { title:'EDIT ME — name a key event', desc:'The event, your role in it, how the socials campaign went.', photos:[] },
@@ -64,7 +69,7 @@ const CV_DATA = [
     ]
   },
   {
-    group:'experience', id:'uqnc', title:'General Executive',
+    group:'volunteering', id:'uqnc', start:2025, end:2025, title:'General Executive',
     org:'Nepalese Club (UQNC)', date:'2025', tint:CV_TINTS.moss,
     blurb:'General committee member across the club’s 2025 calendar.',
     tags:['Committee','Events','Cultural appreciation'],
@@ -74,8 +79,10 @@ const CV_DATA = [
     ],
     moments:[]
   },
+
+  /* ---------------- WORK ---------------- */
   {
-    group:'experience', id:'alchemy', title:'Tutor',
+    group:'work', id:'alchemy', start:2025, end:2026, title:'Tutor',
     org:'Alchemy Tuition', date:'2025 — 2026', tint:CV_TINTS.fern,
     blurb:'One-on-one tutoring in the sciences.',
     tags:['Tutoring','Communication'],
@@ -86,7 +93,7 @@ const CV_DATA = [
     moments:[]
   },
   {
-    group:'experience', id:'strive', title:'Tutor',
+    group:'work', id:'strive', start:2024, end:2025, title:'Tutor',
     org:'Strive Tuition', date:'2024 — 2025', tint:CV_TINTS.wheat,
     blurb:'Tutoring secondary students across science subjects.',
     tags:['Tutoring','Communication'],
@@ -97,7 +104,7 @@ const CV_DATA = [
     moments:[]
   },
   {
-    group:'experience', id:'mcdonalds', title:'Crew Member',
+    group:'work', id:'mcdonalds', start:2022, end:2022, title:'Crew Member',
     org:'McDonald’s Australia', date:'2022', tint:CV_TINTS.clay,
     blurb:'First job — service under genuine time pressure.',
     tags:['Hospitality','Teamwork','Working under pressure'],
@@ -110,7 +117,7 @@ const CV_DATA = [
 
   /* ---------------- EDUCATION ---------------- */
   {
-    group:'education', id:'mbbs', title:'Doctor of Medicine',
+    group:'education', id:'mbbs', start:2027, end:2030, title:'Doctor of Medicine',
     org:'The University of Queensland', date:'2027 — 2030', tint:CV_TINTS.bark,
     blurb:'Provisional entry, commencing 2027.',
     tags:['Provisional entry','MD'],
@@ -120,7 +127,7 @@ const CV_DATA = [
     moments:[]
   },
   {
-    group:'education', id:'biomed', title:'Bachelor of Biomedical Science',
+    group:'education', id:'biomed', start:2024, end:2026, title:'Bachelor of Biomedical Science',
     org:'The University of Queensland', date:'2024 — 2026', tint:CV_TINTS.moss,
     blurb:'Currently finishing third year. Course list inside.',
     tags:['Biomedical research','Data analysis','Lab competence'],
@@ -164,7 +171,7 @@ const CV_DATA = [
     moments:[]
   },
   {
-    group:'education', id:'ib', title:'International Baccalaureate',
+    group:'education', id:'ib', start:2023, end:2023, title:'International Baccalaureate',
     org:'Queensland Academy of Health Science', date:'2023', tint:CV_TINTS.fern,
     blurb:'IB 37/45 — ATAR 98.9 adjusted and converted.',
     tags:['IB 37/45','ATAR 98.9'],
@@ -184,7 +191,7 @@ const CV_DATA = [
     moments:[]
   },
   {
-    group:'education', id:'cert4', title:'Certificate IV in Measurement &amp; Sampling',
+    group:'education', id:'cert4', start:2021, end:2021, title:'Certificate IV in Measurement &amp; Sampling',
     org:'ABC Training &amp; Consulting', date:'2021', tint:CV_TINTS.wheat,
     blurb:'Vocational qualification completed alongside school.',
     tags:['Measurement','Sampling'],
@@ -192,7 +199,7 @@ const CV_DATA = [
     moments:[]
   },
   {
-    group:'education', id:'cert3', title:'Certificate III in Laboratory Skills',
+    group:'education', id:'cert3', start:2021, end:2021, title:'Certificate III in Laboratory Skills',
     org:'ABC Training &amp; Consulting', date:'2021', tint:CV_TINTS.clay,
     blurb:'Vocational qualification completed alongside school.',
     tags:['Laboratory skills'],
@@ -202,7 +209,7 @@ const CV_DATA = [
 
   /* ---------------- PROJECTS ---------------- */
   {
-    group:'projects', id:'beyond15', title:'Beyond15',
+    group:'projects', id:'beyond15', start:2026, end:null, title:'Beyond15',
     org:'Personal project', date:'2026 —', tint:CV_TINTS.moss,
     blurb:'On-device health software, from patient to clinic.',
     tags:['Swift','On-device LLMs','Whisper','Xcode'],
@@ -224,11 +231,33 @@ const CV_DATA = [
    ============================================================ */
 function esc(s){ return String(s).replace(/[<>]/g, c => ({'<':'&lt;','>':'&gt;'}[c])); }
 
+/* Newest first. Entries are authored grouped by category because that's the
+   readable way to edit them, but rendering them in that order made the
+   "everything" tab look like three timelines stacked on top of each other
+   rather than one. Sorting at render time keeps both. */
+function chronological(a, b){
+  if(b.start !== a.start) return b.start - a.start;
+  return (b.end ?? 9999) - (a.end ?? 9999);   // ongoing sorts above finished
+}
+
+/* Which side of the spine each card sits on. This can't be CSS nth-child:
+   nth-child counts hidden siblings too, so filtering to a tab would leave
+   runs of cards stacked on the same side. Only visible items are counted. */
+function restripe(){
+  let i = 0;
+  document.querySelectorAll('.tl-item').forEach(el => {
+    const shown = el.classList.contains('tl-show');
+    el.classList.toggle('tl-left',  shown && i % 2 === 0);
+    el.classList.toggle('tl-right', shown && i % 2 === 1);
+    if(shown) i++;
+  });
+}
+
 function buildTimeline(){
   const tl = document.getElementById('timeline');
   if(!tl) return;
 
-  CV_DATA.forEach(item => {
+  [...CV_DATA].sort(chronological).forEach(item => {
     const el = document.createElement('article');
     el.className = 'tl-item tl-show reveal';
     el.dataset.group = item.group;
@@ -264,6 +293,7 @@ function buildTimeline(){
     tl.append(el);
   });
 
+  restripe();
   SW.observeReveal(tl);
 }
 
@@ -278,6 +308,7 @@ function initTabs(){
       document.querySelectorAll('.tl-item').forEach(item => {
         item.classList.toggle('tl-show', want === 'all' || item.dataset.group === want);
       });
+      restripe();
     });
   });
 }
@@ -452,5 +483,6 @@ function openFromHash(delay){
   if(!item || !el) return;
   // make sure the entry isn't filtered out by the active tab
   el.closest('.tl-item').classList.add('tl-show');
+  restripe();
   setTimeout(() => openDetail(item, el), delay);
 }
