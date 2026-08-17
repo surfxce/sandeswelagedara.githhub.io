@@ -255,10 +255,12 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible{
 @media (min-width:761px){ .tl-dot{ left:50%; } }
 
 .tl-row{ padding-left:52px; }
+/* sides come from .tl-left/.tl-right, set in restripe(). Not nth-child —
+   that counts filtered-out siblings and strands cards on one side. */
 @media (min-width:761px){
   .tl-row{ padding-left:0; width:46%; }
-  .tl-item:nth-child(odd) .tl-row{ margin-left:0; text-align:right; }
-  .tl-item:nth-child(even) .tl-row{ margin-left:54%; }
+  .tl-item.tl-left .tl-row{ margin-left:0; text-align:right; }
+  .tl-item.tl-right .tl-row{ margin-left:54%; }
 }
 .tl-date{ font-family:var(--label); font-size:0.76rem; letter-spacing:.04em; opacity:0.72; margin-bottom:.5rem; }
 
