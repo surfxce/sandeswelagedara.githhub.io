@@ -8,15 +8,12 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&amp;family=Lora:ital,wght@0,400;0,500;0,600;1,400&amp;display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../assets/css/style.css">
 </head>
 <body>
 
-<svg class="grain" width="100%" height="100%">
-  <filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" stitchTiles="stitch"/></filter>
-  <rect width="100%" height="100%" filter="url(#noise)"/>
-</svg>
+<div class="grain" aria-hidden="true"></div>
 
 <nav class="nav" id="mainNav">
   <a href="../" class="nav-logo">SW</a>
@@ -42,11 +39,11 @@
 </div>
 
 <!-- ============ HERO ============ -->
-<header class="subpage-hero section-dark">
+<header class="subpage-hero section-paper">
   <div class="aura"><span class="orb"></span><span class="orb"></span><span class="orb"></span></div>
   <div class="wrap" style="position:relative; z-index:2;">
     <a href="../" class="crumb">← back home</a>
-    <p class="section-eyebrow"><span class="orb-chip" style="background:var(--coral)"></span>cv / résumé</p>
+    <p class="section-eyebrow"><span class="orb-chip" style="background:var(--clay)"></span>cv / résumé</p>
     <h1 class="section-title" style="font-size:clamp(2.6rem,7vw,4.6rem);">Where I've been</h1>
     <p class="section-note" style="margin-top:1rem; max-width:52ch;">
       Six years of clubs, tutoring, coursework and one stubborn side project.
@@ -56,7 +53,7 @@
 </header>
 
 <!-- ============ TIMELINE ============ -->
-<section class="section section-dark" style="padding-top:20px;">
+<section class="section section-paper" style="padding-top:20px;">
   <div class="wrap">
     <div class="cv-tabs">
       <button class="cv-tab active" data-group="all">everything</button>

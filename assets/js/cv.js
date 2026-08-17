@@ -26,18 +26,18 @@
 */
 
 const CV_TINTS = {
-  coral:  'linear-gradient(150deg, var(--coral), var(--gold))',
-  pink:   'linear-gradient(150deg, var(--pink), var(--violet))',
-  violet: 'linear-gradient(150deg, var(--violet), var(--teal))',
-  teal:   'linear-gradient(150deg, var(--teal), var(--ink-3))',
-  gold:   'linear-gradient(150deg, var(--gold), var(--coral))'
+  clay:  'linear-gradient(150deg, var(--clay), var(--wheat))',
+  bark:  'linear-gradient(150deg, var(--bark), var(--clay))',
+  moss:  'linear-gradient(150deg, var(--moss), var(--fern))',
+  fern:  'linear-gradient(150deg, var(--fern), var(--wheat))',
+  wheat: 'linear-gradient(150deg, var(--wheat), var(--bark))'
 };
 
 const CV_DATA = [
   /* ---------------- EXPERIENCE ---------------- */
   {
     group:'experience', id:'uqisc', title:'Operations Executive',
-    org:'Indian Students Club (UQISC)', date:'2026 —', tint:CV_TINTS.coral,
+    org:'Indian Students Club (UQISC)', date:'2026 —', tint:CV_TINTS.clay,
     blurb:'Running operations for one of UQ’s largest cultural clubs.',
     tags:['Operations','Event planning','Teamwork'],
     detail:[
@@ -51,7 +51,7 @@ const CV_DATA = [
   },
   {
     group:'experience', id:'uqlit', title:'Socials Executive',
-    org:'Ladies in Technology (UQLIT)', date:'2026 —', tint:CV_TINTS.pink,
+    org:'Ladies in Technology (UQLIT)', date:'2026 —', tint:CV_TINTS.bark,
     blurb:'Socials and content for UQ’s women-in-tech society.',
     tags:['Social media','Content','Community'],
     detail:[
@@ -65,7 +65,7 @@ const CV_DATA = [
   },
   {
     group:'experience', id:'uqnc', title:'General Executive',
-    org:'Nepalese Club (UQNC)', date:'2025', tint:CV_TINTS.violet,
+    org:'Nepalese Club (UQNC)', date:'2025', tint:CV_TINTS.moss,
     blurb:'General committee member across the club’s 2025 calendar.',
     tags:['Committee','Events','Cultural appreciation'],
     detail:[
@@ -76,7 +76,7 @@ const CV_DATA = [
   },
   {
     group:'experience', id:'alchemy', title:'Tutor',
-    org:'Alchemy Tuition', date:'2025 — 2026', tint:CV_TINTS.teal,
+    org:'Alchemy Tuition', date:'2025 — 2026', tint:CV_TINTS.fern,
     blurb:'One-on-one tutoring in the sciences.',
     tags:['Tutoring','Communication'],
     detail:[
@@ -87,7 +87,7 @@ const CV_DATA = [
   },
   {
     group:'experience', id:'strive', title:'Tutor',
-    org:'Strive Tuition', date:'2024 — 2025', tint:CV_TINTS.gold,
+    org:'Strive Tuition', date:'2024 — 2025', tint:CV_TINTS.wheat,
     blurb:'Tutoring secondary students across science subjects.',
     tags:['Tutoring','Communication'],
     detail:[
@@ -98,7 +98,7 @@ const CV_DATA = [
   },
   {
     group:'experience', id:'mcdonalds', title:'Crew Member',
-    org:'McDonald’s Australia', date:'2022', tint:CV_TINTS.coral,
+    org:'McDonald’s Australia', date:'2022', tint:CV_TINTS.clay,
     blurb:'First job — service under genuine time pressure.',
     tags:['Hospitality','Teamwork','Working under pressure'],
     detail:[
@@ -111,7 +111,7 @@ const CV_DATA = [
   /* ---------------- EDUCATION ---------------- */
   {
     group:'education', id:'mbbs', title:'Doctor of Medicine',
-    org:'The University of Queensland', date:'2027 — 2030', tint:CV_TINTS.pink,
+    org:'The University of Queensland', date:'2027 — 2030', tint:CV_TINTS.bark,
     blurb:'Provisional entry, commencing 2027.',
     tags:['Provisional entry','MD'],
     detail:[
@@ -121,7 +121,7 @@ const CV_DATA = [
   },
   {
     group:'education', id:'biomed', title:'Bachelor of Biomedical Science',
-    org:'The University of Queensland', date:'2024 — 2026', tint:CV_TINTS.violet,
+    org:'The University of Queensland', date:'2024 — 2026', tint:CV_TINTS.moss,
     blurb:'Currently finishing third year. Course list inside.',
     tags:['Biomedical research','Data analysis','Lab competence'],
     detail:[
@@ -165,7 +165,7 @@ const CV_DATA = [
   },
   {
     group:'education', id:'ib', title:'International Baccalaureate',
-    org:'Queensland Academy of Health Science', date:'2023', tint:CV_TINTS.teal,
+    org:'Queensland Academy of Health Science', date:'2023', tint:CV_TINTS.fern,
     blurb:'IB 37/45 — ATAR 98.9 adjusted and converted.',
     tags:['IB 37/45','ATAR 98.9'],
     detail:[
@@ -185,7 +185,7 @@ const CV_DATA = [
   },
   {
     group:'education', id:'cert4', title:'Certificate IV in Measurement &amp; Sampling',
-    org:'ABC Training &amp; Consulting', date:'2021', tint:CV_TINTS.gold,
+    org:'ABC Training &amp; Consulting', date:'2021', tint:CV_TINTS.wheat,
     blurb:'Vocational qualification completed alongside school.',
     tags:['Measurement','Sampling'],
     detail:['Certificate IV in Measurement and Sampling, completed in 2021 alongside secondary study.'],
@@ -193,7 +193,7 @@ const CV_DATA = [
   },
   {
     group:'education', id:'cert3', title:'Certificate III in Laboratory Skills',
-    org:'ABC Training &amp; Consulting', date:'2021', tint:CV_TINTS.coral,
+    org:'ABC Training &amp; Consulting', date:'2021', tint:CV_TINTS.clay,
     blurb:'Vocational qualification completed alongside school.',
     tags:['Laboratory skills'],
     detail:['Certificate III in Laboratory Skills, completed in 2021 alongside secondary study.'],
@@ -203,7 +203,7 @@ const CV_DATA = [
   /* ---------------- PROJECTS ---------------- */
   {
     group:'projects', id:'beyond15', title:'Beyond15',
-    org:'Personal project', date:'2026 —', tint:CV_TINTS.violet,
+    org:'Personal project', date:'2026 —', tint:CV_TINTS.moss,
     blurb:'On-device health software, from patient to clinic.',
     tags:['Swift','On-device LLMs','Whisper','Xcode'],
     detail:[
