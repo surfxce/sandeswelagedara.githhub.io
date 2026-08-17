@@ -15,11 +15,14 @@
      org      club, employer or institution
      date     free text, shown above the card
      blurb    one line, shown on the BACK of the flip card
-     detail   array of paragraphs shown in the expanded panel
+     detail   array shown in the expanded panel. A string is a paragraph;
+              {list:[...]} renders as a numbered list.
      tags     small chips under the description
      tint     CSS background for the cover + placeholder art
      courses  optional [{term, items:[...]}] — renders as a course list
      moments  optional key events. Each flips to reveal its write-up.
+     prospective  optional. true = not confirmed yet (a candidacy, an offer):
+              draws the card dashed and the timeline dot hollow.
 
    ADDING PHOTOS
      Drop files in assets/cv/ and list them in a moment's `photos`.
@@ -38,6 +41,29 @@ const CV_TINTS = {
 
 const CV_DATA = [
   /* ---------------- VOLUNTEERING ---------------- */
+  {
+    /* prospective:true draws the card dashed and the timeline dot hollow —
+       it's a candidacy, not a role held. Delete the flag once it's decided. */
+    group:'volunteering', id:'uqsla', start:2027, end:null, prospective:true,
+    title:'VP of Events', org:'UQ Sri Lankan Association (UQSLA)',
+    date:'2027', tint:CV_TINTS.wheat,
+    blurb:'I’m running for VP of Events at UQSLA.',
+    tags:['Events','Leadership','Committee'],
+    detail:[
+      'After stints in the Nepalese Club, Indian Students Club and Ladies in Technology, I’m excited to announce I will be running for VP of Events at UQ Sri Lankan Association. After garnering a combined 2.5 years of executive experience across a diverse range of clubs and societies, I am equipped to handle this new and exciting chapter.',
+      'I would propose a few changes if I was elected as VP.',
+      { list:[
+        'UQ SLA needs a presence at Market Day in Semester 2.',
+        'More events in Semester 2, like doing a 2nd Sarong Party, or bringing back Ceylon Soiree.',
+        'Maintaining fruitful relationships with other South Asian societies, which means expanding Fright Night, Silk Road Festival, and End of Semester Party.',
+        'Pushing for an open bar tab at events other than Suits n Sarees, to deliver greater value to our members.',
+        'Ensuring Suits n Sarees enjoys a decent amount of growth in attendees whilst guaranteeing an excellent experience for all.'
+      ]},
+      'I’m grateful to all my friends at the clubs I’ve worked with, who’ve shown me the ins and outs of event planning and organisation. Special shout out to my VPs who’ve inspired me to take this next step.',
+      'Details of the AGM will be announced soon.'
+    ],
+    moments:[]
+  },
   {
     group:'volunteering', id:'uqisc', start:2026, end:null, title:'Operations Executive',
     org:'Indian Students Club (UQISC)', date:'2026 —', tint:CV_TINTS.clay,
@@ -259,11 +285,16 @@ function buildTimeline(){
 
   [...CV_DATA].sort(chronological).forEach(item => {
     const el = document.createElement('article');
-    el.className = 'tl-item tl-show reveal';
+    el.className = 'tl-item tl-show reveal' + (item.prospective ? ' tl-prospective' : '');
     el.dataset.group = item.group;
     el.dataset.id = item.id;
+    const accent = item.tint.match(/var\(--[a-z0-9]+\)/)[0];
+    // prospective entries get a hollow dot; CSS can't override an inline fill
+    const dotStyle = item.prospective
+      ? `border-color:${accent}`
+      : `background:${accent}`;
     el.innerHTML = `
-      <span class="tl-dot" style="background:${item.tint.match(/var\(--[a-z0-9]+\)/)[0]}"></span>
+      <span class="tl-dot" style="${dotStyle}"></span>
       <div class="tl-row">
         <p class="tl-date">${item.date}</p>
         <div class="flip" tabindex="0" role="button" aria-label="Open details for ${esc(item.title)}">
@@ -355,6 +386,13 @@ function momentsHTML(item){
     <div class="moments-grid">${cards}</div>`;
 }
 
+/* a detail entry is a paragraph string, or {list:[...]} for a numbered list */
+function detailBlock(p){
+  if(typeof p === 'string') return `<p class="detail-desc">${p}</p>`;
+  if(p && p.list) return `<ol class="detail-ol">${p.list.map(li => `<li>${li}</li>`).join('')}</ol>`;
+  return '';
+}
+
 function coursesHTML(item){
   if(!item.courses || !item.courses.length) return '';
   return item.courses.map(c => `
@@ -380,7 +418,7 @@ function openDetail(item, triggerEl){
       </div>
       <div class="detail-body">
         <p class="detail-org">${item.org} &middot; ${item.date}</p>
-        ${item.detail.map(p => `<p class="detail-desc">${p}</p>`).join('')}
+        ${item.detail.map(detailBlock).join('')}
         ${item.tags && item.tags.length ? `<div class="detail-tags">${item.tags.map(t => `<span class="chip">${t}</span>`).join('')}</div>` : ''}
         ${coursesHTML(item)}
         ${momentsHTML(item)}
