@@ -50,8 +50,12 @@ html{ scroll-behavior:smooth; }
 }
 body{
   margin:0;
-  /* containing block for .grain, so it can stretch to the whole document */
+  /* containing block for .grain, so it can stretch to the whole document.
+     min-height matters too: .grain is inset:0 against body, so on a short
+     page (blog with three cards) body ended above the fold and the texture
+     stopped dead at the footer with flat cream below it. */
   position:relative;
+  min-height:100vh;
   background-color:var(--paper);
   /* a standing wash of green and brown so no page is ever a flat cream
      rectangle. Fixed, so it behaves like light in the room rather than
@@ -275,8 +279,18 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible{
 .flip-hint{ margin-top:.6rem; font-family:var(--label); font-size:0.68rem; opacity:0.72; letter-spacing:.04em; }
 .flip.flipping .flip-hint{ opacity:0.7; }
 
+/* --- prospective: a candidacy or an offer, not a role held.
+       Dashed rather than solid, and the dot is an outline rather than a fill. --- */
+.tl-item.tl-prospective .flip-face{ border-style:dashed; border-color:var(--line-2); background:transparent; }
+.tl-item.tl-prospective .tl-dot{ background:var(--paper); border:2px solid var(--clay); box-shadow:0 0 0 4px var(--paper); }
+
 /* mini course list inside education detail */
 .tl-detail-list{ margin:.5rem 0 0; padding-left:1.1rem; font-size:0.86rem; opacity:0.88; line-height:1.65; }
+
+/* numbered list inside a detail panel */
+.detail-ol{ margin:1rem 0 0; padding-left:1.3rem; max-width:64ch; font-size:1rem; line-height:1.7; }
+.detail-ol li{ margin-bottom:.6rem; }
+.detail-ol li::marker{ color:var(--clay); font-family:var(--display); }
 
 /* ============================================================
    SKILLS STRIP

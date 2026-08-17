@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Projects — Sandes Welagedara</title>
+<meta name="description" content="Beyond15 — on-device health software, from patient to clinic.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&amp;family=Lora:ital,wght@0,400;0,500;0,600;1,400&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+
+<div class="grain" aria-hidden="true"></div>
+
+<nav class="nav" id="mainNav">
+  <a href="../" class="nav-logo">SW</a>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="../cv/" data-nav="cv">cv / resume</a></li>
+    <li><a href="../photos/" data-nav="photos">photos</a></li>
+    <li><a href="../blog/" data-nav="blog">blog</a></li>
+    <li><a href="./" data-nav="projects">projects</a></li>
+  </ul>
+  <button class="nav-burger" id="burgerBtn" aria-label="Open menu" aria-expanded="false">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+  </button>
+</nav>
+
+<div class="nav-mobile" id="navMobile">
+  <button class="nav-mobile-close" id="navMobileClose" aria-label="Close menu">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 6l12 12M18 6L6 18"/></svg>
+  </button>
+  <a href="../cv/" data-nav="cv">cv / resume</a>
+  <a href="../photos/" data-nav="photos">photos</a>
+  <a href="../blog/" data-nav="blog">blog</a>
+  <a href="./" data-nav="projects">projects</a>
+</div>
+
+<!-- ============ HERO ============ -->
+<header class="subpage-hero section-paper">
+  <div class="aura"><span class="orb"></span><span class="orb"></span><span class="orb"></span></div>
+  <div class="wrap" style="position:relative; z-index:2;">
+    <a href="../" class="crumb">← back home</a>
+    <p class="section-eyebrow"><span class="orb-chip" style="background:var(--moss)"></span>projects</p>
+    <h1 class="section-title" style="font-size:clamp(2.6rem,7vw,4.6rem);">What I'm building</h1>
+    <p class="section-note" style="margin-top:1rem; max-width:52ch;">
+      Mostly one thing, properly.
+    </p>
+  </div>
+</header>
+
+<!-- ============ BEYOND15 ============ -->
+<section class="section section-paper" style="padding-top:20px;">
+  <div class="wrap">
+
+    <div class="project-hero reveal">
+      <div class="aura"><span class="orb"></span><span class="orb"></span></div>
+      <div class="project-hero-inner">
+        <p class="project-kicker">2026 — ongoing</p>
+        <h2 class="project-name">Beyond15</h2>
+        <p class="project-tagline">
+          A suite of apps designed to augment the healthcare experience, from patient to clinic.
+          What separates it from its competitors is that it runs entirely on device and on premise —
+          nothing leaves the building.
+        </p>
+        <div class="project-chip-row">
+          <span class="chip">Swift</span>
+          <span class="chip">On-device LLMs</span>
+          <span class="chip">Whisper</span>
+          <span class="chip">Xcode</span>
+          <span class="chip">Privacy-first</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="project-feature-grid reveal">
+      <div class="feature-card">
+        <h4>For the patient</h4>
+        <p>
+          The patient-facing app delivers powerful statistical analysis of a person's own health
+          data — computed right on their device, so the raw data never has to travel anywhere to
+          become useful.
+        </p>
+      </div>
+      <div class="feature-card">
+        <h4>For the clinic</h4>
+        <p>
+          The clinic-facing app acts as a scribe, helping practitioners with the ever-increasing
+          burden of paperwork. Consultation in, structured note out, without the evening spent
+          catching up on documentation.
+        </p>
+      </div>
+    </div>
+
+    <div class="section-head reveal" style="margin-top:4.5rem; margin-bottom:1rem;">
+      <div>
+        <p class="section-eyebrow"><span class="orb-chip" style="background:var(--clay)"></span>how it started</p>
+        <h3 class="section-title" style="font-size:clamp(1.6rem,3.4vw,2.2rem);">From a hackathon to a working build</h3>
+      </div>
+    </div>
+
+    <div class="origin-strip reveal">
+      <div class="origin-step">
+        <p class="num">01</p>
+        <p class="lbl">The hackathon</p>
+        <p class="txt">January Capital Hackathon, hosted by UQIES. The team produced a markup using Lovable, an AI agent that builds websites from a single prompt.</p>
+      </div>
+      <div class="origin-step">
+        <p class="num">02</p>
+        <p class="lbl">The prototype</p>
+        <p class="txt">After the hackathon, a working prototype was developed in Swift — a real app rather than a mockup.</p>
+      </div>
+      <div class="origin-step">
+        <p class="num">03</p>
+        <p class="lbl">The models</p>
+        <p class="txt">Open-weight language models like Phi-4 and GPT-oss handle note generation. Whisper handles speech transcription, to keep transcripts medically accurate.</p>
+      </div>
+      <div class="origin-step">
+        <p class="num">04</p>
+        <p class="lbl">Now</p>
+        <p class="txt">New features are being added by the day.</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="footer-row">
+    <p class="footer-name">Get in touch</p>
+    <div class="footer-links">
+      <a href="../#connect">profiles</a>
+      <a href="../">home</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>Sandes Welagedara — Brisbane, QLD</span>
+    <span id="year"></span>
+  </div>
+</footer>
+
+<script src="../assets/js/site.js"></script>
+<script>
+  SW.initNav({ page: 'projects' });
+  document.getElementById('year').textContent = '© ' + new Date().getFullYear();
+</script>
+</body>
+</html>

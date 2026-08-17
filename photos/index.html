@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Photos — Sandes Welagedara</title>
+<meta name="description" content="Photos — Sandes Welagedara, Brisbane.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&amp;family=Lora:ital,wght@0,400;0,500;0,600;1,400&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+
+<div class="grain" aria-hidden="true"></div>
+
+<nav class="nav" id="mainNav">
+  <a href="../" class="nav-logo">SW</a>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="../cv/" data-nav="cv">cv / resume</a></li>
+    <li><a href="./" data-nav="photos">photos</a></li>
+    <li><a href="../blog/" data-nav="blog">blog</a></li>
+    <li><a href="../projects/" data-nav="projects">projects</a></li>
+  </ul>
+  <button class="nav-burger" id="burgerBtn" aria-label="Open menu" aria-expanded="false">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+  </button>
+</nav>
+
+<div class="nav-mobile" id="navMobile">
+  <button class="nav-mobile-close" id="navMobileClose" aria-label="Close menu">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 6l12 12M18 6L6 18"/></svg>
+  </button>
+  <a href="../cv/" data-nav="cv">cv / resume</a>
+  <a href="./" data-nav="photos">photos</a>
+  <a href="../blog/" data-nav="blog">blog</a>
+  <a href="../projects/" data-nav="projects">projects</a>
+</div>
+
+<!-- ============ HERO ============ -->
+<header class="subpage-hero section-paper">
+  <div class="aura"><span class="orb"></span><span class="orb"></span><span class="orb"></span></div>
+  <div class="wrap" style="position:relative; z-index:2;">
+    <a href="../" class="crumb">← back home</a>
+    <p class="section-eyebrow"><span class="orb-chip" style="background:var(--fern)"></span>photos</p>
+    <h1 class="section-title" style="font-size:clamp(2.6rem,7vw,4.6rem);">A wall of them</h1>
+    <p class="section-note" style="margin-top:1rem; max-width:52ch;">
+      Since Instagram killed profile posts.
+    </p>
+  </div>
+</header>
+
+<!-- ============ GRID ============ -->
+<section class="section section-paper" style="padding-top:20px;">
+  <div class="wrap">
+    <p class="section-note" id="photoEmpty" style="display:none; margin-bottom:1.4rem;">
+      Nothing up yet — add photos to <code>assets/photos/</code> and list them in
+      <code>assets/js/photos.js</code>. These tiles are placeholders.
+    </p>
+    <div class="photo-grid" id="photoGrid"></div>
+  </div>
+</section>
+
+<!-- ============ LIGHTBOX ============ -->
+<div class="lightbox" id="lightbox">
+  <div class="lightbox-inner">
+    <button class="lightbox-close" id="lbClose" aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+    <img id="lbImg" alt="">
+    <div class="lightbox-fallback" id="lbFallback"></div>
+    <p class="lightbox-cap" id="lbCap"></p>
+    <button class="lightbox-btn lightbox-prev" id="lbPrev" aria-label="Previous">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M15 5l-7 7 7 7"/></svg>
+    </button>
+    <button class="lightbox-btn lightbox-next" id="lbNext" aria-label="Next">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 5l7 7-7 7"/></svg>
+    </button>
+  </div>
+</div>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="footer-row">
+    <p class="footer-name">Get in touch</p>
+    <div class="footer-links">
+      <a href="../#connect">profiles</a>
+      <a href="../">home</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>Sandes Welagedara — Brisbane, QLD</span>
+    <span id="year"></span>
+  </div>
+</footer>
+
+<script src="../assets/js/site.js"></script>
+<script src="../assets/js/photos.js"></script>
+<script>
+  SW.initNav({ page: 'photos' });
+  document.getElementById('year').textContent = '© ' + new Date().getFullYear();
+</script>
+</body>
+</html>
