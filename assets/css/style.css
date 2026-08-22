@@ -427,6 +427,40 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible{
   margin:1.9rem 0; max-width:44ch;
 }
 
+/* the AI disclaimer at the foot of a post */
+.post-disclaimer{ margin-top:2.6rem; padding-top:1.4rem; border-top:1px solid var(--line); font-family:var(--label); font-size:0.85rem; line-height:1.6; opacity:0.72; max-width:60ch; }
+
+/* the quadrant: strengths/weaknesses against exam frequency */
+.table-scroll{ overflow-x:auto; margin:1.8rem 0; }
+.quadrant{ border-collapse:separate; border-spacing:0; width:100%; min-width:26rem; }
+.quadrant th, .quadrant td{ border:1px solid var(--line); padding:.85rem .95rem; text-align:left; vertical-align:middle; }
+.quadrant .quadrant-corner{ border:0; background:none; }
+.quadrant th{ font-family:var(--label); font-weight:500; font-size:0.82rem; line-height:1.35; opacity:0.85; background:var(--paper-2); }
+.quadrant thead th{ text-align:center; }
+.quadrant tbody td{ font-family:var(--display); font-size:1.08rem; text-align:center; background:var(--paper-2); }
+.quadrant tbody td.is-top{ background:var(--moss); color:var(--paper); }
+.quadrant tbody td.is-low{ opacity:0.55; }
+
+/* geometric mean widget (blog post) */
+.gm-widget{ margin:2rem 0 1.6rem; padding:1.4rem 1.5rem 1.5rem; border:1px solid var(--line); border-radius:var(--radius); background:var(--paper-2); max-width:46ch; }
+.gm-caption{ font-family:var(--label); font-size:0.76rem; letter-spacing:.04em; opacity:0.72; margin-bottom:.6rem !important; }
+.gm-formula{ display:flex; align-items:center; justify-content:center; min-height:4rem; color:var(--moss); font-size:1.45rem; }
+/* deliberately NOT font-family:var(--display) here. MathML draws the radical
+   from the font's stretchy glyphs, and EB Garamond has no radical, so forcing
+   it renders "LAQ1 x LAQ2" with no sign over it at all. Left to the browser's
+   default math font (STIX / Latin Modern), which is a serif and has them. */
+.gm-formula math{ font-size:1.5rem; }
+.gm-formula:not(:has(math)){ font-family:var(--display); }
+.gm-controls{ display:flex; align-items:flex-start; gap:1.4rem; margin-top:1rem; flex-wrap:wrap; }
+.gm-slider-wrap{ flex:1 1 160px; min-width:150px; }
+.gm-slider-wrap input[type=range]{ width:100%; accent-color:var(--moss); cursor:pointer; }
+.gm-ticks{ display:flex; justify-content:space-between; font-family:var(--label); font-size:0.72rem; opacity:0.62; margin-top:.15rem; }
+.gm-toggle{ display:flex; border:1px solid var(--line-2); border-radius:999px; overflow:hidden; flex:0 0 auto; }
+.gm-btn{ background:none; border:0; padding:.4rem .8rem; font-family:var(--display); font-size:1rem; line-height:1; color:var(--text); opacity:.55; transition:background .2s, color .2s, opacity .2s; }
+.gm-btn sup{ font-size:.62em; }
+.gm-btn.is-on{ background:var(--moss); color:var(--paper); opacity:1; }
+.gm-btn:not(.is-on):hover{ opacity:.85; }
+
 .post-nav{ margin-top:3.5rem; padding-top:1.6rem; border-top:1px solid var(--line); display:flex; justify-content:space-between; gap:1rem; flex-wrap:wrap; font-family:var(--label); font-size:0.84rem; }
 .post-nav a{ opacity:.75; transition:opacity .2s; }
 .post-nav a:hover{ opacity:1; }
