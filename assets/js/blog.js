@@ -18,12 +18,12 @@
    point `href` at it.
 */
 const POSTS = [
+  { tag:'Study', title:'How I study',
+    excerpt:'The workflow I actually use — AI-generated long answer questions, geometric mean scoring, and a loose leaf binder. Plus everything I’ve tried and dropped.',
+    date:'August 2026', href:'how-i-study/' },
+
   { tag:'Beyond15', title:'Why it all runs on device',
     excerpt:'On-premise isn’t a constraint I worked around — it was the point. What that decision costs, and what it buys.',
-    date:'Coming soon', href:'' },
-
-  { tag:'Medicine', title:'Provisional entry, and the three years before it',
-    excerpt:'What a biomedical science degree actually looks like from the inside, and what I’d tell someone starting it.',
     date:'Coming soon', href:'' },
 
   { tag:'Clubs', title:'What running events teaches you that a degree doesn’t',
