@@ -427,43 +427,80 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible{
   margin:1.9rem 0; max-width:44ch;
 }
 
-/* the AI disclaimer at the foot of a post */
-.post-disclaimer{ margin-top:2.6rem; padding-top:1.4rem; border-top:1px solid var(--line); font-family:var(--label); font-size:0.85rem; line-height:1.6; opacity:0.72; max-width:60ch; }
-
-/* the quadrant: strengths/weaknesses against exam frequency */
-.table-scroll{ overflow-x:auto; margin:1.8rem 0; }
-.quadrant{ border-collapse:separate; border-spacing:0; width:100%; min-width:26rem; }
-.quadrant th, .quadrant td{ border:1px solid var(--line); padding:.85rem .95rem; text-align:left; vertical-align:middle; }
+/* the quadrant: strengths/weaknesses against exam frequency.
+   Cells are divs inside the <td>, not the <td> itself — table layout ignores
+   aspect-ratio on cells, so the square has to live on a normal block inside. */
+.quad-card{
+  margin:2.4rem 0; padding:1.5rem 1.6rem 1.7rem;
+  border:1.5px solid var(--bark); border-radius:18px; background:var(--paper);
+  box-shadow:5px 5px 0 rgba(109,79,52,0.15);
+}
+.table-scroll{ overflow-x:auto; }
+.quadrant{ border-collapse:separate; border-spacing:12px; width:100%; min-width:24rem; }
+.quadrant th{ border:0; background:none; font-family:var(--label); font-weight:400; font-size:0.8rem; line-height:1.35; opacity:0.8; }
+.quadrant thead th{ text-align:center; vertical-align:bottom; padding-bottom:.1rem; }
+.quadrant tbody th{ text-align:center; width:24%; }
 .quadrant .quadrant-corner{ border:0; background:none; }
-.quadrant th{ font-family:var(--label); font-weight:500; font-size:0.82rem; line-height:1.35; opacity:0.85; background:var(--paper-2); }
-.quadrant thead th{ text-align:center; }
-.quadrant tbody td{ font-family:var(--display); font-size:1.08rem; text-align:center; background:var(--paper-2); }
-.quadrant tbody td.is-top{ background:var(--moss); color:var(--paper); }
-.quadrant tbody td.is-low{ opacity:0.55; }
+.quadrant td{ border:0; padding:0; }
+.quad-cell{
+  aspect-ratio:1/1; display:flex; align-items:center; justify-content:center; text-align:center;
+  border:1.5px solid var(--bark); border-radius:14px; background:var(--paper-2);
+  font-family:var(--display); font-size:clamp(1rem,2.2vw,1.35rem); line-height:1.2; padding:.7rem;
+}
+/* the two extremes are the ones you act on, so they carry the weight */
+.quad-cell.is-top{ background:var(--moss); color:var(--paper); border-color:var(--moss); font-weight:600; }
+.quad-cell.is-low{ opacity:0.55; font-weight:600; }
 
 /* geometric mean widget (blog post) */
-.gm-widget{ margin:2rem 0 1.6rem; padding:1.4rem 1.5rem 1.5rem; border:1px solid var(--line); border-radius:var(--radius); background:var(--paper-2); max-width:46ch; }
-.gm-caption{ font-family:var(--label); font-size:0.76rem; letter-spacing:.04em; opacity:0.72; margin-bottom:.6rem !important; }
-.gm-formula{ display:flex; align-items:center; justify-content:center; min-height:4rem; color:var(--moss); font-size:1.45rem; }
+.gm-widget{
+  margin:2.4rem 0; padding:1.5rem 1.6rem 1.7rem;
+  border:1.5px solid var(--bark); border-radius:18px; background:var(--paper);
+  box-shadow:5px 5px 0 rgba(109,79,52,0.15);
+}
+.gm-caption{
+  font-family:var(--label); font-size:0.7rem; letter-spacing:.16em; text-transform:uppercase;
+  opacity:0.6; text-align:center; margin-bottom:1rem !important;
+}
+/* the formula sits on its own plate, the way a worked step does on Brilliant */
+.gm-plate{
+  border:1px solid var(--line-2); border-radius:12px; background:var(--paper-2);
+  min-height:5.6rem; display:flex; align-items:center; justify-content:center; padding:1.2rem 1rem;
+}
+.gm-formula{ color:var(--text); font-size:1.4rem; }
 /* deliberately NOT font-family:var(--display) here. MathML draws the radical
    from the font's stretchy glyphs, and EB Garamond has no radical, so forcing
    it renders "LAQ1 x LAQ2" with no sign over it at all. Left to the browser's
    default math font (STIX / Latin Modern), which is a serif and has them. */
-.gm-formula math{ font-size:1.5rem; }
+.gm-formula math{ font-size:1.75rem; }
 .gm-formula:not(:has(math)){ font-family:var(--display); }
-.gm-controls{ display:flex; align-items:flex-start; gap:1.4rem; margin-top:1rem; flex-wrap:wrap; }
-.gm-slider-wrap{ flex:1 1 160px; min-width:150px; }
-.gm-slider-wrap input[type=range]{ width:100%; accent-color:var(--moss); cursor:pointer; }
-.gm-ticks{ display:flex; justify-content:space-between; font-family:var(--label); font-size:0.72rem; opacity:0.62; margin-top:.15rem; }
+.gm-sub{
+  font-family:var(--label); font-size:0.82rem; opacity:0.7; text-align:center;
+  margin:.9rem 0 0 !important;
+}
+.gm-controls{ display:flex; align-items:center; gap:1.8rem; margin-top:1.4rem; flex-wrap:wrap; }
+.gm-slider-wrap{ flex:1 1 200px; min-width:170px; }
+
+/* custom thumb so its width is KNOWN — the tick row is inset by exactly half
+   of it, which is the only way 2 / 3 / 4 sit under the positions they mean */
+#gmSlider{ -webkit-appearance:none; appearance:none; width:100%; height:20px; margin:0; background:transparent; cursor:pointer; }
+#gmSlider::-webkit-slider-runnable-track{ height:4px; border-radius:2px; background:var(--line-2); }
+#gmSlider::-webkit-slider-thumb{ -webkit-appearance:none; width:18px; height:18px; margin-top:-7px; border-radius:50%; background:var(--moss); border:2px solid var(--paper); box-shadow:0 1px 3px rgba(61,48,32,.35); }
+#gmSlider::-moz-range-track{ height:4px; border-radius:2px; background:var(--line-2); }
+#gmSlider::-moz-range-thumb{ width:18px; height:18px; border-radius:50%; background:var(--moss); border:2px solid var(--paper); }
+#gmSlider:focus-visible{ outline:2px solid var(--moss); outline-offset:4px; border-radius:4px; }
+
+.gm-ticks{ position:relative; height:1.3em; margin:.45rem 9px 0; }
+.gm-ticks span{ position:absolute; transform:translateX(-50%); font-family:var(--label); font-size:0.8rem; opacity:0.45; transition:opacity .2s, color .2s; }
+.gm-ticks span:nth-child(1){ left:0; }
+.gm-ticks span:nth-child(2){ left:50%; }
+.gm-ticks span:nth-child(3){ left:100%; }
+.gm-ticks span.is-active{ opacity:1; color:var(--moss); font-weight:600; }
+
 .gm-toggle{ display:flex; border:1px solid var(--line-2); border-radius:999px; overflow:hidden; flex:0 0 auto; }
-.gm-btn{ background:none; border:0; padding:.4rem .8rem; font-family:var(--display); font-size:1rem; line-height:1; color:var(--text); opacity:.55; transition:background .2s, color .2s, opacity .2s; }
+.gm-btn{ background:none; border:0; padding:.45rem .9rem; font-family:var(--display); font-size:1rem; line-height:1; color:var(--text); opacity:.55; transition:background .2s, color .2s, opacity .2s; }
 .gm-btn sup{ font-size:.62em; }
 .gm-btn.is-on{ background:var(--moss); color:var(--paper); opacity:1; }
 .gm-btn:not(.is-on):hover{ opacity:.85; }
-
-.post-nav{ margin-top:3.5rem; padding-top:1.6rem; border-top:1px solid var(--line); display:flex; justify-content:space-between; gap:1rem; flex-wrap:wrap; font-family:var(--label); font-size:0.84rem; }
-.post-nav a{ opacity:.75; transition:opacity .2s; }
-.post-nav a:hover{ opacity:1; }
 
 /* ============================================================
    PROJECTS
