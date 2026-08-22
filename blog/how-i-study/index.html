@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How I study — Sandes Welagedara</title>
+<meta name="description" content="The workflow I actually use — AI-generated long answer questions, geometric mean scoring, and a loose leaf binder. Plus everything I've tried and dropped.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&amp;family=Lora:ital,wght@0,400;0,500;0,600;1,400&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/css/style.css">
+</head>
+<body>
+
+<div class="grain" aria-hidden="true"></div>
+
+<nav class="nav" id="mainNav">
+  <a href="../../" class="nav-logo">SW</a>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="../../cv/" data-nav="cv">cv / resume</a></li>
+    <li><a href="../../photos/" data-nav="photos">photos</a></li>
+    <li><a href="../" data-nav="blog">blog</a></li>
+    <li><a href="../../projects/" data-nav="projects">projects</a></li>
+  </ul>
+  <button class="nav-burger" id="burgerBtn" aria-label="Open menu" aria-expanded="false">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+  </button>
+</nav>
+
+<div class="nav-mobile" id="navMobile">
+  <button class="nav-mobile-close" id="navMobileClose" aria-label="Close menu">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 6l12 12M18 6L6 18"/></svg>
+  </button>
+  <a href="../../cv/" data-nav="cv">cv / resume</a>
+  <a href="../../photos/" data-nav="photos">photos</a>
+  <a href="../" data-nav="blog">blog</a>
+  <a href="../../projects/" data-nav="projects">projects</a>
+</div>
+
+<!-- ============ POST HERO ============ -->
+<header class="subpage-hero section-paper">
+  <div class="aura"><span class="orb"></span><span class="orb"></span><span class="orb"></span></div>
+  <div class="wrap" style="position:relative; z-index:2;">
+    <a href="../" class="crumb">← all posts</a>
+    <p class="section-eyebrow"><span class="orb-chip" style="background:var(--wheat)"></span>study</p>
+    <h1 class="section-title" style="font-size:clamp(2.6rem,7vw,4.6rem); max-width:16ch;">How I study</h1>
+    <div class="post-meta">
+      <span>August 2026</span>
+      <span class="dot-sep">·</span>
+      <span>12 min read</span>
+    </div>
+  </div>
+</header>
+
+<!-- ============ POST ============ -->
+<article class="section section-paper" style="padding-top:20px;">
+  <div class="wrap">
+    <div class="post-body reveal">
+
+      <h2>Introduction</h2>
+
+      <p>I've gotten a few questions asking me "how do you study", so I want to share what I think works for me as well as techniques that I've picked up and subsequently dropped.</p>
+
+      <p>Now, people usually open these videos with their credentials. "Why you should listen to me". I'm gonna be real, my credentials aren't looking that great. My GPA is not a perfect 7, and I didn't get 100% in a lot of things in high school. What I can tell you are two of my proudest achievements, which are somewhat linked.</p>
+
+      <p>The first one is a 7/7 in IB Psychology. This was back in high school, and in the first quarter I was on a 4. Barely passing. To go from that to the highest mark you can get in just a year is pretty impressive. I chalk it up to doing so many practice questions and preparing for anything they could ask me.</p>
+
+      <p>The second one is 84.45% in third year genetics. This was unfathomable to me. 70% of that grade was dictated by exams. And those exams had zero multiple choice questions — it was all long response, so you bet I was writing paragraphs upon paragraphs in the exam time. My uni rounds 84.5% up to 85%, so I was 0.05% off a 7, and one mark anywhere would've been enough to bump me up.</p>
+
+      <p>I consider this my greatest achievement because third year genetics is anything but easy, and yet I performed so much better here than in electives I took because they were "easy". For example, I took Spanish in high school and then did introductory Spanish again to get a 6/7. I also took professional writing, which was all pretty easy assignments, and got a 6 again. So for a course which was very content heavy and technical, where much of your mark was riding on exams — and definitely not easy exams at that — to score so well was genuinely beyond me.</p>
+
+      <p>So I'm going to share what my workflow looks like and see if this could help you. And I'm also gonna share what I dropped, and why.</p>
+
+      <h2>What I do</h2>
+
+      <p>I start by formatting a Notion page. It will have a heading, the day of the week and the date the lecture took place. These are pretty standard. Here's what's unique: two number fields called LAQ 1 and LAQ 2, and then a formula called "Geometric Mean". Also a text field for "weaknesses". We'll come back to these. Inside each lecture is a little summary generated by AI.</p>
+
+      <p>I think AI can be a productive tool for learning if used well. Last semester I used Gemini 3.1 Pro, so I had to do this all manually. Now I use Claude, as it integrates directly into Notion and does it automatically.</p>
+
+      <p>Your pick of which AI service to subscribe to doesn't matter all too much — just pick one to subscribe to so you get generous file uploads and good quality responses. Gemini is very multimodal, and can interpret audio files and generate images and video. ChatGPT is the de facto and is very competitive, but I haven't used their models in quite a bit. Claude has a nice interface, connects to Notion, and I can switch to one of the best performing models as of current. It also doesn't need me to manually upload the files.</p>
+
+      <p>I say this, but you also don't have to shell out $30 a month for an AI service. DeepSeek is free and unlimited. Gemini has generous file uploads, ChatGPT has unlimited text generation, and Claude defaults you to Sonnet 5, one of the highest quality models out there.</p>
+
+      <p>To get AI to summarise your lecture, you can simply drag in the lecture transcript (usually a txt file) and the slides (usually PDF or PPTX) and ask it to summarise. It's also worthwhile to ask whether there are important visuals you need to grab, for courses like anatomy where a text summary can't show you where something is or what something looks like. It might take a few seconds, but it will summarise the key points. Cool.</p>
+
+      <p>What I then do is read through it. Then I ask it to generate two long answer questions for each one hour block of a lecture. So if your lecture is two hours, generate four. Or four hours, generate eight. AI can generate seemingly infinite numbers of questions — whether MCQ, long answer or short answer — which is why it's such a great tool.</p>
+
+      <p>Then, <strong>without looking at the summary</strong>, answer the question in your own words. You can type it up in dot points, or if that's too tiring you can speak into your phone and copy the transcript. AI can cut down on the fluff like "um" or "ahhh" and still know what you're saying.</p>
+
+      <p>You then ask it to do three things:</p>
+
+      <ol>
+        <li>Assign a mark out of 10</li>
+        <li>State what I missed</li>
+        <li>State what I got wrong</li>
+      </ol>
+
+      <p>It will then take your answers and mark them, and since you uploaded your lecture earlier it can see what you missed from the lecture content, without introducing things that are not studied in the course. You will get two scores out of 10. This is the important bit:</p>
+
+      <p class="post-callout">Multiply them together and square root them.</p>
+
+      <p>What a peculiar function. Why do I do that? That is called the geometric mean, and it serves a crucial function.</p>
+
+      <p>Let's say you answer your two LAQs and you get 0/10 for one and 10/10 for the other. You did very well on one but poorly on the other. If you average them together you get 5/10, which looks better than two LAQs that you got 4/10 for. However, when it comes to the exam and you get an LAQ similar to the one you scored 0/10 on, you get zero marks.</p>
+
+      <p>This is what the geometric mean solves. By multiplying then square rooting, we try to give ourselves the best shot at anything that could come up in an exam.</p>
+
+      <p>But that's only talking about the first thing I ask AI to do. The second and third things are just as important: what you missed and what you got wrong.</p>
+
+      <p>Here there is no way around it — you must write it down somewhere. I have this loose leaf binder where I write down everything I missed or got wrong. I like to think handwriting does a better job at converting it to memory over something like typing, and I enjoy the tactility and satisfaction of using nice, high quality paper over something like an iPad.</p>
+
+      <p>In this system you only write down things you forget or get wrong, so you don't have to waste time taking notes for things you already know. This can reduce the time it takes to take notes for a lecture, since watching the lecture in whole and taking down notes for the whole thing will take more time than what you actually need to focus on.</p>
+
+      <p>On top of this, forget about doing multiple choice questions. They are too easy and low yield. Active recall with LAQs is how you get content to stick. If LAQs are too big to jump into, try one or two word SAQs. Kind of like training wheels.</p>
+
+      <p>It's best to do this system multiple times, so you practise retrieving the information a few times over.</p>
+
+      <p>Another part of the system is the quadrant, but this is only useful if you have past papers to go off. You get four squares, two rows and two columns:</p>
+
+      <ol>
+        <li>Comes up infrequently, and you're good at it — by good at, I mean high, consistent scores across LAQs.</li>
+        <li>Comes up frequently, and you're good at it.</li>
+        <li>Comes up infrequently, and you're not good at it.</li>
+        <li>Comes up frequently, and you're not good at it.</li>
+      </ol>
+
+      <p>This blends what is likely to come up in an exam with your own specific strengths and weaknesses. In a time crunch, it's best to work from four upwards, even skipping number one altogether.</p>
+
+      <h2>Finer details</h2>
+
+      <h3>Who?</h3>
+      <p><strong>By myself.</strong> In my experience, studying with friends never ends well and I don't get much work done. I also love talking to people, and I'll always put that above work — even if it's to my detriment. I've found I can study much better by myself.</p>
+
+      <h3>Where?</h3>
+      <p>Usually at uni, and not at home. Many people I've talked to say they don't get much work done at home, and I'm one of them. I'm not too sure why — I mean, I was able to write this at home, so I don't see why not. But I'm surrounded by a lot of visual distraction, and if I want to use my external monitor I'm hunched in this really unergonomic state. I'd rather just go to uni, find a nice area and do some work. Plus the benefit of separating my sleeping and working areas means I condition myself to sleep when I hit the bed, not to do lectures or an assignment.</p>
+
+      <h3>What do I listen to?</h3>
+      <p>Not music with any words — I find myself distracted by that. I like the Lofi Girl channel sometimes, but what I really love are these smaller niche channels like roti, that have this still affirmation. I don't know, something about it just soothes me. I use this specific app (TubePIP) on my iPad that blocks all the ads but also isn't signed into my account, so I only get recommendations like these and I'm not tempted to watch anything else. Very smart.</p>
+
+      <h3>What do I use?</h3>
+      <p>Equipment does <strong>not</strong> dictate your GPA, at all. And these AI tools run on cloud servers, so you don't need a super powerful machine. The machine I have is way too overkill for many people: an M4 MacBook Air with 32GB of RAM and 2TB of storage. Yeah, these are crazy specs. But now I can open as many tabs and apps as I want and not have to worry about my computer slowing down, which is the last thing you want to think about when you're in the study crunch. I can also save many files to my local drive instead of constantly shifting files between this laptop and an SSD. I'd say the convenience is so worth the extra money, but the margin is different for everyone. Invest in a laptop you don't need to worry about is probably my take home advice.</p>
+
+      <p>I also have the Bose QC Ultra 2s. They're very comfortable, and I find them much better than the Sony XM6s because I can actually wear these for more than 30 minutes at a time. You want tech to work with you, not you to work around the tech. I do have an iPad Pro but it's mostly a glorified music player — I don't write notes on it or do anything special with it. Sometimes it can double as a second screen, but this really is not that essential.</p>
+
+      <p>For analogue things I keep it simple: some Mildliner highlighters, a Kokuyo Campus loose leaf binder, Kokuyo Campus loose leaf paper and a Pentel EnerGel. I divide my page into thirds, with the first third being sub-headings and the next two thirds being notes.</p>
+
+      <p>If you want more of an idea of what's in my bag, check out my EDC video.</p>
+
+      <h3>How do I manage distractions?</h3>
+      <p>I go cold turkey. The temptation to open apps like Instagram is greatly reduced after I need to wait a minute to open it, thanks to ScreenZen. On top of this, keep your phone in your bag or behind your laptop. Out of sight, out of mind.</p>
+
+      <p>On my laptop, I have Cold Turkey to fully block websites like Reddit, YouTube, Facebook — genuinely anything that could be distracting. Fully blocked, and no way around it unless I want to wait five minutes to unblock it. But I usually never do, unless it's the holidays. Interesting how that psychology works.</p>
+
+      <h2>What I don't do</h2>
+
+      <p><strong>I don't go to lectures.</strong> I'll only go to practicals and workshops if attendance is mandatory. My university records lectures and actually gives me a handy little transcript text file and the PowerPoint slides after. My ability to pay attention in a lecture is always dependent on the time of day, how tired I am, my energy levels, and so on. And there's also if the professor is going too fast, or it's not making sense, or if I skipped the lecture before this one and I'm missing a key bit of info. If I don't understand something five minutes into the lecture, I doubt I'll understand the 50th minute.</p>
+
+      <p>I'm definitely not alone in this — many people opt to watch the recordings after so they can rewind and take notes at their own pace. But I don't do this either. Like I said before, you waste time writing down things you already know or are confident in.</p>
+
+      <p>Might I add, some non-compulsory workshops are actually helpful and worthwhile to go to. I wish I went to more genetics workshops because they were kind of engaging, but I usually had something else to do whenever the time came around.</p>
+
+      <p><strong>I don't use Anki or Quizlet.</strong> I find flashcards to be way too passive, plus Anki decks can get really long and tedious to get through until the end. However, I understand it's very popular, so if it works for you then it works for you. I personally didn't enjoy it, and I did pay for the app.</p>
+
+      <p><strong>I don't use apps like Forest.</strong> Three reasons why. One is that it adds unnecessary friction for you to get into studying — it's just one extra step to select a tree and plant it, but again, it's another step preventing you from jumping right in. Two is that when I'm studying and I didn't put it on, all I'm thinking is "ugh, I should log this on Forest". And three is that when you compare your study time to others it can be demoralising. One of my friends consistently hit eight hours every day. Of course I can't compete with that if I'm to have executive responsibilities and a social life.</p>
+
+      <p>Even if you don't have friends on the app, seeing just 30 minutes on the title screen can make you feel bad, and that you've had an unproductive day. I want to reject the notion that a day can be unproductive — instead you might've taken time to engage in a hobby, which is important, or talked to and hung out with friends, also very important. Work should not be the only thing you base your "productivity" off.</p>
+
+      <p><strong>I don't snack.</strong> It's very easy to over-eat simple sugars or processed foods when you're not fully paying attention to when you're eating, and these foods — especially simple sugars — don't go in tandem with having a sustained productive session. Sugars have a high glycemic index, causing blood sugar spikes and crashes, and have little satiety, meaning you eat a lot of empty calories and still need to eat something after. Take a break to eat when you feel hungry, and eat mindfully. Also put away your phone. Just be present for like 15 minutes.</p>
+
+      <p><strong>I don't rote learn.</strong> I actually tried this system where I wrote out a whole exam's worth of content, formatted as a question with the answer. Then I would try to answer the question, and if I got it wrong or didn't know I would copy it down. Here is the problem: transcription is not retrieval. I read the sentence for a few seconds, take a few more to write it out, then immediately forget it. There is no conversion to long-term memory, and so this method, for me, is worthless.</p>
+
+      <p><strong>I don't deprive myself of sleep.</strong> This one took a little bit to figure out, but shorting yourself on sleep to study yields poorer results than if you'd slept in. I remember I was so tired I couldn't process even really simple questions, and scraped a pass. Try to have good sleep hygiene from the beginning, don't pull all nighters, and put in a consistent effort throughout the semester. That's how you don't fall behind.</p>
+
+      <p><strong>I don't skimp on gym either.</strong> Many people cut gym as soon as exams hit, but I've found myself feeling much more productive and energised spending an hour at the gym compared to not. I don't know the science behind this — I like to think I get rid of fidgety or lazy energy to help me focus.</p>
+
+      <h2>Conclusion</h2>
+
+      <p>Thank you so much for reading! I hope this advice was helpful. All the best for your exams and assignments.</p>
+
+      <div class="post-nav">
+        <a href="../">← all posts</a>
+        <a href="../../#connect">get in touch →</a>
+      </div>
+
+    </div>
+  </div>
+</article>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="footer-row">
+    <p class="footer-name">Get in touch</p>
+    <div class="footer-links">
+      <a href="../../#connect">profiles</a>
+      <a href="../../">home</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>Sandes Welagedara — Brisbane, QLD</span>
+    <span id="year"></span>
+  </div>
+</footer>
+
+<script src="../../assets/js/site.js"></script>
+<script>
+  SW.initNav({ page: 'blog' });
+  document.getElementById('year').textContent = '© ' + new Date().getFullYear();
+</script>
+</body>
+</html>
