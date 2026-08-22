@@ -33,7 +33,16 @@ SW.initNav = function(opts){
   }
 };
 
-/* ---------- scroll reveal ---------- */
+/* ---------- scroll reveal ----------
+   threshold is 0, NOT a fraction. A fractional threshold silently fails on any
+   element taller than viewport/threshold: the ratio can never reach the trigger,
+   isIntersecting never goes true, .in-view is never added, and the element stays
+   at opacity:0 forever. The blog post did exactly this — a 7431px article
+   against an 837px viewport tops out at 0.113, under the old 0.12 threshold, so
+   the whole post rendered invisible.
+   threshold:0 fires the moment any pixel intersects, which is safe at any size;
+   the negative bottom rootMargin is what delays it until the element is properly
+   on screen, doing the job the fraction was there for. */
 SW.observeReveal = function(root){
   const scope = root || document;
   const revealObserver = new IntersectionObserver((entries) => {
@@ -43,7 +52,7 @@ SW.observeReveal = function(root){
         revealObserver.unobserve(entry.target);
       }
     });
-  }, { threshold: 0.12 });
+  }, { threshold: 0, rootMargin: '0px 0px -12% 0px' });
   scope.querySelectorAll('.reveal:not(.in-view)').forEach(el => revealObserver.observe(el));
 };
 

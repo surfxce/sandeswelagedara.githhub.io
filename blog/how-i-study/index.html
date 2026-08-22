@@ -56,7 +56,10 @@
 <!-- ============ POST ============ -->
 <article class="section section-paper" style="padding-top:20px;">
   <div class="wrap">
-    <div class="post-body reveal">
+    <!-- deliberately not .reveal: the article is the content, so it should never
+         depend on JS running, and fading a 7000px block in as one unit is wrong
+         anyway. Decorative blocks elsewhere still use .reveal. -->
+    <div class="post-body">
 
       <h2>Introduction</h2>
 
