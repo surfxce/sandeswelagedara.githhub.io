@@ -418,6 +418,20 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible{
 .post-body ol, .post-body ul{ margin:0 0 1.15rem; padding-left:1.4rem; }
 .post-body li{ margin-bottom:.5rem; }
 .post-body ol li::marker{ color:var(--clay); font-family:var(--display); }
+/* inline links inside prose must be visible. The global a{color:inherit;
+   text-decoration:none} is right for nav and cards and wrong here — without
+   this, a linked phrase is indistinguishable from the sentence around it.
+   Scoped to p/li so .post-nav keeps its own quiet treatment. */
+.post-body p a, .post-body li a{
+  color:var(--moss);
+  text-decoration:underline;
+  text-decoration-thickness:1px;
+  text-underline-offset:3px;
+  text-decoration-color:rgba(74,97,70,.45);
+  transition:color .2s, text-decoration-color .2s;
+}
+.post-body p a:hover, .post-body li a:hover{ color:var(--bark); text-decoration-color:var(--bark); }
+
 .post-body strong{ font-weight:600; color:var(--text); }
 
 /* the one line the whole method hangs on */
