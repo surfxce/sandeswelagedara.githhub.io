@@ -18,6 +18,10 @@
    point `href` at it.
 */
 const POSTS = [
+  { tag:'Shopping', title:'My Half-Hearted Coles Boycott',
+    excerpt:'Three scenarios from trying to spend as little as possible at Coles — avocados, minced beef, and being asked an actual question at a checkout.',
+    date:'August 2026', href:'half-hearted-coles-boycott/' },
+
   { tag:'Study', title:'How I study',
     excerpt:'The workflow I actually use — AI-generated long answer questions, geometric mean scoring, and a loose leaf binder. Plus everything I’ve tried and dropped.',
     date:'August 2026', href:'how-i-study/' },
