@@ -5,8 +5,11 @@
    Drop files in assets/photos/ and list them below. Paths are relative
    to the photos page, so they start with "../".
 
-     src  path to the image
-     cap  caption shown on hover, and under the image in the lightbox
+     src    path to the image
+     title  heading in the expanded view; also the hover caption on the tile
+     desc   a paragraph under the heading in the expanded view
+     cap    optional — overrides the tile's hover caption if you want it to
+            differ from the title
 
    Any file that isn't there yet falls back to a tinted placeholder tile,
    so a half-filled list still looks deliberate rather than broken.
@@ -18,8 +21,9 @@
        ~/Desktop/shot.jpg --out assets/photos/01.jpg
 */
 const PHOTOS = [
-  // { src:'../assets/photos/01.jpg', cap:'Brisbane, 2026' },
-  // { src:'../assets/photos/02.jpg', cap:'' },
+  { src:'../assets/photos/flower-precinct.jpg',
+    title:'Flower Precinct with Rachel and Vaishnavi',
+    desc:'Placeholder — a few lines about this one are coming. Where we were, what we were doing, and why this shot made the cut over the other forty. Replace me when you get to it.' },
 ];
 
 /* aspect ratios + tints cycled through the placeholder tiles, so an empty
@@ -63,7 +67,7 @@ function buildGrid(){
     tile.innerHTML = `<div class="photo-fallback" style="--ar:${PLACEHOLDER_SHAPES[i % PLACEHOLDER_SHAPES.length]}; background:${PLACEHOLDER_TINTS[i % PLACEHOLDER_TINTS.length]}"></div>`;
 
     const img = document.createElement('img');
-    img.alt = photo.cap || '';
+    img.alt = photo.title || photo.cap || '';
     SW.loadFirstWorkingImage(img, [photo.src], () => {});
     // once it loads, the placeholder underneath is redundant
     img.addEventListener('sw-loaded', () => {
@@ -72,10 +76,11 @@ function buildGrid(){
     });
     tile.append(img);
 
-    if(photo.cap){
+    const tileCap = photo.cap || photo.title;
+    if(tileCap){
       const cap = document.createElement('span');
       cap.className = 'cap';
-      cap.textContent = photo.cap;
+      cap.textContent = tileCap;
       tile.append(cap);
     }
 
@@ -95,6 +100,7 @@ function openLightbox(i){
   const box = document.getElementById('lightbox');
   const img = document.getElementById('lbImg');
   const fb  = document.getElementById('lbFallback');
+  const ttl = document.getElementById('lbTitle');
   const cap = document.getElementById('lbCap');
 
   fb.style.display = 'block';
@@ -103,9 +109,16 @@ function openLightbox(i){
   img.onload = () => { img.style.display = ''; fb.style.display = 'none'; };
   img.onerror = () => { img.style.display = 'none'; fb.style.display = 'block'; };
   img.src = photo.src;
-  img.alt = photo.cap || '';
+  img.alt = photo.title || photo.cap || '';
 
-  cap.textContent = photo.cap || '';
+  ttl.textContent = photo.title || '';
+  ttl.style.display = photo.title ? '' : 'none';
+  cap.textContent = photo.desc || photo.cap || '';
+
+  // arrows are meaningless with a single photo; step() would just reopen it
+  const single = PHOTOS.length < 2;
+  document.getElementById('lbPrev').style.display = single ? 'none' : '';
+  document.getElementById('lbNext').style.display = single ? 'none' : '';
   box.classList.add('open');
   document.body.classList.add('modal-open');
 }
