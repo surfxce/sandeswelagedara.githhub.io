@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Toybox — Sandes Welagedara</title>
+<meta name="description" content="Small HTML apps I've built — Sandes Welagedara.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&amp;family=Lora:ital,wght@0,400;0,500;0,600;1,400&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css?v=20260913a">
+</head>
+<body>
+
+<div class="grain" aria-hidden="true"></div>
+
+<nav class="nav" id="mainNav">
+  <a href="../" class="nav-logo">SW</a>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="../cv/" data-nav="cv">cv / resume</a></li>
+    <li><a href="../photos/" data-nav="photos">photos</a></li>
+    <li><a href="../blog/" data-nav="blog">blog</a></li>
+    <li><a href="../projects/" data-nav="projects">projects</a></li>
+    <li><a href="./" data-nav="toybox">toybox</a></li>
+  </ul>
+  <button class="nav-burger" id="burgerBtn" aria-label="Open menu" aria-expanded="false">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+  </button>
+</nav>
+
+<div class="nav-mobile" id="navMobile">
+  <button class="nav-mobile-close" id="navMobileClose" aria-label="Close menu">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 6l12 12M18 6L6 18"/></svg>
+  </button>
+  <a href="../cv/" data-nav="cv">cv / resume</a>
+  <a href="../photos/" data-nav="photos">photos</a>
+  <a href="../blog/" data-nav="blog">blog</a>
+  <a href="../projects/" data-nav="projects">projects</a>
+  <a href="./" data-nav="toybox">toybox</a>
+</div>
+
+<!-- ============ HERO ============ -->
+<header class="subpage-hero section-paper">
+  <div class="aura"><span class="orb"></span><span class="orb"></span><span class="orb"></span></div>
+  <div class="wrap" style="position:relative; z-index:2;">
+    <a href="../" class="crumb">← back home</a>
+    <p class="section-eyebrow"><span class="orb-chip" style="background:var(--wheat)"></span>toybox</p>
+    <h1 class="section-title" style="font-size:clamp(2.6rem,7vw,4.6rem);">Things I've made</h1>
+    <p class="section-note" style="margin-top:1rem; max-width:52ch;">
+      Small apps, no install. They open in the same tab — hit back to return.
+    </p>
+  </div>
+</header>
+
+<!-- ============ TILES ============ -->
+<section class="section section-paper" style="padding-top:20px;">
+  <div class="wrap">
+    <div class="explore-grid toy-grid" id="toyGrid">
+
+      <a class="explore-card" href="test-sb/">
+        <span class="num">01</span>
+        <h3>Test SB</h3>
+        <p>Sandes' Battery — a personality test that fixes the measurement flaws in the pop ones. Seven modules, 196 items, no labels.</p>
+        <span class="go">take the test →</span>
+      </a>
+
+      <!-- a second tile is added here by the script below, but only after a
+           particular sequence of keys. It is not in the markup on purpose. -->
+
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="footer-row">
+    <p class="footer-name">Get in touch</p>
+    <div class="footer-links">
+      <a href="../#connect">profiles</a>
+      <a href="../">home</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>Sandes Welagedara — Brisbane, QLD</span>
+    <span id="year"></span>
+  </div>
+</footer>
+
+<script src="../assets/js/site.js?v=20260913a"></script>
+<script>
+  SW.initNav({ page: 'toybox' });
+  document.getElementById('year').textContent = '© ' + new Date().getFullYear();
+
+  /* ---------- the second tile ----------
+     Revealed by the Konami code: ↑ ↑ ↓ ↓ ← → ← → B A. Keyboard only, so it
+     can't be reached from a phone, which is the point.
+
+     Be clear about what this is and isn't. The tile is not in the HTML and the
+     target path is base64 in this script rather than plain text, so it doesn't
+     show up to someone skimming view-source. But this is a static site on a
+     public repository: the page exists at a URL, and the file is in the repo.
+     This hides the door, it does not lock it. */
+  (function(){
+    const SEQ = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
+    const TARGET = 'YWZ0ZXItaG91cnMv';                  // the folder, base64
+    const KEY = 'toybox-unlocked';                      // sessionStorage flag
+    let pos = 0;
+
+    function reveal(animate){
+      const grid = document.getElementById('toyGrid');
+      if(!grid || grid.querySelector('.toy-secret')) return;
+      const a = document.createElement('a');
+      a.className = 'explore-card toy-secret' + (animate ? ' toy-secret-in' : '');
+      a.href = atob(TARGET);
+      a.innerHTML = `
+        <span class="num">02</span>
+        <h3>freaky website</h3>
+        <p>A kiss is a 1. A felony is a 100. You still get a score out of 100 — and there's a wheel.</p>
+        <span class="go">if you insist →</span>`;
+      grid.append(a);
+      try{ sessionStorage.setItem(KEY, '1'); }catch(e){}
+    }
+
+    document.addEventListener('keydown', e => {
+      // don't eat keystrokes meant for a form field
+      const t = e.target;
+      if(t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
+
+      const k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+      if(k === SEQ[pos]){
+        pos++;
+        if(pos === SEQ.length){ reveal(true); pos = 0; }
+      } else {
+        // a wrong key restarts, but a wrong key that IS the first key counts as it
+        pos = (k === SEQ[0]) ? 1 : 0;
+      }
+    });
+
+    // survives a reload or a round-trip to the app within the same tab; a fresh
+    // visit needs the code again
+    let unlocked = false;
+    try{ unlocked = sessionStorage.getItem(KEY) === '1'; }catch(e){}
+    if(unlocked) reveal(false);
+  })();
+</script>
+</body>
+</html>
