@@ -1,0 +1,5172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>freaky website</title>
+<style>
+  :root{
+    --bg:#0d0b14; --card:#1c1728; --card2:#231c33; --line:#332a47;
+    --text:#efeaf7; --dim:#a79cbd; --faint:#6f6486; --accent:#c86dd7; --accent2:#ff7a9c; --warm:#ffb35c;
+    --radius:16px;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0}
+  body{
+    background:
+      radial-gradient(1000px 600px at 15% -10%, #3a1d55 0%, transparent 60%),
+      radial-gradient(900px 500px at 100% 0%, #5b1f3c 0%, transparent 55%),
+      var(--bg);
+    color:var(--text);
+    font-family:ui-sans-serif,-apple-system,"Segoe UI",Inter,Helvetica,Arial,sans-serif;
+    line-height:1.45; min-height:100vh; padding:24px 16px 140px;
+  }
+  .wrap{max-width:760px;margin:0 auto}
+  em{font-style:italic}
+
+  header{text-align:center;margin:10px 0 18px}
+  h1{
+    font-size:clamp(30px,7vw,52px);margin:0 0 8px;line-height:1.05;letter-spacing:-.02em;
+    background:linear-gradient(92deg,var(--accent) 0%,var(--accent2) 60%,var(--warm) 100%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .sub{color:var(--dim);font-size:13px;margin:0 auto}
+  .grad{background:linear-gradient(92deg,var(--accent) 0%,var(--accent2) 60%,var(--warm) 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+
+  .btn{
+    display:inline-block;border:0;cursor:pointer;font:inherit;font-weight:650;
+    background:linear-gradient(92deg,var(--accent),var(--accent2));color:#160f1e;
+    padding:13px 26px;border-radius:999px;font-size:16px;
+    transition:transform .12s ease, filter .12s ease, opacity .12s ease;
+  }
+  .btn:hover{transform:translateY(-1px);filter:brightness(1.08)}
+  .btn:disabled{opacity:.35;cursor:not-allowed;transform:none}
+  .btn.ghost{background:transparent;border:1px solid var(--line);color:var(--text)}
+  .btn.ghost.danger{color:var(--accent2);border-color:#ff7a9c66}
+  .btn.wide{display:block;width:100%}
+  .btn.sm{padding:10px 16px;font-size:13.5px}
+  .btn.quiet{background:#ffffff0d;border:1px solid var(--line);color:var(--text)}
+  .linkbtn{background:none;border:0;color:var(--dim);font:inherit;font-size:13px;cursor:pointer;padding:6px 4px}
+  .linkbtn:hover{color:var(--text)}
+  .linkbtn:disabled{opacity:.4;cursor:default}
+
+  .card{
+    background:linear-gradient(180deg,var(--card2),var(--card));
+    border:1px solid var(--line);border-radius:var(--radius);
+    padding:20px 18px;margin-bottom:18px;
+  }
+  .card h2{margin:0 0 12px;font-size:22px;letter-spacing:-.01em}
+  .card h3{margin:0 0 10px;font-size:16px}
+  .card p{color:var(--dim);font-size:14.5px;margin:0 0 12px}
+  .card p:last-child{margin-bottom:0}
+  .card p b{color:var(--text)}
+
+  /* segmented control */
+  .seg{display:flex;background:#ffffff0d;border:1px solid var(--line);border-radius:10px;padding:3px;gap:3px;margin:0 0 14px}
+  .seg button{flex:1;border:0;background:transparent;color:var(--dim);font:inherit;font-size:13.5px;font-weight:600;padding:7px;border-radius:8px;cursor:pointer;transition:.12s}
+  .seg button.on{background:#ffffff14;color:var(--text)}
+
+  /* intro slides */
+  .slide .emo{font-size:44px;line-height:1;margin-bottom:12px}
+  .slide h2{font-size:26px;margin:0 0 14px}
+  .slide p{margin:0 0 14px}
+  .wrow{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:14px;margin-bottom:9px}
+  .wrow .wt{min-width:34px}
+  .wrow .wt.hot{color:var(--accent2);border-color:#ff7a9c66}
+  .demo{background:#ffffff0a;border:1px solid var(--line);border-radius:12px;padding:13px;margin:0 0 14px}
+  .demo .q{font-size:15px;margin:6px 0 8px}
+  .ok{color:var(--accent2);font-weight:600;font-size:13.5px;margin-top:8px}
+  .quote{display:flex;gap:12px;align-items:flex-start;background:#0d0b1466;border:1px solid var(--line);border-radius:10px;padding:12px;font-size:13px;color:#cfc4e0;margin:0 0 14px}
+  .quote .hint{flex:0 0 auto;cursor:default;color:#160f1e;background:linear-gradient(135deg,var(--accent),var(--accent2));border-color:transparent}
+  .dots{display:flex;gap:7px;justify-content:center;margin:14px 0}
+  .dots i{display:block;width:7px;height:7px;border-radius:999px;background:var(--line);transition:.2s}
+  .dots i.on{width:22px;background:linear-gradient(92deg,var(--accent),var(--accent2))}
+  .gate{color:var(--faint);font-size:13px;text-align:center;padding:15px 0}
+
+  /* toggle cards */
+  .toggle{
+    display:flex;align-items:center;gap:13px;cursor:pointer;user-select:none;
+    background:#ffb35c0f;border:1px solid #ffb35c33;border-radius:12px;padding:13px 15px;margin:0 0 14px;
+  }
+  .toggle:hover{background:#ffb35c17}
+  .toggle.pink{background:#ff7a9c0f;border-color:#ff7a9c38}
+  .toggle.pink:hover{background:#ff7a9c17}
+  .sw{flex:0 0 auto;width:44px;height:25px;border-radius:999px;background:#ffffff1a;border:1px solid var(--line);padding:2px;transition:.16s}
+  .sw i{display:block;width:19px;height:19px;border-radius:50%;background:#8d81a6;transition:.16s}
+  .toggle.on .sw{background:linear-gradient(92deg,var(--accent),var(--accent2));border-color:transparent}
+  .toggle.on .sw i{transform:translateX(19px);background:#160f1e}
+  .toggle .tl{font-size:15px;font-weight:650}
+  .toggle .td{font-size:12.5px;color:var(--dim);margin-top:1px}
+  .agecard{background:#ff7a9c0f;border:1px solid #ff7a9c38;border-radius:12px;padding:13px 15px;margin:0 0 14px}
+  .agecard .toggle{background:transparent;border:0;padding:0;margin:0}
+  .agecard .toggle:hover{background:transparent}
+  .agebody{margin-top:10px}
+  .agerow{display:flex;align-items:baseline;gap:6px;margin-bottom:4px}
+  .agerow .n{font-size:22px;font-weight:600;font-variant-numeric:tabular-nums}
+  .agerow .u{font-size:12.5px;color:var(--dim)}
+  .agerow .f{margin-left:auto;font-size:12.5px;color:var(--accent2);font-variant-numeric:tabular-nums}
+  .agecard .note{font-size:11.5px;color:var(--faint);margin-top:6px}
+
+  input[type=range]{width:100%;margin:0;accent-color:var(--accent2);height:22px;cursor:grab;display:block}
+  input[type=range]:active{cursor:grabbing}
+  input[type=range].purple{accent-color:var(--accent)}
+
+  /* quiz */
+  .sechead{display:flex;align-items:flex-start;gap:12px;margin-bottom:4px}
+  .sechead .emo{font-size:30px;line-height:1}
+  .sechead h2{margin:0;font-size:22px;letter-spacing:-.01em}
+  .sechead .blurb{color:var(--dim);font-size:13.5px;margin-top:2px}
+  .secmeta{color:var(--dim);font-size:12.5px;margin:10px 0 14px;border-top:1px solid var(--line);padding-top:10px}
+  .topbar{display:flex;align-items:center;justify-content:space-between;margin:0 0 12px}
+  .topbar .t{font-size:14px;color:var(--dim);font-weight:600}
+  .menu{position:relative}
+  .menu .pop{
+    position:absolute;right:0;top:36px;z-index:30;min-width:260px;
+    background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:8px;box-shadow:0 12px 40px #00000088;
+  }
+  .menu .pop .mh{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);padding:8px 8px 4px}
+  .menu .pop button{display:flex;width:100%;text-align:left;gap:8px;align-items:center;background:transparent;border:0;color:var(--text);font:inherit;font-size:13.5px;padding:8px;border-radius:8px;cursor:pointer}
+  .menu .pop button:hover{background:#ffffff0d}
+  .menu .pop button .chk{width:14px;color:var(--accent2);flex:0 0 auto}
+
+  .defs{
+    background:#c86dd714;border:1px solid #c86dd733;border-radius:12px;
+    padding:12px 14px;margin:0 0 16px;font-size:13.5px;color:#d9cfe8;
+  }
+  .defs b{color:var(--text)}
+  .defs .h{display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:6px;font-weight:700}
+  .defs p{margin:0 0 7px;color:#d9cfe8;font-size:13.5px}
+  .defs p:last-child{margin-bottom:0}
+
+  ul.items{list-style:none;margin:0;padding:0}
+  li.item{border-radius:12px;border:1px solid transparent;margin-bottom:2px;transition:background .12s ease,border-color .12s ease}
+  li.item:hover{background:#ffffff08}
+  li.item.on{background:#ff7a9c14;border-color:#ff7a9c3d}
+  .row{display:flex;align-items:flex-start;gap:12px;padding:11px 12px;cursor:pointer}
+  .qnum{flex:0 0 auto;width:26px;text-align:right;margin-top:3px;font-size:11.5px;font-variant-numeric:tabular-nums;color:var(--faint);user-select:none}
+  li.item.on .qnum{color:var(--accent2)}
+  .meta{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:5px;margin-top:1px}
+  .box{flex:0 0 auto;width:21px;height:21px;border-radius:7px;margin-top:1px;border:2px solid #6b5a8a;display:grid;place-items:center;transition:.12s ease}
+  li.item.on .box{background:linear-gradient(135deg,var(--accent),var(--accent2));border-color:transparent}
+  .box svg{width:12px;height:12px;opacity:0;transition:.12s}
+  li.item.on .box svg{opacity:1}
+  .txt{flex:1;font-size:15px}
+  .wt{
+    font-size:11px;font-variant-numeric:tabular-nums;color:var(--dim);
+    background:#ffffff0d;border:1px solid var(--line);border-radius:999px;
+    padding:2px 8px;white-space:nowrap;min-width:32px;text-align:center;
+  }
+  li.item.on .wt{color:#ffd0dc;border-color:#ff7a9c40;background:#ff7a9c1a}
+
+  .scaler{padding:2px 14px 15px 83px}
+  .sq{font-size:12.5px;color:var(--dim);margin-bottom:8px}
+  .slabel{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:13px;margin-top:4px}
+  .slabel .l{color:var(--text);font-weight:600}
+  .slabel .w{color:var(--accent2);font-variant-numeric:tabular-nums;font-size:12px;white-space:nowrap}
+  .slabel .w.disc{color:var(--accent)}
+  .slabel .w.full{color:var(--faint)}
+  .ends{display:flex;justify-content:space-between;font-size:10.5px;color:var(--faint);margin-top:2px}
+
+  .hint{
+    width:19px;height:19px;border-radius:50%;
+    border:1px solid var(--line);background:#ffffff0d;color:var(--dim);
+    font-size:11px;font-weight:700;line-height:1;display:grid;place-items:center;
+    cursor:help;user-select:none;transition:.12s;
+  }
+  .hint:hover,.hint.pinned{color:#160f1e;background:linear-gradient(135deg,var(--accent),var(--accent2));border-color:transparent}
+  .hintbox{
+    margin:-3px 14px 11px 83px;padding:10px 12px;font-size:13px;color:#cfc4e0;
+    background:#0d0b1459;border:1px solid var(--line);border-left:2px solid var(--accent);border-radius:9px;
+  }
+
+  .cheeky{margin:-2px 14px 13px 83px;padding:11px 13px;background:#ffb35c12;border:1px solid #ffb35c38;border-radius:10px}
+  .cq{font-size:13.5px;color:#ffd7a5;margin-bottom:9px}
+  .chips{display:flex;flex-wrap:wrap;gap:7px;align-items:center}
+  .chip{border:1px solid var(--line);background:#ffffff0d;color:var(--text);border-radius:999px;padding:5px 12px;font:inherit;font-size:13px;cursor:pointer;transition:.12s}
+  .chip:hover{border-color:#ffb35c66}
+  .chip.sel{background:linear-gradient(92deg,var(--warm),var(--accent2));color:#160f1e;border-color:transparent;font-weight:650}
+  .cinput{flex:1 1 150px;min-width:130px;background:#0d0b1459;border:1px solid var(--line);color:var(--text);border-radius:999px;padding:6px 13px;font:inherit;font-size:13px}
+  .cinput::placeholder{color:var(--faint)}
+  .cinput:focus{outline:0;border-color:#ffb35c88}
+  .dossier{background:#ffb35c0f;border:1px solid #ffb35c38;border-radius:12px;padding:14px 16px;margin:16px 0}
+  .dossier h3{margin:0 0 4px;font-size:16px;color:#ffd7a5}
+  .dossier .dsub{color:var(--dim);font-size:12.5px;margin:0 0 12px}
+  .dline{font-size:14px;margin-bottom:9px}
+  .dline .dq{color:var(--dim);display:block;font-size:12.5px}
+  .dline .da{color:var(--text);font-weight:600}
+
+  .navrow{display:flex;gap:10px;align-items:center;justify-content:space-between;margin-top:6px;flex-wrap:wrap}
+
+  .sticky{
+    position:fixed;left:0;right:0;bottom:0;z-index:20;
+    background:linear-gradient(180deg,#0d0b14cc,#0d0b14);
+    backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid var(--line);
+    padding:10px 16px calc(10px + env(safe-area-inset-bottom));
+  }
+  .sticky .inner{max-width:760px;margin:0 auto;display:flex;align-items:center;gap:14px}
+  .track{flex:1;height:8px;border-radius:999px;background:#ffffff14;overflow:hidden}
+  .fill{height:100%;width:0;border-radius:999px;background:linear-gradient(92deg,var(--accent),var(--accent2));transition:width .35s ease}
+  .live{font-variant-numeric:tabular-nums;font-weight:700;font-size:19px;min-width:86px;text-align:right}
+  .live .den{font-weight:400;color:var(--dim);font-size:13px}
+  .live small{display:block;font-weight:400;font-size:9px;color:var(--dim);letter-spacing:.08em;text-transform:uppercase}
+
+  /* results */
+  .scorebig{
+    font-size:clamp(76px,20vw,140px);font-weight:800;line-height:1;letter-spacing:-.05em;text-align:center;
+    background:linear-gradient(92deg,var(--accent),var(--accent2),var(--warm));
+    -webkit-background-clip:text;background-clip:text;color:transparent;font-variant-numeric:tabular-nums;
+  }
+  .outof{display:block;text-align:center;color:var(--dim);font-size:13px;letter-spacing:.14em;text-transform:uppercase;margin-top:-2px}
+  .tier{text-align:center;font-size:clamp(20px,5vw,30px);font-weight:700;margin:10px 0 6px}
+  .tierdesc{text-align:center;color:var(--dim);max-width:520px;margin:0 auto 18px;font-size:15px}
+  .cohort{text-align:center;background:#ffffff0a;border:1px solid var(--line);border-radius:12px;padding:13px 14px;margin:0 0 14px}
+  .cohort .big{font-size:34px;font-weight:800;font-variant-numeric:tabular-nums}
+  .cohort .big small{font-size:15px;font-weight:600;color:var(--text);-webkit-text-fill-color:var(--text);margin-left:4px}
+  .cohort .l1{font-size:13px;color:var(--dim);margin-top:2px}
+  .cohort .l2{font-size:11.5px;color:var(--faint);margin-top:4px}
+  .statgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin:0 0 14px}
+  .stat{background:#ffffff0a;border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+  .stat b{display:block;font-size:23px;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+  .stat b i{font-style:normal;color:var(--dim);font-size:15px;font-weight:400}
+  .stat span{color:var(--dim);font-size:11px;text-transform:uppercase;letter-spacing:.06em;display:block;margin-top:2px}
+  .brkrow{display:grid;grid-template-columns:1fr auto;gap:4px 10px;margin-bottom:12px;font-size:14px}
+  .brkbar{grid-column:1/-1;height:7px;border-radius:999px;background:#ffffff12;overflow:hidden}
+  .brkbar i{display:block;height:100%;border-radius:999px;background:linear-gradient(92deg,var(--accent),var(--accent2))}
+  .callout{background:#ffffff0a;border:1px solid var(--line);border-left:3px solid var(--accent2);border-radius:10px;padding:12px 14px;margin:0 0 14px;font-size:14.5px}
+  .callout b{color:var(--accent2)}
+  .foot{color:var(--faint);font-size:12px;text-align:center;margin-top:26px;line-height:1.6}
+  .hidden{display:none!important}
+
+  /* wheel */
+  .wheelhead{text-align:center;margin:4px 0 12px}
+  .wheelhead h2{font-size:30px;margin:0 0 4px}
+  .wheelhead .m{font-size:12.5px;color:var(--dim)}
+  .wheelbox{position:relative;width:min(300px,86vw);height:min(300px,86vw);margin:0 auto 18px;cursor:pointer;user-select:none}
+  .wheelbox svg{width:100%;height:100%;display:block;overflow:visible}
+  .wheelbox .dial{transform-origin:50% 50%;transition:transform 2.4s cubic-bezier(.16,1,.3,1)}
+  .wheelbox .dial.still{transition:none}
+  .wheelbox .ptr{position:absolute;left:50%;top:-6px;transform:translateX(-50%);width:22px;height:18px;filter:drop-shadow(0 2px 3px #00000088)}
+  .wheelbox .empty{position:absolute;inset:0;display:grid;place-items:center;color:var(--dim);font-weight:600}
+  .qcard{text-align:center}
+  .qcard .sec{font-size:12.5px;color:var(--dim);font-weight:600;margin-bottom:10px}
+  .qcard .q{font-size:25px;font-weight:700;line-height:1.2;margin:0 0 10px}
+  .qcard .h{font-size:13px;color:var(--dim)}
+  .qcard .bonus{font-size:12.5px;color:var(--warm);font-weight:600;margin-top:8px}
+  .qcard.pop{animation:pop .28s cubic-bezier(.2,.9,.3,1.2)}
+  @keyframes pop{from{transform:scale(.94);opacity:0}to{transform:scale(1);opacity:1}}
+  .tapspin{text-align:center;color:var(--faint);font-size:15px;padding:26px 0}
+  .ctrls{display:flex;gap:10px;margin:0 0 10px}
+  .ctrls .btn{flex:1}
+  .ctrlrow{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+  .players{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+  .player{border:1px solid var(--line);background:#ffffff0d;border-radius:11px;padding:8px 12px;text-align:center;cursor:pointer;font:inherit;color:var(--text);transition:.12s;min-width:70px}
+  .player:hover{background:#ffffff14}
+  .player .n{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px}
+  .player .f{font-size:11px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--dim);letter-spacing:1px}
+  .player.out{background:#ff7a9c1f;border-color:#ff7a9c73;opacity:.65}
+  .player.out .f{color:var(--accent2)}
+  .winner{text-align:center;color:var(--warm);font-weight:700;padding:6px 0;font-size:15px}
+  .filters{text-align:center;color:var(--faint);font-size:11.5px}
+
+  /* sheets */
+  .backdrop{position:fixed;inset:0;background:#0d0b14aa;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);z-index:40;display:flex;align-items:flex-end;justify-content:center}
+  .sheet{background:var(--bg);border:1px solid var(--line);border-radius:18px 18px 0 0;width:min(760px,100%);max-height:88vh;overflow:auto;padding:14px 16px calc(20px + env(safe-area-inset-bottom))}
+  .sheet .sh{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;position:sticky;top:0;background:var(--bg);padding:6px 0;z-index:1}
+  .sheet .sh b{font-size:16px}
+  .sheet .card{padding:14px}
+  .sheet .card h3{margin-bottom:10px}
+  .addrow{display:flex;gap:8px;margin-bottom:8px}
+  .addrow input{flex:1;background:#ffffff0d;border:1px solid var(--line);color:var(--text);border-radius:10px;padding:10px;font:inherit;font-size:14px}
+  .addrow input:focus{outline:0;border-color:var(--accent)}
+  .pchip{display:inline-flex;align-items:center;gap:6px;background:#ffffff0f;border-radius:999px;padding:5px 10px;font-size:12.5px;margin:0 6px 6px 0}
+  .pchip button{background:none;border:0;color:var(--dim);cursor:pointer;font-size:14px;line-height:1;padding:0}
+  .secrow{display:flex;align-items:center;gap:10px;padding:7px 0;cursor:pointer;font-size:14px;user-select:none}
+  .secrow .ck{width:18px;height:18px;border-radius:5px;border:1.5px solid var(--faint);display:grid;place-items:center;flex:0 0 auto}
+  .secrow.on .ck{background:var(--accent2);border-color:var(--accent2)}
+  .secrow .ck svg{width:11px;height:11px;opacity:0}
+  .secrow.on .ck svg{opacity:1}
+  .secrow.off{color:var(--faint)}
+  .secrow .cnt{margin-left:auto;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;color:var(--faint)}
+  .held{font-size:12.5px}
+  .held .hr{display:flex;gap:9px;align-items:flex-start;padding:5px 0;color:var(--dim)}
+  .held .hr.first{color:var(--text);background:#ff7a9c1a;border-radius:8px;padding:5px 8px}
+  .held .hr .w{width:26px;text-align:right;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;color:var(--faint);flex:0 0 auto}
+  .held .hr.first .w{color:var(--accent2)}
+  .held .capline{text-align:center;color:var(--faint);font-size:10px;padding:4px 0}
+  .small{font-size:11.5px;color:var(--faint);margin-top:8px}
+  .hrow{display:flex;gap:10px;padding:6px 0;font-size:14px}
+  .hrow .i{width:26px;text-align:right;color:var(--faint);font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;flex:0 0 auto;padding-top:2px}
+  .spicehead{display:flex;justify-content:space-between;align-items:baseline}
+  .spicehead .v{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;color:var(--accent2)}
+  .closex{width:32px;height:32px;border-radius:50%;background:#ffffff14;border:0;color:var(--text);font-size:15px;font-weight:700;cursor:pointer}
+
+  @media (max-width:520px){
+    .scaler{padding-left:14px}
+    .hintbox{margin-left:14px}
+    .cheeky{margin-left:14px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+
+<div class="sticky hidden" id="sticky">
+  <div class="inner">
+    <div class="track"><i class="fill" id="fill"></i></div>
+    <div class="live"><span id="liveScore">100.0</span><span class="den">/100</span><small>live score</small></div>
+  </div>
+</div>
+
+<script>
+/* ==================================================================
+   DATA — the same bank the iOS build compiles in (QuestionsData.swift).
+   Keep the two identical: this file and the Swift port must give the
+   same score for the same answers, or shared scores stop being comparable.
+   ================================================================== */
+const BANK = {
+  "sections": [
+    {
+      "id": "romance",
+      "emoji": "💌",
+      "title": "Innocence & Romance",
+      "blurb": "The stuff your grandmother would find sweet. Barely counts.",
+      "defs": [],
+      "items": [
+        {
+          "number": 1,
+          "text": "Held hands romantically",
+          "weight": 1,
+          "hint": "Deliberate, fingers involved, with someone you were interested in — not steadying your nan on a step."
+        },
+        {
+          "number": 2,
+          "text": "Been on a date",
+          "weight": 1,
+          "hint": "Both of you understood it as a date. A hangout you privately hoped was a date doesn't count."
+        },
+        {
+          "number": 3,
+          "text": "Been asked out, or asked someone out",
+          "weight": 1,
+          "hint": "Actually asked, out loud or in writing. Hinting heavily for three weeks is not asking."
+        },
+        {
+          "number": 4,
+          "text": "Been in a committed relationship",
+          "weight": 2,
+          "hint": "You'd both agreed you were exclusive, and would have said so to other people.",
+          "slider": {
+            "prompt": "How many, all up?",
+            "stops": [
+              {
+                "label": "Just the one",
+                "weight": 1
+              },
+              {
+                "label": "Two or three",
+                "weight": 2
+              },
+              {
+                "label": "Four to six",
+                "weight": 4
+              },
+              {
+                "label": "Seven or more",
+                "weight": 7
+              }
+            ]
+          }
+        },
+        {
+          "number": 5,
+          "text": "Been in a relationship longer than a year",
+          "weight": 2
+        },
+        {
+          "number": 6,
+          "text": "Slow danced with a date",
+          "weight": 1
+        },
+        {
+          "number": 7,
+          "text": "Danced with someone closely enough that a chaperone would have intervened",
+          "weight": 2,
+          "hint": "The original's \"danced without leaving room for Jesus\". Grinding, essentially."
+        },
+        {
+          "number": 8,
+          "text": "Kissed someone on the cheek",
+          "weight": 1
+        },
+        {
+          "number": 9,
+          "text": "Kissed a non-family member on the lips",
+          "weight": 2,
+          "hint": "Any lip contact, including a two-second peck at a party."
+        },
+        {
+          "number": 10,
+          "text": "French kissed",
+          "weight": 3,
+          "hint": "Tongue involved."
+        },
+        {
+          "number": 11,
+          "text": "French kissed in public",
+          "weight": 5,
+          "hint": "Somewhere strangers could see you, and at least one of them did."
+        },
+        {
+          "number": 12,
+          "text": "Kissed or been kissed on the neck",
+          "weight": 3,
+          "hint": "Deliberately, as part of things escalating."
+        },
+        {
+          "number": 13,
+          "text": "Given or received a hickey",
+          "weight": 4
+        },
+        {
+          "number": 14,
+          "text": "Kissed lying down",
+          "weight": 5,
+          "hint": "The original's \"kissed horizontally\" — both of you lying down, on a bed, couch, or floor."
+        },
+        {
+          "number": 15,
+          "text": "Kissed for more than an hour straight",
+          "weight": 6,
+          "hint": "One continuous session. Breaks for water are permitted."
+        },
+        {
+          "number": 16,
+          "text": "Said \"I love you\" romantically and meant it",
+          "weight": 2
+        },
+        {
+          "number": 17,
+          "text": "Said \"I love you\" romantically and didn't mean it",
+          "weight": 9
+        },
+        {
+          "number": 18,
+          "text": "Cuddled with someone overnight",
+          "weight": 3
+        },
+        {
+          "number": 19,
+          "text": "Confessed feelings and been rejected",
+          "weight": 1
+        },
+        {
+          "number": 20,
+          "text": "Been in a \"situationship\" with no defined status",
+          "weight": 5,
+          "hint": "Seeing each other regularly, behaving like a couple, nobody willing to name it."
+        },
+        {
+          "number": 21,
+          "text": "Ghosted someone you'd been seeing",
+          "weight": 9,
+          "hint": "You stopped replying entirely, gave no reason, and never went back.",
+          "cheeky": {
+            "prompt": "How long had it been going?",
+            "options": [
+              "A couple of weeks",
+              "A few months",
+              "Longer than I'd admit"
+            ]
+          }
+        },
+        {
+          "number": 22,
+          "text": "Dated two people at once without either knowing",
+          "weight": 30,
+          "hint": "Both believed they were the only one. If everyone knew and consented, that's polyamory and it doesn't belong here."
+        }
+      ]
+    },
+    {
+      "id": "fooling",
+      "emoji": "😳",
+      "title": "Fooling Around",
+      "blurb": "Everything between a kiss and sex, plus what you get up to alone.",
+      "defs": [
+        "**\"Someone you're into\"** means a member of whichever sex you're actually attracted to — what the original test clumsily calls an *MPS*, a member of the preferred sex. Mates grabbing each other in a changing room, or a team celebration, is not this.",
+        "Everything here assumes it was **wanted by both people**."
+      ],
+      "items": [
+        {
+          "number": 23,
+          "text": "Had your backside grabbed by, or grabbed the backside of, someone you're into",
+          "weight": 5,
+          "hint": "Wanted, and by someone you're actually attracted to. Horseplay with mates doesn't count."
+        },
+        {
+          "number": 24,
+          "text": "Been felt up, or felt someone up, over clothes",
+          "weight": 6,
+          "hint": "Hands on chest, backside, or between the legs — clothes staying on."
+        },
+        {
+          "number": 25,
+          "text": "Same, under clothes",
+          "weight": 8,
+          "hint": "Hands under the fabric, skin on skin."
+        },
+        {
+          "number": 26,
+          "text": "Kissed or been kissed on the chest",
+          "weight": 8,
+          "hint": "The original's \"kissed on the breast\"."
+        },
+        {
+          "number": 27,
+          "text": "Had your genitals fondled, or fondled someone's",
+          "weight": 12,
+          "hint": "Touching, over or under clothes, short of what would count as a hand job."
+        },
+        {
+          "number": 28,
+          "text": "Seen someone you're into naked in person",
+          "weight": 7,
+          "hint": "Fully naked, in a romantic or sexual context. Changing rooms, locker rooms and childhood baths don't count."
+        },
+        {
+          "number": 29,
+          "text": "Been seen naked by someone you're into",
+          "weight": 7,
+          "hint": "Same, other way round — and in the same kind of context."
+        },
+        {
+          "number": 30,
+          "text": "Undressed someone, or been undressed by them",
+          "weight": 9,
+          "hint": "They took your clothes off, or you took theirs, as part of things heating up."
+        },
+        {
+          "number": 31,
+          "text": "Showered or bathed with someone you're into",
+          "weight": 12,
+          "hint": "Both naked, both in the water, and it meant something. A teammate rinsing off next to you is not this."
+        },
+        {
+          "number": 32,
+          "text": "Gone through the motions of sex fully clothed",
+          "weight": 8,
+          "hint": "Dry humping. Clothes stayed on the entire time."
+        },
+        {
+          "number": 33,
+          "text": "Played a game that involved taking clothes off",
+          "weight": 8,
+          "hint": "Strip poker, strip anything, or a dare game that ended the same way."
+        },
+        {
+          "number": 34,
+          "text": "Given or received a deliberately sensual massage",
+          "weight": 7,
+          "hint": "The intent was arousal, not a sore shoulder."
+        },
+        {
+          "number": 35,
+          "text": "Had or given \"blue balls\"",
+          "weight": 4,
+          "hint": "Things escalated, then stopped, and somebody was physically uncomfortable about it."
+        },
+        {
+          "number": 36,
+          "text": "Spent the night in the same bed as someone you fancied",
+          "weight": 8,
+          "hint": "Slept over, shared the bed. Whether anything happened is a separate question."
+        },
+        {
+          "number": 37,
+          "text": "Masturbated",
+          "weight": 4,
+          "hint": "On your own. This is the baseline — the items under it are the interesting variants."
+        },
+        {
+          "number": 38,
+          "text": "Masturbated more than three times in one day",
+          "weight": 8,
+          "hint": "Three or more distinct occasions inside 24 hours."
+        },
+        {
+          "number": 39,
+          "text": "Masturbated somewhere that wasn't your own room",
+          "weight": 12,
+          "hint": "A bathroom that isn't yours, a car, work, a plane, someone else's house.",
+          "cheeky": {
+            "prompt": "Where, exactly?",
+            "options": [
+              "A work bathroom",
+              "Someone else's house",
+              "A moving vehicle"
+            ]
+          }
+        },
+        {
+          "number": 40,
+          "text": "Masturbated with someone else in the room",
+          "weight": 16,
+          "hint": "They were present — asleep or awake — and it wasn't a shared activity."
+        },
+        {
+          "number": 41,
+          "text": "Been caught masturbating",
+          "weight": 14,
+          "hint": "Somebody walked in and there was no ambiguity about what was happening.",
+          "cheeky": {
+            "prompt": "Who opened the door?",
+            "options": [
+              "A parent",
+              "A sibling",
+              "A housemate"
+            ]
+          }
+        },
+        {
+          "number": 42,
+          "text": "Masturbated with an object that isn't a sex toy",
+          "weight": 12,
+          "hint": "Something not designed for the job. Household improvisation.",
+          "cheeky": {
+            "prompt": "🙈 What was it?",
+            "options": [
+              "A pillow",
+              "A hairbrush",
+              "Something from the fridge"
+            ]
+          }
+        },
+        {
+          "number": 43,
+          "text": "Used a sex toy on yourself",
+          "weight": 8,
+          "hint": "Something actually manufactured for the purpose."
+        },
+        {
+          "number": 44,
+          "text": "Gone skinny-dipping",
+          "weight": 6,
+          "hint": "Swimming fully naked, usually somewhere you weren't supposed to."
+        },
+        {
+          "number": 45,
+          "text": "Gone streaking",
+          "weight": 10,
+          "hint": "Taking your clothes off and running through a public place where people can see you — a campus, a pitch mid-game, a main street. The running is the point; standing still naked somewhere public is a different and much worse item.",
+          "cheeky": {
+            "prompt": "Where did you run?",
+            "options": [
+              "Uni campus",
+              "A sports field",
+              "Down a main road"
+            ]
+          }
+        },
+        {
+          "number": 46,
+          "text": "Seen a stripper perform",
+          "weight": 8,
+          "hint": "In person, at a club or a booking. Watching it on a screen doesn't count."
+        }
+      ]
+    },
+    {
+      "id": "sex",
+      "emoji": "🔥",
+      "title": "Sex",
+      "blurb": "The original test's bread and butter, now with actual proportionality.",
+      "defs": [
+        "**\"Sex\"** in this section means **any** of oral, manual, or penetrative — given or received. So \"sex with a stranger\" counts if it was a blowjob from someone you'd just met, and \"sex in a car\" counts if nobody's clothes came all the way off.",
+        "Where an item says **penetrative**, it means penetration only. Those are the only ones.",
+        "Everything here assumes it was **consensual and wanted by both people**. Things that were done to you aren't yours to be scored on, so they aren't in this test at all."
+      ],
+      "items": [
+        {
+          "number": 47,
+          "text": "Given a hand job, or fingered someone",
+          "weight": 12,
+          "hint": "Your hands, their genitals, and it went somewhere."
+        },
+        {
+          "number": 48,
+          "text": "Received one",
+          "weight": 12,
+          "hint": "Same, other way round."
+        },
+        {
+          "number": 49,
+          "text": "Had an orgasm from someone else's hand or mouth",
+          "weight": 14,
+          "hint": "The original's \"orgasm due to someone else's manipulation\"."
+        },
+        {
+          "number": 50,
+          "text": "Given oral sex",
+          "weight": 15,
+          "hint": "Your mouth, their genitals."
+        },
+        {
+          "number": 51,
+          "text": "Received oral sex",
+          "weight": 15,
+          "hint": "Their mouth, your genitals."
+        },
+        {
+          "number": 52,
+          "text": "Swallowed, or had a partner swallow",
+          "weight": 14,
+          "hint": "The original words this considerably more clinically. You know what it means."
+        },
+        {
+          "number": 53,
+          "text": "Had penetrative sex",
+          "weight": 20,
+          "hint": "Penetration specifically — vaginal or anal. This is the item the original means by \"sexual intercourse\"."
+        },
+        {
+          "number": 54,
+          "text": "Had anal sex",
+          "weight": 16,
+          "hint": "Either role."
+        },
+        {
+          "number": 55,
+          "text": "Had period sex",
+          "weight": 8,
+          "hint": "During menstruation, either of you."
+        },
+        {
+          "number": 56,
+          "text": "Had sex three or more times in one night",
+          "weight": 14,
+          "hint": "Three separate rounds in one night, with recovery time in between."
+        },
+        {
+          "number": 57,
+          "text": "Had sex in four or more positions",
+          "weight": 10,
+          "hint": "Across your whole life, not in a single session — though if it was one session, congratulations."
+        },
+        {
+          "number": 58,
+          "text": "Had sex — any of the three — with more than one person",
+          "weight": 14,
+          "hint": "More than one partner across your life. Oral and manual count, per the definition above."
+        },
+        {
+          "number": 59,
+          "text": "Had sex with more than five people",
+          "weight": 22
+        },
+        {
+          "number": 60,
+          "text": "Had sex with more than ten people",
+          "weight": 28
+        },
+        {
+          "number": 61,
+          "text": "Had sex with two different people inside 24 hours",
+          "weight": 32,
+          "hint": "Two distinct encounters with two distinct people inside a single day."
+        },
+        {
+          "number": 62,
+          "text": "Had sex before you were 16",
+          "weight": 24,
+          "hint": "Your age at the time, not theirs."
+        },
+        {
+          "number": 63,
+          "text": "Had a one-night stand",
+          "weight": 22,
+          "hint": "Both of you understood going in that it was a one-off, and it stayed that way.",
+          "frequency": {
+            "prompt": "How often?",
+            "stops": [
+              {
+                "label": "Once",
+                "multiplier": 0.75
+              },
+              {
+                "label": "A handful of times",
+                "multiplier": 0.88
+              },
+              {
+                "label": "Regularly",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        },
+        {
+          "number": 64,
+          "text": "Had sex on a first date",
+          "weight": 18,
+          "hint": "The first time you'd met up as a date, no matter how long you'd been talking beforehand."
+        },
+        {
+          "number": 65,
+          "text": "Had sex with someone you'd met less than a day earlier",
+          "weight": 26,
+          "hint": "The original's \"stranger or person you met within 24 hours\"."
+        },
+        {
+          "number": 66,
+          "text": "Had sex with someone whose full name you didn't know",
+          "weight": 30,
+          "hint": "First name only — or not even that."
+        },
+        {
+          "number": 67,
+          "text": "Had a threesome",
+          "weight": 26,
+          "hint": "Three people, all participating, all consenting.",
+          "cheeky": {
+            "prompt": "Whose idea?",
+            "options": [
+              "Mine",
+              "Theirs",
+              "Nobody's, it happened"
+            ]
+          },
+          "frequency": {
+            "prompt": "How often?",
+            "stops": [
+              {
+                "label": "Once",
+                "multiplier": 0.75
+              },
+              {
+                "label": "A handful of times",
+                "multiplier": 0.88
+              },
+              {
+                "label": "Regularly",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        },
+        {
+          "number": 68,
+          "text": "Attended an orgy",
+          "weight": 38,
+          "hint": "More than three people, same room, everyone involved."
+        },
+        {
+          "number": 69,
+          "text": "Had sex with a non-participating third person in the room",
+          "weight": 28,
+          "hint": "Someone else present and awake, not taking part. A housemate asleep down the hall doesn't count."
+        },
+        {
+          "number": 70,
+          "text": "Had sex in a car",
+          "weight": 16,
+          "hint": "Parked or otherwise. Either seat.",
+          "cheeky": {
+            "prompt": "Whose car?",
+            "options": [
+              "Mine",
+              "Theirs",
+              "A parent's"
+            ]
+          }
+        },
+        {
+          "number": 71,
+          "text": "Had sex outdoors",
+          "weight": 18,
+          "hint": "Under open sky. A private back garden counts; a public park is the next item up."
+        },
+        {
+          "number": 72,
+          "text": "Had sex in a pool or hot tub",
+          "weight": 16
+        },
+        {
+          "number": 73,
+          "text": "Had sex somewhere public enough that you could have been caught",
+          "weight": 25,
+          "hint": "A genuine chance of a stranger walking in. A locked bedroom at a house party doesn't count.",
+          "cheeky": {
+            "prompt": "Where were you?",
+            "options": [
+              "A park",
+              "A club bathroom",
+              "A beach"
+            ]
+          },
+          "frequency": {
+            "prompt": "How often?",
+            "stops": [
+              {
+                "label": "Once",
+                "multiplier": 0.75
+              },
+              {
+                "label": "A handful of times",
+                "multiplier": 0.88
+              },
+              {
+                "label": "Regularly",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        },
+        {
+          "number": 74,
+          "text": "Had sex on a plane",
+          "weight": 22,
+          "hint": "The mile high club. In the air, not on the tarmac.",
+          "cheeky": {
+            "prompt": "How long was the flight?",
+            "options": [
+              "Domestic hop",
+              "Long haul",
+              "Red-eye"
+            ]
+          }
+        },
+        {
+          "number": 75,
+          "text": "Had sex in a bed belonging to neither of you",
+          "weight": 18,
+          "hint": "A friend's bed at a party, a spare room, a hotel someone else was paying for."
+        },
+        {
+          "number": 76,
+          "text": "Had sex while a parent was in the house",
+          "weight": 14,
+          "hint": "Yours or theirs, home at the time, ideally unaware."
+        },
+        {
+          "number": 77,
+          "text": "Kicked a housemate out so you could have sex",
+          "weight": 12,
+          "hint": "Sexiling. You asked them to leave, or made it obvious enough that they left.",
+          "cheeky": {
+            "prompt": "How did you put it?",
+            "options": [
+              "A text at midnight",
+              "\"Go for a walk?\"",
+              "Didn't ask at all"
+            ]
+          }
+        },
+        {
+          "number": 78,
+          "text": "Travelled more than 100 miles primarily for sex",
+          "weight": 16,
+          "hint": "About 160km. Sex was the trip's main purpose, not a pleasant bonus on a holiday."
+        },
+        {
+          "number": 79,
+          "text": "Had a booty-call arrangement with no relationship attached",
+          "weight": 16,
+          "hint": "Recurring, understood by both, explicitly not a relationship.",
+          "frequency": {
+            "prompt": "How often?",
+            "stops": [
+              {
+                "label": "Once",
+                "multiplier": 0.75
+              },
+              {
+                "label": "A handful of times",
+                "multiplier": 0.88
+              },
+              {
+                "label": "Regularly",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        },
+        {
+          "number": 80,
+          "text": "Had sex with someone three or more years older or younger",
+          "weight": 10,
+          "hint": "Both of you adults at the time."
+        },
+        {
+          "number": 81,
+          "text": "Had sex with a virgin",
+          "weight": 12,
+          "hint": "You were their first, and you knew it at the time."
+        },
+        {
+          "number": 82,
+          "text": "Bought contraceptives",
+          "weight": 5,
+          "hint": "You paid, at a counter or online. Being handed a free one doesn't count."
+        },
+        {
+          "number": 83,
+          "text": "Had *penetrative* sex without protection with someone new",
+          "weight": 28,
+          "hint": "No condom, with someone whose sexual history you didn't know.",
+          "frequency": {
+            "prompt": "How often?",
+            "stops": [
+              {
+                "label": "Once",
+                "multiplier": 0.75
+              },
+              {
+                "label": "A handful of times",
+                "multiplier": 0.88
+              },
+              {
+                "label": "Regularly",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        },
+        {
+          "number": 84,
+          "text": "Taken or provided emergency contraception",
+          "weight": 22,
+          "hint": "The morning-after pill — as the person taking it or the one who sorted it out."
+        },
+        {
+          "number": 85,
+          "text": "Had a pregnancy scare",
+          "weight": 22,
+          "hint": "A late period and a genuinely bad week. A test was taken, or badly needed to be."
+        },
+        {
+          "number": 86,
+          "text": "Caused or experienced an actual pregnancy",
+          "weight": 30,
+          "hint": "A confirmed pregnancy, whatever happened afterwards."
+        },
+        {
+          "number": 87,
+          "text": "Been tested for an STI",
+          "weight": 8,
+          "hint": "Routine screening counts. Everyone should be here."
+        },
+        {
+          "number": 88,
+          "text": "Been tested because you had a genuine reason to worry",
+          "weight": 14,
+          "hint": "Symptoms, or a partner told you something. Not a routine check-up."
+        },
+        {
+          "number": 89,
+          "text": "Tested positive for an STI",
+          "weight": 20,
+          "hint": "Confirmed by a test, treatable or otherwise."
+        },
+        {
+          "number": 90,
+          "text": "Used toys with a partner",
+          "weight": 14,
+          "hint": "Together, with another person in the room."
+        },
+        {
+          "number": 91,
+          "text": "Explored kink or BDSM with a partner",
+          "weight": 16,
+          "hint": "Restraint, impact, power exchange — anything negotiated beyond vanilla."
+        },
+        {
+          "number": 92,
+          "text": "Been photographed or filmed during sex",
+          "weight": 20,
+          "hint": "By either of you, with your knowledge. Without your knowledge is a crime and lives in Genuinely Serious."
+        },
+        {
+          "number": 93,
+          "text": "Faked it",
+          "weight": 8,
+          "hint": "Performed an orgasm that wasn't happening.",
+          "cheeky": {
+            "prompt": "Did they ever find out?",
+            "options": [
+              "No",
+              "Yes, badly",
+              "Still no idea"
+            ]
+          }
+        },
+        {
+          "number": 94,
+          "text": "Been walked in on",
+          "weight": 12,
+          "hint": "Mid-act, by someone who then had to go on living with that.",
+          "cheeky": {
+            "prompt": "By whom?",
+            "options": [
+              "A housemate",
+              "A parent",
+              "A friend"
+            ]
+          }
+        },
+        {
+          "number": 95,
+          "text": "Sent someone home immediately afterwards",
+          "weight": 14,
+          "hint": "No staying over, no breakfast. You made it clear it was time to go.",
+          "cheeky": {
+            "prompt": "What was the excuse?",
+            "options": [
+              "\"Early start\"",
+              "Booked them a ride",
+              "No excuse given"
+            ]
+          }
+        },
+        {
+          "number": 96,
+          "text": "Slept with a friend's ex",
+          "weight": 25,
+          "hint": "An actual friend, an actual ex, and you knew the history.",
+          "recency": {
+            "prompt": "When was this?",
+            "stops": [
+              {
+                "label": "Over 10 years ago",
+                "multiplier": 0.72
+              },
+              {
+                "label": "5–10 years ago",
+                "multiplier": 0.82
+              },
+              {
+                "label": "1–5 years ago",
+                "multiplier": 0.92
+              },
+              {
+                "label": "In the past year",
+                "multiplier": 1.0
+              }
+            ]
+          },
+          "frequency": {
+            "prompt": "How often?",
+            "stops": [
+              {
+                "label": "Once",
+                "multiplier": 0.75
+              },
+              {
+                "label": "A handful of times",
+                "multiplier": 0.88
+              },
+              {
+                "label": "Regularly",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        },
+        {
+          "number": 97,
+          "text": "Slept with a friend's current partner",
+          "weight": 60,
+          "hint": "They were together at the time and you knew it.",
+          "recency": {
+            "prompt": "When was this?",
+            "stops": [
+              {
+                "label": "Over 10 years ago",
+                "multiplier": 0.72
+              },
+              {
+                "label": "5–10 years ago",
+                "multiplier": 0.82
+              },
+              {
+                "label": "1–5 years ago",
+                "multiplier": 0.92
+              },
+              {
+                "label": "In the past year",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        },
+        {
+          "number": 98,
+          "text": "Slept with someone knowing they were in a relationship",
+          "weight": 45,
+          "hint": "You knew before, not after.",
+          "recency": {
+            "prompt": "When was this?",
+            "stops": [
+              {
+                "label": "Over 10 years ago",
+                "multiplier": 0.72
+              },
+              {
+                "label": "5–10 years ago",
+                "multiplier": 0.82
+              },
+              {
+                "label": "1–5 years ago",
+                "multiplier": 0.92
+              },
+              {
+                "label": "In the past year",
+                "multiplier": 1.0
+              }
+            ]
+          },
+          "frequency": {
+            "prompt": "How often?",
+            "stops": [
+              {
+                "label": "Once",
+                "multiplier": 0.75
+              },
+              {
+                "label": "A handful of times",
+                "multiplier": 0.88
+              },
+              {
+                "label": "Regularly",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        },
+        {
+          "number": 99,
+          "text": "Slept with a coworker, boss, or classmate you absolutely shouldn't have",
+          "weight": 22,
+          "hint": "Someone you then had to see every day, in a dynamic that made it a bad idea.",
+          "recency": {
+            "prompt": "When was this?",
+            "stops": [
+              {
+                "label": "Over 10 years ago",
+                "multiplier": 0.72
+              },
+              {
+                "label": "5–10 years ago",
+                "multiplier": 0.82
+              },
+              {
+                "label": "1–5 years ago",
+                "multiplier": 0.92
+              },
+              {
+                "label": "In the past year",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        },
+        {
+          "number": 100,
+          "text": "Been paid for sexual content or acts",
+          "weight": 36,
+          "hint": "Money or goods moved toward you.",
+          "recency": {
+            "prompt": "When was this?",
+            "stops": [
+              {
+                "label": "Over 10 years ago",
+                "multiplier": 0.72
+              },
+              {
+                "label": "5–10 years ago",
+                "multiplier": 0.82
+              },
+              {
+                "label": "1–5 years ago",
+                "multiplier": 0.92
+              },
+              {
+                "label": "In the past year",
+                "multiplier": 1.0
+              }
+            ]
+          },
+          "frequency": {
+            "prompt": "How often?",
+            "stops": [
+              {
+                "label": "Once",
+                "multiplier": 0.75
+              },
+              {
+                "label": "A handful of times",
+                "multiplier": 0.88
+              },
+              {
+                "label": "Regularly",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        },
+        {
+          "number": 101,
+          "text": "Paid someone for sexual content or acts",
+          "weight": 36,
+          "hint": "Money or goods moved away from you.",
+          "recency": {
+            "prompt": "When was this?",
+            "stops": [
+              {
+                "label": "Over 10 years ago",
+                "multiplier": 0.72
+              },
+              {
+                "label": "5–10 years ago",
+                "multiplier": 0.82
+              },
+              {
+                "label": "1–5 years ago",
+                "multiplier": 0.92
+              },
+              {
+                "label": "In the past year",
+                "multiplier": 1.0
+              }
+            ]
+          },
+          "frequency": {
+            "prompt": "How often?",
+            "stops": [
+              {
+                "label": "Once",
+                "multiplier": 0.75
+              },
+              {
+                "label": "A handful of times",
+                "multiplier": 0.88
+              },
+              {
+                "label": "Regularly",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "online",
+      "emoji": "📱",
+      "title": "Terminally Online",
+      "blurb": "Everything the 1980s version of this test couldn't have imagined.",
+      "defs": [
+        "**\"Gooned\"** means a deliberate extended edging session — hours, not minutes. A normal quick one lives back in Fooling Around.",
+        "**\"A nude\"** means a photo or video where you'd be recognisable and uncomfortable if it got out. Thirst traps in underwear don't count."
+      ],
+      "items": [
+        {
+          "number": 102,
+          "text": "Downloaded a dating app",
+          "weight": 5,
+          "hint": "Installed it and built a profile. Deleting it again in shame an hour later still counts."
+        },
+        {
+          "number": 103,
+          "text": "Downloaded a dating app purely to hook up",
+          "weight": 14,
+          "hint": "You weren't looking for a relationship, and your profile knew it."
+        },
+        {
+          "number": 104,
+          "text": "Redownloaded a dating or hookup app you'd deleted \"for good\" within a week",
+          "weight": 8,
+          "hint": "A dating or hookup app specifically — not Instagram, not TikTok. The deletion was announced, possibly to friends. The reinstall was not."
+        },
+        {
+          "number": 105,
+          "text": "Met up in person with someone from the internet",
+          "weight": 10,
+          "hint": "Someone you'd only ever known online, met in the flesh."
+        },
+        {
+          "number": 106,
+          "text": "Met up and hooked up the same day",
+          "weight": 22,
+          "hint": "First meeting and the hook-up were the same occasion.",
+          "frequency": {
+            "prompt": "How often?",
+            "stops": [
+              {
+                "label": "Once",
+                "multiplier": 0.75
+              },
+              {
+                "label": "A handful of times",
+                "multiplier": 0.88
+              },
+              {
+                "label": "Regularly",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        },
+        {
+          "number": 107,
+          "text": "Sent a sexually explicit text",
+          "weight": 12,
+          "hint": "Words only.",
+          "frequency": {
+            "prompt": "How often?",
+            "stops": [
+              {
+                "label": "Once",
+                "multiplier": 0.75
+              },
+              {
+                "label": "A handful of times",
+                "multiplier": 0.88
+              },
+              {
+                "label": "Regularly",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        },
+        {
+          "number": 108,
+          "text": "Sent a nude",
+          "weight": 15,
+          "hint": "See the definition above.",
+          "frequency": {
+            "prompt": "How often?",
+            "stops": [
+              {
+                "label": "Once",
+                "multiplier": 0.75
+              },
+              {
+                "label": "A handful of times",
+                "multiplier": 0.88
+              },
+              {
+                "label": "Regularly",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        },
+        {
+          "number": 109,
+          "text": "Sent a nude to someone you'd never met in person",
+          "weight": 22,
+          "hint": "You had no idea, really, who was on the other end."
+        },
+        {
+          "number": 110,
+          "text": "Had video-call sex",
+          "weight": 16,
+          "hint": "Live, both of you participating."
+        },
+        {
+          "number": 111,
+          "text": "Screenshotted or forwarded someone else's nude",
+          "weight": 50,
+          "hint": "Sent to you privately, then saved or passed on without their say-so. There's a reason this is the heaviest thing in this section.",
+          "slider": {
+            "prompt": "How far did it travel?",
+            "stops": [
+              {
+                "label": "Saved it, showed nobody",
+                "weight": 22
+              },
+              {
+                "label": "Showed one friend",
+                "weight": 50
+              },
+              {
+                "label": "Sent it round a group chat",
+                "weight": 72
+              },
+              {
+                "label": "Posted it somewhere public",
+                "weight": 95
+              }
+            ]
+          }
+        },
+        {
+          "number": 112,
+          "text": "Seen or read pornographic material",
+          "weight": 6,
+          "hint": "Video, images, or written. Deliberately — an ad you scrolled past doesn't count."
+        },
+        {
+          "number": 113,
+          "text": "Watched porn somewhere you really shouldn't have",
+          "weight": 16,
+          "hint": "Work, a lecture, a shared room, public transport.",
+          "frequency": {
+            "prompt": "How often?",
+            "stops": [
+              {
+                "label": "Once",
+                "multiplier": 0.75
+              },
+              {
+                "label": "A handful of times",
+                "multiplier": 0.88
+              },
+              {
+                "label": "Regularly",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        },
+        {
+          "number": 114,
+          "text": "Watched porn more than three times in one day",
+          "weight": 12,
+          "hint": "Three or more separate sittings inside 24 hours."
+        },
+        {
+          "number": 115,
+          "text": "Gooned — a deliberate edging session lasting hours",
+          "weight": 18,
+          "hint": "Deliberately drawing it out over hours without finishing. The hours are what make it this item rather than the one above.",
+          "cheeky": {
+            "prompt": "Personal best?",
+            "options": [
+              "Two hours",
+              "Half a day",
+              "Don't make me say it"
+            ]
+          },
+          "frequency": {
+            "prompt": "How often?",
+            "stops": [
+              {
+                "label": "Once",
+                "multiplier": 0.75
+              },
+              {
+                "label": "A handful of times",
+                "multiplier": 0.88
+              },
+              {
+                "label": "Regularly",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        },
+        {
+          "number": 116,
+          "text": "Failed to make it a full week after swearing off it",
+          "weight": 14,
+          "hint": "You made the commitment — possibly out loud, possibly to a friend. It lasted under seven days."
+        },
+        {
+          "number": 117,
+          "text": "Cancelled real plans to stay in and do the above",
+          "weight": 20,
+          "hint": "You had somewhere to be, and chose this instead.",
+          "cheeky": {
+            "prompt": "What did you tell them?",
+            "options": [
+              "\"Feeling unwell\"",
+              "\"Something came up\"",
+              "Nothing at all"
+            ]
+          },
+          "frequency": {
+            "prompt": "How often?",
+            "stops": [
+              {
+                "label": "Once",
+                "multiplier": 0.75
+              },
+              {
+                "label": "A handful of times",
+                "multiplier": 0.88
+              },
+              {
+                "label": "Regularly",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        },
+        {
+          "number": 118,
+          "text": "Subscribed to an OnlyFans",
+          "weight": 12,
+          "hint": "Paid for access to somebody's content."
+        },
+        {
+          "number": 119,
+          "text": "Made an OnlyFans or sold your own content",
+          "weight": 28,
+          "hint": "You were the one being paid.",
+          "cheeky": {
+            "prompt": "Did anyone you know find out?",
+            "options": [
+              "Nobody",
+              "One person",
+              "Everybody"
+            ]
+          }
+        },
+        {
+          "number": 120,
+          "text": "Sent money to a streamer, cam model, or creator",
+          "weight": 12,
+          "hint": "Tips, subs, donations, wishlist gifts — anything that actually left your account.",
+          "slider": {
+            "prompt": "How much, all up?",
+            "stops": [
+              {
+                "label": "A one-off tip, under $20",
+                "weight": 5
+              },
+              {
+                "label": "Under $100",
+                "weight": 12
+              },
+              {
+                "label": "Into the hundreds",
+                "weight": 26
+              },
+              {
+                "label": "More than you'd say out loud",
+                "weight": 44
+              }
+            ]
+          },
+          "cheeky": {
+            "prompt": "Do you regret it?",
+            "options": [
+              "Not at all",
+              "A little",
+              "Deeply"
+            ]
+          }
+        },
+        {
+          "number": 121,
+          "text": "Used misleading or years-old photos on a dating profile",
+          "weight": 16,
+          "hint": "Photos that would visibly surprise someone meeting you today."
+        },
+        {
+          "number": 122,
+          "text": "Outright catfished someone",
+          "weight": 32,
+          "hint": "You presented as a different person entirely, not just a flattering version of yourself.",
+          "slider": {
+            "prompt": "How long did you keep it going?",
+            "stops": [
+              {
+                "label": "A few messages for a laugh",
+                "weight": 14
+              },
+              {
+                "label": "Days to weeks",
+                "weight": 32
+              },
+              {
+                "label": "Months, they were invested",
+                "weight": 52
+              },
+              {
+                "label": "Took money or nudes off them",
+                "weight": 80
+              }
+            ]
+          }
+        },
+        {
+          "number": 123,
+          "text": "Lied about your age online",
+          "weight": 14,
+          "hint": "Either direction, on a profile or in conversation."
+        },
+        {
+          "number": 124,
+          "text": "Made a burner account to watch someone",
+          "weight": 16,
+          "hint": "A second account created specifically to see what someone was posting.",
+          "cheeky": {
+            "prompt": "Do they know it exists?",
+            "options": [
+              "No",
+              "They suspect",
+              "They found it"
+            ]
+          },
+          "frequency": {
+            "prompt": "How often?",
+            "stops": [
+              {
+                "label": "Once",
+                "multiplier": 0.75
+              },
+              {
+                "label": "A handful of times",
+                "multiplier": 0.88
+              },
+              {
+                "label": "Regularly",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        },
+        {
+          "number": 125,
+          "text": "Checked an ex's profile in the last month",
+          "weight": 5,
+          "hint": "You went looking. The algorithm serving them up unprompted doesn't count.",
+          "cheeky": {
+            "prompt": "How recently, honestly?",
+            "options": [
+              "This week",
+              "Today",
+              "In another tab now"
+            ]
+          }
+        },
+        {
+          "number": 126,
+          "text": "Ranked or rated people in a group chat",
+          "weight": 10,
+          "hint": "Numbers, tiers, or a full bracket. They didn't know.",
+          "cheeky": {
+            "prompt": "Did it ever leak?",
+            "options": [
+              "Never",
+              "Nearly",
+              "Yes, catastrophically"
+            ]
+          }
+        },
+        {
+          "number": 127,
+          "text": "Had a full parasocial crush on someone who doesn't know you exist",
+          "weight": 3,
+          "hint": "A streamer, a celebrity, someone two years above you. Real feelings, zero acquaintance.",
+          "cheeky": {
+            "prompt": "What kind of unreachable?",
+            "options": [
+              "A streamer",
+              "A celebrity",
+              "Someone at uni"
+            ]
+          }
+        },
+        {
+          "number": 128,
+          "text": "Used an AI chatbot romantically or sexually",
+          "weight": 12,
+          "hint": "A companion app, a roleplay, or a general assistant you steered somewhere it wasn't meant to go.",
+          "cheeky": {
+            "prompt": "Did it have a name?",
+            "options": [
+              "Yes, I named it",
+              "It came named",
+              "I'd rather not"
+            ]
+          }
+        },
+        {
+          "number": 129,
+          "text": "Sent a text after 2am you regretted by sunrise",
+          "weight": 5,
+          "hint": "Sent while drunk, emotional, or both.",
+          "cheeky": {
+            "prompt": "What did it say?",
+            "options": [
+              "\"u up\"",
+              "A whole paragraph",
+              "A voice note"
+            ]
+          }
+        },
+        {
+          "number": 130,
+          "text": "Left someone on read for over a week to avoid the conversation",
+          "weight": 9,
+          "hint": "You saw it, you knew what it needed, you did nothing."
+        }
+      ]
+    },
+    {
+      "id": "substances",
+      "emoji": "🥃",
+      "title": "Substances",
+      "blurb": "Weighted by risk to you and to everyone in the passenger seat.",
+      "defs": [
+        "**\"A drink\"** means one full standard drink — a beer, a glass of wine, a shot. Sips off your dad's glass at Christmas do not count, and neither does the one you pretended to finish.",
+        "**\"Drunk\"** means actually intoxicated — you'd have failed a breath test. Pleasantly warm after one glass isn't it.",
+        "**\"Blacked out\"** means a stretch of time you have **no** memory of, not a fuzzy hour you can mostly reconstruct."
+      ],
+      "items": [
+        {
+          "number": 131,
+          "text": "Had a full standard drink",
+          "weight": 4,
+          "hint": "See the definition above — one full drink, start to finish."
+        },
+        {
+          "number": 132,
+          "text": "Had a full standard drink while underage",
+          "weight": 9,
+          "hint": "Under the legal age where you were at the time."
+        },
+        {
+          "number": 133,
+          "text": "Played a drinking game",
+          "weight": 6,
+          "hint": "Anything with rules that ends in someone drinking."
+        },
+        {
+          "number": 134,
+          "text": "Been properly drunk",
+          "weight": 8,
+          "hint": "Actually intoxicated — you'd have failed a breath test.",
+          "frequency": {
+            "prompt": "How often?",
+            "stops": [
+              {
+                "label": "Once",
+                "multiplier": 0.75
+              },
+              {
+                "label": "A handful of times",
+                "multiplier": 0.88
+              },
+              {
+                "label": "Regularly",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        },
+        {
+          "number": 135,
+          "text": "Faked sobriety in front of parents or teachers",
+          "weight": 8,
+          "hint": "Held it together convincingly while drunk or high."
+        },
+        {
+          "number": 136,
+          "text": "Thrown up from drinking",
+          "weight": 12,
+          "frequency": {
+            "prompt": "How often?",
+            "stops": [
+              {
+                "label": "Once",
+                "multiplier": 0.75
+              },
+              {
+                "label": "A handful of times",
+                "multiplier": 0.88
+              },
+              {
+                "label": "Regularly",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        },
+        {
+          "number": 137,
+          "text": "Blacked out — lost time entirely",
+          "weight": 20,
+          "hint": "The original's \"severe memory loss due to alcohol\". Gaps you cannot reconstruct.",
+          "cheeky": {
+            "prompt": "Last thing you remember?",
+            "options": [
+              "The first bar",
+              "A taxi",
+              "Nothing useful"
+            ]
+          }
+        },
+        {
+          "number": 138,
+          "text": "Blacked out more than five times",
+          "weight": 30
+        },
+        {
+          "number": 139,
+          "text": "Turned up to work or class hungover",
+          "weight": 9
+        },
+        {
+          "number": 140,
+          "text": "Drunk alone",
+          "weight": 14,
+          "hint": "By yourself, not as part of anything social — and be honest about whether it was a pattern.",
+          "frequency": {
+            "prompt": "How often?",
+            "stops": [
+              {
+                "label": "Once",
+                "multiplier": 0.75
+              },
+              {
+                "label": "A handful of times",
+                "multiplier": 0.88
+              },
+              {
+                "label": "Regularly",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        },
+        {
+          "number": 141,
+          "text": "Started drinking before noon",
+          "weight": 10,
+          "hint": "Deliberately, not counting a champagne at a wedding brunch.",
+          "frequency": {
+            "prompt": "How often?",
+            "stops": [
+              {
+                "label": "Once",
+                "multiplier": 0.75
+              },
+              {
+                "label": "A handful of times",
+                "multiplier": 0.88
+              },
+              {
+                "label": "Regularly",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        },
+        {
+          "number": 142,
+          "text": "Partied genuinely hard — a session that outlasted the sun",
+          "weight": 14,
+          "hint": "A proper marathon, not a big night. Pre-drinks that became a club that became someone's kitchen at 9am, or a weekend where you never really stopped. Slide it to whatever you actually did.",
+          "slider": {
+            "prompt": "How hard are we talking?",
+            "stops": [
+              {
+                "label": "One long night out",
+                "weight": 6
+              },
+              {
+                "label": "Eight hours straight, one day",
+                "weight": 14
+              },
+              {
+                "label": "Three parties in a single weekend",
+                "weight": 24
+              },
+              {
+                "label": "A multi-day bender, days lost",
+                "weight": 38
+              }
+            ]
+          },
+          "cheeky": {
+            "prompt": "How did it actually end?",
+            "options": [
+              "Sunrise",
+              "Someone's floor",
+              "Still going"
+            ]
+          }
+        },
+        {
+          "number": 143,
+          "text": "Used tobacco",
+          "weight": 7,
+          "hint": "Cigarettes, cigars, rollies, chew. Vapes are the next item."
+        },
+        {
+          "number": 144,
+          "text": "Vaped or used nicotine",
+          "weight": 7,
+          "hint": "Vapes, pouches, or patches used recreationally."
+        },
+        {
+          "number": 145,
+          "text": "Been genuinely nicotine dependent",
+          "weight": 14,
+          "hint": "You'd leave the house at midnight to get more."
+        },
+        {
+          "number": 146,
+          "text": "Smoked weed",
+          "weight": 11,
+          "hint": "Any method — smoked, vaped, or eaten.",
+          "frequency": {
+            "prompt": "How often?",
+            "stops": [
+              {
+                "label": "Once",
+                "multiplier": 0.75
+              },
+              {
+                "label": "A handful of times",
+                "multiplier": 0.88
+              },
+              {
+                "label": "Regularly",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        },
+        {
+          "number": 147,
+          "text": "Been high at work or in class",
+          "weight": 16,
+          "frequency": {
+            "prompt": "How often?",
+            "stops": [
+              {
+                "label": "Once",
+                "multiplier": 0.75
+              },
+              {
+                "label": "A handful of times",
+                "multiplier": 0.88
+              },
+              {
+                "label": "Regularly",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        },
+        {
+          "number": 148,
+          "text": "Tried a psychedelic",
+          "weight": 20,
+          "hint": "LSD, mushrooms, DMT, mescaline.",
+          "frequency": {
+            "prompt": "How often?",
+            "stops": [
+              {
+                "label": "Once",
+                "multiplier": 0.75
+              },
+              {
+                "label": "A handful of times",
+                "multiplier": 0.88
+              },
+              {
+                "label": "Regularly",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        },
+        {
+          "number": 149,
+          "text": "Tried MDMA, cocaine, or ketamine",
+          "weight": 26,
+          "hint": "Any amount, any once.",
+          "frequency": {
+            "prompt": "How often?",
+            "stops": [
+              {
+                "label": "Once",
+                "multiplier": 0.75
+              },
+              {
+                "label": "A handful of times",
+                "multiplier": 0.88
+              },
+              {
+                "label": "Regularly",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        },
+        {
+          "number": 150,
+          "text": "Tried meth, crack, or heroin",
+          "weight": 44,
+          "hint": "The original singles these out too, at question 52.",
+          "recency": {
+            "prompt": "When was this?",
+            "stops": [
+              {
+                "label": "Over 10 years ago",
+                "multiplier": 0.72
+              },
+              {
+                "label": "5–10 years ago",
+                "multiplier": 0.82
+              },
+              {
+                "label": "1–5 years ago",
+                "multiplier": 0.92
+              },
+              {
+                "label": "In the past year",
+                "multiplier": 1.0
+              }
+            ]
+          },
+          "frequency": {
+            "prompt": "How often?",
+            "stops": [
+              {
+                "label": "Once",
+                "multiplier": 0.75
+              },
+              {
+                "label": "A handful of times",
+                "multiplier": 0.88
+              },
+              {
+                "label": "Regularly",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        },
+        {
+          "number": 151,
+          "text": "Tried opioids recreationally",
+          "weight": 36,
+          "hint": "Oxy, codeine, fentanyl — taken to get high rather than as prescribed to you.",
+          "recency": {
+            "prompt": "When was this?",
+            "stops": [
+              {
+                "label": "Over 10 years ago",
+                "multiplier": 0.72
+              },
+              {
+                "label": "5–10 years ago",
+                "multiplier": 0.82
+              },
+              {
+                "label": "1–5 years ago",
+                "multiplier": 0.92
+              },
+              {
+                "label": "In the past year",
+                "multiplier": 1.0
+              }
+            ]
+          },
+          "frequency": {
+            "prompt": "How often?",
+            "stops": [
+              {
+                "label": "Once",
+                "multiplier": 0.75
+              },
+              {
+                "label": "A handful of times",
+                "multiplier": 0.88
+              },
+              {
+                "label": "Regularly",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        },
+        {
+          "number": 152,
+          "text": "Taken someone else's prescription medication",
+          "weight": 20,
+          "hint": "Prescribed to somebody else, taken by you, for any reason at all.",
+          "frequency": {
+            "prompt": "How often?",
+            "stops": [
+              {
+                "label": "Once",
+                "multiplier": 0.75
+              },
+              {
+                "label": "A handful of times",
+                "multiplier": 0.88
+              },
+              {
+                "label": "Regularly",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        },
+        {
+          "number": 153,
+          "text": "Mixed substances knowing full well it was a bad idea",
+          "weight": 26,
+          "hint": "A combination you'd been warned about, or knew perfectly well was risky.",
+          "frequency": {
+            "prompt": "How often?",
+            "stops": [
+              {
+                "label": "Once",
+                "multiplier": 0.75
+              },
+              {
+                "label": "A handful of times",
+                "multiplier": 0.88
+              },
+              {
+                "label": "Regularly",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        },
+        {
+          "number": 154,
+          "text": "Taken something without knowing what was in it",
+          "weight": 30,
+          "hint": "Handed to you at a party, or bought without any idea of the contents."
+        },
+        {
+          "number": 155,
+          "text": "Needed medical attention because of a substance",
+          "weight": 36,
+          "hint": "An ambulance, an emergency department, or a friend seriously considering calling one.",
+          "recency": {
+            "prompt": "When was this?",
+            "stops": [
+              {
+                "label": "Over 10 years ago",
+                "multiplier": 0.72
+              },
+              {
+                "label": "5–10 years ago",
+                "multiplier": 0.82
+              },
+              {
+                "label": "1–5 years ago",
+                "multiplier": 0.92
+              },
+              {
+                "label": "In the past year",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        },
+        {
+          "number": 156,
+          "text": "Sold drugs",
+          "weight": 40,
+          "hint": "Money or trade changed hands. Passing a joint to a mate for free is not selling.",
+          "slider": {
+            "prompt": "What kind of operation was it?",
+            "stops": [
+              {
+                "label": "Passed weed to mates at cost",
+                "weight": 16
+              },
+              {
+                "label": "Small-time, for pocket money",
+                "weight": 40
+              },
+              {
+                "label": "Regularly, for real profit",
+                "weight": 62
+              },
+              {
+                "label": "Hard drugs, at volume",
+                "weight": 85
+              }
+            ]
+          },
+          "recency": {
+            "prompt": "When was this?",
+            "stops": [
+              {
+                "label": "Over 10 years ago",
+                "multiplier": 0.72
+              },
+              {
+                "label": "5–10 years ago",
+                "multiplier": 0.82
+              },
+              {
+                "label": "1–5 years ago",
+                "multiplier": 0.92
+              },
+              {
+                "label": "In the past year",
+                "multiplier": 1.0
+              }
+            ]
+          },
+          "frequency": {
+            "prompt": "How often?",
+            "stops": [
+              {
+                "label": "Once",
+                "multiplier": 0.75
+              },
+              {
+                "label": "A handful of times",
+                "multiplier": 0.88
+              },
+              {
+                "label": "Regularly",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        },
+        {
+          "number": 157,
+          "text": "Been in a car with a driver you knew was impaired",
+          "weight": 26,
+          "hint": "You knew before you got in.",
+          "frequency": {
+            "prompt": "How often?",
+            "stops": [
+              {
+                "label": "Once",
+                "multiplier": 0.75
+              },
+              {
+                "label": "A handful of times",
+                "multiplier": 0.88
+              },
+              {
+                "label": "Regularly",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        },
+        {
+          "number": 158,
+          "text": "Driven under the influence of alcohol or other drugs",
+          "weight": 62,
+          "hint": "Over the limit, or genuinely affected by a substance — whether or not you were ever caught. Driving tired, or without your glasses, is not this.",
+          "recency": {
+            "prompt": "When was this?",
+            "stops": [
+              {
+                "label": "Over 10 years ago",
+                "multiplier": 0.72
+              },
+              {
+                "label": "5–10 years ago",
+                "multiplier": 0.82
+              },
+              {
+                "label": "1–5 years ago",
+                "multiplier": 0.92
+              },
+              {
+                "label": "In the past year",
+                "multiplier": 1.0
+              }
+            ]
+          },
+          "frequency": {
+            "prompt": "How often?",
+            "stops": [
+              {
+                "label": "Once",
+                "multiplier": 0.75
+              },
+              {
+                "label": "A handful of times",
+                "multiplier": 0.88
+              },
+              {
+                "label": "Regularly",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        },
+        {
+          "number": 159,
+          "text": "Tried to quit something and failed more than once",
+          "weight": 16,
+          "hint": "Vaping, drinking, weed, porn, anything. More than one honest attempt.",
+          "cheeky": {
+            "prompt": "What is it?",
+            "options": [
+              "Vaping",
+              "Porn",
+              "Drinking"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "mischief",
+      "emoji": "🎭",
+      "title": "Mischief & Petty Crime",
+      "blurb": "Small-scale rule breaking. Annoying, not ruinous.",
+      "defs": [],
+      "items": [
+        {
+          "number": 160,
+          "text": "Skipped class or called in sick when you weren't",
+          "weight": 4,
+          "hint": "Deliberately, with no intention of going."
+        },
+        {
+          "number": 161,
+          "text": "Lied to your parents about where you were",
+          "weight": 5
+        },
+        {
+          "number": 162,
+          "text": "Snuck out of the house",
+          "weight": 6,
+          "hint": "Out a window, or past someone who'd have stopped you."
+        },
+        {
+          "number": 163,
+          "text": "Urinated in public",
+          "weight": 8,
+          "hint": "Outdoors, where you could plausibly have been seen.",
+          "cheeky": {
+            "prompt": "Scene of the crime?",
+            "options": [
+              "An alley",
+              "Someone's garden",
+              "The ocean"
+            ]
+          }
+        },
+        {
+          "number": 164,
+          "text": "Owned a fake ID",
+          "weight": 18,
+          "hint": "Fake, borrowed, or somebody else's. Owning it counts even if you never dared use it.",
+          "cheeky": {
+            "prompt": "Whose name was on it?",
+            "options": [
+              "A cousin's",
+              "A total invention",
+              "Mine, new birthday"
+            ]
+          },
+          "recency": {
+            "prompt": "When was this?",
+            "stops": [
+              {
+                "label": "Over 10 years ago",
+                "multiplier": 0.72
+              },
+              {
+                "label": "5–10 years ago",
+                "multiplier": 0.82
+              },
+              {
+                "label": "1–5 years ago",
+                "multiplier": 0.92
+              },
+              {
+                "label": "In the past year",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        },
+        {
+          "number": 165,
+          "text": "Successfully used a fake ID",
+          "weight": 22,
+          "hint": "It worked. You got in, or you got served.",
+          "recency": {
+            "prompt": "When was this?",
+            "stops": [
+              {
+                "label": "Over 10 years ago",
+                "multiplier": 0.72
+              },
+              {
+                "label": "5–10 years ago",
+                "multiplier": 0.82
+              },
+              {
+                "label": "1–5 years ago",
+                "multiplier": 0.92
+              },
+              {
+                "label": "In the past year",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        },
+        {
+          "number": 166,
+          "text": "Pirated a movie, show, game, or album",
+          "weight": 6,
+          "hint": "Torrented, streamed off a dodgy site, or copied from a friend."
+        },
+        {
+          "number": 167,
+          "text": "Fare evaded on public transport",
+          "weight": 8,
+          "hint": "Deliberately didn't pay. A card that failed to tap is a grey area — score it however you sleep best."
+        },
+        {
+          "number": 168,
+          "text": "Used AI to write something you submitted as your own",
+          "weight": 12,
+          "hint": "Any assessed work where the rules didn't allow it."
+        },
+        {
+          "number": 169,
+          "text": "Cheated on a test or assignment",
+          "weight": 16,
+          "slider": {
+            "prompt": "How much was riding on it?",
+            "stops": [
+              {
+                "label": "A homework question",
+                "weight": 6
+              },
+              {
+                "label": "A quiz or minor assignment",
+                "weight": 16
+              },
+              {
+                "label": "A major exam",
+                "weight": 30
+              },
+              {
+                "label": "A final that decided the grade",
+                "weight": 46
+              }
+            ]
+          },
+          "cheeky": {
+            "prompt": "What was the method?",
+            "options": [
+              "Phone in the bathroom",
+              "Written on my hand",
+              "Just looked over"
+            ]
+          },
+          "recency": {
+            "prompt": "When was this?",
+            "stops": [
+              {
+                "label": "Over 10 years ago",
+                "multiplier": 0.72
+              },
+              {
+                "label": "5–10 years ago",
+                "multiplier": 0.82
+              },
+              {
+                "label": "1–5 years ago",
+                "multiplier": 0.92
+              },
+              {
+                "label": "In the past year",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        },
+        {
+          "number": 170,
+          "text": "Plagiarised something substantial",
+          "weight": 20,
+          "hint": "Someone else's words or work, passed off as yours, at length.",
+          "recency": {
+            "prompt": "When was this?",
+            "stops": [
+              {
+                "label": "Over 10 years ago",
+                "multiplier": 0.72
+              },
+              {
+                "label": "5–10 years ago",
+                "multiplier": 0.82
+              },
+              {
+                "label": "1–5 years ago",
+                "multiplier": 0.92
+              },
+              {
+                "label": "In the past year",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        },
+        {
+          "number": 171,
+          "text": "Paid someone to do your work",
+          "weight": 24,
+          "recency": {
+            "prompt": "When was this?",
+            "stops": [
+              {
+                "label": "Over 10 years ago",
+                "multiplier": 0.72
+              },
+              {
+                "label": "5–10 years ago",
+                "multiplier": 0.82
+              },
+              {
+                "label": "1–5 years ago",
+                "multiplier": 0.92
+              },
+              {
+                "label": "In the past year",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        },
+        {
+          "number": 172,
+          "text": "Been sent to a principal, dean, or disciplinary board",
+          "weight": 10,
+          "hint": "A formal summons over something you did, not a careers chat."
+        },
+        {
+          "number": 173,
+          "text": "Been suspended, expelled, or put on disciplinary probation",
+          "weight": 20,
+          "hint": "A formal sanction that went on a record somewhere.",
+          "cheeky": {
+            "prompt": "What was it for?",
+            "options": [
+              "Fighting",
+              "Cheating",
+              "Something creative"
+            ]
+          },
+          "recency": {
+            "prompt": "When was this?",
+            "stops": [
+              {
+                "label": "Over 10 years ago",
+                "multiplier": 0.72
+              },
+              {
+                "label": "5–10 years ago",
+                "multiplier": 0.82
+              },
+              {
+                "label": "1–5 years ago",
+                "multiplier": 0.92
+              },
+              {
+                "label": "In the past year",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        },
+        {
+          "number": 174,
+          "text": "Shoplifted",
+          "weight": 22,
+          "hint": "Walked out of a shop with something you hadn't paid for, on purpose.",
+          "slider": {
+            "prompt": "What was it worth?",
+            "stops": [
+              {
+                "label": "A chocolate bar",
+                "weight": 10
+              },
+              {
+                "label": "Under $50",
+                "weight": 22
+              },
+              {
+                "label": "Into the hundreds",
+                "weight": 40
+              },
+              {
+                "label": "Enough to be a serious charge",
+                "weight": 62
+              }
+            ]
+          },
+          "cheeky": {
+            "prompt": "What did you take?",
+            "options": [
+              "A snack",
+              "Makeup",
+              "Clothes"
+            ]
+          },
+          "recency": {
+            "prompt": "When was this?",
+            "stops": [
+              {
+                "label": "Over 10 years ago",
+                "multiplier": 0.72
+              },
+              {
+                "label": "5–10 years ago",
+                "multiplier": 0.82
+              },
+              {
+                "label": "1–5 years ago",
+                "multiplier": 0.92
+              },
+              {
+                "label": "In the past year",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        },
+        {
+          "number": 175,
+          "text": "Dined and dashed",
+          "weight": 20,
+          "hint": "Ate, then left without paying, deliberately.",
+          "cheeky": {
+            "prompt": "How did you leave?",
+            "options": [
+              "Walked out calmly",
+              "Full sprint",
+              "Got caught"
+            ]
+          },
+          "recency": {
+            "prompt": "When was this?",
+            "stops": [
+              {
+                "label": "Over 10 years ago",
+                "multiplier": 0.72
+              },
+              {
+                "label": "5–10 years ago",
+                "multiplier": 0.82
+              },
+              {
+                "label": "1–5 years ago",
+                "multiplier": 0.92
+              },
+              {
+                "label": "In the past year",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        },
+        {
+          "number": 176,
+          "text": "Stolen from a workplace",
+          "weight": 26,
+          "hint": "Beyond taking a pen home. You knew it was stealing at the time.",
+          "recency": {
+            "prompt": "When was this?",
+            "stops": [
+              {
+                "label": "Over 10 years ago",
+                "multiplier": 0.72
+              },
+              {
+                "label": "5–10 years ago",
+                "multiplier": 0.82
+              },
+              {
+                "label": "1–5 years ago",
+                "multiplier": 0.92
+              },
+              {
+                "label": "In the past year",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        },
+        {
+          "number": 177,
+          "text": "Trespassed somewhere clearly off limits",
+          "weight": 12,
+          "hint": "Fences, signs, or a locked door were involved."
+        },
+        {
+          "number": 178,
+          "text": "Committed an act of vandalism",
+          "weight": 20,
+          "hint": "Damaged or defaced something that wasn't yours.",
+          "slider": {
+            "prompt": "How much damage?",
+            "stops": [
+              {
+                "label": "A tag that washed off",
+                "weight": 9
+              },
+              {
+                "label": "Someone had to clean it up",
+                "weight": 20
+              },
+              {
+                "label": "Real repair bill",
+                "weight": 36
+              },
+              {
+                "label": "Thousands in damage",
+                "weight": 56
+              }
+            ]
+          },
+          "cheeky": {
+            "prompt": "What did you leave behind?",
+            "options": [
+              "A tag",
+              "A dent",
+              "A message"
+            ]
+          },
+          "recency": {
+            "prompt": "When was this?",
+            "stops": [
+              {
+                "label": "Over 10 years ago",
+                "multiplier": 0.72
+              },
+              {
+                "label": "5–10 years ago",
+                "multiplier": 0.82
+              },
+              {
+                "label": "1–5 years ago",
+                "multiplier": 0.92
+              },
+              {
+                "label": "In the past year",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        },
+        {
+          "number": 179,
+          "text": "Lied on a résumé or application",
+          "weight": 18,
+          "hint": "A claim you knew was false, submitted for a job, a place, or a grant.",
+          "slider": {
+            "prompt": "How big was the lie?",
+            "stops": [
+              {
+                "label": "Rounded a grade up",
+                "weight": 6
+              },
+              {
+                "label": "Inflated a real job",
+                "weight": 18
+              },
+              {
+                "label": "Invented a job outright",
+                "weight": 34
+              },
+              {
+                "label": "Fake degree or credential",
+                "weight": 55
+              }
+            ]
+          },
+          "recency": {
+            "prompt": "When was this?",
+            "stops": [
+              {
+                "label": "Over 10 years ago",
+                "multiplier": 0.72
+              },
+              {
+                "label": "5–10 years ago",
+                "multiplier": 0.82
+              },
+              {
+                "label": "1–5 years ago",
+                "multiplier": 0.92
+              },
+              {
+                "label": "In the past year",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        },
+        {
+          "number": 180,
+          "text": "Been thrown out of a venue",
+          "weight": 14,
+          "hint": "Escorted or told to leave by staff or security.",
+          "cheeky": {
+            "prompt": "What was the official reason?",
+            "options": [
+              "Too drunk",
+              "A fight",
+              "Snuck in"
+            ]
+          },
+          "recency": {
+            "prompt": "When was this?",
+            "stops": [
+              {
+                "label": "Over 10 years ago",
+                "multiplier": 0.72
+              },
+              {
+                "label": "5–10 years ago",
+                "multiplier": 0.82
+              },
+              {
+                "label": "1–5 years ago",
+                "multiplier": 0.92
+              },
+              {
+                "label": "In the past year",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        },
+        {
+          "number": 181,
+          "text": "Been banned from a venue, shop, or platform",
+          "weight": 18,
+          "hint": "A standing ban, not a single bad night.",
+          "recency": {
+            "prompt": "When was this?",
+            "stops": [
+              {
+                "label": "Over 10 years ago",
+                "multiplier": 0.72
+              },
+              {
+                "label": "5–10 years ago",
+                "multiplier": 0.82
+              },
+              {
+                "label": "1–5 years ago",
+                "multiplier": 0.92
+              },
+              {
+                "label": "In the past year",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        },
+        {
+          "number": 182,
+          "text": "Received a fine or ticket",
+          "weight": 7,
+          "hint": "Parking, speeding, transport, littering — anything official with a dollar figure."
+        },
+        {
+          "number": 183,
+          "text": "Had the police called on you",
+          "weight": 14,
+          "hint": "Someone rang them about you specifically.",
+          "recency": {
+            "prompt": "When was this?",
+            "stops": [
+              {
+                "label": "Over 10 years ago",
+                "multiplier": 0.72
+              },
+              {
+                "label": "5–10 years ago",
+                "multiplier": 0.82
+              },
+              {
+                "label": "1–5 years ago",
+                "multiplier": 0.92
+              },
+              {
+                "label": "In the past year",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        },
+        {
+          "number": 184,
+          "text": "Been questioned by police",
+          "weight": 16,
+          "hint": "They asked you questions about something that happened. A random breath test, or a licence check at a stop, does not count.",
+          "recency": {
+            "prompt": "When was this?",
+            "stops": [
+              {
+                "label": "Over 10 years ago",
+                "multiplier": 0.72
+              },
+              {
+                "label": "5–10 years ago",
+                "multiplier": 0.82
+              },
+              {
+                "label": "1–5 years ago",
+                "multiplier": 0.92
+              },
+              {
+                "label": "In the past year",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        },
+        {
+          "number": 185,
+          "text": "Run from the police",
+          "weight": 28,
+          "hint": "They wanted you to stop, and you didn't.",
+          "cheeky": {
+            "prompt": "How did it end?",
+            "options": [
+              "Got away",
+              "Gave up",
+              "Never saw them again"
+            ]
+          },
+          "recency": {
+            "prompt": "When was this?",
+            "stops": [
+              {
+                "label": "Over 10 years ago",
+                "multiplier": 0.72
+              },
+              {
+                "label": "5–10 years ago",
+                "multiplier": 0.82
+              },
+              {
+                "label": "1–5 years ago",
+                "multiplier": 0.92
+              },
+              {
+                "label": "In the past year",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        },
+        {
+          "number": 186,
+          "text": "Lied to police",
+          "weight": 32,
+          "hint": "A material lie in a real interaction, not a mumbled excuse at a RBT.",
+          "recency": {
+            "prompt": "When was this?",
+            "stops": [
+              {
+                "label": "Over 10 years ago",
+                "multiplier": 0.72
+              },
+              {
+                "label": "5–10 years ago",
+                "multiplier": 0.82
+              },
+              {
+                "label": "1–5 years ago",
+                "multiplier": 0.92
+              },
+              {
+                "label": "In the past year",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "serious",
+      "emoji": "⚖️",
+      "title": "Genuinely Serious",
+      "blurb": "The end of the scale the original test treated like a stolen traffic cone.",
+      "defs": [],
+      "items": [
+        {
+          "number": 187,
+          "text": "Been in a physical fight",
+          "weight": 24,
+          "hint": "Actual blows thrown, by one or both of you.",
+          "slider": {
+            "prompt": "How bad did it get?",
+            "stops": [
+              {
+                "label": "A shove-and-scuffle, nobody hurt",
+                "weight": 9
+              },
+              {
+                "label": "A real fight, bruises at worst",
+                "weight": 24
+              },
+              {
+                "label": "Someone needed patching up",
+                "weight": 46
+              },
+              {
+                "label": "Someone ended up in hospital",
+                "weight": 72
+              }
+            ]
+          },
+          "recency": {
+            "prompt": "When was this?",
+            "stops": [
+              {
+                "label": "Over 10 years ago",
+                "multiplier": 0.72
+              },
+              {
+                "label": "5–10 years ago",
+                "multiplier": 0.82
+              },
+              {
+                "label": "1–5 years ago",
+                "multiplier": 0.92
+              },
+              {
+                "label": "In the past year",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        },
+        {
+          "number": 188,
+          "text": "Started a physical fight",
+          "weight": 36,
+          "hint": "You threw the first punch, or you engineered it.",
+          "slider": {
+            "prompt": "How did you start it?",
+            "stops": [
+              {
+                "label": "Shoved first, it fizzled out",
+                "weight": 14
+              },
+              {
+                "label": "Threw the first punch, fair fight",
+                "weight": 36
+              },
+              {
+                "label": "Picked on someone who couldn’t fight back",
+                "weight": 64
+              },
+              {
+                "label": "Jumped them, or brought friends",
+                "weight": 88
+              }
+            ]
+          },
+          "recency": {
+            "prompt": "When was this?",
+            "stops": [
+              {
+                "label": "Over 10 years ago",
+                "multiplier": 0.72
+              },
+              {
+                "label": "5–10 years ago",
+                "multiplier": 0.82
+              },
+              {
+                "label": "1–5 years ago",
+                "multiplier": 0.92
+              },
+              {
+                "label": "In the past year",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        },
+        {
+          "number": 189,
+          "text": "Intentionally injured someone",
+          "weight": 70,
+          "hint": "You meant to hurt them. A tackle that went wrong, or anything genuinely accidental, is the question below instead.",
+          "slider": {
+            "prompt": "How badly?",
+            "stops": [
+              {
+                "label": "Bruises, nothing lasting",
+                "weight": 40
+              },
+              {
+                "label": "Hospital trip",
+                "weight": 70
+              },
+              {
+                "label": "Broken bones or surgery",
+                "weight": 86
+              },
+              {
+                "label": "Permanent damage",
+                "weight": 98
+              }
+            ]
+          },
+          "recency": {
+            "prompt": "When was this?",
+            "stops": [
+              {
+                "label": "Over 10 years ago",
+                "multiplier": 0.72
+              },
+              {
+                "label": "5–10 years ago",
+                "multiplier": 0.82
+              },
+              {
+                "label": "1–5 years ago",
+                "multiplier": 0.92
+              },
+              {
+                "label": "In the past year",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        },
+        {
+          "number": 190,
+          "text": "Accidentally injured someone — sport, horseplay, a genuine accident",
+          "weight": 2,
+          "hint": "Nobody meant for it to happen. Broke someone's arm in a tackle, knocked someone off a bike messing about. It counts for almost nothing, which is the point."
+        },
+        {
+          "number": 191,
+          "text": "Carried a weapon intending to use it",
+          "weight": 62,
+          "hint": "You brought it deliberately, expecting or hoping to need it.",
+          "recency": {
+            "prompt": "When was this?",
+            "stops": [
+              {
+                "label": "Over 10 years ago",
+                "multiplier": 0.72
+              },
+              {
+                "label": "5–10 years ago",
+                "multiplier": 0.82
+              },
+              {
+                "label": "1–5 years ago",
+                "multiplier": 0.92
+              },
+              {
+                "label": "In the past year",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        },
+        {
+          "number": 192,
+          "text": "Caused a car accident",
+          "weight": 30,
+          "hint": "You were at fault, whether or not anyone agreed with that at the time.",
+          "slider": {
+            "prompt": "How bad was it?",
+            "stops": [
+              {
+                "label": "A scratch in a car park",
+                "weight": 10
+              },
+              {
+                "label": "Real panel damage",
+                "weight": 30
+              },
+              {
+                "label": "Wrote a car off",
+                "weight": 52
+              },
+              {
+                "label": "Someone was injured",
+                "weight": 82
+              }
+            ]
+          },
+          "recency": {
+            "prompt": "When was this?",
+            "stops": [
+              {
+                "label": "Over 10 years ago",
+                "multiplier": 0.72
+              },
+              {
+                "label": "5–10 years ago",
+                "multiplier": 0.82
+              },
+              {
+                "label": "1–5 years ago",
+                "multiplier": 0.92
+              },
+              {
+                "label": "In the past year",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        },
+        {
+          "number": 193,
+          "text": "Left the scene of an accident you caused",
+          "weight": 80,
+          "hint": "Hit and run. You knew there was damage and you left anyway.",
+          "recency": {
+            "prompt": "When was this?",
+            "stops": [
+              {
+                "label": "Over 10 years ago",
+                "multiplier": 0.72
+              },
+              {
+                "label": "5–10 years ago",
+                "multiplier": 0.82
+              },
+              {
+                "label": "1–5 years ago",
+                "multiplier": 0.92
+              },
+              {
+                "label": "In the past year",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        },
+        {
+          "number": 194,
+          "text": "Stolen a vehicle",
+          "weight": 74,
+          "hint": "Car, bike, scooter — taken without permission, however briefly.",
+          "recency": {
+            "prompt": "When was this?",
+            "stops": [
+              {
+                "label": "Over 10 years ago",
+                "multiplier": 0.72
+              },
+              {
+                "label": "5–10 years ago",
+                "multiplier": 0.82
+              },
+              {
+                "label": "1–5 years ago",
+                "multiplier": 0.92
+              },
+              {
+                "label": "In the past year",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        },
+        {
+          "number": 195,
+          "text": "Committed financial fraud",
+          "weight": 52,
+          "hint": "Deception for money — false claims, somebody else's card, cooked numbers.",
+          "slider": {
+            "prompt": "How much money?",
+            "stops": [
+              {
+                "label": "Under $100",
+                "weight": 32
+              },
+              {
+                "label": "Hundreds",
+                "weight": 52
+              },
+              {
+                "label": "Thousands",
+                "weight": 74
+              },
+              {
+                "label": "Enough to ruin someone",
+                "weight": 94
+              }
+            ]
+          },
+          "recency": {
+            "prompt": "When was this?",
+            "stops": [
+              {
+                "label": "Over 10 years ago",
+                "multiplier": 0.72
+              },
+              {
+                "label": "5–10 years ago",
+                "multiplier": 0.82
+              },
+              {
+                "label": "1–5 years ago",
+                "multiplier": 0.92
+              },
+              {
+                "label": "In the past year",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        },
+        {
+          "number": 196,
+          "text": "Been handcuffed by police",
+          "weight": 26,
+          "hint": "Physically restrained, whether or not it became an arrest.",
+          "recency": {
+            "prompt": "When was this?",
+            "stops": [
+              {
+                "label": "Over 10 years ago",
+                "multiplier": 0.72
+              },
+              {
+                "label": "5–10 years ago",
+                "multiplier": 0.82
+              },
+              {
+                "label": "1–5 years ago",
+                "multiplier": 0.92
+              },
+              {
+                "label": "In the past year",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        },
+        {
+          "number": 197,
+          "text": "Been arrested",
+          "weight": 45,
+          "hint": "Taken into custody. Being questioned isn't the same thing.",
+          "recency": {
+            "prompt": "When was this?",
+            "stops": [
+              {
+                "label": "Over 10 years ago",
+                "multiplier": 0.72
+              },
+              {
+                "label": "5–10 years ago",
+                "multiplier": 0.82
+              },
+              {
+                "label": "1–5 years ago",
+                "multiplier": 0.92
+              },
+              {
+                "label": "In the past year",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        },
+        {
+          "number": 198,
+          "text": "Spent a night in a cell",
+          "weight": 52,
+          "hint": "A police cell or holding. Any length of overnight.",
+          "recency": {
+            "prompt": "When was this?",
+            "stops": [
+              {
+                "label": "Over 10 years ago",
+                "multiplier": 0.72
+              },
+              {
+                "label": "5–10 years ago",
+                "multiplier": 0.82
+              },
+              {
+                "label": "1–5 years ago",
+                "multiplier": 0.92
+              },
+              {
+                "label": "In the past year",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        },
+        {
+          "number": 199,
+          "text": "Been formally charged with a crime",
+          "weight": 56,
+          "hint": "Charges laid, whatever happened at court afterwards.",
+          "recency": {
+            "prompt": "When was this?",
+            "stops": [
+              {
+                "label": "Over 10 years ago",
+                "multiplier": 0.72
+              },
+              {
+                "label": "5–10 years ago",
+                "multiplier": 0.82
+              },
+              {
+                "label": "1–5 years ago",
+                "multiplier": 0.92
+              },
+              {
+                "label": "In the past year",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        },
+        {
+          "number": 200,
+          "text": "Appeared in court as a defendant",
+          "weight": 46,
+          "hint": "You were the one being prosecuted, not a witness or juror.",
+          "recency": {
+            "prompt": "When was this?",
+            "stops": [
+              {
+                "label": "Over 10 years ago",
+                "multiplier": 0.72
+              },
+              {
+                "label": "5–10 years ago",
+                "multiplier": 0.82
+              },
+              {
+                "label": "1–5 years ago",
+                "multiplier": 0.92
+              },
+              {
+                "label": "In the past year",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        },
+        {
+          "number": 201,
+          "text": "Been convicted of a misdemeanour",
+          "weight": 60,
+          "hint": "A summary offence in most non-US systems — the lower tier.",
+          "recency": {
+            "prompt": "When was this?",
+            "stops": [
+              {
+                "label": "Over 10 years ago",
+                "multiplier": 0.72
+              },
+              {
+                "label": "5–10 years ago",
+                "multiplier": 0.82
+              },
+              {
+                "label": "1–5 years ago",
+                "multiplier": 0.92
+              },
+              {
+                "label": "In the past year",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        },
+        {
+          "number": 202,
+          "text": "Been convicted of a felony",
+          "weight": 82,
+          "hint": "An indictable offence. Slide it — a property or drug conviction and a violent one are both felonies, but they are not the same thing.",
+          "slider": {
+            "prompt": "What kind of felony?",
+            "stops": [
+              {
+                "label": "Property or drug offence",
+                "weight": 70
+              },
+              {
+                "label": "Fraud, or serious theft",
+                "weight": 82
+              },
+              {
+                "label": "Violence against a person",
+                "weight": 94
+              },
+              {
+                "label": "The kind that follows you forever",
+                "weight": 100
+              }
+            ]
+          },
+          "recency": {
+            "prompt": "When was this?",
+            "stops": [
+              {
+                "label": "Over 10 years ago",
+                "multiplier": 0.72
+              },
+              {
+                "label": "5–10 years ago",
+                "multiplier": 0.82
+              },
+              {
+                "label": "1–5 years ago",
+                "multiplier": 0.92
+              },
+              {
+                "label": "In the past year",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        },
+        {
+          "number": 203,
+          "text": "Had a restraining order taken out against you",
+          "weight": 66,
+          "hint": "Granted by a court, not just threatened."
+        },
+        {
+          "number": 204,
+          "text": "Been on probation or parole",
+          "weight": 64,
+          "hint": "Court-supervised, with conditions you had to meet.",
+          "recency": {
+            "prompt": "When was this?",
+            "stops": [
+              {
+                "label": "Over 10 years ago",
+                "multiplier": 0.72
+              },
+              {
+                "label": "5–10 years ago",
+                "multiplier": 0.82
+              },
+              {
+                "label": "1–5 years ago",
+                "multiplier": 0.92
+              },
+              {
+                "label": "In the past year",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        },
+        {
+          "number": 205,
+          "text": "Watched or recorded someone sexually without them knowing",
+          "weight": 80,
+          "hint": "The original calls this voyeurism, at question 98. Consent is the entire distinction."
+        },
+        {
+          "number": 206,
+          "text": "Committed an act of incest",
+          "weight": 88,
+          "hint": "Present in the original test as question 99."
+        },
+        {
+          "number": 207,
+          "text": "Engaged in bestiality",
+          "weight": 92,
+          "hint": "Present in the original test as question 100."
+        }
+      ]
+    },
+    {
+      "id": "character",
+      "emoji": "🃏",
+      "title": "Character & Chaos",
+      "blurb": "Nothing illegal here. Some of it costs more than the illegal stuff.",
+      "defs": [],
+      "items": [
+        {
+          "number": 208,
+          "text": "Cheated on a partner",
+          "weight": 55,
+          "hint": "You were in a relationship you both understood as exclusive, and you broke it.",
+          "slider": {
+            "prompt": "How far did it go?",
+            "stops": [
+              {
+                "label": "One drunken kiss, confessed it",
+                "weight": 28
+              },
+              {
+                "label": "A one-off, hidden",
+                "weight": 55
+              },
+              {
+                "label": "An ongoing affair",
+                "weight": 75
+              },
+              {
+                "label": "Years, a whole second life",
+                "weight": 95
+              }
+            ]
+          },
+          "recency": {
+            "prompt": "When was this?",
+            "stops": [
+              {
+                "label": "Over 10 years ago",
+                "multiplier": 0.72
+              },
+              {
+                "label": "5–10 years ago",
+                "multiplier": 0.82
+              },
+              {
+                "label": "1–5 years ago",
+                "multiplier": 0.92
+              },
+              {
+                "label": "In the past year",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        },
+        {
+          "number": 209,
+          "text": "Emotionally cheated on a partner",
+          "weight": 34,
+          "hint": "Nothing physical, but you'd have been mortified if they'd read the messages.",
+          "recency": {
+            "prompt": "When was this?",
+            "stops": [
+              {
+                "label": "Over 10 years ago",
+                "multiplier": 0.72
+              },
+              {
+                "label": "5–10 years ago",
+                "multiplier": 0.82
+              },
+              {
+                "label": "1–5 years ago",
+                "multiplier": 0.92
+              },
+              {
+                "label": "In the past year",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        },
+        {
+          "number": 210,
+          "text": "Lied to get someone into bed",
+          "weight": 44,
+          "hint": "About your intentions, your relationship status, or who you were.",
+          "recency": {
+            "prompt": "When was this?",
+            "stops": [
+              {
+                "label": "Over 10 years ago",
+                "multiplier": 0.72
+              },
+              {
+                "label": "5–10 years ago",
+                "multiplier": 0.82
+              },
+              {
+                "label": "1–5 years ago",
+                "multiplier": 0.92
+              },
+              {
+                "label": "In the past year",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        },
+        {
+          "number": 211,
+          "text": "Ghosted someone after sleeping with them",
+          "weight": 25,
+          "hint": "Disappeared entirely afterwards, no conversation.",
+          "recency": {
+            "prompt": "When was this?",
+            "stops": [
+              {
+                "label": "Over 10 years ago",
+                "multiplier": 0.72
+              },
+              {
+                "label": "5–10 years ago",
+                "multiplier": 0.82
+              },
+              {
+                "label": "1–5 years ago",
+                "multiplier": 0.92
+              },
+              {
+                "label": "In the past year",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        },
+        {
+          "number": 212,
+          "text": "Led someone on",
+          "weight": 24,
+          "hint": "Kept someone interested, or kept them around, while feeling nothing back. They thought it was going somewhere and you knew it wasn’t.",
+          "recency": {
+            "prompt": "When was this?",
+            "stops": [
+              {
+                "label": "Over 10 years ago",
+                "multiplier": 0.72
+              },
+              {
+                "label": "5–10 years ago",
+                "multiplier": 0.82
+              },
+              {
+                "label": "1–5 years ago",
+                "multiplier": 0.92
+              },
+              {
+                "label": "In the past year",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        },
+        {
+          "number": 213,
+          "text": "Broken up with someone over text",
+          "weight": 12,
+          "hint": "For a real relationship, not three weeks of talking."
+        },
+        {
+          "number": 214,
+          "text": "Been the reason a relationship ended",
+          "weight": 30,
+          "hint": "Somebody else's relationship. You were the cause, directly or otherwise.",
+          "recency": {
+            "prompt": "When was this?",
+            "stops": [
+              {
+                "label": "Over 10 years ago",
+                "multiplier": 0.72
+              },
+              {
+                "label": "5–10 years ago",
+                "multiplier": 0.82
+              },
+              {
+                "label": "1–5 years ago",
+                "multiplier": 0.92
+              },
+              {
+                "label": "In the past year",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        },
+        {
+          "number": 215,
+          "text": "Started a rumour about someone",
+          "weight": 24,
+          "hint": "You originated it — or you knew it was false and passed it on regardless.",
+          "slider": {
+            "prompt": "What did it cost them?",
+            "stops": [
+              {
+                "label": "Petty, forgotten in a week",
+                "weight": 10
+              },
+              {
+                "label": "Embarrassing for a while",
+                "weight": 24
+              },
+              {
+                "label": "Damaged their reputation",
+                "weight": 42
+              },
+              {
+                "label": "Cost them friends or a job",
+                "weight": 62
+              }
+            ]
+          },
+          "recency": {
+            "prompt": "When was this?",
+            "stops": [
+              {
+                "label": "Over 10 years ago",
+                "multiplier": 0.72
+              },
+              {
+                "label": "5–10 years ago",
+                "multiplier": 0.82
+              },
+              {
+                "label": "1–5 years ago",
+                "multiplier": 0.92
+              },
+              {
+                "label": "In the past year",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        },
+        {
+          "number": 216,
+          "text": "Told a secret you'd sworn to keep",
+          "weight": 20,
+          "hint": "They explicitly asked you not to.",
+          "slider": {
+            "prompt": "How big was the secret?",
+            "stops": [
+              {
+                "label": "Tiny — they'd laugh about it now",
+                "weight": 6
+              },
+              {
+                "label": "Embarrassing, but survivable",
+                "weight": 20
+              },
+              {
+                "label": "A major life decision that wasn't yours to share",
+                "weight": 40
+              },
+              {
+                "label": "Make-or-break — it could wreck their life",
+                "weight": 70
+              }
+            ]
+          },
+          "cheeky": {
+            "prompt": "Do they know it was you?",
+            "options": [
+              "No",
+              "They suspect",
+              "Yes, and it cost me"
+            ]
+          },
+          "recency": {
+            "prompt": "When was this?",
+            "stops": [
+              {
+                "label": "Over 10 years ago",
+                "multiplier": 0.72
+              },
+              {
+                "label": "5–10 years ago",
+                "multiplier": 0.82
+              },
+              {
+                "label": "1–5 years ago",
+                "multiplier": 0.92
+              },
+              {
+                "label": "In the past year",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        },
+        {
+          "number": 217,
+          "text": "Read someone's phone or messages without permission",
+          "weight": 16,
+          "hint": "You went looking. Glancing at a notification on a table doesn't count."
+        },
+        {
+          "number": 218,
+          "text": "Let someone else take the blame for you",
+          "weight": 32,
+          "hint": "You could have spoken up, and you didn't.",
+          "slider": {
+            "prompt": "What did they take the fall for?",
+            "stops": [
+              {
+                "label": "A chore or a small mess",
+                "weight": 10
+              },
+              {
+                "label": "Trouble at school or work",
+                "weight": 32
+              },
+              {
+                "label": "They were fired, suspended, or failed",
+                "weight": 56
+              },
+              {
+                "label": "They were charged or arrested",
+                "weight": 85
+              }
+            ]
+          },
+          "recency": {
+            "prompt": "When was this?",
+            "stops": [
+              {
+                "label": "Over 10 years ago",
+                "multiplier": 0.72
+              },
+              {
+                "label": "5–10 years ago",
+                "multiplier": 0.82
+              },
+              {
+                "label": "1–5 years ago",
+                "multiplier": 0.92
+              },
+              {
+                "label": "In the past year",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        },
+        {
+          "number": 219,
+          "text": "Sabotaged someone to get ahead",
+          "weight": 34,
+          "hint": "Actively made someone else do worse so that you'd do better.",
+          "recency": {
+            "prompt": "When was this?",
+            "stops": [
+              {
+                "label": "Over 10 years ago",
+                "multiplier": 0.72
+              },
+              {
+                "label": "5–10 years ago",
+                "multiplier": 0.82
+              },
+              {
+                "label": "1–5 years ago",
+                "multiplier": 0.92
+              },
+              {
+                "label": "In the past year",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        },
+        {
+          "number": 220,
+          "text": "Publicly humiliated someone",
+          "weight": 32,
+          "hint": "Deliberately, in front of other people.",
+          "slider": {
+            "prompt": "How public is public?",
+            "stops": [
+              {
+                "label": "One classroom or group chat",
+                "weight": 14
+              },
+              {
+                "label": "A whole year level or workplace",
+                "weight": 32
+              },
+              {
+                "label": "On stage, in front of hundreds",
+                "weight": 50
+              },
+              {
+                "label": "Posted online — thousands saw it",
+                "weight": 72
+              }
+            ]
+          },
+          "cheeky": {
+            "prompt": "Would you do it again?",
+            "options": [
+              "No",
+              "They deserved it",
+              "Ask me in ten years"
+            ]
+          },
+          "recency": {
+            "prompt": "When was this?",
+            "stops": [
+              {
+                "label": "Over 10 years ago",
+                "multiplier": 0.72
+              },
+              {
+                "label": "5–10 years ago",
+                "multiplier": 0.82
+              },
+              {
+                "label": "1–5 years ago",
+                "multiplier": 0.92
+              },
+              {
+                "label": "In the past year",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        },
+        {
+          "number": 221,
+          "text": "Ruined a friendship over a crush",
+          "weight": 22,
+          "hint": "The friendship didn't survive it.",
+          "recency": {
+            "prompt": "When was this?",
+            "stops": [
+              {
+                "label": "Over 10 years ago",
+                "multiplier": 0.72
+              },
+              {
+                "label": "5–10 years ago",
+                "multiplier": 0.82
+              },
+              {
+                "label": "1–5 years ago",
+                "multiplier": 0.92
+              },
+              {
+                "label": "In the past year",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        },
+        {
+          "number": 222,
+          "text": "Sent a message that permanently ended a relationship",
+          "weight": 14
+        },
+        {
+          "number": 223,
+          "text": "Been fired or asked to resign",
+          "weight": 16,
+          "hint": "For cause. Redundancy and contracts ending don't count.",
+          "cheeky": {
+            "prompt": "What was the stated reason?",
+            "options": [
+              "Attendance",
+              "Attitude",
+              "Something I did"
+            ]
+          }
+        },
+        {
+          "number": 224,
+          "text": "Borrowed money you never paid back",
+          "weight": 20,
+          "hint": "Still outstanding, however long ago it was.",
+          "slider": {
+            "prompt": "How much are you still up?",
+            "stops": [
+              {
+                "label": "Twenty bucks, they forgot",
+                "weight": 6
+              },
+              {
+                "label": "A hundred or so",
+                "weight": 20
+              },
+              {
+                "label": "Into the thousands",
+                "weight": 44
+              },
+              {
+                "label": "They needed it back and you knew",
+                "weight": 66
+              }
+            ]
+          },
+          "cheeky": {
+            "prompt": "Could you still fix it?",
+            "options": [
+              "Easily",
+              "Awkwardly",
+              "Far too late"
+            ]
+          },
+          "recency": {
+            "prompt": "When was this?",
+            "stops": [
+              {
+                "label": "Over 10 years ago",
+                "multiplier": 0.72
+              },
+              {
+                "label": "5–10 years ago",
+                "multiplier": 0.82
+              },
+              {
+                "label": "1–5 years ago",
+                "multiplier": 0.92
+              },
+              {
+                "label": "In the past year",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        },
+        {
+          "number": 225,
+          "text": "Stolen from a friend or family member",
+          "weight": 34,
+          "hint": "They trusted you with access, and you took something.",
+          "slider": {
+            "prompt": "What was it worth to them?",
+            "stops": [
+              {
+                "label": "Pocket change, under $20",
+                "weight": 12
+              },
+              {
+                "label": "A decent item, $20–$100",
+                "weight": 34
+              },
+              {
+                "label": "Expensive — hundreds",
+                "weight": 52
+              },
+              {
+                "label": "Thousands, or something irreplaceable",
+                "weight": 80
+              }
+            ]
+          },
+          "cheeky": {
+            "prompt": "Did they ever notice?",
+            "options": [
+              "Never",
+              "Noticed, blamed someone else",
+              "Knew it was me"
+            ]
+          },
+          "recency": {
+            "prompt": "When was this?",
+            "stops": [
+              {
+                "label": "Over 10 years ago",
+                "multiplier": 0.72
+              },
+              {
+                "label": "5–10 years ago",
+                "multiplier": 0.82
+              },
+              {
+                "label": "1–5 years ago",
+                "multiplier": 0.92
+              },
+              {
+                "label": "In the past year",
+                "multiplier": 1.0
+              }
+            ]
+          }
+        },
+        {
+          "number": 226,
+          "text": "Fantasised about someone extremely off limits",
+          "weight": 6,
+          "hint": "Entirely in your head. Nothing happened and nothing was said."
+        },
+        {
+          "number": 227,
+          "text": "Lied on at least one answer in this test",
+          "weight": 3,
+          "hint": "Be honest about being dishonest. Nobody else can see any of this.",
+          "cheeky": {
+            "prompt": "Which section did you lie in?",
+            "options": [
+              "Sex",
+              "Substances",
+              "Character & Chaos"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "tiers": [
+    {
+      "min": 95,
+      "title": "Certified Angel",
+      "blurb": "Statistically improbable. Either you're fourteen, deeply principled, or lying on the last question of the last section."
+    },
+    {
+      "min": 85,
+      "title": "Suspiciously Clean",
+      "blurb": "You've lived, technically. Mostly you've watched other people live and gone home at a reasonable hour."
+    },
+    {
+      "min": 72,
+      "title": "Functioning Human",
+      "blurb": "The modal result. A few stories, no permanent consequences, everything still on the rails."
+    },
+    {
+      "min": 58,
+      "title": "Mild Menace",
+      "blurb": "You have a group chat that would not survive a subpoena. Nothing here is fatal, but there's a pattern."
+    },
+    {
+      "min": 44,
+      "title": "Seasoned",
+      "blurb": "You've made peace with several versions of yourself. At least one of them still owes someone an apology."
+    },
+    {
+      "min": 30,
+      "title": "Cautionary Tale",
+      "blurb": "People tell stories about you at parties you weren't invited to. Some of them are affectionate."
+    },
+    {
+      "min": 16,
+      "title": "Genuinely Concerning",
+      "blurb": "This is less a score and more a timeline. The heavy items are doing the damage here, not the fun ones."
+    },
+    {
+      "min": 0,
+      "title": "How Are You Free",
+      "blurb": "Either you clicked everything for a laugh or you should stop taking online quizzes and start taking calls from your lawyer."
+    }
+  ]
+};
+
+/* ==================================================================
+   Quiz — derived lookups (Model.swift)
+   ================================================================== */
+const SECTIONS = BANK.sections;
+const TIERS    = BANK.tiers;
+const ALL      = SECTIONS.flatMap(s => s.items);
+const BY_NUM   = new Map(ALL.map(q => [q.number, q]));
+const SEC_OF   = new Map(); SECTIONS.forEach(s => s.items.forEach(q => SEC_OF.set(q.number, s.id)));
+const SEC_BY_ID = new Map(SECTIONS.map(s => [s.id, s]));
+
+/* The most a question could ever cost — the top of its slider, if it has one.
+   Modifiers can't raise it, only discount from it, which keeps the denominator fixed. */
+const maxWeight = q => q.slider ? Math.max(...q.slider.stops.map(s => s.weight)) : q.weight;
+const sectionTotal = s => s.items.reduce((a, q) => a + maxWeight(q), 0);
+
+const TOTAL_Q   = ALL.length;
+const TOTAL_W   = ALL.reduce((a, q) => a + maxWeight(q), 0);
+const N_SLIDERS = ALL.filter(q => q.slider).length;
+const N_RECENCY = ALL.filter(q => q.recency).length;
+const N_FREQ    = ALL.filter(q => q.frequency).length;
+const N_CHEEKY  = ALL.filter(q => q.cheeky).length;
+const AVG_W     = TOTAL_W / TOTAL_Q;
+
+const tierFor = score => TIERS.find(t => score >= t.min) || TIERS[TIERS.length - 1];
+
+/* ==================================================================
+   Scoring (Store.swift)
+   ================================================================== */
+const SLIDER_DEFAULT = 1;              // severity starts on a middling notch
+const modifierDefault = spec => Math.max(0, spec.stops.length - 1); // discounts must be claimed
+
+const ScoringMode = {
+  /* The one score shown and shared. The others are kept because the maths is
+     the interesting part, but they're not offered in the UI: `curved` skews
+     everyone low, `linear` skews high, `crazy` is a joke — and with a picker
+     people settle on whichever flatters them, which makes two scores incomparable. */
+  canonical: "optimised",
+  k: 20,              // how hard `optimised` front-loads
+  kMax: 10000, kSamples: 1024,
+};
+
+/* Age normalisation. Applied as an exponent on the weight fraction, not a divisor,
+   so 0 stays 0 and 1 stays 1 — "I have done all of it" is zero at any age. */
+const AGE_BASELINE = 18, AGE_SLOPE = 0.30, AGE_CAP = 1.6;
+function ageFactor(age){
+  if(age == null || age <= AGE_BASELINE) return 1;
+  return Math.min(AGE_CAP, 1 + AGE_SLOPE * Math.log(1 + (age - AGE_BASELINE) / 10));
+}
+
+const store = {
+  picked: new Set(), levels: {}, recencyLevels: {}, frequencyLevels: {}, answers: {},
+  cheekyMode: false, scoringMode: ScoringMode.canonical, sectionIndex: 0, phase: "intro", age: null,
+};
+
+const S = {
+  isPicked: q => store.picked.has(q.number),
+  toggle(q){ store.picked.has(q.number) ? store.picked.delete(q.number) : store.picked.add(q.number); save(); },
+  level: q => q.number in store.levels ? store.levels[q.number] : SLIDER_DEFAULT,
+  setLevel(i, q){ store.levels[q.number] = i; save(); },
+  recencyLevel: q => q.number in store.recencyLevels ? store.recencyLevels[q.number] : (q.recency ? modifierDefault(q.recency) : 0),
+  setRecencyLevel(i, q){ store.recencyLevels[q.number] = i; save(); },
+  frequencyLevel: q => q.number in store.frequencyLevels ? store.frequencyLevels[q.number] : (q.frequency ? modifierDefault(q.frequency) : 0),
+  setFrequencyLevel(i, q){ store.frequencyLevels[q.number] = i; save(); },
+  answer: q => store.answers[q.number],
+  setAnswer(v, q){ if(v) store.answers[q.number] = v; else delete store.answers[q.number]; save(); },
+
+  /* What this question currently costs: its severity, discounted by how long
+     ago it happened and how often. Something you admit to always costs something. */
+  weight(q){
+    const base = q.slider ? q.slider.stops[Math.min(S.level(q), q.slider.stops.length - 1)].weight : q.weight;
+    let v = base;
+    if(q.recency && q.recency.stops.length)     v *= q.recency.stops[Math.min(S.recencyLevel(q), q.recency.stops.length - 1)].multiplier;
+    if(q.frequency && q.frequency.stops.length) v *= q.frequency.stops[Math.min(S.frequencyLevel(q), q.frequency.stops.length - 1)].multiplier;
+    return Math.max(1, Math.round(v));
+  },
+  pickedQuestions: () => ALL.filter(q => store.picked.has(q.number)),
+  accumulatedWeight: () => S.pickedQuestions().reduce((a, q) => a + S.weight(q), 0),
+  heaviest(){
+    let best = null;
+    for(const q of S.pickedQuestions()){ const w = S.weight(q); if(!best || w > best.weight) best = {question: q, weight: w}; }
+    return best;
+  },
+  ageFactor: () => ageFactor(store.age),
+  isAgeAdjusted: () => store.age != null && ageFactor(store.age) > 1,
+
+  score: (mode = store.scoringMode, ageAdjusted = true) =>
+    S.scoreWith(mode, S.accumulatedWeight(), (S.heaviest() || {weight: 0}).weight, ageAdjusted),
+
+  scoreWith(mode, weight, worst, ageAdjusted = true){
+    const raw = Math.min(1, weight / TOTAL_W);
+    const f = ageFactor(store.age);
+    const r = ageAdjusted && f > 1 ? Math.pow(raw, f) : raw;
+    switch(mode){
+      case "linear":    return Math.max(0, 100 * (1 - r));
+      case "optimised": { const k = ScoringMode.k; return Math.max(0, 100 - 100 * Math.log(1 + k * r) / Math.log(1 + k)); }
+      case "curved":    { const volume = Math.pow(r, 0.6), ceiling = Math.min(1, 0.9 * worst / 100); return Math.max(0, 100 * (1 - ceiling) * (1 - volume)); }
+      case "crazy": {
+        const n = ScoringMode.kSamples; let total = 0;
+        for(let i = 0; i <= n; i++){ const k = ScoringMode.kMax * i / n; total += k < 1e-9 ? r : Math.log(1 + k * r) / Math.log(1 + k); }
+        return Math.max(0, 100 - 100 * total / (n + 1));
+      }
+    }
+    return 100;
+  },
+  scoreText: (mode) => S.score(mode).toFixed(1),
+  rawScore: () => S.score(store.scoringMode, false),
+  ageBonus: () => Math.max(0, S.score() - S.rawScore()),
+
+  /* How many points this one answer is costing right now. */
+  pointCost(q){
+    if(!store.picked.has(q.number)) return 0;
+    const others = S.pickedQuestions().filter(o => o.number !== q.number);
+    const sum = others.reduce((a, o) => a + S.weight(o), 0);
+    const worst = others.reduce((m, o) => Math.max(m, S.weight(o)), 0);
+    return Math.max(0, S.scoreWith(store.scoringMode, sum, worst) - S.score());
+  },
+  /* What the original Rice Purity Test would have given: every question counts the same. */
+  unweightedScore: () => 100 - Math.round(store.picked.size / TOTAL_Q * 100),
+  averageTickWeight: () => store.picked.size ? S.accumulatedWeight() / store.picked.size : 0,
+  pickedCount: s => s.items.filter(q => store.picked.has(q.number)).length,
+  weightPicked: s => s.items.filter(q => store.picked.has(q.number)).reduce((a, q) => a + S.weight(q), 0),
+  fraction: s => { const t = sectionTotal(s); return t ? S.weightPicked(s) / t : 0; },
+  dossier: () => S.pickedQuestions().flatMap(q => q.cheeky && store.answers[q.number] ? [{question: q, prompt: q.cheeky.prompt, answer: store.answers[q.number]}] : []),
+
+  startQuiz(){ store.phase = "quiz"; store.sectionIndex = 0; render(); },
+  next(){ if(store.sectionIndex < SECTIONS.length - 1) store.sectionIndex++; else store.phase = "results"; save(); render(); },
+  back(){ if(store.sectionIndex > 0) store.sectionIndex--; save(); render(); },
+  jump(i){ store.sectionIndex = i; save(); render(); },
+  reviewAnswers(){ store.phase = "quiz"; store.sectionIndex = SECTIONS.length - 1; save(); render(); },
+  reset(){ store.picked = new Set(); store.levels = {}; store.answers = {}; store.sectionIndex = 0; store.phase = "intro"; save(); render(); },
+};
+
+/* ==================================================================
+   PurityNorms — where you land against people your age.
+   Modelled on published averages for the *original* test, so it is
+   compared against unweightedScore (the only measure data exists for).
+   ================================================================== */
+const PurityNorms = {
+  band(age){
+    if(age == null) return {label: "everyone", mean: 64, sd: 14};
+    if(age < 18)  return {label: "16–17 year olds", mean: 84, sd: 11};
+    if(age <= 19) return {label: "18–19 year olds", mean: 69, sd: 13};
+    if(age <= 22) return {label: "20–22 year olds", mean: 60, sd: 14};
+    if(age <= 29) return {label: "23–29 year olds", mean: 52, sd: 16};
+    if(age <= 39) return {label: "30-somethings",   mean: 48, sd: 17};
+    return {label: "40-and-overs", mean: 42, sd: 17};
+  },
+  /* A lower purity score means more experience, so the people you've out-done
+     are the ones scoring above you — hence 1 − Φ(z). */
+  fractionMoreExperienced(unweighted, age){
+    const b = PurityNorms.band(age);
+    const z = (unweighted - b.mean) / b.sd;
+    return Math.min(1, Math.max(0, 1 - PurityNorms.normalCDF(z)));
+  },
+  percentile(unweighted, age){
+    const raw = PurityNorms.fractionMoreExperienced(unweighted, age) * 100;
+    return Math.min(99, Math.max(1, Math.round(raw)));
+  },
+  normalCDF: z => 0.5 * (1 + erf(z / Math.SQRT2)),
+};
+/* Abramowitz & Stegun 7.1.26 — max error 1.5e-7, far below anything a rounded percentile can see. */
+function erf(x){
+  const sign = x < 0 ? -1 : 1; x = Math.abs(x);
+  const t = 1 / (1 + 0.3275911 * x);
+  const y = 1 - (((((1.061405429 * t - 1.453152027) * t) + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t * Math.exp(-x * x);
+  return sign * y;
+}
+
+/* ==================================================================
+   Persistence
+   ================================================================== */
+const KEY = "freak.progress.v1";
+function save(){
+  try{
+    localStorage.setItem(KEY, JSON.stringify({
+      picked: [...store.picked], levels: store.levels, answers: store.answers, cheekyMode: store.cheekyMode,
+      sectionIndex: store.sectionIndex, scoringMode: store.scoringMode, age: store.age,
+      recencyLevels: store.recencyLevels, frequencyLevels: store.frequencyLevels,
+    }));
+  }catch(e){}
+}
+function load(){
+  try{
+    const snap = JSON.parse(localStorage.getItem(KEY) || "null");
+    if(!snap) return;
+    store.picked = new Set(snap.picked || []);
+    store.levels = snap.levels || {};
+    store.recencyLevels = snap.recencyLevels || {};
+    store.frequencyLevels = snap.frequencyLevels || {};
+    store.answers = snap.answers || {};
+    store.cheekyMode = !!snap.cheekyMode;
+    store.age = typeof snap.age === "number" ? snap.age : null;
+    store.sectionIndex = Math.min(snap.sectionIndex || 0, SECTIONS.length - 1);
+    // The persisted mode is deliberately ignored: a run saved under `curved`
+    // must not come back wearing a number nobody can compare.
+    store.scoringMode = ScoringMode.canonical;
+  }catch(e){}
+}
+
+/* ==================================================================
+   Wheel — party mode (WheelGame.swift). Entirely separate state.
+   ================================================================== */
+const PromptStyle = {
+  neverHaveIEver: "Never have I ever",
+  putAFingerDown: "Put a finger down",
+};
+/* Longest forms first — "yours" before "your" before "you". Both apostrophes appear in the bank. */
+const FIRST_PERSON = [
+  [/\byourselves\b/gi, "ourselves"], [/\byourself\b/gi, "myself"],
+  [/\byou['’]d\b/gi, "I'd"], [/\byou['’]ve\b/gi, "I've"], [/\byou['’]re\b/gi, "I'm"], [/\byou['’]ll\b/gi, "I'll"],
+  [/\byours\b/gi, "mine"], [/\byour\b/gi, "my"], [/\byou\b/gi, "I"],
+];
+function phrase(style, text){
+  if(!text) return text;
+  const rest = text.slice(1);
+  const startsWithAcronym = rest[0] && rest[0] === rest[0].toUpperCase() && rest[0] !== rest[0].toLowerCase();
+  const body = startsWithAcronym ? text : text[0].toLowerCase() + rest;
+  if(style === "neverHaveIEver") return "Never have I ever " + FIRST_PERSON.reduce((t, [re, rep]) => t.replace(re, rep), body);
+  return "Put a finger down if you've " + body;
+}
+
+const game = {
+  excludedSections: new Set(), maxWeight: 100, promptStyle: "neverHaveIEver", autoRetire: true,
+  players: [], retired: new Set(), currentNumber: null, history: [], rotation: 0, spinning: false,
+};
+const MAX_PLAYERS = 25;
+const G = {
+  current: () => game.currentNumber != null ? BY_NUM.get(game.currentNumber) : null,
+  isEligible: q => !game.retired.has(q.number) && q.weight <= game.maxWeight && !game.excludedSections.has(SEC_OF.get(q.number)),
+  pool: () => ALL.filter(G.isEligible),
+  poolBySection(){
+    const counts = new Map();
+    for(const q of G.pool()){ const id = SEC_OF.get(q.number); counts.set(id, (counts.get(id) || 0) + 1); }
+    return SECTIONS.flatMap(s => counts.get(s.id) ? [{section: s, count: counts.get(s.id)}] : []);
+  },
+  isExhausted: () => G.pool().length === 0,
+  /* What the cap is holding back, lightest first, so the top row is the one
+     just over the line. Switched-off sections are left out. */
+  heldBackBySpiceCap: () => ALL.filter(q => q.weight > game.maxWeight && !game.excludedSections.has(SEC_OF.get(q.number))).sort((a, b) => a.weight - b.weight),
+  /* Uniform across the pool — not "pick a slice, then pick within it", which would favour small sections. */
+  drawNext(){
+    const pool = G.pool(); if(!pool.length) return null;
+    const q = pool[Math.floor(Math.random() * pool.length)];
+    const id = SEC_OF.get(q.number);
+    const index = Math.max(0, G.poolBySection().findIndex(s => s.section.id === id));
+    return {question: q, sectionIndex: index};
+  },
+  commit(q){
+    if(game.currentNumber != null && game.autoRetire) game.retired.add(game.currentNumber);
+    game.currentNumber = q.number; game.history.unshift(q.number); saveGame();
+  },
+  retireCurrent(){ if(game.currentNumber == null) return; game.retired.add(game.currentNumber); game.currentNumber = null; saveGame(); },
+  resetQuestions(){ game.retired = new Set(); game.currentNumber = null; game.history = []; saveGame(); },
+  addPlayer(name){
+    const t = name.trim(); if(!t || game.players.length >= MAX_PLAYERS) return;
+    game.players.push({id: Math.random().toString(36).slice(2), name: t, fingersLeft: 10}); saveGame();
+  },
+  removePlayer: p => { game.players = game.players.filter(x => x.id !== p.id); saveGame(); },
+  putFingerDown: p => { p.fingersLeft = Math.max(0, p.fingersLeft - 1); saveGame(); },
+  restoreFinger: p => { p.fingersLeft = Math.min(10, p.fingersLeft + 1); saveGame(); },
+  resetFingers(){ game.players.forEach(p => p.fingersLeft = 10); saveGame(); },
+  survivors: () => game.players.filter(p => p.fingersLeft > 0),
+  winner(){ const s = G.survivors(); return game.players.length > 1 && s.length === 1 ? s[0] : null; },
+};
+const GKEY = "freak.wheel.v1";
+function saveGame(){
+  try{ localStorage.setItem(GKEY, JSON.stringify({
+    excludedSections: [...game.excludedSections], maxWeight: game.maxWeight, promptStyle: game.promptStyle,
+    autoRetire: game.autoRetire, players: game.players, retired: [...game.retired], history: game.history })); }catch(e){}
+}
+function loadGame(){
+  try{
+    const s = JSON.parse(localStorage.getItem(GKEY) || "null"); if(!s) return;
+    game.excludedSections = new Set(s.excludedSections || []);
+    game.maxWeight = typeof s.maxWeight === "number" ? s.maxWeight : 100;
+    game.promptStyle = s.promptStyle in PromptStyle ? s.promptStyle : "neverHaveIEver";
+    game.autoRetire = s.autoRetire !== false;
+    game.players = Array.isArray(s.players) ? s.players : [];
+    game.retired = new Set(s.retired || []);
+    game.history = Array.isArray(s.history) ? s.history : [];
+    game.currentNumber = null; // nobody heard the last one read out
+  }catch(e){}
+}
+
+/* ==================================================================
+   Rendering helpers
+   ================================================================== */
+const $ = id => document.getElementById(id);
+const nf = n => n.toLocaleString();
+const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+/* The bank uses **bold** and *italics* in a handful of places. Escape first, then mark up. */
+const md = s => esc(s).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/\*(.+?)\*/g, "<em>$1</em>");
+const plain = s => String(s).replace(/\*/g, "");
+/* 1st, 2nd, 3rd, 4th … 11th, 12th, 13th … 21st. */
+const ordinal = n => { const m = n % 100; return n + (m >= 11 && m <= 13 ? "th" : ["th", "st", "nd", "rd"][n % 10] || "th"); };
+const TICK = '<svg viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3.2 3.2L13 5" stroke="#1a0f1f" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const TICKW = '<svg viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3.2 3.2L13 5" stroke="#160f1e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+let mode = "quiz";                 // quiz | wheel — which of the two things this is today
+try{ mode = localStorage.getItem("freak.mode") === "wheel" ? "wheel" : "quiz"; }catch(e){}
+const intro = {step: 0, demoValue: 0, demoUnderstood: false};
+const DEMO_STOPS = [["Pocket change, under $20", 12], ["A decent item, $20–$100", 34], ["Expensive — hundreds", 52], ["Thousands, or something irreplaceable", 80]];
+let openSheet = null;              // "setup" | "history" | null
+let menuOpen = false;
+
+function render(){
+  const app = $("app");
+  document.querySelectorAll(".backdrop").forEach(b => b.remove());
+  if(store.phase === "quiz"){ app.innerHTML = renderQuiz(); wireQuiz(); $("sticky").classList.remove("hidden"); updateBar(); }
+  else if(store.phase === "results"){ app.innerHTML = renderResults(); wireResults(); $("sticky").classList.add("hidden"); }
+  else {
+    $("sticky").classList.add("hidden");
+    app.innerHTML = `<div class="seg" id="modeSeg"><button data-m="quiz" class="${mode === "quiz" ? "on" : ""}">Quiz</button><button data-m="wheel" class="${mode === "wheel" ? "on" : ""}">Wheel</button></div>`
+      + (mode === "quiz" ? renderIntro() : renderWheel());
+    app.querySelectorAll("#modeSeg button").forEach(b => b.onclick = () => { mode = b.dataset.m; try{ localStorage.setItem("freak.mode", mode); }catch(e){} render(); });
+    if(mode === "quiz") wireIntro(); else wireWheel();
+    if(openSheet) renderSheet();
+  }
+  window.scrollTo({top: 0, behavior: "smooth"});
+}
+
+/* ==================================================================
+   INTRO — four gated slides (IntroView.swift)
+   ================================================================== */
+function renderIntro(){
+  const slides = [
+    `<div class="emo">💯</div><h2>You still get a score out of 100</h2>
+     <p>Same as the original Rice Purity Test. <b>100 means you've done none of it.</b> 0 means you've done all of it.</p>
+     <p>The difference is how you lose those points. On the original, all ${TOTAL_Q} questions cost the same — a kiss and a felony conviction knock off exactly as much.</p>
+     <p>Here, <b>every question carries its own weight</b>, and that weight is shown next to it as you go.</p>`,
+    `<div class="emo">⚖️</div><h2>A kiss is a 1. A felony is a 100.</h2>
+     ${[["Held hands romantically",1],["French kissed",3],["Had penetrative sex",20],["Driven under the influence",62],["Been convicted of a felony",100]]
+        .map(([t,w]) => `<div class="wrow"><span>${t}</span><span class="wt ${w >= 60 ? "hot" : ""}">${w}</span></div>`).join("")}
+     <p style="margin-top:8px">Heavier answers cost more of your score. That's the whole idea — you can't lose the same amount for a hickey as for a hit-and-run.</p>`,
+    `<div class="emo">🎚️</div><h2>Some answers need a slider</h2>
+     <p>"Stole from a friend" means something different at $5 than at $5,000. <b>${N_SLIDERS} questions</b> open a severity slider when you tick them, and the weight moves with it.</p>
+     <div class="demo">
+       <div style="font-size:12px;color:var(--faint)">Have a go — this one's just a demo:</div>
+       <div class="q">Stolen from a friend or family member</div>
+       <input type="range" id="demoRange" min="0" max="3" step="1" value="${intro.demoValue}">
+       <div class="slabel"><span class="l" id="demoL">${DEMO_STOPS[intro.demoValue][0]}</span><span class="w" id="demoW">weight ${DEMO_STOPS[intro.demoValue][1]}</span></div>
+       <div class="ok ${intro.demoUnderstood ? "" : "hidden"}" id="demoOK">✓ Got it — that's how the sliders work</div>
+     </div>
+     <p>If you tick one of these and leave the slider alone, it sits at the <b>second notch</b> — a middling answer. Move it to whatever's true.</p>
+     <p>Two more sliders show up where they matter: <b>when it happened</b> (${N_RECENCY} questions) and <b>how often</b> (${N_FREQ}). Both only ever <em>reduce</em> what an answer costs — something you did once, a decade ago, shouldn't weigh the same as a standing habit. Leave them alone and you're charged the full weight, so the discount is yours to claim.</p>`,
+    `<div class="emo">📖</div><h2>Some words are doing heavy lifting</h2>
+     <p><em>Sex</em>, <em>drunk</em>, <em>a drink</em>, <em>someone you're into</em> — these mean different things to different people, and a test where everyone answers a slightly different question is useless.</p>
+     <p>So each section <b>defines its terms up front</b>, and almost every question has a <b>?</b> you can tap for exactly what counts and what doesn't.</p>
+     <div class="quote"><div class="hint">?</div><div>"A drink" means one full standard drink. Sips off your dad's glass at Christmas do not count, and neither does the one you pretended to finish.</div></div>
+     <p>Nothing you tick leaves your browser. No account, no server, no analytics.</p>`,
+  ];
+  const last = slides.length - 1;
+  let controls;
+  if(intro.step === last){
+    const f = S.ageFactor();
+    controls = `
+      <div class="agecard">
+        <div class="toggle ${store.age != null ? "on" : ""}" id="ageToggle"><div class="sw"><i></i></div><div><div class="tl">Grade me for my age 🎂</div><div class="td">You've had more years to get up to things than an 18-year-old. Optional, and it never leaves your browser.</div></div></div>
+        ${store.age != null ? `<div class="agebody">
+          <div class="agerow"><span class="n" id="ageN">${store.age}</span><span class="u" id="ageU">${store.age >= 80 ? "or older" : "years old"}</span><span class="f" id="ageF">${f > 1 ? "curve ^" + f.toFixed(2) : "no allowance yet"}</span></div>
+          <input type="range" id="ageRange" min="16" max="80" step="1" value="${store.age}">
+          <div class="note" id="ageNote">${f > 1 ? "You'll be graded on a curve against your own age instead of against an 18-year-old. Ticking everything is still a zero — you'll see exactly what the curve was worth at the end." : "The allowance starts after 18 — below that you're scored flat."}</div>
+        </div>` : ""}
+      </div>
+      <div class="toggle ${store.cheekyMode ? "on" : ""}" id="cheekyToggle"><div class="sw"><i></i></div><div><div class="tl">Cheeky mode 😏</div><div class="td">${N_CHEEKY} questions get a nosy follow-up. Always skippable, never scored.</div></div></div>
+      <button class="btn wide" id="start">Start the test →</button>`;
+  } else if(intro.step === 2 && !intro.demoUnderstood){
+    controls = `<div class="gate">Drag the slider all the way right to continue</div>`;
+  } else {
+    controls = `<button class="btn wide" id="nextSlide">Next →</button>`;
+  }
+  return `
+    <header><h1>freaky website</h1><p class="sub">${TOTAL_Q} questions · ${SECTIONS.length} sections · weighted 1–100</p></header>
+    <div class="card slide">${slides[intro.step]}</div>
+    <div class="dots">${slides.map((_, i) => `<i class="${i === intro.step ? "on" : ""}"></i>`).join("")}</div>
+    ${controls}
+    <p class="foot">Runs entirely in your browser. No accounts, no analytics, no server. Refreshing keeps your answers; the reset button wipes them.</p>`;
+}
+function wireIntro(){
+  const n = $("nextSlide"); if(n) n.onclick = () => { intro.step++; render(); };
+  const r = $("demoRange");
+  if(r) r.oninput = () => {
+    intro.demoValue = +r.value;
+    $("demoL").textContent = DEMO_STOPS[intro.demoValue][0];
+    $("demoW").textContent = "weight " + DEMO_STOPS[intro.demoValue][1];
+    if(intro.demoValue >= 3 && !intro.demoUnderstood){ intro.demoUnderstood = true; $("demoOK").classList.remove("hidden"); render(); }
+  };
+  const at = $("ageToggle"); if(at) at.onclick = () => { store.age = store.age == null ? 21 : null; save(); render(); };
+  const ar = $("ageRange");
+  if(ar) ar.oninput = () => {
+    store.age = +ar.value; save();
+    const f = S.ageFactor();
+    $("ageN").textContent = store.age; $("ageU").textContent = store.age >= 80 ? "or older" : "years old";
+    $("ageF").textContent = f > 1 ? "curve ^" + f.toFixed(2) : "no allowance yet";
+    $("ageNote").textContent = f > 1 ? "You'll be graded on a curve against your own age instead of against an 18-year-old. Ticking everything is still a zero — you'll see exactly what the curve was worth at the end." : "The allowance starts after 18 — below that you're scored flat.";
+  };
+  const ct = $("cheekyToggle"); if(ct) ct.onclick = () => { store.cheekyMode = !store.cheekyMode; save(); ct.classList.toggle("on", store.cheekyMode); };
+  const st = $("start"); if(st) st.onclick = () => S.startQuiz();
+}
+
+/* ==================================================================
+   QUIZ — one section at a time (QuizView.swift)
+   ================================================================== */
+function renderQuiz(){
+  const n = store.sectionIndex, s = SECTIONS[n];
+  const ws = s.items.map(maxWeight);
+  const secTotal = sectionTotal(s);
+  return `
+    <div class="topbar">
+      <span class="t">${n + 1} of ${SECTIONS.length}</span>
+      <div class="menu"><button class="btn quiet sm" id="menuBtn">☰</button>
+        <div class="pop ${menuOpen ? "" : "hidden"}" id="menuPop">
+          <button id="mCheeky"><span class="chk">${store.cheekyMode ? "✓" : ""}</span>Cheeky mode 😏</button>
+          <div class="mh">Jump to section</div>
+          ${SECTIONS.map((x, i) => `<button data-jump="${i}"><span class="chk">${i === n ? "✓" : ""}</span>${x.emoji}&nbsp; ${esc(x.title)} &nbsp;·&nbsp; Q${x.items[0].number}–${x.items[x.items.length - 1].number}</button>`).join("")}
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="sechead"><div class="emo">${s.emoji}</div><div><h2>${n + 1}. ${esc(s.title)}</h2><div class="blurb">${esc(s.blurb)}</div></div></div>
+      <div class="secmeta">Questions ${s.items[0].number}–${s.items[s.items.length - 1].number} · weights ${Math.min(...ws)}–${Math.max(...ws)} · holds ${Math.round(secTotal / TOTAL_W * 100)}% of the test's total weight</div>
+      ${s.defs && s.defs.length ? `<div class="defs"><span class="h">Read this first</span>${s.defs.map(d => `<p>${md(d)}</p>`).join("")}</div>` : ""}
+      <ul class="items">${s.items.map(renderQuestion).join("")}</ul>
+      <div class="navrow" style="margin-top:22px">
+        <button class="btn ghost" id="prev" ${n === 0 ? "disabled" : ""}>← Back</button>
+        <button class="btn" id="next">${n === SECTIONS.length - 1 ? "See my score →" : "Next section →"}</button>
+      </div>
+    </div>`;
+}
+function renderModifier(kind, spec, level){
+  const stop = spec.stops[Math.min(level, spec.stops.length - 1)];
+  const disc = Math.round((1 - stop.multiplier) * 100);
+  return `<div class="scaler mod" data-kind="${kind}">
+    <div class="sq">${esc(spec.prompt)}</div>
+    <input type="range" class="purple" min="0" max="${spec.stops.length - 1}" step="1" value="${level}">
+    <div class="slabel"><span class="l">${esc(stop.label)}</span><span class="w ${disc > 0 ? "disc" : "full"}">${disc > 0 ? "−" + disc + "%" : "full weight"}</span></div>
+  </div>`;
+}
+function renderQuestion(q){
+  const on = S.isPicked(q), lvl = S.level(q);
+  const ch = store.cheekyMode ? q.cheeky : null;
+  const ans = S.answer(q) || "";
+  const custom = ch && ans && !ch.options.includes(ans) ? ans : "";
+  return `<li class="item ${on ? "on" : ""}" data-n="${q.number}">
+    <div class="row">
+      <div class="qnum">${q.number}</div>
+      <div class="box">${TICK}</div>
+      <div class="txt">${md(q.text)}</div>
+      <div class="meta">${q.hint ? `<div class="hint" title="What counts?">?</div>` : ""}<div class="wt" data-wt>${S.weight(q)}</div></div>
+    </div>
+    ${q.hint ? `<div class="hintbox hidden">${md(q.hint)}</div>` : ""}
+    ${q.slider ? `<div class="scaler sev ${on ? "" : "hidden"}">
+      <div class="sq">${esc(q.slider.prompt)}</div>
+      <input type="range" min="0" max="${q.slider.stops.length - 1}" step="1" value="${lvl}">
+      <div class="slabel"><span class="l">${esc(q.slider.stops[lvl].label)}</span><span class="w">weight ${q.slider.stops[lvl].weight}</span></div>
+      <div class="ends"><span>${esc(q.slider.stops[0].label)}</span><span>${esc(q.slider.stops[q.slider.stops.length - 1].label)}</span></div>
+    </div>` : ""}
+    <div class="mods ${on ? "" : "hidden"}">
+      ${q.recency ? renderModifier("recency", q.recency, S.recencyLevel(q)) : ""}
+      ${q.frequency ? renderModifier("frequency", q.frequency, S.frequencyLevel(q)) : ""}
+    </div>
+    ${ch ? `<div class="cheeky ${on ? "" : "hidden"}">
+      <div class="cq">${esc(ch.prompt)}</div>
+      <div class="chips">${ch.options.map(o => `<button class="chip ${ans === o ? "sel" : ""}" data-opt="${esc(o)}">${esc(o)}</button>`).join("")}
+      <input class="cinput" type="text" placeholder="or write your own…" value="${esc(custom)}"></div>
+    </div>` : ""}
+  </li>`;
+}
+function wireQuiz(){
+  $("menuBtn").onclick = e => { e.stopPropagation(); menuOpen = !menuOpen; $("menuPop").classList.toggle("hidden", !menuOpen); };
+  document.body.onclick = () => { if(menuOpen){ menuOpen = false; const p = $("menuPop"); if(p) p.classList.add("hidden"); } };
+  $("mCheeky").onclick = () => { store.cheekyMode = !store.cheekyMode; save(); menuOpen = false; render(); };
+  document.querySelectorAll("[data-jump]").forEach(b => b.onclick = () => { menuOpen = false; S.jump(+b.dataset.jump); });
+  $("prev").onclick = () => S.back();
+  $("next").onclick = () => S.next();
+
+  document.querySelectorAll("li.item").forEach(li => {
+    const q = BY_NUM.get(+li.dataset.n);
+    const sev = li.querySelector(".scaler.sev"), mods = li.querySelector(".mods"), cheekyBox = li.querySelector(".cheeky");
+    const refreshWeight = () => { li.querySelector("[data-wt]").textContent = S.weight(q); updateBar(); };
+
+    li.querySelector(".row").onclick = () => {
+      S.toggle(q); const on = S.isPicked(q);
+      li.classList.toggle("on", on);
+      if(sev) sev.classList.toggle("hidden", !on);
+      mods.classList.toggle("hidden", !on);
+      if(cheekyBox) cheekyBox.classList.toggle("hidden", !on);
+      updateBar();
+    };
+
+    const hintBtn = li.querySelector(".hint"), hintBox = li.querySelector(".hintbox");
+    if(hintBtn){
+      hintBtn.onmouseenter = () => hintBox.classList.remove("hidden");
+      hintBtn.onmouseleave = () => { if(!hintBtn.classList.contains("pinned")) hintBox.classList.add("hidden"); };
+      hintBtn.onclick = e => { e.stopPropagation(); const pin = hintBtn.classList.toggle("pinned"); hintBox.classList.toggle("hidden", !pin); };
+    }
+
+    if(sev){
+      const r = sev.querySelector("input");
+      r.onclick = e => e.stopPropagation();
+      r.oninput = () => {
+        const lvl = +r.value; S.setLevel(lvl, q);
+        sev.querySelector(".slabel .l").textContent = q.slider.stops[lvl].label;
+        sev.querySelector(".slabel .w").textContent = "weight " + q.slider.stops[lvl].weight;
+        refreshWeight();
+      };
+    }
+    mods.querySelectorAll(".scaler.mod").forEach(m => {
+      const kind = m.dataset.kind, spec = q[kind], r = m.querySelector("input");
+      r.onclick = e => e.stopPropagation();
+      r.oninput = () => {
+        const lvl = +r.value; (kind === "recency" ? S.setRecencyLevel : S.setFrequencyLevel)(lvl, q);
+        const stop = spec.stops[lvl], disc = Math.round((1 - stop.multiplier) * 100);
+        m.querySelector(".slabel .l").textContent = stop.label;
+        const w = m.querySelector(".slabel .w"); w.textContent = disc > 0 ? "−" + disc + "%" : "full weight";
+        w.className = "w " + (disc > 0 ? "disc" : "full");
+        refreshWeight();
+      };
+    });
+
+    if(cheekyBox){
+      cheekyBox.onclick = e => e.stopPropagation();
+      const input = cheekyBox.querySelector(".cinput");
+      cheekyBox.querySelectorAll(".chip").forEach(chip => chip.onclick = () => {
+        const opt = chip.dataset.opt, off = S.answer(q) === opt;
+        cheekyBox.querySelectorAll(".chip").forEach(c => c.classList.remove("sel"));
+        if(off) S.setAnswer(null, q); else { S.setAnswer(opt, q); chip.classList.add("sel"); input.value = ""; }
+      });
+      input.oninput = () => {
+        const v = input.value.trim();
+        cheekyBox.querySelectorAll(".chip").forEach(c => c.classList.remove("sel"));
+        if(v) S.setAnswer(v, q);
+        else if(S.answer(q) && !q.cheeky.options.includes(S.answer(q))) S.setAnswer(null, q);
+      };
+    }
+  });
+}
+function updateBar(){
+  $("liveScore").textContent = S.scoreText();
+  $("fill").style.width = ((store.sectionIndex + 1) / SECTIONS.length * 100) + "%";
+}
+
+/* ==================================================================
+   RESULTS (ResultsView.swift)
+   ================================================================== */
+function renderResults(){
+  const score = S.score(), tier = tierFor(score), heaviest = S.heaviest();
+  const old = S.unweightedScore(), pct = PurityNorms.percentile(old, store.age), band = PurityNorms.band(store.age);
+  const rows = SECTIONS.map(s => ({s, cnt: S.pickedCount(s), pct: S.fraction(s)}));
+  const sorted = [...rows].sort((a, b) => b.pct - a.pct), loud = sorted[0], quiet = sorted[sorted.length - 1];
+  const dossier = S.dossier();
+  const originalTail = score > old ? `Weighting lifts that to <b>${score.toFixed(1)}</b>: you ticked plenty of boxes, but they're cheap ones.`
+    : score < old ? `Weighting drags that to <b>${score.toFixed(1)}</b>: counting boxes can't tell a hickey from a hit-and-run.`
+    : `Weighting lands you in exactly the same place, which is a statistically boring outcome.`;
+  let heaviestTail = "";
+  if(heaviest){
+    heaviestTail = store.scoringMode === "curved"
+      ? `On its own it caps you at <b>${Math.round(100 * (1 - Math.min(1, 0.9 * heaviest.weight / 100)))}</b>, before anything else you admitted to is counted.`
+      : `That one answer is costing you <b>${S.pointCost(heaviest.question).toFixed(1)} points</b> of your score.`;
+  }
+  return `
+    <div class="topbar"><span class="t">Your score</span></div>
+    <div class="card">
+      <div class="scorebig">${score.toFixed(1)}</div>
+      <div class="outof">out of 100</div>
+      <div class="tier">${esc(tier.title)}</div>
+      <p class="tierdesc">${esc(tier.blurb)}</p>
+
+      <div class="cohort">
+        <div class="big"><span class="grad">${pct}</span><small>${ordinal(pct).slice(String(pct).length)} percentile</small></div>
+        <div class="l1">You've done more than about ${pct}% of ${band.label}.</div>
+        <div class="l2">${store.age == null ? "Estimated against everyone. Add your age on the intro screen for a closer comparison." : "Estimated from published Rice Purity averages, matched on your unweighted score. Self-reported data, so treat it as a ballpark."}</div>
+      </div>
+
+      <div class="statgrid">
+        <div class="stat"><b>${store.picked.size} <i>of ${TOTAL_Q}</i></b><span>items ticked</span></div>
+        <div class="stat"><b>${nf(S.accumulatedWeight())} <i>of ${nf(TOTAL_W)}</i></b><span>weight carried</span></div>
+        <div class="stat"><b>${S.averageTickWeight().toFixed(1)} <i>vs ${AVG_W.toFixed(1)}</i></b><span>your avg tick vs the test's</span></div>
+      </div>
+
+      ${S.isAgeAdjusted() ? `<div class="callout">Graded for <b>${store.age}</b> — you've had ${store.age - AGE_BASELINE} more years than an 18-year-old to accumulate this stuff, so the curve is bent in your favour. Without it you'd be on <b>${S.rawScore().toFixed(1)}</b>, which makes the allowance worth <b>${S.ageBonus().toFixed(1)} points</b>.</div>` : ""}
+
+      ${heaviest ? `<div class="callout">Heaviest single thing you ticked: <b>Q${heaviest.question.number} — ${esc(plain(heaviest.question.text))}</b>, weight ${heaviest.weight} out of 100. ${heaviestTail}</div>` : ""}
+
+      <div class="callout">On the original Rice Purity Test — where every question counts exactly the same — you'd have scored <b>${old}/100</b>. ${originalTail}</div>
+
+      ${dossier.length ? `<div class="dossier">
+        <h3>The cheeky dossier 😏</h3>
+        <p class="dsub">${dossier.length} thing${dossier.length === 1 ? "" : "s"} you volunteered that nobody asked you to. None of it counted toward the score.</p>
+        ${dossier.map(d => `<div class="dline"><span class="dq">Q${d.question.number} · ${esc(d.prompt)}</span><span class="da">${esc(d.answer)}</span></div>`).join("")}
+      </div>` : ""}
+
+      <h3 style="margin:22px 0 12px;font-size:17px">Section breakdown</h3>
+      ${rows.map(r => `<div class="brkrow">
+        <span>${r.s.emoji} ${esc(r.s.title)} <span style="color:var(--dim)">· ${r.cnt} of ${r.s.items.length}</span></span>
+        <span style="color:var(--dim);font-variant-numeric:tabular-nums">${Math.round(r.pct * 100)}%</span>
+        <span class="brkbar"><i style="width:${Math.round(r.pct * 100)}%"></i></span></div>`).join("")}
+      <p style="color:var(--faint);font-size:12px;margin:-4px 0 14px">Each percentage is the weight you picked up in that section, out of everything that section could have cost you.</p>
+
+      <div class="callout">Your loudest section is <b>${esc(loud.s.title)}</b> at ${Math.round(loud.pct * 100)}%. Your quietest is <b>${esc(quiet.s.title)}</b> at ${Math.round(quiet.pct * 100)}%.</div>
+
+      <button class="btn wide" id="share">Share my score</button>
+      <div class="navrow" style="margin-top:12px">
+        <button class="btn ghost" id="back">← Review answers</button>
+        <button class="btn ghost" id="copy">Copy result</button>
+        <button class="btn ghost danger" id="reset">Start over</button>
+      </div>
+    </div>
+    <p class="foot">Weights are a rough consensus, not a verdict. Nothing here left your browser.</p>`;
+}
+function wireResults(){
+  $("back").onclick = () => S.reviewAnswers();
+  $("reset").onclick = () => S.reset();
+  $("copy").onclick = () => {
+    const score = S.score(), tier = tierFor(score);
+    const loud = [...SECTIONS].sort((a, b) => S.fraction(b) - S.fraction(a))[0];
+    const txt = `freaky website: ${score.toFixed(1)}/100 — ${tier.title}\n${store.picked.size} of ${TOTAL_Q} items ticked.\nOn the original Rice Purity Test I'd have scored ${S.unweightedScore()}/100.\nLoudest section: ${loud.title}.`;
+    navigator.clipboard.writeText(txt).then(() => { $("copy").textContent = "Copied ✓"; setTimeout(() => $("copy").textContent = "Copy result", 1600); });
+  };
+  $("share").onclick = shareCard;
+}
+
+/* Share card — the same 1080×1080 square the app renders (ShareCard.swift). */
+async function shareCard(){
+  const score = S.score(), tier = tierFor(score), h = S.heaviest();
+  const c = document.createElement("canvas"); c.width = c.height = 1080;
+  const g = c.getContext("2d");
+  const bg = g.createLinearGradient(0, 0, 1080, 1080); bg.addColorStop(0, "#2a1640"); bg.addColorStop(0.55, "#0d0b14"); bg.addColorStop(1, "#3a1428");
+  g.fillStyle = bg; g.fillRect(0, 0, 1080, 1080);
+  const grad = g.createLinearGradient(140, 0, 940, 0); grad.addColorStop(0, "#c86dd7"); grad.addColorStop(0.6, "#ff7a9c"); grad.addColorStop(1, "#ffb35c");
+  g.textAlign = "center"; g.textBaseline = "alphabetic";
+  g.font = "700 46px ui-sans-serif, -apple-system, Helvetica, Arial"; g.fillStyle = grad; g.fillText("freaky website", 540, 150);
+  g.font = "900 300px ui-sans-serif, -apple-system, Helvetica, Arial"; g.fillStyle = grad; g.fillText(score.toFixed(1), 540, 480);
+  g.font = "500 44px ui-sans-serif, -apple-system, Helvetica, Arial"; g.fillStyle = "#a79cbd"; g.fillText("/100", 540, 540);
+  g.font = "800 60px ui-sans-serif, -apple-system, Helvetica, Arial"; g.fillStyle = "#efeaf7"; g.fillText(tier.title, 540, 640);
+  if(h){
+    g.font = "700 24px ui-sans-serif, -apple-system, Helvetica, Arial"; g.fillStyle = "#a79cbd"; g.fillText("WORST THING I TICKED", 540, 745);
+    g.font = "600 34px ui-sans-serif, -apple-system, Helvetica, Arial"; g.fillStyle = "#efeaf7";
+    wrapText(g, `Q${h.question.number} — ${plain(h.question.text)}`, 540, 800, 900, 44);
+    g.font = "500 28px ui-sans-serif, -apple-system, Helvetica, Arial"; g.fillStyle = "#ff7a9c"; g.fillText(`weight ${h.weight} out of 100`, 540, 930);
+  } else {
+    g.font = "600 34px ui-sans-serif, -apple-system, Helvetica, Arial"; g.fillStyle = "#efeaf7"; g.fillText("Ticked absolutely nothing. Suspicious.", 540, 800);
+  }
+  g.font = "500 26px ui-sans-serif, -apple-system, Helvetica, Arial"; g.fillStyle = "#6f6486"; g.fillText("weighted, so a felony ≠ a kiss", 540, 1010);
+
+  const blob = await new Promise(r => c.toBlob(r, "image/png"));
+  const file = new File([blob], `freaky-score-${Math.round(score)}.png`, {type: "image/png"});
+  const text = `My freaky score: ${score.toFixed(1)}/100`;
+  if(navigator.canShare && navigator.canShare({files: [file]})){
+    try{ await navigator.share({files: [file], title: text, text}); return; }catch(e){ if(e.name === "AbortError") return; }
+  }
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = file.name; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+}
+function wrapText(g, text, x, y, maxW, lh){
+  const words = text.split(" "); let line = "", lines = [];
+  for(const w of words){ const t = line ? line + " " + w : w; if(g.measureText(t).width > maxW && line){ lines.push(line); line = w; } else line = t; }
+  if(line) lines.push(line);
+  lines.slice(0, 3).forEach((l, i) => g.fillText(l, x, y + i * lh));
+}
+
+/* ==================================================================
+   WHEEL (WheelView.swift)
+   ================================================================== */
+/* One colour per section, evenly spaced around the hue circle and tinted toward purple/pink. */
+function sliceColour(i, n){
+  const hue = ((0.78 + i / Math.max(n, 1) * 0.55) % 1) * 360, sat = 0.55, val = 0.78;
+  const l = val * (1 - sat / 2), s = l === 0 || l === 1 ? 0 : (val - l) / Math.min(l, 1 - l);
+  return `hsl(${hue.toFixed(1)} ${(s * 100).toFixed(1)}% ${(l * 100).toFixed(1)}%)`;
+}
+function wheelSVG(slices){
+  const R = 150, cx = 150, cy = 150, total = Math.max(1, slices.reduce((a, s) => a + s.count, 0));
+  let start = -90, paths = "", labels = "";
+  slices.forEach((sl, i) => {
+    const sweep = 360 * sl.count / total, end = start + sweep;
+    const a0 = start * Math.PI / 180, a1 = end * Math.PI / 180;
+    const x0 = cx + R * Math.cos(a0), y0 = cy + R * Math.sin(a0), x1 = cx + R * Math.cos(a1), y1 = cy + R * Math.sin(a1);
+    const large = sweep > 180 ? 1 : 0;
+    paths += slices.length === 1
+      ? `<circle cx="${cx}" cy="${cy}" r="${R}" fill="${sliceColour(i, slices.length)}"/>`
+      : `<path d="M${cx},${cy} L${x0.toFixed(2)},${y0.toFixed(2)} A${R},${R} 0 ${large} 1 ${x1.toFixed(2)},${y1.toFixed(2)} Z" fill="${sliceColour(i, slices.length)}" stroke="#0d0b1499" stroke-width="1.5"/>`;
+    const mid = (start + sweep / 2) * Math.PI / 180;
+    labels += `<text x="${(cx + Math.cos(mid) * R * 0.66).toFixed(2)}" y="${(cy + Math.sin(mid) * R * 0.66).toFixed(2)}" font-size="19" text-anchor="middle" dominant-baseline="central">${sl.section.emoji}</text>`;
+    start = end;
+  });
+  return `<svg viewBox="0 0 300 300"><g class="dial still" id="dial" style="transform:rotate(${game.rotation}deg)">${paths}${labels}<circle cx="${cx}" cy="${cy}" r="${R * 0.17}" fill="#0d0b14" stroke="#332a47"/></g><circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="#332a47" stroke-width="2"/></svg>
+    <svg class="ptr" viewBox="0 0 22 18"><defs><linearGradient id="pg" x1="0" x2="1"><stop offset="0" stop-color="#c86dd7"/><stop offset="1" stop-color="#ff7a9c"/></linearGradient></defs><path d="M11,18 L0,0 L22,0 Z" fill="url(#pg)"/></svg>`;
+}
+function renderWheel(){
+  const slices = G.poolBySection(), pool = G.pool(), cur = G.current();
+  let qcard;
+  if(cur){
+    const sec = SEC_BY_ID.get(SEC_OF.get(cur.number));
+    qcard = `<div class="card qcard pop"><div class="sec">${sec.emoji}&nbsp; ${esc(sec.title)}</div><div class="q">${esc(phrase(game.promptStyle, plain(cur.text)))}</div>
+      ${cur.hint ? `<div class="h">${md(cur.hint)}</div>` : ""}${cur.cheeky ? `<div class="bonus">Bonus: ${esc(cur.cheeky.prompt)}</div>` : ""}</div>`;
+  } else if(G.isExhausted()){
+    qcard = `<div class="card qcard"><div style="font-size:40px">🎉</div><div class="q" style="font-size:17px">You've been through everything that's left.</div><div class="h">Reset the wheel, or loosen the filters.</div></div>`;
+  } else qcard = `<div class="tapspin">Tap the wheel to spin</div>`;
+  const winner = G.winner(), ex = game.excludedSections.size;
+  return `
+    <div class="wheelhead"><h2 class="grad">${PromptStyle[game.promptStyle]}</h2><div class="m">${pool.length} left on the wheel · ${game.history.length} asked</div></div>
+    <div class="wheelbox" id="wheelBox" role="button" aria-label="Spin the wheel. ${pool.length} questions left.">${wheelSVG(slices)}${slices.length ? "" : `<div class="empty">Nothing left</div>`}</div>
+    ${qcard}
+    <button class="btn wide" id="spin" ${G.isExhausted() || game.spinning ? "disabled" : ""}>${cur ? "Spin again" : "Spin"}</button>
+    <div class="ctrls" style="margin-top:10px"><button class="btn quiet sm" id="retire" ${cur ? "" : "disabled"}>🗑 Retire this one</button><button class="btn quiet sm" id="resetWheel">↺ Reset wheel</button></div>
+    <div class="ctrlrow"><button class="linkbtn" id="openSetup">⚙︎ Players &amp; filters</button><button class="linkbtn" id="openHistory" ${game.history.length ? "" : "disabled"}>🕓 Asked (${game.history.length})</button></div>
+    ${game.players.length ? `<div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center"><b style="font-size:14px">Fingers</b><button class="linkbtn" id="resetFingers">Reset fingers</button></div>
+      ${winner ? `<div class="winner">👑 ${esc(winner.name)} survives.</div>` : ""}
+      <div class="players">${game.players.map(p => `<button class="player ${p.fingersLeft <= 0 ? "out" : ""}" data-p="${p.id}"><div class="n">${esc(p.name)}</div><div class="f">${p.fingersLeft <= 0 ? "out" : "•".repeat(p.fingersLeft)}</div></button>`).join("")}</div>
+      <div class="small">Tap a name when they put a finger down. Right-click (or long-press) to undo.</div>
+    </div>` : ""}
+    <div class="filters">${ex === 0 ? `All sections in play · nothing above weight ${game.maxWeight}` : `${ex} section${ex === 1 ? "" : "s"} off · nothing above weight ${game.maxWeight}`}</div>`;
+}
+function wireWheel(){
+  $("wheelBox").onclick = spin; $("spin").onclick = spin;
+  $("retire").onclick = () => { G.retireCurrent(); render(); };
+  $("resetWheel").onclick = () => { G.resetQuestions(); render(); };
+  $("openSetup").onclick = () => { openSheet = "setup"; renderSheet(); };
+  $("openHistory").onclick = () => { openSheet = "history"; renderSheet(); };
+  const rf = $("resetFingers"); if(rf) rf.onclick = () => { G.resetFingers(); render(); };
+  document.querySelectorAll(".player").forEach(b => {
+    const p = game.players.find(x => x.id === b.dataset.p);
+    let timer;
+    b.onclick = () => { G.putFingerDown(p); render(); };
+    b.oncontextmenu = e => { e.preventDefault(); G.restoreFinger(p); render(); };
+    b.ontouchstart = () => { timer = setTimeout(() => { timer = null; G.restoreFinger(p); render(); }, 550); };
+    b.ontouchend = b.ontouchmove = () => { if(timer){ clearTimeout(timer); } };
+  });
+}
+function spin(){
+  if(game.spinning) return;
+  const draw = G.drawNext(); if(!draw) return;
+  const slices = G.poolBySection(), total = Math.max(1, slices.reduce((a, s) => a + s.count, 0));
+  // Land the pointer inside the drawn question's own slice, so the animation tells the truth.
+  let startAngle = 0;
+  for(let i = 0; i < slices.length; i++){ if(i === draw.sectionIndex) break; startAngle += 360 * slices[i].count / total; }
+  const sweep = 360 * slices[Math.min(draw.sectionIndex, slices.length - 1)].count / total;
+  const target = startAngle + (0.15 + Math.random() * 0.7) * sweep;
+  // Pointer sits at 12 o'clock, so the wheel rotates by −target for that angle to end up under it.
+  const current = game.rotation;
+  let delta = (-target - current) % 360; if(delta < 0) delta += 360;
+  const spins = (3 + Math.floor(Math.random() * 3)) * 360;
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches, duration = reduce ? 10 : 2400;
+  game.spinning = true; game.rotation = current + spins + delta;
+  const dial = $("dial"); $("spin").disabled = true;
+  dial.classList.remove("still"); if(reduce) dial.style.transitionDuration = "10ms";
+  requestAnimationFrame(() => { dial.style.transform = `rotate(${game.rotation}deg)`; });
+  if(navigator.vibrate) navigator.vibrate(12);
+  setTimeout(() => { G.commit(draw.question); game.spinning = false; render(); if(navigator.vibrate) navigator.vibrate([10, 30, 10]); }, duration);
+}
+
+/* Setup & history sheets */
+function renderSheet(){
+  document.querySelectorAll(".backdrop").forEach(b => b.remove());
+  if(!openSheet) return;
+  const wrap = document.createElement("div"); wrap.className = "backdrop";
+  wrap.onclick = e => { if(e.target === wrap){ openSheet = null; render(); } };
+  let body;
+  if(openSheet === "history"){
+    body = `<div class="sh"><b>Asked tonight</b><button class="closex" id="closeSheet">✕</button></div>
+      ${game.history.map((n, i) => { const q = BY_NUM.get(n); return q ? `<div class="hrow"><span class="i">${game.history.length - i}</span><span>${esc(phrase(game.promptStyle, plain(q.text)))}</span></div>` : ""; }).join("")}`;
+  } else {
+    const held = G.heldBackBySpiceCap();
+    body = `<div class="sh"><b>Set up the game</b><button class="closex" id="closeSheet">✕</button></div>
+      <div class="card"><h3>Players</h3>
+        <div class="addrow"><input id="newPlayer" placeholder="Add a name" maxlength="24"><button class="btn sm" id="addPlayer">Add</button></div>
+        ${game.players.length ? `<div>${game.players.map(p => `<span class="pchip">${esc(p.name)}<button data-rm="${p.id}" title="Remove">✕</button></span>`).join("")}</div>` : `<div class="small" style="margin-top:0">Optional — the wheel works fine without scorekeeping.</div>`}
+      </div>
+      <div class="card"><h3>How it reads</h3>
+        <div class="seg" id="styleSeg">${Object.entries(PromptStyle).map(([k, v]) => `<button data-s="${k}" class="${game.promptStyle === k ? "on" : ""}">${v}</button>`).join("")}</div>
+        <div class="toggle pink ${game.autoRetire ? "on" : ""}" id="autoRetire" style="margin:0"><div class="sw"><i></i></div><div class="tl" style="font-size:14px">Retire questions once asked</div></div>
+      </div>
+      <div class="card"><div class="spicehead"><h3>Spice cap</h3><span class="v" id="spiceV">weight ≤ ${game.maxWeight}</span></div>
+        <input type="range" id="spice" min="10" max="100" step="5" value="${game.maxWeight}">
+        <div class="small" id="spiceNote">The quiz's own severity numbers, reused as a dial. At 30 you'll get kisses and fake IDs; at 100 anything on the list can come up. ${G.pool().length} questions currently in play.</div>
+      </div>
+      <div class="card"><h3>Sections</h3>
+        ${SECTIONS.map(s => { const on = !game.excludedSections.has(s.id); return `<div class="secrow ${on ? "on" : "off"}" data-sec="${s.id}"><span class="ck">${TICKW}</span><span>${s.emoji}&nbsp; ${esc(s.title)}</span><span class="cnt">${s.items.length}</span></div>`; }).join("")}
+        <div class="small">Switch off anything the group would rather not have come up.</div>
+      </div>
+      <div class="card held"><div class="spicehead"><h3>Held back by the cap</h3><span class="v">${held.length}</span></div>
+        ${held.length === 0 ? `<div class="small" style="margin-top:0">Nothing — every question in your chosen sections is in play.</div>`
+          : `<div class="small" style="margin:0 0 8px">Lightest first. The top one is what you'd get back by nudging the cap up — if it looks tame, you've set it too low.</div>
+             ${held.map((q, i) => `<div class="hr ${i === 0 ? "first" : ""}"><span class="w">${q.weight}</span><span>${SEC_BY_ID.get(SEC_OF.get(q.number)).emoji}</span><span>${esc(plain(q.text))}</span></div>${i === 0 && held.length > 1 ? `<div class="capline">— cap is here —</div>` : ""}`).join("")}`}
+      </div>`;
+  }
+  wrap.innerHTML = `<div class="sheet">${body}</div>`;
+  document.body.appendChild(wrap);
+  $("closeSheet").onclick = () => { openSheet = null; render(); };
+  if(openSheet !== "setup") return;
+  const add = () => { G.addPlayer($("newPlayer").value); renderSheet(); const i = $("newPlayer"); if(i) i.focus(); };
+  $("addPlayer").onclick = add; $("newPlayer").onkeydown = e => { if(e.key === "Enter") add(); };
+  wrap.querySelectorAll("[data-rm]").forEach(b => b.onclick = () => { G.removePlayer({id: b.dataset.rm}); renderSheet(); });
+  wrap.querySelectorAll("#styleSeg button").forEach(b => b.onclick = () => { game.promptStyle = b.dataset.s; saveGame(); renderSheet(); });
+  $("autoRetire").onclick = () => { game.autoRetire = !game.autoRetire; saveGame(); renderSheet(); };
+  $("spice").oninput = () => {
+    game.maxWeight = +$("spice").value; saveGame();
+    $("spiceV").textContent = `weight ≤ ${game.maxWeight}`;
+    $("spiceNote").textContent = `The quiz's own severity numbers, reused as a dial. At 30 you'll get kisses and fake IDs; at 100 anything on the list can come up. ${G.pool().length} questions currently in play.`;
+  };
+  $("spice").onchange = () => renderSheet();
+  wrap.querySelectorAll("[data-sec]").forEach(r => r.onclick = () => {
+    const id = r.dataset.sec; game.excludedSections.has(id) ? game.excludedSections.delete(id) : game.excludedSections.add(id); saveGame(); renderSheet();
+  });
+}
+
+/* ==================================================================
+   Boot
+   ================================================================== */
+load(); loadGame();
+render();
+</script>
+</body>
+</html>

@@ -245,6 +245,16 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible{
 .explore-card p{ font-size:0.85rem; opacity:0.85; line-height:1.5; }
 .explore-card .go{ margin-top:auto; font-family:var(--label); font-size:0.74rem; opacity:0.8; }
 
+/* toybox: the unlocked tile arrives with a little entrance, and a clay border
+   so it reads as the one that wasn't there a second ago */
+.toy-secret{ border-color:var(--clay); }
+.toy-secret .go{ color:var(--clay); opacity:.9; }
+.toy-secret-in{ animation:toy-in .55s var(--ease) both; }
+@keyframes toy-in{
+  from{ opacity:0; transform:translateY(14px) scale(.98); }
+  to{ opacity:1; transform:none; }
+}
+
 /* ============================================================
    CV / RÉSUMÉ
    ============================================================ */
