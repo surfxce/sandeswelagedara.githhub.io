@@ -380,7 +380,12 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible{
 .lightbox-inner{ position:relative; max-width:900px; width:100%; text-align:center; }
 .lightbox-inner img, .lightbox-fallback{ max-height:78vh; margin:0 auto; border-radius:10px; width:auto; max-width:100%; }
 .lightbox-fallback{ width:min(500px,80vw); aspect-ratio:4/5; }
-.lightbox-cap{ margin-top:1rem; font-family:var(--label); font-size:0.8rem; color:var(--text-dim); }
+/* text sits under the image, left-aligned in a reading measure. Note the
+   colours: the lightbox ground is dark, so this is cream — the old caption
+   used var(--text-dim), which is dark green, and was unreadable on it. */
+.lightbox-text{ margin:1.2rem auto 0; max-width:60ch; text-align:left; }
+.lightbox-title{ font-family:var(--display); font-weight:500; font-size:clamp(1.3rem,2.6vw,1.7rem); line-height:1.25; color:var(--paper); }
+.lightbox-cap{ margin-top:.55rem; font-family:var(--body); font-size:0.92rem; line-height:1.6; color:rgba(244,239,226,.78); }
 .lightbox-btn{ position:absolute; top:50%; transform:translateY(-50%); background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:50%; width:44px; height:44px; display:flex; align-items:center; justify-content:center; }
 .lightbox-btn:hover{ background:rgba(255,255,255,0.18); }
 .lightbox-prev{ left:-56px; } .lightbox-next{ right:-56px; }

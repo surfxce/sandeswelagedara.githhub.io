@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&amp;family=Lora:ital,wght@0,400;0,500;0,600;1,400&amp;display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/css/style.css?v=20260822b">
+<link rel="stylesheet" href="../assets/css/style.css?v=20260911a">
 </head>
 <body>
 
@@ -70,7 +70,10 @@
     </button>
     <img id="lbImg" alt="">
     <div class="lightbox-fallback" id="lbFallback"></div>
-    <p class="lightbox-cap" id="lbCap"></p>
+    <div class="lightbox-text">
+      <h3 class="lightbox-title" id="lbTitle"></h3>
+      <p class="lightbox-cap" id="lbCap"></p>
+    </div>
     <button class="lightbox-btn lightbox-prev" id="lbPrev" aria-label="Previous">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M15 5l-7 7 7 7"/></svg>
     </button>
@@ -95,8 +98,8 @@
   </div>
 </footer>
 
-<script src="../assets/js/site.js?v=20260822b"></script>
-<script src="../assets/js/photos.js?v=20260822b"></script>
+<script src="../assets/js/site.js?v=20260911a"></script>
+<script src="../assets/js/photos.js?v=20260911a"></script>
 <script>
   SW.initNav({ page: 'photos' });
   document.getElementById('year').textContent = '© ' + new Date().getFullYear();
