@@ -90,9 +90,9 @@ const VIEWS = {
       <div class="eyebrow">Test SB</div>
       <h1>Sandes'<b>Battery</b></h1>
       <div class="swatches">${['#F1EFE9','#E8E2D5','#DBC5B8','#B6C9D1','#A6AA95','#C3891B','#C2664A','#5C6343','#3C5D6A'].map((c,i)=>`<i style="background:${c};animation-delay:${i*60}ms"></i>`).join('')}</div>
-      <p class="lead">One test, seven modules, no letters. Every question asks about what you actually <em>do</em> and how <em>often</em> — so the result is a profile of scores, not a label that changes with your mood. About 35 minutes. Progress saves automatically.</p>
+      <p class="lead">One test, eight modules, no letters. Every question asks about what you actually <em>do</em> and how <em>often</em> — so the result is a profile of scores, not a label that changes with your mood. About 40 minutes. Progress saves automatically.</p>
       <div class="modules">
-        ${MODULES.slice(1).concat([VALUE_MODULE]).map((m, i) => `<div class="mod ${started && (i + 1 < S.mi || S.stage.startsWith('values') && i < 6 || S.stage === 'results') ? 'done' : ''}" style="animation-delay:${200 + i * 60}ms"><b>${esc(m.title)}</b><span>${m.items ? m.items.length + ' items' : VALUES.length + ' values'}</span></div>`).join('')}
+        ${MODULES.slice(1).concat([VALUE_MODULE]).map((m, i) => `<div class="mod ${started && (i + 1 < S.mi || S.stage.startsWith('values') && i < MODULES.length - 1 || S.stage === 'results') ? 'done' : ''}" style="animation-delay:${200 + i * 60}ms"><b>${esc(m.title)}</b><span>${m.items ? m.items.length + ' items' : VALUES.length + ' values'}</span></div>`).join('')}
       </div>
       <div class="btns" style="margin-top:30px">
         ${started ? `<button class="btn" id="resume">Resume</button><button class="btn ghost" id="restart">Start over</button>` : `<input class="name" id="name" placeholder="Your name (optional)" value="${esc(S.name)}"><button class="btn" id="start">Begin</button>`}
@@ -106,7 +106,7 @@ const VIEWS = {
   intro() {
     const m = MODULES[S.mi];
     return `<div class="card intro reveal">
-      <div class="eyebrow">${S.mi === 0 ? 'Warm-up' : `Module ${S.mi} of 7`} <span class="n">· ${m.items.length} items</span></div>
+      <div class="eyebrow">${S.mi === 0 ? 'Warm-up' : `Module ${S.mi} of ${MODULES.length}`} <span class="n">· ${m.items.length} items</span></div>
       <h2>${esc(m.title)}</h2>
       <p>${m.intro}</p>
       ${m.window ? `<div class="count">Time window: ${esc(m.window)}</div>` : ''}
@@ -220,7 +220,7 @@ function afterRender(el) {
 
   if (S.stage === 'intro') { on('#begin', () => go('items', { ii: 0 })); on('#back', () => { S.mi--; S.ii = MODULES[S.mi].items.length - 1; go('items', {}, 'back'); }); }
   if (S.stage === 'items') bindItem(el);
-  if (S.stage === 'values-intro') { on('#begin', () => go('values-bucket')); on('#back', () => { S.mi = 6; S.ii = MODULES[6].items.length - 1; go('items', {}, 'back'); }); }
+  if (S.stage === 'values-intro') { on('#begin', () => go('values-bucket')); on('#back', () => { S.mi = MODULES.length - 1; S.ii = MODULES[S.mi].items.length - 1; go('items', {}, 'back'); }); }
   if (S.stage === 'values-bucket') {
     el.querySelectorAll('.opt').forEach(b => b.addEventListener('click', () => { flash(b); S.values.buckets[S.values.order[S.values.idx]] = +b.dataset.v; advanceValue(); }));
     on('#back', () => { if (S.values.idx > 0) { S.values.idx--; go('values-bucket', {}, 'back'); } else go('values-intro', {}, 'back'); });
@@ -392,6 +392,13 @@ function renderResults(R) {
       ${axis(R.m4.assert.score, 'Avoids confrontation', 'Confronts comfortably', 'Assertiveness', R.m4.assert)}
       ${axis(R.m4.repair.score, 'Waits it out', 'Reaches out first', 'Repair', R.m4.repair)}</div>
 
+    ${R.bounds ? `<div class="card" style="animation-delay:390ms"><h2>Boundaries</h2><p class="sub"><span class="flag">${esc(R.bounds.read.t)}</span> ${esc(R.bounds.read.b)}</p>
+      ${axis(R.bounds.setting.score, 'Goes along', 'States the limit', 'Setting', R.bounds.setting)}
+      ${axis(R.bounds.holding.score, 'Folds when pushed', 'Holds when pushed', 'Holding', R.bounds.holding)}
+      ${axis(R.bounds.cost.score, 'Costs you nothing', 'Shorting yourself', 'Cost', R.bounds.cost)}
+      <h3>When you give way, it's usually because…</h3>
+      ${['fine', 'ease', 'fear', 'owed'].map(k => ubar({ fine: 'It genuinely didn\'t matter', ease: 'Pushing back wasn\'t worth the effort', fear: 'Worry about how they\'d see you', owed: 'A sense of owing it / no right to refuse' }[k], Math.round((R.bounds.why[k] || 0) / 6 * 100), k === R.bounds.whyTop ? 'terra' : 'sage', '%')).join('')}</div>` : ''}
+
     <div class="card" style="animation-delay:420ms"><h2>Attachment & closeness</h2><p class="sub">Two axes, not four boxes. The label is only a shorthand for where you sit.</p>
       ${ubar('Anxiety (worry about being left; need for reassurance)' + flagHtml(R.m5.anxiety), R.m5.anxiety.score, 'terra')}
       ${ubar('Avoidance (discomfort with closeness and depending)' + flagHtml(R.m5.avoidance), R.m5.avoidance.score, 'teal')}
@@ -424,6 +431,7 @@ function retestDiff(P, R) {
   ['direction', 'speed', 'recovery', 'expression'].forEach(d => cmp('Emotion · ' + d, P.m3[d].score, R.m3[d].score));
   ['timing', 'grudge', 'assert', 'repair'].forEach(d => cmp('Conflict · ' + d, P.m4[d].score, R.m4[d].score));
   cmp('Attachment anxiety', P.m5.anxiety.score, R.m5.anxiety.score); cmp('Attachment avoidance', P.m5.avoidance.score, R.m5.avoidance.score);
+  if (P.bounds && R.bounds) ['setting', 'holding', 'cost'].forEach(d => cmp('Boundaries · ' + d, P.bounds[d].score, R.bounds[d].score));
   return rows.length ? `<table class="tbl"><tr><th>Dimension</th><th>Then</th><th>Now</th><th>Δ</th></tr>${rows.join('')}</table>` : '<p>Nothing moved by 15 points or more — a stable profile.</p>';
 }
 
@@ -461,7 +469,7 @@ function buildPrompt(R, St) {
   L.push(`Taken ${R.computedAt.slice(0, 10)}. State at time of taking: stress ${R.state.stress}/10, sleep ${R.state.sleep}/10, mood ${R.state.mood}/10.`);
   L.push('');
   L.push('## About this instrument');
-  L.push('A self-designed, non-clinical personality battery. Seven modules; every scored item is a concrete behaviour rated by frequency over the past year (Never/Rarely/Sometimes/Often/Almost always), or a forced-choice scenario. Scores are 0–100. "context-dependent" means the person\'s answers on that dimension disagreed with each other (high spread), which usually means the behaviour depends on situation. Rigidity = inability to act against one\'s preference when needed.');
+  L.push('A self-designed, non-clinical personality battery. Eight modules; every scored item is a concrete behaviour rated by frequency over the past year (Never/Rarely/Sometimes/Often/Almost always), or a forced-choice scenario. Scores are 0–100. "context-dependent" means the person\'s answers on that dimension disagreed with each other (high spread), which usually means the behaviour depends on situation. Rigidity = inability to act against one\'s preference when needed.');
   L.push('');
   L.push('## Headline');
   L.push(`Archetype (generated handle): ${R.archetype.name}, ${R.archetype.tail}.`);
@@ -481,6 +489,12 @@ function buildPrompt(R, St) {
   L.push(`- Timing ${R.m4.timing.score} (0 = says it immediately, 100 = keeps a ledger)`);
   L.push('- What happens to banked grievances (count of 6 scenarios): ' + ['cashin', 'withdraw', 'letgo', 'resent'].map(k => `${k} ${R.m4.ledger[k] || 0}`).join(', '));
   L.push(`- Grudge half-life ${R.m4.grudge.score}; assertiveness ${R.m4.assert.score}; repair initiation ${R.m4.repair.score}`);
+  if (R.bounds) {
+    L.push('### Boundaries');
+    L.push(`- Setting ${R.bounds.setting.score} (0 = goes along, 100 = states the limit); holding ${R.bounds.holding.score} (0 = folds when pushed, 100 = holds); cost ${R.bounds.cost.score} (0 = giving way costs nothing, 100 = consistently shorting themselves)`);
+    L.push('- Why they gave way (count of 6 scenarios): ' + ['fine', 'ease', 'fear', 'owed'].map(k => `${k} ${R.bounds.why[k] || 0}`).join(', ') + ' (fine = genuinely didn\'t matter; ease = not worth the effort; fear = worry about how they\'d be seen; owed = felt they had no right to refuse)');
+    L.push(`- Read: ${R.bounds.read.t} — ${R.bounds.read.b}`);
+  }
   L.push('### Attachment');
   L.push(`- Anxiety ${R.m5.anxiety.score}, avoidance ${R.m5.avoidance.score} → ${R.m5.style}. Under stress: anxious-type ${R.m5.anxStress.score}, avoidant-type ${R.m5.avStress.score}.`);
   L.push('### Love languages (split)');
@@ -541,6 +555,8 @@ function drawCompare() {
   rows.push(row('Emotion direction', a.m3.direction.score >= 50 ? 'outward' : 'inward', b.m3.direction.score >= 50 ? 'outward' : 'inward'));
   rows.push(row('Conflict timing', a.m4.timing.score >= 50 ? `ledger (${a.m4.timing.score}) · ${a.m4.ledgerTop}` : `immediate (${a.m4.timing.score})`, b.m4.timing.score >= 50 ? `ledger (${b.m4.timing.score}) · ${b.m4.ledgerTop}` : `immediate (${b.m4.timing.score})`));
   rows.push(row('Repair initiation', a.m4.repair.score, b.m4.repair.score));
+  const bnd = x => x.bounds ? `${x.bounds.read.t} (set ${x.bounds.setting.score} / hold ${x.bounds.holding.score} / cost ${x.bounds.cost.score})` : '—';
+  rows.push(row('Boundaries', bnd(a), bnd(b)));
   rows.push(row('Attachment', `${a.m5.style} (anx ${a.m5.anxiety.score} / av ${a.m5.avoidance.score})`, `${b.m5.style} (anx ${b.m5.anxiety.score} / av ${b.m5.avoidance.score})`));
   rows.push(row('Gives', a.m6.giveRank.slice(0, 2).map(langLabel).join(', '), b.m6.giveRank.slice(0, 2).map(langLabel).join(', ')));
   rows.push(row('Needs', a.m6.recvRank.slice(0, 2).map(langLabel).join(', '), b.m6.recvRank.slice(0, 2).map(langLabel).join(', ')));

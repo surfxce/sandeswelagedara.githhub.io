@@ -395,6 +395,89 @@ const MODULES = [
 
   // ------------------------------------------------------------
   {
+    id: 'bounds',
+    title: 'Boundaries',
+    short: 'Boundaries',
+    window: 'Over the past year…',
+    intro: 'Three separate things that get lumped together as "having boundaries". <em>Setting</em> — do you say the limit at all? <em>Holding</em> — once said, does it survive being pushed? And <em>cost</em> — when you give way, does it actually take something from you, or was it genuinely not that deep? Giving way a lot isn\'t a problem by itself. Giving way a lot <em>and</em> paying for it is.',
+    items: [
+      // setting: higher = says the limit; lower = goes along
+      f('setting', +1, 'I say no to things I don\'t want to do, without a long excuse.',
+        'reply "no, I can\'t this week" and leave it there'),
+      f('setting', -1, 'I say yes to a request while already knowing I\'ll resent it.',
+        'agree to cover a shift and feel the resentment land before you\'ve even hung up'),
+      f('setting', +1, 'I tell people what I need from them, even when it\'s awkward.',
+        'say "I need you to text if you\'re going to be late" instead of quietly stewing'),
+      f('setting', -1, 'I go along with a plan I don\'t like rather than say so.',
+        'end up at the restaurant you didn\'t want because you said "anything\'s fine"'),
+      f('setting', -1, 'I let people take more of my time, money, or energy than I\'d decided to give.',
+        'lend the "last time" for the third time'),
+      f('setting', +1, 'I\'ve let someone know a limit before they crossed it, not just after.',
+        'say "I\'ll need to leave by ten" at the start of the night, not at half eleven when you\'re stuck'),
+      f('setting', -1, 'People find out what my limits are only once I\'ve been pushed past them.',
+        'blow up over something small because it was the tenth small thing, and nobody knew about the other nine'),
+      // holding: higher = holds under pushback; lower = folds
+      f('holding', -1, 'I\'ve said no, been asked again, and said yes.',
+        'hold out through "are you sure?" and cave at "please, just this once"'),
+      f('holding', +1, 'When someone pushes back on a limit I\'ve set, I hold it.',
+        'repeat "I can\'t, sorry" the second time, calmly, without a new excuse'),
+      f('holding', -1, 'I set a boundary and then quietly stop enforcing it.',
+        'say "no calls after ten" and be answering them again within a fortnight'),
+      f('holding', -1, 'If someone seems hurt or annoyed by my no, I take it back.',
+        'see their face fall and hear yourself saying "actually, it\'s fine, I\'ll do it"'),
+      f('holding', +1, 'I can sit with someone being disappointed in me without fixing it.',
+        'let the silence after your "no" stay there instead of filling it with an offer'),
+      f('holding', -1, 'I come up with a fresh excuse each time I\'m asked, rather than just repeating no.',
+        'go from "I\'m busy" to "I\'m not feeling well" to "maybe next week" for the same request'),
+      // cost: higher = giving way is costing you; lower = it genuinely doesn't
+      f('cost', +1, 'After giving way to someone, I feel resentful rather than fine.',
+        'drive home from the favour muttering about it'),
+      f('cost', +1, 'The same few people keep asking me for things I\'ve regretted saying yes to.',
+        'know exactly who\'s going to text next time they need a lift, a loan, a favour'),
+      f('cost', +1, 'Looking back over the past few months, I can see I\'ve consistently put my own needs last.',
+        'realise you haven\'t done the thing you actually wanted on a single weekend since the semester started'),
+      f('cost', -1, 'When I go along with something, I genuinely don\'t mind — it isn\'t costing me anything.',
+        'eat at their pick of restaurant and be truly fine with it, not "fine"'),
+      f('cost', +1, 'I\'ve been tired, broke, or behind because of things I agreed to for other people.',
+        'miss your own deadline because you spent the weekend helping with theirs'),
+      f('cost', +1, 'I feel taken for granted.',
+        'notice nobody asks any more, they just assume'),
+      // why you gave way: fine / ease / fear / owed
+      { type: 'choice', dim: 'why', text: 'A friend asks a favour on a day you\'d set aside for yourself. You do it. Most likely because…', opts: [
+        { k: 'fine', text: 'It genuinely didn\'t matter to me — I was happy to.' },
+        { k: 'ease', text: 'Pushing back felt like more effort than it was worth.' },
+        { k: 'fear', text: 'I worried about how they\'d feel about me if I said no.' },
+        { k: 'owed', text: 'I felt I owed it, or had no right to say no.' } ]},
+      { type: 'choice', dim: 'why', text: 'Someone keeps talking well past the time you said you needed to go. You stay. Because…', opts: [
+        { k: 'fine', text: 'I didn\'t actually mind — the plan could wait.' },
+        { k: 'ease', text: 'Cutting them off felt like more hassle than staying.' },
+        { k: 'fear', text: 'Leaving felt like it would come across as rude or cold.' },
+        { k: 'owed', text: 'They needed it, so my plans didn\'t count.' } ]},
+      { type: 'choice', dim: 'why', text: 'A family member pushes you on a decision that\'s yours to make, and you go with their version. Because…', opts: [
+        { k: 'fine', text: 'I didn\'t feel strongly — either way was fine.' },
+        { k: 'ease', text: 'Arguing wasn\'t worth the energy.' },
+        { k: 'fear', text: 'I didn\'t want the disapproval that comes with going against them.' },
+        { k: 'owed', text: 'After everything they\'ve done, it felt wrong to push back.' } ]},
+      { type: 'choice', dim: 'why', text: 'A bill gets split in a way that leaves you paying more than your share. You say nothing. Because…', opts: [
+        { k: 'fine', text: 'It was a few dollars — genuinely not that deep.' },
+        { k: 'ease', text: 'Raising it would have been awkward for everyone.' },
+        { k: 'fear', text: 'I didn\'t want to look petty or tight.' },
+        { k: 'owed', text: 'I probably owed them from some other time anyway.' } ]},
+      { type: 'choice', dim: 'why', text: 'Someone asks a personal question you\'d rather not answer. You answer it. Because…', opts: [
+        { k: 'fine', text: 'On reflection it wasn\'t that private.' },
+        { k: 'ease', text: 'Deflecting would have been more awkward than answering.' },
+        { k: 'fear', text: 'Refusing felt like it would make things weird between us.' },
+        { k: 'owed', text: 'They\'d shared with me, so I felt I had to.' } ]},
+      { type: 'choice', dim: 'why', text: 'A group-project partner or colleague hands you their part of the work. You do it. Because…', opts: [
+        { k: 'fine', text: 'I was going to do it better anyway, and didn\'t mind.' },
+        { k: 'ease', text: 'Chasing them would have taken longer than just doing it.' },
+        { k: 'fear', text: 'I didn\'t want to be the difficult one.' },
+        { k: 'owed', text: 'They\'ve got more on than me — it felt fair.' } ]},
+    ],
+  },
+
+  // ------------------------------------------------------------
+  {
     id: 'm5',
     title: 'Attachment & closeness',
     short: 'Attachment',
