@@ -363,24 +363,14 @@
   }
   .whatson-hero p { position: relative; margin: 6px 0 0; font-size: 15px; opacity: .92; }
   .whatson-body { padding: 16px; display: grid; gap: 18px; }
-  .stalls { display: grid; gap: 6px; }
-  .stall {
-    display: grid; grid-template-columns: 8px 1fr; gap: 12px; align-items: center;
-    background: #fff; padding: 12px 12px 12px 0; min-height: 56px; box-shadow: 0 1px 0 var(--line);
+  .duty-row .blurb { grid-column: 1 / -1; font-size: 15px; color: var(--ink-2); }
+  .soc-row .ring {
+    width: 34px; height: 34px; border-radius: 50%; border: 1.5px solid var(--maroon);
+    display: grid; place-items: center; font-family: var(--display); font-weight: 700; font-size: 9px; color: var(--maroon);
   }
-  .stall::before { content: ""; height: 100%; background: var(--c); }
-  .stall .nm { font-weight: 700; font-size: 17px; }
-  .stall .nm small { display: block; font-weight: 500; font-size: 14px; color: var(--ink-2); }
-  .clubgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 8px; }
-  .club {
-    display: grid; grid-template-rows: auto auto; place-items: center; gap: 6px;
-    background: #fff; padding: 12px 6px; box-shadow: 0 1px 0 var(--line); text-align: center;
-  }
-  .club .ring {
-    width: 44px; height: 44px; border-radius: 50%; border: 1.5px solid var(--maroon);
-    display: grid; place-items: center; font-family: var(--display); font-weight: 700; font-size: 10px; color: var(--maroon);
-  }
-  .club .nm { font-size: 13px; font-weight: 700; }
+  .soc-row.pub { grid-template-columns: 34px 1fr; align-items: center; }
+  .soc-row.pub .nm { font-size: 16px; color: var(--ink); }
+  .soc-row .ring.long { font-size: 6.5px; letter-spacing: 0; }
   .fine { font-size: 13px; color: var(--ink-3); margin: 0; }
 
   /* ---------- Tabs ---------- */
@@ -530,36 +520,7 @@
           <p>Stalls and sites across the festival ground.</p>
         </div>
       </div>
-      <div class="whatson-body">
-        <div>
-          <h2>Fundraising &amp; food</h2>
-          <div class="stalls">
-            <div class="stall" style="--c: var(--c-fund)"><div class="nm">Pani Puri Stall<small>Charity volunteers + rostered execs</small></div></div>
-            <div class="stall" style="--c: var(--c-fund)"><div class="nm">UQ Manali Project Bake Sale<small>Charity volunteers + rostered execs</small></div></div>
-            <div class="stall" style="--c: var(--c-fund)"><div class="nm">Hope by Hands<small>Charity volunteers + rostered execs</small></div></div>
-          </div>
-        </div>
-        <div>
-          <h2>Business stalls</h2>
-          <div class="stalls">
-            <div class="stall" style="--c: var(--c-ticket)"><div class="nm">Inaara<small>Self-staffed</small></div></div>
-            <div class="stall" style="--c: var(--c-ticket)"><div class="nm">Dia Effect<small>Self-staffed</small></div></div>
-          </div>
-        </div>
-        <div>
-          <h2>Club stalls</h2>
-          <div class="clubgrid" id="clubgrid"></div>
-        </div>
-        <div>
-          <h2>Also on site</h2>
-          <div class="stalls">
-            <div class="stall" style="--c: var(--c-sport)"><div class="nm">Football · Cricket · Volleyball<small>Ovals and volleyball court</small></div></div>
-            <div class="stall" style="--c: var(--c-stage)"><div class="nm">Performance stage<small>Announcements and sports call-outs from here</small></div></div>
-            <div class="stall" style="--c: var(--c-ticket)"><div class="nm">Ticketing<small>Main entry gate</small></div></div>
-          </div>
-        </div>
-        <p class="fine">Setup 2–3pm and pack-up 9–10pm are all hands.</p>
-      </div>
+      <div class="whatson-body" id="exec-on"></div>
     </section>
 
     <nav class="tabs" role="tablist" aria-label="Views">
@@ -679,10 +640,43 @@
   const sel = $('f-soc');
   CLUBS.forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; sel.appendChild(o); });
   $('badge-strip').innerHTML = CLUBS.map(c => `<div class="badge" title="${c}">${CLUB_SHORT[c]}</div>`).join('');
-  $('clubgrid').innerHTML = CLUBS.map(c => `<div class="club"><div class="ring">${CLUB_SHORT[c]}</div><div class="nm">${c}</div></div>`).join('');
-  // the public page shows the same What's On as the exec tab — one source, copied
-  $('public-on').innerHTML = document.querySelector('#view-on .whatson-body').innerHTML;
-  $('public-on').querySelectorAll('[id]').forEach(el => el.removeAttribute('id'));
+  // ---------- What's On (public and exec tab, same source) ----------
+  // Same cards as Team → On duty, minus the people. tags are visitor-facing.
+  const WHATS_ON = [
+    { h: 'Sports', items: [
+      { cat: 'sport', name: 'Volleyball', where: 'Volleyball court', blurb: 'Pick-up games all afternoon — jump in when a team rotates.', tags: ['Teams rotate every 15 min'] },
+      { cat: 'sport', name: 'Football',   where: 'Main oval',        blurb: 'Short games, fresh teams each time the stage calls it.', tags: ['20-minute games'] },
+      { cat: 'sport', name: 'Cricket',    where: 'Cricket pitch',    blurb: 'Bat, bowl, or watch from behind the cones.', tags: ['6 overs a side'] },
+    ]},
+    { h: 'Stage & entry', items: [
+      { cat: 'stage',  name: 'Performance stage', where: 'Stage lawn',      blurb: 'Performances through the evening. Announcements and sports call-outs come from here.', tags: ['Listen for call-outs'] },
+      { cat: 'ticket', name: 'Ticketing',         where: 'Main entry gate', blurb: 'Show your ticket at the gate and get a wrist stamp.', tags: ['Wrist stamp'] },
+    ]},
+    { h: 'Fundraising & food', items: [
+      { cat: 'fund', name: 'Pani Puri Stall',              where: 'Food row, stall 1', blurb: 'Run by charity volunteers.' },
+      { cat: 'fund', name: 'UQ Manali Project Bake Sale',  where: 'Food row, stall 2', blurb: 'Run by charity volunteers.' },
+      { cat: 'fund', name: 'Hope by Hands',                where: 'Food row, stall 3', blurb: 'Run by charity volunteers.' },
+    ]},
+    { h: 'Business stalls', items: [
+      { cat: 'ticket', label: 'Stall', name: 'Inaara' },
+      { cat: 'ticket', label: 'Stall', name: 'Dia Effect' },
+    ]},
+  ];
+  function whatsOnHtml() {
+    const row = (it, h) => {
+      const cat = CATS[it.cat]; const label = it.label || cat.label;
+      const showLabel = label !== it.name && label !== h;
+      return `<div class="duty-row" style="--c:${cat.color}"><span class="nm">${esc(it.name)}</span><span class="cat">${showLabel ? esc(label) : ''}</span>${it.where ? `<span class="wh">${esc(it.where)}</span>` : ''}${it.tags ? `<div class="subjobs tight">${it.tags.map(t => `<span class="subjob">${esc(t)}</span>`).join('')}</div>` : ''}${it.blurb ? `<span class="blurb">${esc(it.blurb)}</span>` : ''}</div>`;
+    };
+    const sections = WHATS_ON.map(sec => `<div><h2>${esc(sec.h)}</h2><div class="duty-list">${sec.items.map(it => row(it, sec.h)).join('')}</div></div>`).join('');
+    const clubs = `<div><h2>Club stalls</h2><details class="duty-group" style="--c:${CATS.club.color}">
+      <summary><span class="nm">Club marquees</span><span class="cat">${CLUBS.length} societies</span><span class="wh">Tap to see who's here</span></summary>
+      ${CLUBS.map(c => `<div class="soc-row pub"><span class="ring ${CLUB_SHORT[c].length > 4 ? 'long' : ''}">${CLUB_SHORT[c]}</span><span class="nm">${c}</span></div>`).join('')}
+    </details></div>`;
+    return sections + clubs + `<p class="fine">Setup 2–3pm and pack-up 9–10pm are all hands.</p>`;
+  }
+  $('exec-on').innerHTML = whatsOnHtml();
+  $('public-on').innerHTML = whatsOnHtml();
 
   $('entry-form').addEventListener('submit', async (e) => {
     e.preventDefault();
