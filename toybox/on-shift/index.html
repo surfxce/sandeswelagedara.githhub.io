@@ -197,7 +197,7 @@
   .deskbtn svg { width: 22px; height: 22px; }
   .deskbtn + .bell { margin-left: 0; }
   .topbar:has(.deskbtn:not([hidden])) .who .soc { display: none; }
-  .topbar:has(.deskbtn:not([hidden])) .who .nm { max-width: 10ch; }
+  .topbar:has(.deskbtn:not([hidden])) .who .nm { max-width: 9ch; }
   .desk-head { display: flex; align-items: center; justify-content: space-between; }
   .cover-row { display: grid; grid-template-columns: 30px 1fr auto; gap: 4px 10px; align-items: center; background: #fff; border-left: 8px solid var(--c); padding: 8px 12px; box-shadow: 0 1px 0 var(--line); }
   .cover-row .nm { font-weight: 800; font-size: 15px; }
@@ -265,6 +265,59 @@
   .msg .t { display: block; font-size: 11px; opacity: .7; margin-top: 2px; }
   .dm-canned { display: flex; flex-wrap: wrap; gap: 6px; }
   .dm-canned button { min-height: 36px; padding: 0 12px; border-radius: 18px; border: 1.5px solid var(--line); background: #fff; font-weight: 700; font-size: 14px; color: var(--maroon); }
+  /* settings */
+  .set-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+  .set-row:last-child { border-bottom: 0; }
+  .set-row .txt { font-size: 14px; color: var(--ink-2); }
+  .set-row .txt b { display: block; color: var(--ink); font-size: 16px; }
+  .set-row .toggle, .set-row .btn-small { flex: 0 0 auto; }
+  .deskbtn { position: relative; }
+  /* photos: public strip + share */
+  .photo-strip { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px; scrollbar-width: none; }
+  .photo-strip::-webkit-scrollbar { display: none; }
+  .photo-strip img { flex: 0 0 auto; width: 96px; height: 96px; object-fit: cover; border-radius: 8px; box-shadow: 0 1px 0 var(--line); }
+  .photo-strip .fine { align-self: center; }
+  .share { background: #fff; border-left: 8px solid var(--c-stage); padding: 12px 14px 14px; box-shadow: 0 1px 0 var(--line); display: grid; gap: 12px; margin-top: 8px; }
+  .share-lead { margin: 0; font-size: 15px; color: var(--ink-2); }
+  .share-pick { display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 56px; border: 1.5px dashed var(--line); border-radius: 8px; background: var(--paper); font-weight: 800; color: var(--maroon); cursor: pointer; }
+  .share-pick svg { width: 24px; height: 24px; }
+  .share-preview { display: grid; gap: 6px; justify-items: center; }
+  .share-preview img { max-width: 100%; max-height: 260px; border-radius: 8px; }
+  .share .two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .share .field label { color: var(--ink-2); } .share .field label small { font-weight: 500; text-transform: none; letter-spacing: 0; }
+  .share .field input { border-color: var(--line); height: 48px; }
+  .share .btn-primary[disabled] { opacity: .5; }
+  /* desk moderation */
+  .photo-mod { display: grid; gap: 8px; }
+  .pm-card { display: grid; grid-template-columns: 96px 1fr; gap: 6px 12px; background: #fff; padding: 10px 12px; box-shadow: 0 1px 0 var(--line); border-left: 8px solid var(--c-stage); align-items: start; }
+  .pm-card img { width: 96px; height: 96px; object-fit: cover; border-radius: 6px; grid-row: 1 / span 3; }
+  .pm-card .meta { font-size: 13px; color: var(--ink-3); }
+  .pm-card .cap { font-weight: 700; font-size: 15px; }
+  .pm-card .acts { display: flex; gap: 8px; }
+  .pm-card .acts button { flex: 1; height: 40px; border-radius: 6px; border: 0; font-weight: 800; font-size: 14px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+  .pm-card .acts button svg { width: 18px; height: 18px; }
+  .pm-card .acts .yes { background: #3E7A4A; color: #fff; }
+  .pm-card .acts .no { background: #B23A2E; color: #fff; }
+  .pm-card .acts .ghost { background: transparent; color: var(--maroon); border: 1.5px solid var(--line); }
+  /* big screen */
+  .screen { position: fixed; inset: 0; z-index: 100; background: #000; color: var(--cream); overflow: hidden; cursor: none; }
+  .screen-photo { position: absolute; inset: 0; background: #000 center / contain no-repeat; opacity: 0; transition: opacity 1.2s ease; }
+  .screen-photo.on { opacity: 1; animation: kb 9s ease-in-out forwards; }
+  @keyframes kb { from { transform: scale(1); } to { transform: scale(1.06); } }
+  .screen-idle { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; gap: 10px; padding: 40px; background: linear-gradient(180deg, #5E1E14, #B45A28 60%, #D9A464); }
+  .screen-idle .eyebrow-serif { font-family: var(--display); font-weight: 600; font-size: 20px; letter-spacing: .22em; }
+  .screen-idle h1 { font-family: var(--display); font-weight: 700; margin: 0; font-size: clamp(56px, 12vw, 140px); line-height: .95; letter-spacing: .02em; }
+  .screen-idle h1 small { display: block; font-size: .3em; letter-spacing: .3em; margin-top: 8px; }
+  .screen-idle p { font-size: clamp(18px, 2.4vw, 30px); opacity: .95; max-width: 40ch; margin: 10px auto 0; }
+  .screen-cap { position: absolute; left: 4vw; bottom: 10vh; max-width: 70vw; font-family: var(--display); font-weight: 600; font-size: clamp(22px, 3.2vw, 44px); line-height: 1.15; text-shadow: 0 2px 14px rgba(0,0,0,.7); }
+  .screen-cap small { display: block; font-family: var(--body); font-size: .5em; font-weight: 500; opacity: .9; margin-top: 4px; }
+  .screen-scores { position: absolute; left: 0; right: 0; bottom: 0; height: 7vh; min-height: 48px; background: var(--maroon-deep); border-top: 3px solid var(--tan); display: flex; align-items: center; overflow: hidden; }
+  .screen-scores .track { display: flex; gap: 6vw; padding: 0 3vw; white-space: nowrap; font-weight: 800; font-size: clamp(18px, 2.6vw, 34px); font-variant-numeric: tabular-nums; }
+  .screen-scores .track.marquee { animation: marquee 30s linear infinite; }
+  @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+  .screen-scores .sp { color: var(--tan); font-family: var(--display); letter-spacing: .06em; margin-right: .5em; }
+  .screen-scores .lv { display: inline-block; width: .5em; height: .5em; border-radius: 50%; background: #E8583C; margin-left: .5em; vertical-align: middle; animation: live-ping 1.7s ease-out infinite; --c: #E8583C; }
+  .screen-exit { position: absolute; top: 20px; right: 20px; height: 48px; padding: 0 18px; border-radius: 24px; border: 0; background: rgba(245,239,227,.9); color: var(--maroon-deep); font-weight: 800; font-size: 16px; cursor: pointer; }
   .bcast-item.org { border-left-color: var(--maroon); background: #FFF8EE; }
   .bcast-item .tag { display: inline-block; margin-right: 6px; padding: 2px 6px; border-radius: 4px; background: var(--maroon); color: var(--cream); font-size: 10px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; vertical-align: middle; }
   .who {
@@ -276,6 +329,8 @@
   .who .nm { max-width: 11ch; }
   @media (max-width: 380px) { .who .soc { display: none; } }
   .who .nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .who button { display: none; }   /* Switch lives in Settings now */
+  .who { padding-right: 12px; }
   .who .soc { color: var(--ink-3); font-weight: 500; }
   .who button {
     height: 34px; padding: 0 12px; border-radius: 17px; border: 0;
@@ -643,6 +698,19 @@
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 </style>
 
+<section class="screen" id="screen" hidden aria-label="Big screen">
+  <div class="screen-photo" id="screen-a"></div>
+  <div class="screen-photo" id="screen-b"></div>
+  <div class="screen-idle" id="screen-idle">
+    <div class="eyebrow-serif">UQISC × PARTNER SOCIETY</div>
+    <h1>Spice Road<small>FESTIVAL</small></h1>
+    <p>Photos from the festival will appear here.<br>Send yours from <b>sandeswelagedara.com/toybox/on-shift</b></p>
+  </div>
+  <div class="screen-cap" id="screen-cap"></div>
+  <div class="screen-scores" id="screen-scores" hidden><div class="track" id="screen-track"></div></div>
+  <button class="screen-exit" id="screen-exit" type="button" hidden>Exit big screen</button>
+</section>
+
 <div class="app" id="app">
 
   <!-- ======== ENTRY ======== -->
@@ -678,6 +746,24 @@
     <div class="whatson-body" style="padding-bottom:0">
       <div><h2>Live scores</h2><div class="match-list" id="public-scores"></div></div>
       <div><h2>Brackets</h2><div class="bracket-list" id="public-brackets"></div></div>
+      <div><h2>Festival photos</h2>
+        <div class="photo-strip" id="public-photos"></div>
+        <div class="share">
+          <p class="share-lead">Took a good one? Send it in — it goes on the big screen once an organiser okays it.</p>
+          <label class="share-pick" for="ph-file">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>
+            <span id="ph-pick-lbl">Choose a photo</span>
+          </label>
+          <input id="ph-file" type="file" accept="image/*" hidden>
+          <div class="share-preview" id="ph-preview" hidden><img id="ph-img" alt="Your photo"><span class="fine" id="ph-size"></span></div>
+          <div class="two">
+            <div class="field"><label for="ph-by">Your name <small>(optional)</small></label><input id="ph-by" type="text" maxlength="40" placeholder="e.g. Priya"></div>
+            <div class="field"><label for="ph-cap">Caption <small>(optional)</small></label><input id="ph-cap" type="text" maxlength="80" placeholder="e.g. Volleyball final"></div>
+          </div>
+          <button class="btn-primary dark" id="ph-send" type="button" disabled>Send it in</button>
+          <p class="fine" id="ph-msg"></p>
+        </div>
+      </div>
     </div>
     <div class="whatson-body" id="public-on"></div>
   </section>
@@ -715,7 +801,10 @@
   <div class="shell" id="shell" hidden>
     <header class="topbar">
       <div class="wordmark">On Shift</div>
-      <button class="deskbtn" id="deskbtn" type="button" hidden aria-label="Organiser desk" title="Organiser desk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1M9 10h6M9 14h6M9 18h3"/></svg></button>
+      <button class="deskbtn" id="deskbtn" type="button" hidden aria-label="Organiser desk" title="Organiser desk"><span class="bell-n" id="desk-n" hidden></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1M9 10h6M9 14h6M9 18h3"/></svg></button>
+      <button class="bell" id="gear" type="button" aria-label="Settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+      </button>
       <button class="bell" id="bell" type="button" aria-label="Broadcasts" aria-expanded="false" aria-controls="tray">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 21h4"/></svg>
         <span class="bell-n" id="bell-n" hidden></span>
@@ -755,11 +844,6 @@
     <section class="view" id="view-now" role="tabpanel">
       <div id="now-card"></div>
       <div id="now-next"></div>
-
-      <div class="nudge">
-        <div class="txt"><b>Nudge me when the block changes</b><span id="nudge-state">Best effort — depends on your phone and browser.</span></div>
-        <button class="toggle" id="nudge" type="button" role="switch" aria-checked="false" aria-label="Nudge me when the block changes"></button>
-      </div>
 
       <section class="runsheet" id="runsheet">
         <h2>Your day</h2>
@@ -831,6 +915,10 @@
       <div><h2 class="sec">Help calls</h2><div class="swap-list" id="d-help"></div></div>
       <div><h2 class="sec">Swap requests</h2><div class="swap-list" id="d-swaps"></div></div>
       <div><h2 class="sec">Live matches</h2><div class="match-list" id="d-live"></div></div>
+      <div><h2 class="sec">Photos <span class="fine" id="d-photo-counts"></span></h2>
+        <div class="photo-mod" id="d-pending"></div>
+        <details class="more" style="margin-top:8px"><summary>Approved — take one down</summary><div class="photo-mod" id="d-approved"></div></details>
+      </div>
       <div><h2 class="sec">Post a notice</h2>
         <form class="bcast-form" id="desk-notice" autocomplete="off">
           <input id="desk-text" type="text" maxlength="280" placeholder="Notice to every exec…" required>
@@ -909,6 +997,24 @@
         </div>
       </div>
       <div class="whatson-body" id="exec-on"></div>
+    </section>
+
+    <!-- Settings sheet -->
+    <div class="dm-backdrop" id="set-backdrop" hidden></div>
+    <section class="dm-sheet" id="set-sheet" hidden aria-label="Settings">
+      <div class="dm-head"><span class="nm">Settings</span><button class="linkbtn" id="set-close" type="button">Close</button></div>
+      <div class="set-row">
+        <div class="txt"><b>Big screen mode</b><span>Photos and live scores on a TV. Full screen; tap the screen to exit.</span></div>
+        <button class="btn-small" id="screen-start" type="button">Start</button>
+      </div>
+      <div class="set-row">
+        <div class="txt"><b>Nudge me when the block changes</b><span id="nudge-state">Best effort — depends on your phone and browser.</span></div>
+        <button class="toggle" id="nudge" type="button" role="switch" aria-checked="false" aria-label="Nudge me when the block changes"></button>
+      </div>
+      <div class="set-row">
+        <div class="txt"><b>Signed in as <span id="set-who">—</span></b><span>Saved on this phone.</span></div>
+        <button class="btn-small ghost" id="set-switch" type="button">Switch</button>
+      </div>
     </section>
 
     <!-- DM sheet: tap any name to open -->
@@ -1168,7 +1274,7 @@
     const lb = liveBlock();
     live = lb !== null; block = live ? lb : 0;
     renderFilter();
-    $('bcast-form').hidden = !(db && isAdmin()); $('deskbtn').hidden = !(db && isAdmin());
+    $('bcast-form').hidden = !(db && isAdmin()); $('deskbtn').hidden = !(db && isAdmin()); renderPhotoMod();
     showView(me ? 'now' : 'team');
     render();
     requestAnimationFrame(() => drawMap($('map-on')));
@@ -1178,7 +1284,7 @@
   let showView = function (v) {
     ['now','team','scores','map','on','desk'].forEach(k => { $('view-' + k).hidden = k !== v; });
     document.querySelectorAll('.tab').forEach(t => t.setAttribute('aria-selected', String(t.dataset.view === v)));
-    if (v === 'desk') renderDesk();
+    if (v === 'desk') { renderDesk(); renderPhotoMod(); }
     $('blockbar').hidden = v === 'on' || v === 'map' || v === 'scores';
     window.scrollTo(0, 0);
     if (v === 'on') requestAnimationFrame(() => drawMap($('map-on')));
@@ -1672,6 +1778,110 @@
   $('dm-close').addEventListener('click', closeDm); $('dm-backdrop').addEventListener('click', closeDm);
   $('dm-form').addEventListener('submit', e => { e.preventDefault(); sendDm($('dm-text').value); $('dm-text').value = ''; });
 
+  // --- settings sheet ---
+  function openSettings(open) {
+    $('set-sheet').hidden = !open; $('set-backdrop').hidden = !open;
+    if (open) $('set-who').textContent = me ? full(me.first) : (ident ? ident.name : '—');
+  }
+  $('gear').addEventListener('click', () => openSettings(true));
+  $('set-close').addEventListener('click', () => openSettings(false)); $('set-backdrop').addEventListener('click', () => openSettings(false));
+  $('set-switch').addEventListener('click', () => { openSettings(false); $('switch').click(); });
+
+  // --- photos: upload (public), moderation (desk), big screen ---
+  // Stored in the database as ~1280px JPEG data URLs. Re-encoding through a
+  // canvas drops EXIF/GPS. Nothing shows anywhere until an organiser approves.
+  const PH_MAX = 400000;
+  let phData = null, phApproved = {}, phPending = {};
+  async function shrink(file) {
+    const url = URL.createObjectURL(file);
+    try {
+      const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = url; });
+      const k = Math.min(1, 1280 / Math.max(img.naturalWidth, img.naturalHeight));
+      const c = document.createElement('canvas'); c.width = Math.round(img.naturalWidth * k); c.height = Math.round(img.naturalHeight * k);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      for (const q of [0.75, 0.6, 0.5, 0.4]) { const d = c.toDataURL('image/jpeg', q); if (d.length <= PH_MAX) return d; }
+      // still too big: halve the size
+      const c2 = document.createElement('canvas'); c2.width = Math.round(c.width / 2); c2.height = Math.round(c.height / 2);
+      c2.getContext('2d').drawImage(c, 0, 0, c2.width, c2.height); return c2.toDataURL('image/jpeg', 0.6);
+    } finally { URL.revokeObjectURL(url); }
+  }
+  $('ph-file').addEventListener('change', async () => {
+    const f = $('ph-file').files[0]; if (!f) return;
+    $('ph-msg').textContent = 'Getting it ready…'; $('ph-send').disabled = true; phData = null;
+    try {
+      phData = await shrink(f);
+      $('ph-img').src = phData; $('ph-preview').hidden = false; $('ph-size').textContent = Math.round(phData.length * 0.75 / 1024) + ' KB';
+      $('ph-pick-lbl').textContent = 'Choose a different photo'; $('ph-msg').textContent = ''; $('ph-send').disabled = !db;
+    } catch (e) { $('ph-msg').textContent = 'That one didn\'t work — try another photo.'; }
+  });
+  $('ph-send').addEventListener('click', async () => {
+    if (!phData || !db) return;
+    $('ph-send').disabled = true; $('ph-msg').textContent = 'Sending…';
+    try {
+      await ref('photos').push({ data: phData, by: $('ph-by').value.trim(), cap: $('ph-cap').value.trim(), status: 'pending', t: now() });
+      $('ph-msg').textContent = 'Thanks — it\'ll go on the big screen once an organiser okays it.';
+      phData = null; $('ph-preview').hidden = true; $('ph-file').value = ''; $('ph-cap').value = ''; $('ph-pick-lbl').textContent = 'Choose another photo';
+    } catch (e) { $('ph-msg').textContent = 'Couldn\'t send — check your connection and try again.'; $('ph-send').disabled = false; }
+  });
+  function renderPublicPhotos() {
+    const el = $('public-photos'); if (!el) return;
+    const ids = Object.keys(phApproved).sort((a, b) => (phApproved[b].t || 0) - (phApproved[a].t || 0)).slice(0, 12);
+    el.innerHTML = ids.length ? ids.map(i => `<img src="${phApproved[i].data}" alt="${esc(phApproved[i].cap || 'Festival photo')}" loading="lazy">`).join('') : '<span class="fine">Nothing on the wall yet — be first.</span>';
+  }
+  function photoCard(id, ph, mode) {
+    const acts = mode === 'pending'
+      ? `<div class="acts"><button type="button" class="yes" data-approve="${id}">${TICK} Approve</button><button type="button" class="no" data-reject="${id}">${CROSS} Reject</button></div>`
+      : `<div class="acts"><button type="button" class="ghost" data-reject="${id}">Take down</button></div>`;
+    return `<div class="pm-card"><img src="${ph.data}" alt=""><span class="cap">${esc(ph.cap || '(no caption)')}</span><span class="meta">${esc(ph.by || 'Anonymous')} · ${ph.t ? clock(ph.t) : ''}</span>${acts}</div>`;
+  }
+  function renderPhotoMod() {
+    const pend = Object.keys(phPending).sort((a, b) => (phPending[a].t || 0) - (phPending[b].t || 0));
+    const appr = Object.keys(phApproved).sort((a, b) => (phApproved[b].t || 0) - (phApproved[a].t || 0));
+    $('desk-n').hidden = !pend.length || $('deskbtn').hidden; $('desk-n').textContent = pend.length;
+    if ($('view-desk').hidden) return;
+    $('d-photo-counts').textContent = `— ${pend.length} waiting · ${appr.length} on the screen`;
+    $('d-pending').innerHTML = pend.length ? pend.map(i => photoCard(i, phPending[i], 'pending')).join('') : '<p class="fine">Nothing waiting.</p>';
+    $('d-approved').innerHTML = appr.length ? appr.map(i => photoCard(i, phApproved[i], 'approved')).join('') : '<p class="fine">None yet.</p>';
+    $('view-desk').querySelectorAll('[data-approve]').forEach(b => b.addEventListener('click', () => ref('photos/' + b.dataset.approve).update({ status: 'approved', tt: Date.now() })));
+    $('view-desk').querySelectorAll('[data-reject]').forEach(b => b.addEventListener('click', () => { if (confirm('Remove this photo? It\'s deleted for good.')) ref('photos/' + b.dataset.reject).remove(); }));
+  }
+
+  // big screen: cycles approved photos, live scores along the bottom
+  let scrOn = false, scrIdx = -1, scrTimer = null, scrLayer = 0, wake = null;
+  function scrOrder() { return Object.keys(phApproved).sort((a, b) => (phApproved[a].t || 0) - (phApproved[b].t || 0)); }
+  function scrTick() {
+    const ids = scrOrder(); $('screen-idle').hidden = ids.length > 0; $('screen-cap').hidden = !ids.length;
+    if (!ids.length) { ['screen-a', 'screen-b'].forEach(i => $(i).classList.remove('on')); return; }
+    scrIdx = (scrIdx + 1) % ids.length; const ph = phApproved[ids[scrIdx]];
+    const layers = ['screen-a', 'screen-b']; const show = $(layers[scrLayer]), hide = $(layers[1 - scrLayer]); scrLayer = 1 - scrLayer;
+    show.style.backgroundImage = `url("${ph.data}")`; show.classList.remove('on'); void show.offsetWidth; show.classList.add('on'); hide.classList.remove('on');
+    $('screen-cap').innerHTML = `${esc(ph.cap || '')}${ph.by ? `<small>${esc(ph.by)}</small>` : ''}`;
+  }
+  function scrScores() {
+    const live = Object.values(matches).filter(m => m.status === 'live');
+    const bar = $('screen-scores'); bar.hidden = !live.length; if (!live.length) return;
+    const item = (m) => `<span><span class="sp">${esc(SPORTS[m.sport] || m.sport)}</span>${esc(m.a)} ${m.sa} – ${m.sb} ${esc(m.b)}<span class="lv"></span></span>`;
+    const track = $('screen-track'); const html = live.map(item).join('');
+    track.classList.remove('marquee'); track.innerHTML = html;
+    requestAnimationFrame(() => { if (track.scrollWidth > bar.clientWidth) { track.innerHTML = html + html; track.classList.add('marquee'); } });
+  }
+  async function startScreen() {
+    openSettings(false); scrOn = true; $('screen').hidden = false; scrIdx = -1;
+    try { await document.documentElement.requestFullscreen(); } catch {}
+    try { wake = await navigator.wakeLock.request('screen'); } catch {}
+    scrTick(); scrScores(); clearInterval(scrTimer); scrTimer = setInterval(scrTick, 8000);
+  }
+  function stopScreen() {
+    scrOn = false; $('screen').hidden = true; clearInterval(scrTimer);
+    if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+    if (wake) { wake.release().catch(() => {}); wake = null; }
+  }
+  $('screen-start').addEventListener('click', startScreen);
+  $('screen-exit').addEventListener('click', stopScreen);
+  let exitT = null;
+  $('screen').addEventListener('click', e => { if (e.target.id === 'screen-exit') return; $('screen-exit').hidden = false; clearTimeout(exitT); exitT = setTimeout(() => { $('screen-exit').hidden = true; }, 3000); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && scrOn) stopScreen(); });
+
   // --- organiser desk ---
   const isAdmin = () => me && ADMINS.includes(me.first);
   function renderDesk() {
@@ -1888,11 +2098,13 @@
     if (!db) { unavailable($('scores-live'), 'scores'); unavailable($('bcast-list'), 'updates'); unavailable($('brackets'), 'brackets'); const pub = $('public-scores'); if (pub) unavailable(pub, 'scores'); $('match-form').closest('details').hidden = true; $('bracket-form').closest('details').hidden = true; return; }
     const pub = $('public-scores');
     [$('scores-live'), $('bcast-list'), pub].forEach(el => { if (el) el.innerHTML = '<p class="fine">Connecting…</p>'; });
-    ref('scores').limitToLast(60).on('value', snap => { matches = snap.val() || {}; renderScores(); settleBrackets(); renderBrackets(); renderDesk(); }, () => { unavailable($('scores-live'), 'scores'); if (pub) unavailable(pub, 'scores'); });
+    ref('scores').limitToLast(60).on('value', snap => { matches = snap.val() || {}; renderScores(); settleBrackets(); renderBrackets(); renderDesk(); if (scrOn) scrScores(); }, () => { unavailable($('scores-live'), 'scores'); if (pub) unavailable(pub, 'scores'); });
     ref('brackets').on('value', snap => { brackets = snap.val() || {}; renderBrackets(); }, () => { unavailable($('brackets'), 'brackets'); const pb = $('public-brackets'); if (pb) unavailable(pb, 'brackets'); });
     ref('broadcasts').limitToLast(30).on('value', snap => { bcasts = snap.val() || {}; renderBcasts(); }, () => { unavailable($('bcast-list'), 'updates'); });
     ref('swaps').limitToLast(60).on('value', snap => { swaps = snap.val() || {}; if (!$('shell').hidden) { render(); renderSwaps(); renderBell(); } }, () => { unavailable($('swap-list'), 'swaps'); });
     ref('dm').on('value', snap => { dms = snap.val() || {}; if (dmOpen) renderDmThread(); renderDmConvos(); renderBell(); }, () => {});
+    ref('photos').orderByChild('status').equalTo('approved').on('value', snap => { phApproved = snap.val() || {}; renderPublicPhotos(); renderPhotoMod(); if (scrOn) { scrIdx = Math.min(scrIdx, scrOrder().length - 1); if (!scrOrder().length) scrTick(); } }, () => { const el = $('public-photos'); if (el) unavailable(el, 'photos'); });
+    ref('photos').orderByChild('status').equalTo('pending').on('value', snap => { phPending = snap.val() || {}; renderPhotoMod(); }, () => {});
     ref('help').limitToLast(60).on('value', snap => { helps = snap.val() || {}; if (!$('shell').hidden) { render(); renderHelps(); renderBell(); } }, () => { unavailable($('help-list'), 'help calls'); });
   }
   startLive();
