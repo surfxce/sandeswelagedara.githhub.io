@@ -1,6 +1,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>On Shift</title>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+SC:wght@500;600;700&family=Atkinson+Hyperlegible+Next:wght@400;500;700;800&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
 <style>
@@ -410,6 +412,46 @@
   .soc-row .ppl { font-size: 15px; font-weight: 600; }
   .soc-row .ppl .me { color: var(--maroon); text-decoration: underline; text-decoration-color: var(--tan); text-underline-offset: 3px; }
 
+  /* ---------- Live: scores + broadcasts ---------- */
+  h2.sec { margin: 6px 0 8px; font-size: 13px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
+  .match-list { display: grid; gap: 10px; }
+  .match {
+    background: #fff; border-left: 8px solid var(--c); padding: 12px 14px; box-shadow: 0 1px 0 var(--line);
+    display: grid; gap: 10px;
+  }
+  .match .head { display: flex; align-items: center; gap: 10px; }
+  .match .head .lbl { font-size: 12px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--c); flex: 1; }
+  .match .head .live-tag { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 800; letter-spacing: .1em; color: var(--c-club); }
+  .match .head .live-tag::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--c-club); animation: live-ping 1.7s ease-out infinite; --c: var(--c-club); }
+  .match .teams { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 8px; }
+  .match .team { display: grid; gap: 6px; justify-items: center; text-align: center; }
+  .match .team .nm { font-weight: 800; font-size: 16px; line-height: 1.15; overflow-wrap: anywhere; }
+  .match .team .n { font-size: 44px; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
+  .match .vs { font-family: var(--display); font-weight: 700; font-size: 14px; letter-spacing: .1em; color: var(--ink-3); }
+  .pm { display: flex; gap: 6px; }
+  .pm button { width: 46px; height: 40px; border-radius: 6px; border: 1.5px solid var(--line); background: var(--paper); font-size: 20px; font-weight: 800; color: var(--maroon); }
+  .match .foot { display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: var(--ink-3); }
+  .btn-small { height: 40px; padding: 0 14px; border-radius: 6px; border: 0; background: var(--maroon); color: var(--cream); font-weight: 700; font-size: 14px; }
+  .btn-small.ghost { background: transparent; color: var(--maroon); border: 1.5px solid var(--line); }
+  .newmatch { background: #fff; box-shadow: 0 1px 0 var(--line); }
+  .newmatch summary { list-style: none; cursor: pointer; padding: 12px 14px; font-weight: 800; color: var(--maroon); }
+  .newmatch summary::-webkit-details-marker { display: none; }
+  .newmatch summary::before { content: "+ "; }
+  .newmatch form { padding: 0 14px 14px; display: grid; gap: 12px; }
+  .newmatch .two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .newmatch .field label { color: var(--ink-2); }
+  .newmatch .field input, .newmatch .field select { border-color: var(--line); }
+  .btn-primary.dark { background: var(--maroon); color: var(--cream); }
+  .bcast { display: grid; gap: 8px; }
+  .bcast h2 { margin: 6px 0 0; font-size: 13px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
+  .bcast-list { display: grid; gap: 8px; }
+  .bcast-item { background: #fff; border-left: 8px solid var(--tan); padding: 10px 12px; box-shadow: 0 1px 0 var(--line); display: grid; gap: 4px; }
+  .bcast-item.fresh { border-left-color: var(--maroon); }
+  .bcast-item .txt { font-weight: 600; font-size: 16px; }
+  .bcast-item .meta { font-size: 13px; color: var(--ink-3); }
+  .bcast-form { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
+  .bcast-form input { height: 44px; padding: 0 12px; border-radius: 6px; border: 1.5px solid var(--line); background: #fff; }
+
   /* ---------- Map (placeholder) ---------- */
   .map-frame {
     min-height: 60vh; border: 1.5px dashed var(--line); border-radius: 8px; background: #fff;
@@ -445,12 +487,12 @@
     height: calc(var(--tab-h) + env(safe-area-inset-bottom));
     padding-bottom: env(safe-area-inset-bottom);
     background: var(--paper); border-top: 1px solid var(--line);
-    display: grid; grid-template-columns: repeat(4, 1fr);
+    display: grid; grid-template-columns: repeat(5, 1fr);
     z-index: 10;
   }
   .tab {
     border: 0; background: transparent; display: grid; place-items: center; gap: 2px;
-    font-weight: 700; font-size: 15px; color: var(--ink-3); position: relative;
+    font-weight: 700; font-size: 13px; color: var(--ink-3); position: relative; padding: 0 2px;
   }
   .tab svg { width: 24px; height: 24px; }
   .tab[aria-selected="true"] { color: var(--maroon); }
@@ -493,6 +535,9 @@
 
   <!-- ======== PUBLIC: what's on ======== -->
   <section class="public" id="public">
+    <div class="whatson-body" style="padding-bottom:0">
+      <div><h2>Live scores</h2><div class="match-list" id="public-scores"></div></div>
+    </div>
     <div class="whatson-body" id="public-on"></div>
   </section>
 
@@ -549,6 +594,15 @@
       <div id="now-card"></div>
       <div id="now-next"></div>
 
+      <section class="bcast" id="bcast">
+        <h2>Broadcasts</h2>
+        <div class="bcast-list" id="bcast-list"></div>
+        <form class="bcast-form" id="bcast-form" autocomplete="off" hidden>
+          <input id="bcast-text" type="text" maxlength="280" placeholder="Post an update to every exec…" required>
+          <button class="btn-small" type="submit">Post</button>
+        </form>
+      </section>
+
       <div class="nudge">
         <div class="txt"><b>Nudge me when the block changes</b><span id="nudge-state">Best effort — depends on your phone and browser.</span></div>
         <button class="toggle" id="nudge" type="button" role="switch" aria-checked="false" aria-label="Nudge me when the block changes"></button>
@@ -589,7 +643,7 @@
         </div>
         <div class="chips" id="t-socs" hidden></div>
         <div class="adv" id="t-advbox" hidden>
-          <p class="fine">Tick the people you want to see. Muting a society above unticks everyone in it; you can re-tick individuals here.</p>
+          <p class="fine">Tick the people you want to see. A society switch mutes people only if none of their other clubs is on; ticks here override it either way.</p>
           <div id="t-advlist"></div>
           <button class="linkbtn" id="t-reset" type="button">Show everyone</button>
         </div>
@@ -604,6 +658,29 @@
         <div class="duty-list" id="t-duty"></div>
         <p class="fine muted-note" id="t-duty-muted" hidden></p>
       </div>
+    </section>
+
+    <!-- SCORES (live, shared) -->
+    <section class="view" id="view-scores" role="tabpanel" hidden>
+      <div>
+        <h2 class="sec">Live matches</h2>
+        <div class="match-list" id="scores-live"></div>
+      </div>
+      <details class="newmatch">
+        <summary>Start a match</summary>
+        <form id="match-form" autocomplete="off">
+          <div class="field"><label for="m-sport">Sport</label>
+            <select id="m-sport" required><option value="vb">Volleyball</option><option value="fb">Football</option><option value="ck">Cricket</option></select></div>
+          <div class="two"><div class="field"><label for="m-a">Team A</label><input id="m-a" type="text" maxlength="24" placeholder="e.g. UQISC" required></div>
+            <div class="field"><label for="m-b">Team B</label><input id="m-b" type="text" maxlength="24" placeholder="e.g. UQSLA" required></div></div>
+          <button class="btn-primary dark" type="submit">Start</button>
+        </form>
+      </details>
+      <div>
+        <h2 class="sec">Finished</h2>
+        <div class="match-list" id="scores-done"></div>
+      </div>
+      <p class="fine" id="scores-note">Scores are shared live — anyone with the app sees them the moment you tap.</p>
     </section>
 
     <!-- MAP (placeholder — to be drawn) -->
@@ -633,6 +710,9 @@
       </button>
       <button class="tab" role="tab" data-view="team" aria-selected="false" type="button">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="8" r="3.5"/><circle cx="17" cy="10" r="2.5"/><path d="M3 19c0-3.3 2.7-5 6-5s6 1.7 6 5M15 19c0-2 1.5-3.5 4-3.5s3 1.5 3 3.5"/></svg>Team
+      </button>
+      <button class="tab" role="tab" data-view="scores" aria-selected="false" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4h12v4a6 6 0 0 1-12 0z"/><path d="M6 6H3v2a3 3 0 0 0 3 3M18 6h3v2a3 3 0 0 1-3 3M12 14v4M8 21h8M9 18h6"/></svg>Scores
       </button>
       <button class="tab" role="tab" data-view="map" aria-selected="false" type="button">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z"/><path d="M9 4v14M15 6v14"/></svg>Map
@@ -855,6 +935,7 @@
     const lb = liveBlock();
     live = lb !== null; block = live ? lb : 0;
     renderFilter();
+    $('bcast-form').hidden = !(db && me && ADMINS.includes(me.first));
     showView(me ? 'now' : 'team');
     render();
     requestAnimationFrame(() => drawMap($('map-on')));
@@ -862,9 +943,9 @@
 
   // ---------- Views ----------
   function showView(v) {
-    ['now','team','map','on'].forEach(k => { $('view-' + k).hidden = k !== v; });
+    ['now','team','scores','map','on'].forEach(k => { $('view-' + k).hidden = k !== v; });
     document.querySelectorAll('.tab').forEach(t => t.setAttribute('aria-selected', String(t.dataset.view === v)));
-    $('blockbar').hidden = v === 'on' || v === 'map';
+    $('blockbar').hidden = v === 'on' || v === 'map' || v === 'scores';
     window.scrollTo(0, 0);
     if (v === 'on') requestAnimationFrame(() => drawMap($('map-on')));
   }
@@ -939,11 +1020,17 @@
   // ---------- Who you care about ----------
   // A set of first names you've muted. Persists on this phone. You're never
   // muted from your own view.
-  const HIDE_LS = 'onshift.hidden';
-  let hidden = new Set();
-  try { hidden = new Set(JSON.parse(localStorage.getItem(HIDE_LS)) || []); } catch {}
-  const saveHidden = () => { try { localStorage.setItem(HIDE_LS, JSON.stringify([...hidden])); } catch {} };
-  const shown = (first) => !hidden.has(first) || (me && first === me.first);
+  // Two layers: society switches (mute a whole club) and per-person overrides
+  // from Advanced. Someone in two clubs stays visible while either club is on.
+  const FILTER_LS = 'onshift.filter';
+  let mutedSocs = new Set(); let overrides = {};
+  try { const f = JSON.parse(localStorage.getItem(FILTER_LS)) || {}; mutedSocs = new Set(f.socs || []); overrides = f.over || {}; } catch {}
+  const saveFilter = () => { try { localStorage.setItem(FILTER_LS, JSON.stringify({ socs: [...mutedSocs], over: overrides })); } catch {} };
+  const shown = (first) => {
+    if (me && first === me.first) return true;
+    if (first in overrides) return overrides[first];
+    const p = byFirst[first.toLowerCase()]; return !p || p.s.some(c => !mutedSocs.has(c));
+  };
   const socMembers = (c) => PEOPLE.filter(p => p.s.includes(c)).map(p => p.first);
 
   function renderFilter() {
@@ -952,22 +1039,22 @@
     $('t-soc-badge').hidden = !mutedN; $('t-soc-badge').textContent = mutedN;
     $('t-socs').innerHTML = socs.map(c => {
       const m = socMembers(c); const on = m.filter(shown).length;
-      const state = on === m.length ? '' : on === 0 ? 'off' : 'part';
+      const state = !mutedSocs.has(c) && on === m.length ? '' : on === 0 ? 'off' : 'part';
       return `<button type="button" class="chip soc-chip ${state}" data-soc="${c}" aria-pressed="${on > 0}">${c}<span class="cnt">${on}/${m.length}</span></button>`;
     }).join('');
     $('t-socs').querySelectorAll('.soc-chip').forEach(b => b.addEventListener('click', () => {
-      const m = socMembers(b.dataset.soc);
-      const allOn = m.every(shown);
-      m.forEach(f => { if (allOn) hidden.add(f); else hidden.delete(f); });
-      saveHidden(); renderFilter(); renderTeam();
+      const c = b.dataset.soc;
+      if (mutedSocs.has(c)) mutedSocs.delete(c); else mutedSocs.add(c);
+      socMembers(c).forEach(f => { delete overrides[f]; });   // the switch wins over old ticks
+      saveFilter(); renderFilter(); renderTeam();
     }));
     $('t-advlist').innerHTML = socs.map(c => `<div class="adv-soc"><h3>${c}</h3>${socMembers(c).map(f => {
       const isMe = me && f === me.first;
       return `<label class="adv-row"><input type="checkbox" data-first="${esc(f)}" ${shown(f) ? 'checked' : ''} ${isMe ? 'disabled' : ''}>${esc(full(f))}${isMe ? '<small>you</small>' : ''}</label>`;
     }).join('')}</div>`).join('');
     $('t-advlist').querySelectorAll('input').forEach(i => i.addEventListener('change', () => {
-      if (i.checked) hidden.delete(i.dataset.first); else hidden.add(i.dataset.first);
-      saveHidden(); renderFilter(); renderTeam();
+      overrides[i.dataset.first] = i.checked;
+      saveFilter(); renderFilter(); renderTeam();
     }));
   }
   $('t-soc-toggle').addEventListener('click', () => {
@@ -978,7 +1065,7 @@
     const open = $('t-advbox').hidden; $('t-advbox').hidden = !open;
     $('t-adv').setAttribute('aria-expanded', String(open)); $('t-adv').textContent = open ? 'Done' : 'Advanced';
   });
-  $('t-reset').addEventListener('click', () => { hidden.clear(); saveHidden(); renderFilter(); renderTeam(); });
+  $('t-reset').addEventListener('click', () => { mutedSocs.clear(); overrides = {}; saveFilter(); renderFilter(); renderTeam(); });
 
   function renderTeam() {
     const mine = me ? me.first : null;
@@ -1110,6 +1197,81 @@
   const redraw = () => { drawMap($('map-entry')); drawMap($('map-on')); drawMap($('map-login')); };
   if (document.fonts && document.fonts.load) document.fonts.load('600 12px "Cormorant SC"').then(redraw, redraw); else redraw();
   window.addEventListener('resize', redraw);
+
+  // ---------- Live (Firebase Realtime Database) ----------
+  // Shared state that has to survive a phone handover: scores and broadcasts.
+  // The config below is a public identifier, not a secret — the database
+  // rules are what limit reads and writes to spice-road/{scores,broadcasts}.
+  const FB = {
+    apiKey: "AIzaSyDccaS8cqcM4f_HDPg-OfW4Haazt3T5_so",
+    authDomain: "silk-road-88f1c.firebaseapp.com",
+    databaseURL: "https://silk-road-88f1c-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "silk-road-88f1c",
+  };
+  const ADMINS = ['Sandes'];      // who sees the broadcast composer (UI gate only)
+  const SPORTS = { vb: 'Volleyball', fb: 'Football', ck: 'Cricket' };
+  let db = null;
+  try { firebase.initializeApp(FB); db = firebase.database(); } catch (e) { db = null; }
+  const ref = (path) => db.ref('spice-road/' + path);
+  const now = () => firebase.database.ServerValue.TIMESTAMP;
+  const clock = (t) => new Date(t).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+  const unavailable = (el, what) => { el.innerHTML = `<p class="fine">Live ${what} unavailable — check your connection.</p>`; };
+
+  // --- scores ---
+  let matches = {};
+  function matchCard(id, m, editable) {
+    const d = DUTIES[m.sport] || {}; const color = CATS.sport.color;
+    const team = (side, name, n) => `<div class="team"><span class="nm">${esc(name || '—')}</span><span class="n">${n || 0}</span>${editable && m.status === 'live' ? `<div class="pm"><button type="button" data-id="${id}" data-side="${side}" data-d="-1" aria-label="minus one ${esc(name)}">−</button><button type="button" data-id="${id}" data-side="${side}" data-d="1" aria-label="plus one ${esc(name)}">+</button></div>` : ''}</div>`;
+    return `<div class="match" style="--c:${color}">
+      <div class="head">${iconHtml(d.icon || 'football', color, 'sm')}<span class="lbl">${esc(SPORTS[m.sport] || m.sport)}</span>${m.status === 'live' ? '<span class="live-tag">Live</span>' : `<span class="fine">Final</span>`}</div>
+      <div class="teams">${team('sa', m.a, m.sa)}<span class="vs">VS</span>${team('sb', m.b, m.sb)}</div>
+      ${editable && m.status === 'live' ? `<div class="foot"><span>Started ${m.t ? clock(m.t) : ''}</span><button type="button" class="btn-small ghost" data-end="${id}">End match</button></div>` : ''}
+    </div>`;
+  }
+  function renderScores() {
+    const ids = Object.keys(matches).sort((a, b) => (matches[b].t || 0) - (matches[a].t || 0));
+    const live = ids.filter(i => matches[i].status === 'live'), done = ids.filter(i => matches[i].status !== 'live');
+    const pub = $('public-scores');
+    if (pub) pub.innerHTML = live.length ? live.map(i => matchCard(i, matches[i], false)).join('') + done.slice(0, 2).map(i => matchCard(i, matches[i], false)).join('')
+      : `<p class="fine">No matches on right now${done.length ? ' — last result below.' : '.'}</p>` + done.slice(0, 1).map(i => matchCard(i, matches[i], false)).join('');
+    $('scores-live').innerHTML = live.length ? live.map(i => matchCard(i, matches[i], true)).join('') : '<p class="fine">Nothing on. Start one below.</p>';
+    $('scores-done').innerHTML = done.length ? done.slice(0, 8).map(i => matchCard(i, matches[i], false)).join('') : '<p class="fine">None yet.</p>';
+    $('scores-live').querySelectorAll('.pm button').forEach(b => b.addEventListener('click', () => {
+      ref(`scores/${b.dataset.id}/${b.dataset.side}`).transaction(v => Math.max(0, (v || 0) + Number(b.dataset.d)));
+    }));
+    $('scores-live').querySelectorAll('[data-end]').forEach(b => b.addEventListener('click', () => {
+      if (confirm('End this match? The score stays up as a final.')) ref(`scores/${b.dataset.end}`).update({ status: 'done', ended: now() });
+    }));
+  }
+  $('match-form').addEventListener('submit', (e) => {
+    e.preventDefault(); if (!db) return;
+    ref('scores').push({ sport: $('m-sport').value, a: $('m-a').value.trim(), b: $('m-b').value.trim(), sa: 0, sb: 0, status: 'live', t: now(), by: me ? me.first : (ident ? ident.name : '') });
+    $('m-a').value = ''; $('m-b').value = ''; e.target.closest('details').open = false;
+  });
+
+  // --- broadcasts ---
+  let bcasts = {};
+  function renderBcasts() {
+    const ids = Object.keys(bcasts).sort((a, b) => (bcasts[b].t || 0) - (bcasts[a].t || 0)).slice(0, 12);
+    const fresh = (t) => Date.now() - t < 30 * 60 * 1000;
+    $('bcast-list').innerHTML = ids.length ? ids.map(i => { const b = bcasts[i]; return `<div class="bcast-item ${fresh(b.t) ? 'fresh' : ''}"><span class="txt">${esc(b.text || '')}</span><span class="meta">${esc(b.by || 'Exec')} · ${b.t ? clock(b.t) : ''}</span></div>`; }).join('')
+      : '<p class="fine">Nothing posted yet. Updates from the organisers land here.</p>';
+  }
+  $('bcast-form').addEventListener('submit', (e) => {
+    e.preventDefault(); if (!db) return;
+    const text = $('bcast-text').value.trim(); if (!text) return;
+    ref('broadcasts').push({ text, by: me ? me.first : (ident ? ident.name : 'Exec'), t: now() });
+    $('bcast-text').value = '';
+  });
+
+  function startLive() {
+    if (!db) { unavailable($('scores-live'), 'scores'); unavailable($('bcast-list'), 'updates'); const pub = $('public-scores'); if (pub) unavailable(pub, 'scores'); $('match-form').closest('details').hidden = true; return; }
+    const pub = $('public-scores');
+    [$('scores-live'), $('bcast-list'), pub].forEach(el => { if (el) el.innerHTML = '<p class="fine">Connecting…</p>'; });
+    ref('scores').limitToLast(30).on('value', snap => { matches = snap.val() || {}; renderScores(); }, () => { unavailable($('scores-live'), 'scores'); if (pub) unavailable(pub, 'scores'); });
+    ref('broadcasts').limitToLast(20).on('value', snap => { bcasts = snap.val() || {}; renderBcasts(); }, () => { unavailable($('bcast-list'), 'updates'); });
+  }
+  startLive();
 
   // ---------- Roster loading ----------
   // roster.enc is AES-GCM ciphertext; the key is right here. That keeps the
