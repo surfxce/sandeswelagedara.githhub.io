@@ -119,6 +119,16 @@ function computeResult(state) {
   };
   R.m4.ledgerTop = ['cashin', 'withdraw', 'letgo', 'resent'].sort((a, b) => (R.m4.ledger[b] || 0) - (R.m4.ledger[a] || 0))[0];
 
+  // Boundaries
+  R.bounds = {
+    setting: scoreFreq('bounds', 'setting', A),
+    holding: scoreFreq('bounds', 'holding', A),
+    cost:    scoreFreq('bounds', 'cost', A),
+    why:     tally('bounds', 'why', A),
+  };
+  R.bounds.whyTop = ['fine', 'ease', 'fear', 'owed'].sort((a, b) => (R.bounds.why[b] || 0) - (R.bounds.why[a] || 0))[0];
+  R.bounds.read = boundsRead(R.bounds);
+
   // M5
   R.m5 = {
     anxiety: scoreFreq('m5', 'anxiety', A),
@@ -162,6 +172,20 @@ function computeResult(state) {
 }
 
 // ------------------------------------------------------------
+// Boundaries verdict. The point is to separate "gives way a lot" from
+// "gives way a lot and it's costing them" — they look identical from the
+// outside and are completely different problems.
+const WHY_LABEL = { fine: 'it genuinely didn\'t matter', ease: 'pushing back wasn\'t worth the effort', fear: 'worry about how they\'d see you', owed: 'a sense of owing it / having no right to refuse' };
+function boundsRead(B) {
+  const s = B.setting.score, h = B.holding.score, c = B.cost.score;
+  if (s <= 45 && c >= 55) return { k: 'shorting', t: 'Shorting yourself', b: 'You give way a lot, and the tally says it\'s costing you — resentment, depletion, the same people coming back. This isn\'t easygoing; it\'s absorbing.' };
+  if (s <= 45 && c <= 40) return { k: 'easy', t: 'Easygoing, honestly', b: 'You give way a lot and it genuinely doesn\'t cost you. That\'s not a boundary problem, whatever it looks like from outside.' };
+  if (s >= 55 && h <= 45) return { k: 'folds', t: 'Says it, then folds', b: 'You do state the limit — the trouble is the second ask. The boundary exists right up until someone leans on it.' };
+  if (s >= 55 && h >= 55) return { k: 'held', t: 'Clear and held', b: 'You say the limit and it survives pushback. ' + (c >= 55 ? 'The cost score is still high, though — worth asking whether the limits you\'re holding are the right ones.' : 'And it isn\'t costing you much.') };
+  return { k: 'depends', t: 'It depends', b: 'Mid-range on setting or holding — most likely it varies by person or by what\'s at stake. Your item notes will say more than the score here.' };
+}
+
+// ------------------------------------------------------------
 // Signature: the most extreme, consistent dimensions.
 function signature(R) {
   const c = [];
@@ -170,6 +194,10 @@ function signature(R) {
   DRIVES.forEach(d => push(d.k, R.m2.drives[d.k].score, R.m2.drives[d.k].mixed, `${R.m2.drives[d.k].score >= 50 ? 'High' : 'Low'} ${d.label.toLowerCase()}`));
   push('timing', R.m4.timing.score, R.m4.timing.mixed, R.m4.timing.score >= 50 ? 'Keeps a ledger' : 'Addresses things immediately');
   push('grudge', R.m4.grudge.score, R.m4.grudge.mixed, R.m4.grudge.score >= 50 ? 'Long grudge half-life' : 'Forgives readily');
+  if (R.bounds) {
+    push('setting', R.bounds.setting.score, R.bounds.setting.mixed, R.bounds.setting.score >= 50 ? 'States limits' : 'Goes along');
+    push('cost', R.bounds.cost.score, R.bounds.cost.mixed, R.bounds.cost.score >= 50 ? 'Giving way costs you' : 'Giving way is free');
+  }
   push('anxiety', R.m5.anxiety.score, R.m5.anxiety.mixed, R.m5.anxiety.score >= 50 ? 'High attachment anxiety' : 'Low attachment anxiety');
   push('avoidance', R.m5.avoidance.score, R.m5.avoidance.mixed, R.m5.avoidance.score >= 50 ? 'High attachment avoidance' : 'Low attachment avoidance');
   push('direction', R.m3.direction.score, R.m3.direction.mixed, R.m3.direction.score >= 50 ? 'Emotion goes outward' : 'Emotion goes inward');
@@ -228,9 +256,25 @@ function insights(R) {
     out.push({ t: 'Things stick', b: 'You recover slowly from upsets and you hold grudges. Both point the same way: experiences don\'t fully close for you. Deliberate closure — saying it, writing it, or an explicit decision to be done — matters more for you than for most.' });
   if (R.m5.anxiety.score >= 60 && R.m2.drives.connection.score >= 60)
     out.push({ t: 'A consistent picture', b: 'High attachment anxiety and a high connection drive line up. This isn\'t two separate things — the drive to be wanted and the fear of not being wanted are the same engine seen from two sides.' });
+  if (R.bounds) {
+    const B = R.bounds, whyLabel = k => WHY_LABEL[k];
+    if (B.read.k === 'shorting' && ['fine', 'ease'].includes(B.whyTop))
+      out.push({ t: 'Not that deep — except it is', b: `When you give way, your most common reason is that ${whyLabel(B.whyTop)}. But your cost score (${B.cost.score}) says the giving-way adds up: resentment, being behind, the same people asking again. Each one isn't that deep. The pattern is. The test to run: after the next favour, check how you feel a day later, not in the moment.` });
+    if (B.read.k === 'shorting' && ['fear', 'owed'].includes(B.whyTop))
+      out.push({ t: 'The no feels expensive', b: `You give way, it costs you, and the usual reason is ${whyLabel(B.whyTop)}. That means the boundary isn't missing because you don't care — it's missing because saying it feels riskier than paying for not saying it. The work is on the fear, not the phrasing.` });
+    if (B.setting.score <= 45 && ledger)
+      out.push({ t: 'The unsaid no becomes a ledger entry', b: 'You don\'t state limits much, and you bank grievances. Those are one mechanism: the boundary you didn\'t set at the time gets filed as something they did to you. Setting the limit up front would empty the ledger at the source.' });
+    if (B.setting.score <= 45 && R.m5.anxiety.score >= 60)
+      out.push({ t: 'No as a threat to the relationship', b: `Low boundary-setting with high attachment anxiety (${R.m5.anxiety.score}). Saying no probably registers as risking the relationship rather than as a normal ask. It isn't — but it will feel that way until you've done it a few times and watched nothing bad happen.` });
+    if (B.holding.score <= 40 && R.m1.decision && R.m1.decision.score >= 60)
+      out.push({ t: 'Folds for their feelings', b: 'You fold under pushback, and your decisions run on impact-on-people. So the second ask works not because you\'ve changed your mind, but because their disappointment now outweighs your reason. Naming that to yourself in the moment — "I\'m about to cave because they look sad" — is most of the fix.' });
+    if (B.read.k === 'easy' && R.m4.assert.score <= 40)
+      out.push({ t: 'Easygoing, or conflict-avoidant?', b: `Your boundaries read as genuinely low-cost, but your assertiveness score (${R.m4.assert.score}) is low too. Worth double-checking whether "it didn't matter" is true or just the more comfortable story.` });
+  }
   const mixed = [];
   Object.entries(R.m1).forEach(([d, v]) => { if (v.mixed) mixed.push(d); });
   ['timing', 'grudge', 'assert', 'repair'].forEach(d => { if (R.m4[d].mixed) mixed.push(d); });
+  if (R.bounds) ['setting', 'holding', 'cost'].forEach(d => { if (R.bounds[d].mixed) mixed.push('boundary ' + d); });
   if (R.m5.anxiety.mixed) mixed.push('attachment anxiety');
   if (R.m5.avoidance.mixed) mixed.push('attachment avoidance');
   if (mixed.length)
