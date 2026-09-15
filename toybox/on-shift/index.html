@@ -1,0 +1,829 @@
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>On Shift</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+SC:wght@500;600;700&family=Atkinson+Hyperlegible+Next:wght@400;500;700;800&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>
+  :root {
+    --maroon: #6E2418;
+    --maroon-deep: #4A160E;
+    --orange: #C1622B;
+    --tan: #D9A464;
+    --cream: #F5EFE3;
+    --paper: #FBF7EE;
+    --paper-2: #EFE6D3;
+    --ink: #2B1A14;
+    --ink-2: #5A4538;
+    --ink-3: #8A7466;
+    --line: #DACBB2;
+
+    --c-sport: #C1622B;
+    --c-club: #7A2E22;
+    --c-ticket: #A8791C;
+    --c-stage: #8B3A5A;
+    --c-crowd: #5E6B3E;
+    --c-fund: #8C5A2B;
+    --c-free: #5F6E7A;
+    --c-hands: #3E5A63;
+
+    --display: "Cormorant SC", "Cormorant Garamond", Georgia, "Times New Roman", serif;
+    --body: "Atkinson Hyperlegible Next", "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+
+    --tab-h: 68px;
+    --maxw: 480px;
+  }
+
+  * { box-sizing: border-box; }
+  html { color-scheme: light; }
+  body {
+    margin: 0;
+    background: var(--paper-2);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 17px;
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+    -webkit-text-size-adjust: 100%;
+  }
+  button, input, select { font: inherit; color: inherit; }
+  button { cursor: pointer; }
+  :focus-visible { outline: 3px solid var(--orange); outline-offset: 2px; }
+  [hidden] { display: none !important; }
+
+  .app {
+    max-width: var(--maxw);
+    margin: 0 auto;
+    min-height: 100dvh;
+    background: var(--paper);
+    position: relative;
+    box-shadow: 0 0 0 1px var(--line);
+  }
+
+  /* ---------- Entry ---------- */
+  .entry {
+    position: relative;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    color: var(--cream);
+    overflow: hidden;
+  }
+  .entry canvas, .whatson-hero canvas {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    display: block;
+  }
+  .entry-inner {
+    position: relative;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 28px 22px 20px;
+    gap: 20px;
+  }
+  .flourish {
+    position: absolute; width: 84px; height: 84px; color: var(--cream); opacity: .85;
+    pointer-events: none;
+  }
+  .flourish.tl { top: 10px; left: 10px; }
+  .flourish.tr { top: 10px; right: 10px; transform: scaleX(-1); }
+
+  .lockup { text-align: center; margin-top: 44px; }
+  .lockup .eyebrow-serif {
+    font-family: var(--display); font-weight: 600; font-size: 15px; letter-spacing: .22em;
+    opacity: .9;
+  }
+  .lockup h1 {
+    font-family: var(--display); font-weight: 700; margin: 6px 0 0;
+    font-size: 54px; line-height: .95; letter-spacing: .02em;
+    text-wrap: balance;
+  }
+  .lockup h1 small {
+    display: block; font-size: 22px; font-weight: 600; letter-spacing: .3em; margin-top: 6px;
+  }
+  .lockup p { margin: 14px auto 0; max-width: 30ch; font-size: 16px; opacity: .92; }
+
+  .entry-form {
+    background: rgba(43, 26, 20, .42);
+    border: 1px solid rgba(245, 239, 227, .35);
+    backdrop-filter: blur(6px);
+    padding: 18px 16px;
+    display: grid; gap: 14px;
+  }
+  .field { display: grid; gap: 6px; }
+  .field label {
+    font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; opacity: .9;
+  }
+  .field input, .field select {
+    height: 54px; padding: 0 14px; border-radius: 6px;
+    background: var(--paper); color: var(--ink);
+    border: 2px solid transparent; width: 100%;
+  }
+  .field select { appearance: none; -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='10'%3E%3Cpath d='M1 1l7 7 7-7' fill='none' stroke='%232B1A14' stroke-width='2'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 14px center; padding-right: 40px; }
+  .btn-primary {
+    height: 56px; border: 0; border-radius: 6px;
+    background: var(--cream); color: var(--maroon-deep);
+    font-weight: 800; font-size: 18px; letter-spacing: .01em;
+  }
+  .btn-primary:active { transform: translateY(1px); }
+  .entry-note { font-size: 13px; opacity: .85; margin: 0; }
+
+  .badge-strip {
+    position: relative; margin-top: auto;
+    display: flex; gap: 10px; overflow-x: auto; padding: 6px 2px 2px;
+    scrollbar-width: none;
+  }
+  .badge-strip::-webkit-scrollbar { display: none; }
+  .badge {
+    flex: 0 0 auto; width: 52px; height: 52px; border-radius: 50%;
+    border: 1.5px solid rgba(245, 239, 227, .75);
+    display: grid; place-items: center;
+    font-family: var(--display); font-weight: 700; font-size: 11px; letter-spacing: .04em;
+    color: var(--cream); background: rgba(74, 22, 14, .28);
+  }
+
+  /* ---------- Shell ---------- */
+  .shell { padding-bottom: calc(var(--tab-h) + env(safe-area-inset-bottom)); }
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 16px 8px;
+    gap: 12px;
+  }
+  .wordmark {
+    font-family: var(--display); font-weight: 700; font-size: 22px; letter-spacing: .06em;
+    color: var(--maroon);
+  }
+  .who {
+    display: flex; align-items: center; gap: 8px;
+    height: 44px; padding: 0 6px 0 12px; border-radius: 22px;
+    border: 1.5px solid var(--line); background: var(--paper);
+    font-weight: 700; font-size: 15px; max-width: 60%;
+  }
+  .who .nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .who .soc { color: var(--ink-3); font-weight: 500; }
+  .who button {
+    height: 34px; padding: 0 12px; border-radius: 17px; border: 0;
+    background: var(--paper-2); color: var(--maroon); font-weight: 700; font-size: 14px;
+  }
+
+  .blockbar {
+    padding: 8px 16px 12px;
+    border-bottom: 1px solid var(--line);
+  }
+  .blockbar-top { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+  .eyebrow {
+    font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2);
+  }
+  .blocktime {
+    font-size: 24px; font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: -.01em;
+  }
+  .segments { display: grid; grid-template-columns: repeat(12, 1fr); gap: 3px; margin-top: 8px; }
+  .segments span { height: 6px; background: var(--line); border-radius: 2px; }
+  .segments span.done { background: var(--tan); }
+  .segments span.now { background: var(--maroon); }
+
+  .view { padding: 16px; display: grid; gap: 14px; }
+
+  /* ---------- Duty card ---------- */
+  .duty-card {
+    --c: var(--c-free);
+    border-left: 10px solid var(--c);
+    background: #fff;
+    box-shadow: 0 1px 0 var(--line), 0 6px 18px rgba(74, 22, 14, .07);
+    padding: 14px 16px 16px;
+    display: grid; gap: 8px;
+  }
+  .cat-label {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 12px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--c);
+  }
+  .cat-label::before { content: ""; width: 10px; height: 10px; border-radius: 50%; background: var(--c); }
+  .duty-name {
+    margin: 0; font-size: 40px; line-height: 1; font-weight: 800; letter-spacing: -.015em;
+    text-wrap: balance;
+  }
+  .duty-where { font-size: 18px; font-weight: 700; color: var(--ink-2); }
+  .duty-do { margin: 2px 0 0; font-size: 17px; color: var(--ink); max-width: 46ch; }
+  .with {
+    margin-top: 6px; padding-top: 12px; border-top: 1px dashed var(--line);
+    display: grid; gap: 4px;
+  }
+  .with .eyebrow { color: var(--ink-3); }
+  .partner { font-size: 22px; font-weight: 800; line-height: 1.2; }
+  .partner .soc { font-size: 14px; font-weight: 700; color: var(--ink-3); margin-left: 6px; letter-spacing: .04em; }
+  .partner-list { display: grid; gap: 2px; }
+
+  .next {
+    display: grid; grid-template-columns: auto 1fr; gap: 4px 14px; align-items: baseline;
+    padding: 12px 14px; background: var(--paper-2); border-left: 6px solid var(--c, var(--line));
+  }
+  .next .eyebrow { grid-column: 1 / -1; }
+  .next .t { font-weight: 800; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .next .d { font-weight: 700; }
+  .next .d small { display: block; font-weight: 500; color: var(--ink-2); font-size: 15px; }
+
+  .nudge {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding: 6px 0 2px;
+  }
+  .nudge .txt { font-size: 15px; color: var(--ink-2); }
+  .nudge .txt b { display: block; color: var(--ink); font-size: 16px; }
+  .toggle {
+    flex: 0 0 auto; width: 60px; height: 36px; border-radius: 18px; border: 0;
+    background: var(--line); position: relative; transition: background .15s;
+  }
+  .toggle::after {
+    content: ""; position: absolute; top: 4px; left: 4px; width: 28px; height: 28px; border-radius: 50%;
+    background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.25); transition: transform .15s;
+  }
+  .toggle[aria-checked="true"] { background: var(--c-crowd); }
+  .toggle[aria-checked="true"]::after { transform: translateX(24px); }
+
+  .runsheet h2, .team h2, .whatson h2 {
+    margin: 6px 0 8px; font-size: 13px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2);
+  }
+  .rs { display: grid; border-top: 1px solid var(--line); }
+  .rs-row {
+    display: grid; grid-template-columns: 62px 8px 1fr; gap: 0 10px; align-items: center;
+    min-height: 52px; padding: 8px 0; border-bottom: 1px solid var(--line);
+  }
+  .rs-row.now { background: linear-gradient(90deg, rgba(217,164,100,.28), transparent 70%); margin: 0 -16px; padding-inline: 16px; grid-template-columns: 62px 8px 1fr; }
+  .rs-row .t { font-size: 14px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--ink-2); }
+  .rs-row .bar { width: 8px; height: 100%; min-height: 36px; border-radius: 2px; background: var(--c); }
+  .rs-row .d { font-weight: 700; font-size: 16px; line-height: 1.25; }
+  .rs-row .d small { display: block; font-weight: 500; color: var(--ink-2); font-size: 14px; }
+
+  .preview-ctl {
+    margin-top: 6px; padding: 12px; border: 1px dashed var(--line); border-radius: 8px;
+    display: grid; gap: 8px; color: var(--ink-2); font-size: 14px;
+  }
+  .preview-ctl .row { display: flex; align-items: center; gap: 8px; }
+  .preview-ctl .row .lbl { flex: 1; font-weight: 700; color: var(--ink); }
+  .step {
+    width: 48px; height: 44px; border-radius: 6px; border: 1.5px solid var(--line); background: var(--paper);
+    font-size: 22px; font-weight: 800; color: var(--maroon);
+  }
+  .step.live { width: auto; padding: 0 14px; font-size: 14px; letter-spacing: .06em; }
+  .step[disabled] { opacity: .35; cursor: default; }
+
+  .notice {
+    background: #fff; border-left: 10px solid var(--tan); padding: 16px; display: grid; gap: 8px;
+    box-shadow: 0 1px 0 var(--line);
+  }
+  .notice h2 { margin: 0; font-size: 22px; }
+  .notice p { margin: 0; color: var(--ink-2); }
+
+  /* ---------- Team ---------- */
+  .counts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .count { background: #fff; padding: 12px 14px; box-shadow: 0 1px 0 var(--line); border-top: 4px solid var(--c); }
+  .count .n { font-size: 34px; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
+  .count .l { font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2); margin-top: 4px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 6px 12px; border-radius: 20px;
+    background: #fff; border: 1.5px solid var(--line); font-weight: 700; font-size: 15px;
+  }
+  .chip .soc { color: var(--ink-3); font-weight: 600; font-size: 12px; letter-spacing: .04em; }
+  .chip.me { border-color: var(--maroon); box-shadow: inset 0 0 0 1px var(--maroon); }
+  .duty-list { display: grid; gap: 8px; }
+  .duty-row {
+    background: #fff; border-left: 8px solid var(--c); padding: 10px 12px;
+    display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; box-shadow: 0 1px 0 var(--line);
+  }
+  .duty-row .nm { font-weight: 800; font-size: 17px; }
+  .duty-row .wh { grid-column: 1 / -1; font-size: 14px; color: var(--ink-2); }
+  .duty-row .ppl { grid-column: 1 / -1; margin-top: 4px; font-size: 16px; font-weight: 600; }
+  .duty-row .ppl .me { color: var(--maroon); text-decoration: underline; text-decoration-color: var(--tan); text-underline-offset: 3px; }
+  .duty-row .cat { font-size: 11px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--c); align-self: start; }
+
+  /* ---------- What's On ---------- */
+  .whatson { padding: 0; gap: 0; }
+  .whatson-hero {
+    position: relative; min-height: 190px; color: var(--cream); overflow: hidden;
+    display: flex; align-items: flex-end; padding: 18px 16px;
+  }
+  .whatson-hero .flourish { width: 60px; height: 60px; }
+  .whatson-hero h1 {
+    position: relative; margin: 0; font-family: var(--display); font-weight: 700; font-size: 40px; line-height: 1; letter-spacing: .04em;
+  }
+  .whatson-hero p { position: relative; margin: 6px 0 0; font-size: 15px; opacity: .92; }
+  .whatson-body { padding: 16px; display: grid; gap: 18px; }
+  .stalls { display: grid; gap: 6px; }
+  .stall {
+    display: grid; grid-template-columns: 8px 1fr; gap: 12px; align-items: center;
+    background: #fff; padding: 12px 12px 12px 0; min-height: 56px; box-shadow: 0 1px 0 var(--line);
+  }
+  .stall::before { content: ""; height: 100%; background: var(--c); }
+  .stall .nm { font-weight: 700; font-size: 17px; }
+  .stall .nm small { display: block; font-weight: 500; font-size: 14px; color: var(--ink-2); }
+  .clubgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 8px; }
+  .club {
+    display: grid; grid-template-rows: auto auto; place-items: center; gap: 6px;
+    background: #fff; padding: 12px 6px; box-shadow: 0 1px 0 var(--line); text-align: center;
+  }
+  .club .ring {
+    width: 44px; height: 44px; border-radius: 50%; border: 1.5px solid var(--maroon);
+    display: grid; place-items: center; font-family: var(--display); font-weight: 700; font-size: 10px; color: var(--maroon);
+  }
+  .club .nm { font-size: 13px; font-weight: 700; }
+  .fine { font-size: 13px; color: var(--ink-3); margin: 0; }
+
+  /* ---------- Tabs ---------- */
+  .tabs {
+    position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+    width: 100%; max-width: var(--maxw);
+    height: calc(var(--tab-h) + env(safe-area-inset-bottom));
+    padding-bottom: env(safe-area-inset-bottom);
+    background: var(--paper); border-top: 1px solid var(--line);
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    z-index: 10;
+  }
+  .tab {
+    border: 0; background: transparent; display: grid; place-items: center; gap: 2px;
+    font-weight: 700; font-size: 15px; color: var(--ink-3); position: relative;
+  }
+  .tab svg { width: 24px; height: 24px; }
+  .tab[aria-selected="true"] { color: var(--maroon); }
+  .tab[aria-selected="true"]::before {
+    content: ""; position: absolute; top: 0; left: 20%; right: 20%; height: 3px; background: var(--maroon);
+  }
+
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="app" id="app">
+
+  <!-- ======== ENTRY ======== -->
+  <section class="entry" id="entry">
+    <canvas id="map-entry"></canvas>
+    <svg class="flourish tl" viewBox="0 0 100 100" aria-hidden="true"><path d="M3 64C3 22 22 3 64 3M3 44C7 18 18 7 44 3M12 12c9 0 14 5 14 14M56 3c-6 9-15 13-24 13M3 56c9 0 13-6 13-15" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="8" cy="8" r="2" fill="currentColor"/></svg>
+    <svg class="flourish tr" viewBox="0 0 100 100" aria-hidden="true"><path d="M3 64C3 22 22 3 64 3M3 44C7 18 18 7 44 3M12 12c9 0 14 5 14 14M56 3c-6 9-15 13-24 13M3 56c9 0 13-6 13-15" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="8" cy="8" r="2" fill="currentColor"/></svg>
+
+    <div class="entry-inner">
+      <div class="lockup">
+        <div class="eyebrow-serif">UQISC × PARTNER SOCIETY</div>
+        <h1>Spice Road<small>FESTIVAL</small></h1>
+        <p>On Shift — your duty, your partner, and what's next, block by block.</p>
+      </div>
+
+      <form class="entry-form" id="entry-form" autocomplete="off">
+        <div class="field">
+          <label for="f-name">First name</label>
+          <input id="f-name" name="name" type="text" inputmode="text" autocapitalize="words" placeholder="e.g. Sandes" required>
+        </div>
+        <div class="field">
+          <label for="f-soc">Society</label>
+          <select id="f-soc" name="society" required>
+            <option value="" disabled selected>Choose your society</option>
+          </select>
+        </div>
+        <button class="btn-primary" type="submit">Find my roster</button>
+        <p class="entry-note">Saved on this phone so you won't need to re-enter it. Not on the roster? You can still see the Team and What's On.</p>
+      </form>
+
+      <div class="badge-strip" id="badge-strip" aria-label="Participating clubs"></div>
+    </div>
+  </section>
+
+  <!-- ======== SHELL ======== -->
+  <div class="shell" id="shell" hidden>
+    <header class="topbar">
+      <div class="wordmark">On Shift</div>
+      <div class="who">
+        <span class="nm" id="who-name">—</span>
+        <span class="soc" id="who-soc"></span>
+        <button type="button" id="switch">Switch</button>
+      </div>
+    </header>
+
+    <div class="blockbar" id="blockbar">
+      <div class="blockbar-top">
+        <span class="eyebrow" id="bb-label">Block 1 of 12</span>
+        <span class="blocktime" id="bb-time">3:00 – 3:30 pm</span>
+      </div>
+      <div class="segments" id="bb-seg" aria-hidden="true"></div>
+    </div>
+
+    <!-- NOW -->
+    <section class="view" id="view-now" role="tabpanel">
+      <div id="now-card"></div>
+      <div id="now-next"></div>
+
+      <div class="nudge">
+        <div class="txt"><b>Nudge me when the block changes</b><span id="nudge-state">Best effort — depends on your phone and browser.</span></div>
+        <button class="toggle" id="nudge" type="button" role="switch" aria-checked="false" aria-label="Nudge me when the block changes"></button>
+      </div>
+
+      <section class="runsheet" id="runsheet">
+        <h2>Your day</h2>
+        <div class="rs" id="rs"></div>
+      </section>
+
+      <div class="preview-ctl" id="preview">
+        <div class="row">
+          <span class="lbl" id="pv-mode">Preview mode</span>
+          <button class="step" id="pv-prev" type="button" aria-label="Previous block">‹</button>
+          <button class="step" id="pv-next" type="button" aria-label="Next block">›</button>
+          <button class="step live" id="pv-live" type="button">LIVE</button>
+        </div>
+        <span id="pv-note">Event date not locked in yet — step through blocks to test. Switches to the real clock automatically on the day.</span>
+      </div>
+    </section>
+
+    <!-- TEAM -->
+    <section class="view team" id="view-team" role="tabpanel" hidden>
+      <div class="counts">
+        <div class="count" style="--c: var(--c-free)"><div class="n" id="t-free-n">0</div><div class="l">Free now</div></div>
+        <div class="count" style="--c: var(--c-sport)"><div class="n" id="t-duty-n">0</div><div class="l">On duty</div></div>
+      </div>
+      <div>
+        <h2>Free right now</h2>
+        <div class="chips" id="t-free"></div>
+      </div>
+      <div>
+        <h2>On duty</h2>
+        <div class="duty-list" id="t-duty"></div>
+      </div>
+    </section>
+
+    <!-- WHAT'S ON -->
+    <section class="view whatson" id="view-on" role="tabpanel" hidden>
+      <div class="whatson-hero">
+        <canvas id="map-on"></canvas>
+        <svg class="flourish tl" viewBox="0 0 100 100" aria-hidden="true"><path d="M3 64C3 22 22 3 64 3M3 44C7 18 18 7 44 3M12 12c9 0 14 5 14 14M56 3c-6 9-15 13-24 13M3 56c9 0 13-6 13-15" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+        <div>
+          <h1>What's On</h1>
+          <p>Stalls and sites across the festival ground.</p>
+        </div>
+      </div>
+      <div class="whatson-body">
+        <div>
+          <h2>Fundraising &amp; food</h2>
+          <div class="stalls">
+            <div class="stall" style="--c: var(--c-fund)"><div class="nm">Pani Puri Stall<small>Charity volunteers + rostered execs</small></div></div>
+            <div class="stall" style="--c: var(--c-fund)"><div class="nm">UQ Manali Project Bake Sale<small>Charity volunteers + rostered execs</small></div></div>
+            <div class="stall" style="--c: var(--c-fund)"><div class="nm">Hope by Hands<small>Charity volunteers + rostered execs</small></div></div>
+          </div>
+        </div>
+        <div>
+          <h2>Business stalls</h2>
+          <div class="stalls">
+            <div class="stall" style="--c: var(--c-ticket)"><div class="nm">Inaara<small>Self-staffed</small></div></div>
+            <div class="stall" style="--c: var(--c-ticket)"><div class="nm">Dia Effect<small>Self-staffed</small></div></div>
+          </div>
+        </div>
+        <div>
+          <h2>Club stalls</h2>
+          <div class="clubgrid" id="clubgrid"></div>
+        </div>
+        <div>
+          <h2>Also on site</h2>
+          <div class="stalls">
+            <div class="stall" style="--c: var(--c-sport)"><div class="nm">Football · Cricket · Volleyball<small>Ovals and volleyball court</small></div></div>
+            <div class="stall" style="--c: var(--c-stage)"><div class="nm">Performance stage<small>Announcements and sports call-outs from here</small></div></div>
+            <div class="stall" style="--c: var(--c-ticket)"><div class="nm">Ticketing<small>Main entry gate</small></div></div>
+          </div>
+        </div>
+        <p class="fine">Setup 2–3pm and pack-up 9–10pm are all hands.</p>
+      </div>
+    </section>
+
+    <nav class="tabs" role="tablist" aria-label="Views">
+      <button class="tab" role="tab" data-view="now" aria-selected="true" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Now
+      </button>
+      <button class="tab" role="tab" data-view="team" aria-selected="false" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="8" r="3.5"/><circle cx="17" cy="10" r="2.5"/><path d="M3 19c0-3.3 2.7-5 6-5s6 1.7 6 5M15 19c0-2 1.5-3.5 4-3.5s3 1.5 3 3.5"/></svg>Team
+      </button>
+      <button class="tab" role="tab" data-view="on" aria-selected="false" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z"/><path d="M9 4v14M15 6v14"/></svg>What's On
+      </button>
+    </nav>
+  </div>
+</div>
+
+<script>
+(() => {
+  // ---------- Reference data ----------
+  const CLUBS = ['UQISC','UQNC','UQPA','UQSLA','UQPSA','UQTAS','UQGS','UQTELS','UQGIDDHA','UQNAATAK','UQISS'];
+  const CLUB_SHORT = { UQISC:'ISC', UQNC:'NC', UQPA:'PA', UQSLA:'SLA', UQPSA:'PSA', UQTAS:'TAS', UQGS:'GS', UQTELS:'TELS', UQGIDDHA:'GIDDHA', UQNAATAK:'NAATAK', UQISS:'ISS' };
+
+  const CATS = {
+    sport:  { label: 'Sports',            color: 'var(--c-sport)' },
+    club:   { label: 'Club stall',        color: 'var(--c-club)' },
+    ticket: { label: 'Ticketing',         color: 'var(--c-ticket)' },
+    stage:  { label: 'Stage',             color: 'var(--c-stage)' },
+    crowd:  { label: 'Crowd & support',   color: 'var(--c-crowd)' },
+    fund:   { label: 'Fundraising stall', color: 'var(--c-fund)' },
+    free:   { label: 'Free',              color: 'var(--c-free)' },
+    hands:  { label: 'All hands',         color: 'var(--c-hands)' },
+  };
+
+  const DUTIES = {
+    vb: { cat:'sport', name:'Volleyball', where:'Volleyball court', do:'Keep games moving on the court. Call scores, rotate teams every 15 minutes, and keep the ball bag with you.' },
+    fb: { cat:'sport', name:'Football', where:'Main oval', do:'Referee and keep the sideline clear. Games run 20 minutes — blow up when the stage calls time and swap teams.' },
+    ck: { cat:'sport', name:'Cricket', where:'Cricket pitch', do:'Umpire the pitch and keep spectators behind the cones. Rotate batting sides every 6 overs.' },
+    tk: { cat:'ticket', name:'Ticketing', where:'Main entry gate', do:'Check tickets and stamp wrists. Hold the line at the barrier — never leave the table unattended.' },
+    st: { cat:'stage', name:'Stage', where:'Performance stage', do:'Cue performers and make all announcements, including sports call-outs. Keep the mic within reach.' },
+    'cr-gate': { cat:'crowd', name:'Crowd & support', where:'Entry gate zone', do:'Walk the zone. Keep walkways clear, help anyone lost, and glance at cords and generators as you pass.' },
+    'cr-lawn': { cat:'crowd', name:'Crowd & support', where:'Stage lawn', do:'Walk the zone. Keep walkways clear, help anyone lost, and glance at cords and generators as you pass.' },
+    'cr-food': { cat:'crowd', name:'Crowd & support', where:'Food row', do:'Walk the zone. Keep the queues orderly, watch for spills, and glance at cords and generators as you pass.' },
+    'cr-gen':  { cat:'crowd', name:'Crowd & support', where:'Generators & cords sweep', do:'Do a full loop of every generator and cable run. Tape down anything loose, then rejoin the stage lawn.' },
+    'fund-pp':   { cat:'fund', name:'Pani Puri Stall', where:'Food row, stall 1', do:'Help the charity volunteers serve and take payment. Keep the queue moving.' },
+    'fund-bake': { cat:'fund', name:'Manali Project Bake Sale', where:'Food row, stall 2', do:'Help the charity volunteers serve and take payment. Keep the queue moving.' },
+    'fund-hope': { cat:'fund', name:'Hope by Hands', where:'Food row, stall 3', do:'Help the charity volunteers serve and take payment. Keep the queue moving.' },
+    free: { cat:'free', name:'Free', where:'Enjoy the festival', do:'You\'re off this block. Grab food, catch the stage — and be back a few minutes before your next duty.' },
+    setup: { cat:'hands', name:'Setup', where:'All hands · 2:00 – 3:00 pm', do:'Everyone on deck. Marquees, tables, signage, sports gear — check in with your club lead for what to carry.' },
+    packup: { cat:'hands', name:'Pack-up', where:'All hands · 9:00 – 10:00 pm', do:'Everyone on deck. Strike marquees, bag rubbish, return sports gear, and sweep your last zone before you go.' },
+  };
+  CLUBS.forEach(c => { DUTIES['stall-' + c] = { cat:'club', name: c + ' stall', where: c + ' marquee', club: c, do: 'Staff your club\'s marquee. Talk to visitors, run sign-ups, keep the table tidy.' }; });
+
+  // Mock roster — placeholder until the sign-up form closes.
+  const PEOPLE = [
+    { n:'Sandes Welagedara', s:['UQISC'] },
+    { n:'Sanuka Ranatunga', s:['UQSLA'] },
+    { n:'Archita Sahu', s:['UQSLA'] },
+    { n:'Aarya Sharma', s:['UQPA'] },
+    { n:'Hassara Ekanayake', s:['UQSLA'] },
+    { n:'Prabhas Bachu', s:['UQISC'] },
+    { n:'Bhumik Sarma', s:['UQNC'] },
+    { n:'Dhyan Varboo', s:['UQSLA'] },
+    { n:'Kavinilla Gunaseelan', s:['UQISC'] },
+    { n:'Devansh Pandya', s:['UQGS'] },
+    { n:'Jia Patel', s:['UQGS'] },
+    { n:'Thihan Sendanayake', s:['UQSLA'] },
+    { n:'Kartik Karri', s:['UQTELS','UQNC'] },
+    { n:'Akash Racha', s:['UQTELS','UQISC'] },
+    { n:'Joanna Raja', s:['UQISC'] },
+    { n:'Sanuli Ranatunga', s:['UQSLA'] },
+  ];
+  const byFirst = {};
+  PEOPLE.forEach(p => { p.first = p.n.split(' ')[0]; byFirst[p.first.toLowerCase()] = p; });
+
+  // 12 blocks × [dutyId, [first names]] — everyone not listed in a block is free.
+  const ROSTER = [
+    [['vb',['Sandes','Sanuka']],['tk',['Aarya','Devansh']],['tk',['Jia','Thihan']],['tk',['Hassara','Kavinilla']],['stall-UQSLA',['Archita','Sanuli']],['cr-gate',['Bhumik','Kartik']]],
+    [['vb',['Sandes','Sanuka']],['tk',['Dhyan','Joanna']],['tk',['Aarya','Jia']],['tk',['Akash','Hassara']],['stall-UQSLA',['Archita','Thihan']],['cr-lawn',['Bhumik','Prabhas']]],
+    [['ck',['Sanuka','Dhyan']],['fb',['Kartik','Devansh']],['stall-UQISC',['Kavinilla','Joanna']],['st',['Aarya','Bhumik']],['fund-pp',['Jia','Akash']],['tk',['Hassara','Prabhas']]],
+    [['stall-UQISC',['Sandes','Joanna']],['fb',['Thihan','Dhyan']],['ck',['Archita','Kartik']],['st',['Aarya','Devansh']],['cr-food',['Bhumik','Hassara']],['tk',['Jia','Kavinilla']]],
+    [['cr-lawn',['Sandes','Bhumik']],['fund-pp',['Sanuka','Jia']],['vb',['Prabhas','Akash']],['stall-UQSLA',['Hassara','Dhyan']],['st',['Kartik','Devansh']],['tk',['Kavinilla','Thihan']]],
+    [['stall-UQSLA',['Sanuka','Hassara']],['stall-UQISC',['Kavinilla','Akash']],['fb',['Archita','Prabhas']],['cr-gate',['Aarya','Thihan']],['stall-UQGS',['Devansh','Jia']],['fund-bake',['Joanna','Sanuli']],['vb',['Bhumik','Dhyan']]],
+    [['tk',['Sandes','Aarya']],['ck',['Hassara','Kartik']],['st',['Archita','Joanna']],['cr-food',['Devansh','Thihan']],['fund-hope',['Jia','Prabhas']],['vb',['Kavinilla','Bhumik']]],
+    [['st',['Sandes','Devansh']],['cr-gate',['Sanuka','Kartik']],['fb',['Dhyan','Akash']],['stall-UQSLA',['Thihan','Hassara']],['tk',['Joanna','Jia']],['ck',['Prabhas','Archita']]],
+    [['st',['Sanuka','Archita']],['stall-UQNC',['Bhumik','Kartik']],['vb',['Aarya','Kavinilla']],['fund-bake',['Devansh','Hassara']],['cr-lawn',['Thihan','Akash']],['tk',['Jia','Dhyan']],['cr-gate',['Sanuli','Prabhas']]],
+    [['cr-food',['Sandes','Archita']],['fb',['Prabhas','Joanna']],['ck',['Kavinilla','Dhyan']],['st',['Hassara','Devansh']],['stall-UQTELS',['Kartik','Akash']],['tk',['Thihan','Bhumik']]],
+    [['fb',['Sandes','Thihan']],['tk',['Sanuka','Bhumik']],['vb',['Archita','Jia']],['st',['Aarya','Kavinilla']],['stall-UQISC',['Prabhas','Joanna']],['cr-gen',['Devansh','Akash']]],
+    [['fb',['Sanuka','Joanna']],['st',['Hassara','Dhyan']],['cr-gate',['Kartik','Jia']],['ck',['Kavinilla','Bhumik']],['tk',['Prabhas','Aarya']],['stall-UQSLA',['Thihan','Archita']],['fund-hope',['Sanuli','Devansh']]],
+  ];
+
+  // ---------- Time helpers ----------
+  const DAY_START = 15 * 60;        // 3:00 pm, block 1
+  const BLOCKS = 12;
+  const fmt = (m) => { let h = Math.floor(m / 60), mm = m % 60; const ap = h >= 12 ? 'pm' : 'am'; h = h % 12 || 12; return h + ':' + String(mm).padStart(2, '0') + (ap === 'pm' ? '' : ' am'); };
+  const range = (i) => { const a = DAY_START + i * 30; return fmt(a) + ' – ' + fmt(a + 30) + ' pm'; };
+  const liveBlock = () => {
+    const d = new Date(); const m = d.getHours() * 60 + d.getMinutes();
+    if (m < 14 * 60 || m >= 22 * 60) return null;
+    if (m < DAY_START) return -1;                  // setup
+    if (m >= DAY_START + BLOCKS * 30) return BLOCKS; // pack-up
+    return Math.floor((m - DAY_START) / 30);
+  };
+
+  // ---------- Roster helpers ----------
+  function assignmentFor(first, i) {
+    if (i < 0) return { id:'setup', people:[] };
+    if (i >= BLOCKS) return { id:'packup', people:[] };
+    for (const [id, ppl] of ROSTER[i]) if (ppl.includes(first)) return { id, people: ppl.filter(p => p !== first) };
+    return { id:'free', people:[] };
+  }
+  const soc = (first) => byFirst[first.toLowerCase()].s.join(' · ');
+  const full = (first) => byFirst[first.toLowerCase()].n;
+  const esc = (s) => s.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+  // ---------- State ----------
+  let me = null;           // PEOPLE entry, or null if not on roster
+  let ident = null;        // {name, society}
+  let block = 0;           // -1 setup … 12 pack-up
+  let live = false;
+  let nudge = false;
+  const $ = (id) => document.getElementById(id);
+
+  // ---------- Entry ----------
+  const sel = $('f-soc');
+  CLUBS.forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; sel.appendChild(o); });
+  $('badge-strip').innerHTML = CLUBS.map(c => `<div class="badge" title="${c}">${CLUB_SHORT[c]}</div>`).join('');
+  $('clubgrid').innerHTML = CLUBS.map(c => `<div class="club"><div class="ring">${CLUB_SHORT[c]}</div><div class="nm">${c}</div></div>`).join('');
+
+  $('entry-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const name = $('f-name').value.trim(); const society = sel.value;
+    if (!name || !society) return;
+    ident = { name, society };
+    try { localStorage.setItem('onshift.identity', JSON.stringify(ident)); } catch {}
+    enter();
+  });
+  $('switch').addEventListener('click', () => {
+    try { localStorage.removeItem('onshift.identity'); } catch {}
+    ident = null; me = null;
+    $('shell').hidden = true; $('entry').hidden = false;
+    $('f-name').value = ''; sel.value = '';
+    requestAnimationFrame(() => drawMap($('map-entry')));
+  });
+
+  function enter() {
+    const p = byFirst[ident.name.toLowerCase()];
+    me = (p && p.s.includes(ident.society)) ? p : null;
+    $('who-name').textContent = me ? me.first : ident.name;
+    $('who-soc').textContent = ident.society;
+    $('entry').hidden = true; $('shell').hidden = false;
+    const lb = liveBlock();
+    live = lb !== null; block = live ? lb : 0;
+    showView(me ? 'now' : 'team');
+    render();
+    requestAnimationFrame(() => drawMap($('map-on')));
+  }
+
+  // ---------- Views ----------
+  function showView(v) {
+    ['now','team','on'].forEach(k => { $('view-' + k).hidden = k !== v; });
+    document.querySelectorAll('.tab').forEach(t => t.setAttribute('aria-selected', String(t.dataset.view === v)));
+    $('blockbar').hidden = v === 'on';
+    window.scrollTo(0, 0);
+    if (v === 'on') requestAnimationFrame(() => drawMap($('map-on')));
+  }
+  document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => showView(t.dataset.view)));
+
+  // ---------- Render ----------
+  function render() {
+    // Block bar
+    if (block < 0) { $('bb-label').textContent = 'Before block 1'; $('bb-time').textContent = 'Setup · 2:00 – 3:00 pm'; }
+    else if (block >= BLOCKS) { $('bb-label').textContent = 'After block 12'; $('bb-time').textContent = 'Pack-up · 9:00 – 10:00 pm'; }
+    else { $('bb-label').textContent = `Block ${block + 1} of ${BLOCKS}`; $('bb-time').textContent = range(block); }
+    $('bb-seg').innerHTML = Array.from({ length: BLOCKS }, (_, i) => `<span class="${i < block ? 'done' : i === block ? 'now' : ''}"></span>`).join('');
+
+    renderNow();
+    renderTeam();
+
+    $('pv-mode').textContent = live ? 'Live — following the clock' : 'Preview mode';
+    $('pv-note').textContent = live
+      ? 'This is the real block for the current time. Step to preview other blocks; tap LIVE to come back.'
+      : 'Event date not locked in yet — step through blocks to test. Switches to the real clock automatically on the day.';
+    $('pv-prev').disabled = block <= -1; $('pv-next').disabled = block >= BLOCKS;
+    $('pv-live').disabled = liveBlock() === null;
+  }
+
+  function dutyCard(a, extraClass) {
+    const d = DUTIES[a.id]; const cat = CATS[d.cat];
+    const partners = a.people.length
+      ? `<div class="with"><span class="eyebrow">With</span><div class="partner-list">${a.people.map(p => `<div class="partner">${esc(full(p))}<span class="soc">${esc(soc(p))}</span></div>`).join('')}</div></div>`
+      : (d.cat === 'free' || d.cat === 'hands' ? '' : `<div class="with"><span class="eyebrow">With</span><div class="partner">Solo this block</div></div>`);
+    return `<article class="duty-card ${extraClass || ''}" style="--c:${cat.color}">
+      <div class="cat-label">${cat.label}${d.club ? ' · ' + d.club : ''}</div>
+      <h1 class="duty-name">${esc(d.name)}</h1>
+      <div class="duty-where">${esc(d.where)}</div>
+      <p class="duty-do">${esc(d.do)}</p>
+      ${partners}
+    </article>`;
+  }
+
+  function renderNow() {
+    if (!me) {
+      $('now-card').innerHTML = `<div class="notice"><h2>You're not on today's roster yet</h2><p>No match for <b>${esc(ident.name)}</b> in <b>${esc(ident.society)}</b>. Check the spelling, or ask your club lead. You can still browse Team and What's On.</p></div>`;
+      $('now-next').innerHTML = ''; $('runsheet').hidden = true; return;
+    }
+    $('runsheet').hidden = false;
+    const a = assignmentFor(me.first, block);
+    $('now-card').innerHTML = dutyCard(a);
+
+    // Next block
+    if (block >= BLOCKS) { $('now-next').innerHTML = ''; }
+    else {
+      const nb = block + 1; const na = assignmentFor(me.first, nb); const nd = DUTIES[na.id];
+      const t = nb >= BLOCKS ? '9:00 pm' : fmt(DAY_START + nb * 30) + ' pm';
+      const withTxt = na.people.length ? 'with ' + na.people.map(full).join(' & ') : (nd.cat === 'free' ? 'nothing rostered' : nd.cat === 'hands' ? 'everyone' : 'solo');
+      $('now-next').innerHTML = `<div class="next" style="--c:${CATS[nd.cat].color}"><span class="eyebrow">Next up</span><span class="t">${t}</span><span class="d">${esc(nd.name)}${nd.club ? '' : ''}<small>${esc(nd.where)} · ${esc(withTxt)}</small></span></div>`;
+    }
+
+    // Run sheet
+    $('rs').innerHTML = Array.from({ length: BLOCKS }, (_, i) => {
+      const x = assignmentFor(me.first, i); const d = DUTIES[x.id];
+      const w = x.people.length ? 'with ' + x.people.map(full).join(' & ') : (d.cat === 'free' ? '' : 'solo');
+      return `<div class="rs-row ${i === block ? 'now' : ''}" style="--c:${CATS[d.cat].color}">
+        <span class="t">${fmt(DAY_START + i * 30)}</span><span class="bar"></span>
+        <span class="d">${esc(d.name)}${d.cat === 'free' ? '' : ''}<small>${esc(d.cat === 'free' ? 'Enjoy the festival' : d.where + (w ? ' · ' + w : ''))}</small></span>
+      </div>`;
+    }).join('');
+  }
+
+  function renderTeam() {
+    const mine = me ? me.first : null;
+    const chip = (p) => `<span class="chip ${p === mine ? 'me' : ''}">${esc(full(p))}<span class="soc">${esc(soc(p))}</span></span>`;
+    if (block < 0 || block >= BLOCKS) {
+      const d = DUTIES[block < 0 ? 'setup' : 'packup'];
+      $('t-free-n').textContent = 0; $('t-duty-n').textContent = PEOPLE.length;
+      $('t-free').innerHTML = `<span class="fine">Nobody — it's ${d.name.toLowerCase()}.</span>`;
+      $('t-duty').innerHTML = `<div class="duty-row" style="--c:${CATS.hands.color}"><span class="nm">${d.name} — all hands</span><span class="cat">All hands</span><span class="wh">${esc(d.where)}</span><span class="ppl">${PEOPLE.map(p => p.first === mine ? `<span class="me">${esc(p.n)}</span>` : esc(p.n)).join(', ')}</span></div>`;
+      return;
+    }
+    const rows = ROSTER[block];
+    const busy = new Set(rows.flatMap(r => r[1]));
+    const free = PEOPLE.map(p => p.first).filter(f => !busy.has(f));
+    $('t-free-n').textContent = free.length; $('t-duty-n').textContent = busy.size;
+    $('t-free').innerHTML = free.length ? free.map(chip).join('') : '<span class="fine">Everyone is on duty this block.</span>';
+
+    // Group same duty into one row; keep pairs distinct with " · "
+    const order = ['sport','ticket','stage','crowd','club','fund'];
+    const grouped = {};
+    rows.forEach(([id, ppl]) => { (grouped[id] ||= []).push(ppl); });
+    const ids = Object.keys(grouped).sort((a, b) => order.indexOf(DUTIES[a].cat) - order.indexOf(DUTIES[b].cat) || DUTIES[a].name.localeCompare(DUTIES[b].name));
+    $('t-duty').innerHTML = ids.map(id => {
+      const d = DUTIES[id];
+      const ppl = grouped[id].map(pair => pair.map(p => p === mine ? `<span class="me">${esc(full(p))}</span>` : esc(full(p))).join(' & ')).join('&nbsp;&nbsp;·&nbsp;&nbsp;');
+      return `<div class="duty-row" style="--c:${CATS[d.cat].color}"><span class="nm">${esc(d.name)}</span><span class="cat">${CATS[d.cat].label}</span><span class="wh">${esc(d.where)}</span><span class="ppl">${ppl}</span></div>`;
+    }).join('');
+  }
+
+  // ---------- Preview stepper ----------
+  $('pv-prev').addEventListener('click', () => { live = false; block = Math.max(-1, block - 1); render(); });
+  $('pv-next').addEventListener('click', () => { live = false; block = Math.min(BLOCKS, block + 1); render(); });
+  $('pv-live').addEventListener('click', () => { const lb = liveBlock(); if (lb === null) return; live = true; block = lb; render(); });
+  setInterval(() => {
+    if (!live || $('shell').hidden) return;
+    const lb = liveBlock(); if (lb === null || lb === block) return;
+    block = lb; render();
+    if (nudge && 'Notification' in window && Notification.permission === 'granted' && me) {
+      const a = assignmentFor(me.first, block); const d = DUTIES[a.id];
+      try { new Notification('New block — ' + d.name, { body: d.where + (a.people.length ? ' · with ' + a.people.map(full).join(' & ') : '') }); } catch {}
+    }
+  }, 20000);
+
+  // ---------- Nudge toggle (best effort) ----------
+  $('nudge').addEventListener('click', async () => {
+    const btn = $('nudge'); const st = $('nudge-state');
+    if (nudge) { nudge = false; btn.setAttribute('aria-checked', 'false'); st.textContent = 'Off. Best effort — depends on your phone and browser.'; return; }
+    if (!('Notification' in window)) { st.textContent = 'Not supported in this browser — keep the screen handy instead.'; return; }
+    let perm = Notification.permission;
+    if (perm === 'default') { try { perm = await Notification.requestPermission(); } catch { perm = 'denied'; } }
+    if (perm === 'granted') { nudge = true; btn.setAttribute('aria-checked', 'true'); st.textContent = 'On while this page is open. Still check the screen — it can miss.'; }
+    else { st.textContent = 'Blocked in this browser. Keep the screen handy instead.'; }
+  });
+
+  // ---------- Map background (procedural) ----------
+  const PORTS = [['Kandahar',.16,.16],['Lahore',.32,.11],['Delhi',.40,.22],['Kathmandu',.60,.15],['Muscat',.06,.36],['Goa',.30,.46],['Cochin',.33,.60],['Colombo',.44,.72],['Malacca',.88,.66]];
+  function drawMap(cv) {
+    if (!cv || !cv.clientWidth) return;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const w = cv.clientWidth, h = cv.clientHeight;
+    cv.width = w * dpr; cv.height = h * dpr;
+    const c = cv.getContext('2d'); c.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const g = c.createLinearGradient(0, 0, 0, h);
+    g.addColorStop(0, '#5E1E14'); g.addColorStop(.5, '#B45A28'); g.addColorStop(1, '#D9A464');
+    c.fillStyle = g; c.fillRect(0, 0, w, h);
+    // paper grain
+    let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    c.fillStyle = 'rgba(245,239,227,.05)';
+    for (let i = 0; i < 700; i++) c.fillRect(rnd() * w, rnd() * h, 1.5, 1.5);
+    // graticule
+    c.strokeStyle = 'rgba(245,239,227,.10)'; c.lineWidth = 1;
+    for (let x = 0; x < w; x += 64) { c.beginPath(); c.moveTo(x, 0); c.lineTo(x, h); c.stroke(); }
+    for (let y = 0; y < h; y += 64) { c.beginPath(); c.moveTo(0, y); c.lineTo(w, y); c.stroke(); }
+    // trade routes
+    c.strokeStyle = 'rgba(245,239,227,.55)'; c.lineWidth = 1.4; c.setLineDash([2, 6]); c.lineCap = 'round';
+    c.beginPath(); c.moveTo(.06 * w, .36 * h); c.bezierCurveTo(.18 * w, .42 * h, .26 * w, .40 * h, .30 * w, .46 * h); c.bezierCurveTo(.34 * w, .54 * h, .30 * w, .58 * h, .33 * w, .60 * h); c.bezierCurveTo(.40 * w, .64 * h, .42 * w, .70 * h, .44 * w, .72 * h); c.bezierCurveTo(.60 * w, .80 * h, .76 * w, .72 * h, .88 * w, .66 * h); c.stroke();
+    c.beginPath(); c.moveTo(-.02 * w, .86 * h); c.bezierCurveTo(.30 * w, .80 * h, .70 * w, .92 * h, 1.02 * w, .84 * h); c.stroke();
+    c.beginPath(); c.moveTo(.16 * w, .16 * h); c.bezierCurveTo(.22 * w, .12 * h, .28 * w, .12 * h, .32 * w, .11 * h); c.bezierCurveTo(.36 * w, .16 * h, .38 * w, .20 * h, .40 * w, .22 * h); c.bezierCurveTo(.48 * w, .18 * h, .54 * w, .16 * h, .60 * w, .15 * h); c.stroke();
+    c.setLineDash([]);
+    // route labels + ports
+    const label = (t, x, y, ang, size, alpha) => { c.save(); c.translate(x, y); c.rotate(ang); c.font = `600 ${size}px "Cormorant SC", Georgia, serif`; c.fillStyle = `rgba(245,239,227,${alpha})`; c.textAlign = 'center'; c.fillText(t, 0, 0); c.restore(); };
+    label('MONSOON DRIFT', .62 * w, .745 * h, -0.12, 11, .7);
+    label('EQUATORIAL COUNTERCURRENT', .5 * w, .885 * h, 0.02, 10, .55);
+    c.font = `600 12px "Cormorant SC", Georgia, serif`; c.textAlign = 'left';
+    PORTS.forEach(([n, px, py]) => {
+      const x = px * w, y = py * h;
+      c.fillStyle = 'rgba(245,239,227,.85)'; c.beginPath(); c.arc(x, y, 2.4, 0, Math.PI * 2); c.fill();
+      c.strokeStyle = 'rgba(245,239,227,.5)'; c.lineWidth = 1; c.beginPath(); c.arc(x, y, 5.5, 0, Math.PI * 2); c.stroke();
+      c.fillStyle = 'rgba(245,239,227,.78)'; c.fillText(n, x + 9, y + 4);
+    });
+    // compass
+    const cx = w * .84, cy = h * .30, r = Math.min(w, h) * .09;
+    c.strokeStyle = 'rgba(245,239,227,.45)'; c.lineWidth = 1;
+    c.beginPath(); c.arc(cx, cy, r, 0, Math.PI * 2); c.stroke();
+    c.beginPath(); c.arc(cx, cy, r * .6, 0, Math.PI * 2); c.stroke();
+    for (let k = 0; k < 8; k++) { const a = k * Math.PI / 4, L = k % 2 ? r * .6 : r; c.beginPath(); c.moveTo(cx, cy); c.lineTo(cx + Math.cos(a) * L, cy + Math.sin(a) * L); c.stroke(); }
+    c.fillStyle = 'rgba(245,239,227,.8)'; c.font = `700 11px "Cormorant SC", Georgia, serif`; c.textAlign = 'center'; c.fillText('N', cx, cy - r - 5);
+    // vignette
+    const v = c.createRadialGradient(w / 2, h * .45, w * .2, w / 2, h * .45, w * .95);
+    v.addColorStop(0, 'rgba(74,22,14,0)'); v.addColorStop(1, 'rgba(74,22,14,.42)');
+    c.fillStyle = v; c.fillRect(0, 0, w, h);
+  }
+  const redraw = () => { drawMap($('map-entry')); drawMap($('map-on')); };
+  if (document.fonts && document.fonts.load) document.fonts.load('600 12px "Cormorant SC"').then(redraw, redraw); else redraw();
+  window.addEventListener('resize', redraw);
+
+  // ---------- Boot ----------
+  try { const s = localStorage.getItem('onshift.identity'); if (s) ident = JSON.parse(s); } catch {}
+  if (ident && ident.name && ident.society) enter(); else redraw();
+})();
+</script>
