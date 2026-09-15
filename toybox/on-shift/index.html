@@ -25,6 +25,7 @@
     --c-fund: #8C5A2B;
     --c-free: #5F6E7A;
     --c-hands: #3E5A63;
+    --c-photo: #4F6D9A;
 
     --display: "Cormorant SC", "Cormorant Garamond", Georgia, "Times New Roman", serif;
     --body: "Atkinson Hyperlegible Next", "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -62,7 +63,6 @@
   /* ---------- Entry ---------- */
   .entry {
     position: relative;
-    min-height: 82dvh;
     display: flex;
     flex-direction: column;
     color: var(--cream);
@@ -74,11 +74,10 @@
   }
   .entry-inner {
     position: relative;
-    flex: 1;
     display: flex;
     flex-direction: column;
-    padding: 28px 22px 20px;
-    gap: 20px;
+    padding: 28px 22px 22px;
+    gap: 22px;
   }
   .flourish {
     position: absolute; width: 84px; height: 84px; color: var(--cream); opacity: .85;
@@ -87,7 +86,7 @@
   .flourish.tl { top: 10px; left: 10px; }
   .flourish.tr { top: 10px; right: 10px; transform: scaleX(-1); }
 
-  .lockup { text-align: center; margin-top: 44px; }
+  .lockup { text-align: center; margin-top: 40px; }
   .lockup .eyebrow-serif {
     font-family: var(--display); font-weight: 600; font-size: 15px; letter-spacing: .22em;
     opacity: .9;
@@ -128,8 +127,15 @@
   }
   .btn-primary:active { transform: translateY(1px); }
   .entry-note { font-size: 13px; opacity: .85; margin: 0; }
+  .hero-actions { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+  .exec-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    color: var(--cream); text-decoration: none; font-weight: 700; font-size: 13px; letter-spacing: .1em; text-transform: uppercase;
+    padding: 10px 14px; border: 1.5px solid rgba(245, 239, 227, .35); border-radius: 22px; background: transparent; opacity: .85;
+  }
+  .exec-btn svg { width: 16px; height: 16px; }
   .scroll-cue {
-    align-self: center; display: inline-flex; align-items: center; gap: 8px;
+    display: inline-flex; align-items: center; gap: 8px;
     color: var(--cream); text-decoration: none; font-weight: 700; font-size: 14px; letter-spacing: .12em; text-transform: uppercase;
     padding: 10px 16px; border: 1.5px solid rgba(245, 239, 227, .55); border-radius: 22px; background: rgba(43, 26, 20, .32);
   }
@@ -137,22 +143,28 @@
 
   /* ---------- Public page below the hero ---------- */
   .public { background: var(--paper); }
-  .public .whatson-body { padding-top: 22px; }
-  .login {
-    margin: 8px 0 0; padding: 26px 16px 32px;
-    background: var(--maroon-deep); color: var(--cream);
-    border-top: 6px solid var(--tan);
+  .public .whatson-body { padding-top: 22px; padding-bottom: 36px; }
+
+  /* ---------- Exec login screen ---------- */
+  .login-view {
+    position: relative; min-height: 100dvh; color: var(--cream); overflow: hidden;
+    display: flex; flex-direction: column;
   }
-  .login h2 {
-    margin: 0; font-family: var(--display); font-weight: 700; font-size: 34px; line-height: 1; letter-spacing: .04em;
+  .login-view canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .login-inner { position: relative; padding: 22px 22px 32px; display: flex; flex-direction: column; gap: 22px; }
+  .back {
+    align-self: flex-start; display: inline-flex; align-items: center; gap: 6px;
+    color: var(--cream); text-decoration: none; font-weight: 700; font-size: 14px; opacity: .9;
+    background: transparent; border: 0; padding: 8px 0;
   }
-  .login-lead { margin: 8px 0 18px; font-size: 15px; opacity: .9; max-width: 36ch; }
-  .entry-form.dark { background: rgba(0, 0, 0, .22); }
+  .back svg { width: 18px; height: 18px; }
+  .login-view h1 { margin: 6px 0 0; font-family: var(--display); font-weight: 700; font-size: 44px; line-height: 1; letter-spacing: .03em; }
+  .login-lead { margin: 8px 0 0; font-size: 16px; opacity: .92; max-width: 32ch; }
   .form-err { margin: 0; font-size: 14px; font-weight: 700; color: #F3C6B6; }
   .btn-primary[disabled] { opacity: .6; }
 
   .badge-strip {
-    position: relative; margin-top: auto;
+    position: relative; margin-top: 2px;
     display: flex; gap: 10px; overflow-x: auto; padding: 6px 2px 2px;
     scrollbar-width: none;
   }
@@ -222,11 +234,20 @@
     color: var(--c);
   }
   .cat-label::before { content: ""; width: 10px; height: 10px; border-radius: 50%; background: var(--c); }
+  /* the dot pulses on the Now card: this is the block that's on right now */
+  @keyframes live-ping {
+    0%   { box-shadow: 0 0 0 0 color-mix(in srgb, var(--c) 55%, transparent); }
+    70%  { box-shadow: 0 0 0 9px transparent; }
+    100% { box-shadow: 0 0 0 0 transparent; }
+  }
+  .cat-label.live::before { animation: live-ping 1.7s cubic-bezier(.2,.6,.4,1) infinite; }
+  .duty-head { display: flex; align-items: center; gap: 14px; }
+  .duty-head .dicon { align-self: flex-start; margin-top: 2px; }
   .duty-name {
-    margin: 0; font-size: 40px; line-height: 1; font-weight: 800; letter-spacing: -.015em;
+    margin: 0; font-size: 36px; line-height: 1; font-weight: 800; letter-spacing: -.015em;
     text-wrap: balance;
   }
-  .duty-where { font-size: 18px; font-weight: 700; color: var(--ink-2); }
+  .duty-where { font-size: 18px; font-weight: 700; color: var(--ink-2); margin-top: 4px; }
   .duty-do { margin: 2px 0 0; font-size: 17px; color: var(--ink); max-width: 46ch; }
   .with {
     margin-top: 6px; padding-top: 12px; border-top: 1px dashed var(--line);
@@ -238,7 +259,7 @@
   .partner-list { display: grid; gap: 2px; }
 
   .next {
-    display: grid; grid-template-columns: auto 1fr; gap: 4px 14px; align-items: baseline;
+    display: grid; grid-template-columns: 30px auto 1fr; gap: 4px 12px; align-items: center;
     padding: 12px 14px; background: var(--paper-2); border-left: 6px solid var(--c, var(--line));
   }
   .next .eyebrow { grid-column: 1 / -1; }
@@ -263,17 +284,27 @@
   .toggle[aria-checked="true"] { background: var(--c-crowd); }
   .toggle[aria-checked="true"]::after { transform: translateX(24px); }
 
+  /* ---------- Duty icons: a coloured square per activity ---------- */
+  .dicon {
+    width: 40px; height: 40px; border-radius: 9px; background: var(--c); color: var(--cream);
+    display: grid; place-items: center; flex: 0 0 auto;
+  }
+  .dicon svg { width: 22px; height: 22px; }
+  .dicon.lg { width: 56px; height: 56px; border-radius: 12px; }
+  .dicon.lg svg { width: 30px; height: 30px; }
+  .dicon.sm { width: 30px; height: 30px; border-radius: 7px; }
+  .dicon.sm svg { width: 17px; height: 17px; }
+
   .runsheet h2, .team h2, .whatson h2, .public .whatson-body h2 {
     margin: 6px 0 8px; font-size: 13px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2);
   }
   .rs { display: grid; border-top: 1px solid var(--line); }
   .rs-row {
-    display: grid; grid-template-columns: 62px 8px 1fr; gap: 0 10px; align-items: center;
+    display: grid; grid-template-columns: 54px 30px 1fr; gap: 0 10px; align-items: center;
     min-height: 52px; padding: 8px 0; border-bottom: 1px solid var(--line);
   }
-  .rs-row.now { background: linear-gradient(90deg, rgba(217,164,100,.28), transparent 70%); margin: 0 -16px; padding-inline: 16px; grid-template-columns: 62px 8px 1fr; }
+  .rs-row.now { background: linear-gradient(90deg, rgba(217,164,100,.28), transparent 70%); margin: 0 -16px; padding-inline: 16px; }
   .rs-row .t { font-size: 14px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--ink-2); }
-  .rs-row .bar { width: 8px; height: 100%; min-height: 36px; border-radius: 2px; background: var(--c); }
   .rs-row .d { font-weight: 700; font-size: 16px; line-height: 1.25; }
   .rs-row .d small { display: block; font-weight: 500; color: var(--ink-2); font-size: 14px; }
 
@@ -302,6 +333,21 @@
   .count { background: #fff; padding: 12px 14px; box-shadow: 0 1px 0 var(--line); border-top: 4px solid var(--c); }
   .count .n { font-size: 34px; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
   .count .l { font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2); margin-top: 4px; }
+  .filter { display: grid; gap: 8px; }
+  .filter-head { display: flex; align-items: baseline; justify-content: space-between; }
+  .filter-head h2 { margin: 0; }
+  .linkbtn { background: transparent; border: 0; padding: 4px 0; color: var(--maroon); font-weight: 700; font-size: 14px; text-decoration: underline; text-decoration-color: var(--tan); text-underline-offset: 3px; }
+  .soc-chip { cursor: pointer; }
+  .soc-chip.off { opacity: .45; text-decoration: line-through; text-decoration-color: var(--maroon); }
+  .soc-chip.part { border-style: dashed; }
+  .soc-chip .cnt { color: var(--ink-3); font-weight: 600; font-size: 12px; }
+  .adv { background: #fff; padding: 12px 14px; box-shadow: 0 1px 0 var(--line); display: grid; gap: 10px; }
+  .adv-soc { display: grid; gap: 2px; }
+  .adv-soc h3 { margin: 6px 0 4px; font-size: 12px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--maroon); }
+  .adv-row { display: flex; align-items: center; gap: 10px; min-height: 40px; font-weight: 600; font-size: 15px; }
+  .adv-row input { width: 22px; height: 22px; accent-color: var(--maroon); margin: 0; }
+  .adv-row small { color: var(--ink-3); font-weight: 600; font-size: 12px; letter-spacing: .04em; }
+  .muted-note { margin-top: 8px; }
   .chips { display: flex; flex-wrap: wrap; gap: 8px; }
   .chip {
     display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 6px 12px; border-radius: 20px;
@@ -312,11 +358,12 @@
   .duty-list { display: grid; gap: 8px; }
   .duty-row {
     background: #fff; border-left: 8px solid var(--c); padding: 10px 12px;
-    display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; box-shadow: 0 1px 0 var(--line);
+    display: grid; grid-template-columns: 40px 1fr auto; gap: 2px 10px; box-shadow: 0 1px 0 var(--line); align-items: start;
   }
-  .duty-row .nm { font-weight: 800; font-size: 17px; }
-  .duty-row .wh { grid-column: 1 / -1; font-size: 14px; color: var(--ink-2); }
-  .duty-row .ppl { grid-column: 1 / -1; margin-top: 4px; font-size: 16px; font-weight: 600; }
+  .duty-row .dicon { grid-row: 1 / span 2; }
+  .duty-row .nm { font-weight: 800; font-size: 17px; align-self: center; }
+  .duty-row .wh { grid-column: 2 / -1; font-size: 14px; color: var(--ink-2); }
+  .duty-row .ppl { grid-column: 2 / -1; margin-top: 4px; font-size: 16px; font-weight: 600; }
   .duty-row .ppl .me { color: var(--maroon); text-decoration: underline; text-decoration-color: var(--tan); text-underline-offset: 3px; }
   .duty-row .cat { font-size: 11px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--c); align-self: start; white-space: nowrap; }
 
@@ -326,7 +373,7 @@
     font-size: 13px; font-weight: 700; line-height: 1; padding: 6px 9px; border-radius: 4px;
     background: var(--paper-2); color: var(--ink-2); border-left: 3px solid var(--c);
   }
-  .subjobs.tight { grid-column: 1 / -1; margin-top: 2px; }
+  .subjobs.tight { grid-column: 2 / -1; margin-top: 2px; }
   .subjobs.tight .subjob { font-size: 12px; padding: 5px 8px; }
 
   /* collapsed club stalls */
@@ -335,12 +382,14 @@
   }
   .duty-group summary {
     list-style: none; cursor: pointer; padding: 10px 12px;
-    display: grid; grid-template-columns: 1fr auto; gap: 2px 10px;
+    display: grid; grid-template-columns: 40px 1fr auto; gap: 2px 10px; align-items: start;
   }
+  .duty-group summary .dicon { grid-row: 1 / span 2; }
+  .duty-group summary .nm { align-self: center; }
   .duty-group summary::-webkit-details-marker { display: none; }
   .duty-group summary .nm { font-weight: 800; font-size: 17px; }
   .duty-group summary .cat { font-size: 11px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--c); align-self: start; white-space: nowrap; }
-  .duty-group summary .wh { grid-column: 1 / -1; font-size: 14px; color: var(--ink-2); }
+  .duty-group summary .wh { grid-column: 2 / -1; font-size: 14px; color: var(--ink-2); }
   .duty-group[open] summary { border-bottom: 1px solid var(--line); }
   .soc-row {
     display: grid; grid-template-columns: 76px 1fr; gap: 10px; align-items: baseline;
@@ -350,6 +399,12 @@
   .soc-row .nm { font-weight: 800; font-size: 14px; color: var(--maroon); letter-spacing: .02em; }
   .soc-row .ppl { font-size: 15px; font-weight: 600; }
   .soc-row .ppl .me { color: var(--maroon); text-decoration: underline; text-decoration-color: var(--tan); text-underline-offset: 3px; }
+
+  /* ---------- Map (placeholder) ---------- */
+  .map-frame {
+    min-height: 60vh; border: 1.5px dashed var(--line); border-radius: 8px; background: #fff;
+    display: grid; place-content: center; justify-items: center; gap: 6px; text-align: center;
+  }
 
   /* ---------- What's On ---------- */
   .whatson { padding: 0; gap: 0; }
@@ -363,7 +418,7 @@
   }
   .whatson-hero p { position: relative; margin: 6px 0 0; font-size: 15px; opacity: .92; }
   .whatson-body { padding: 16px; display: grid; gap: 18px; }
-  .duty-row .blurb { grid-column: 1 / -1; font-size: 15px; color: var(--ink-2); }
+  .duty-row .blurb { grid-column: 2 / -1; font-size: 15px; color: var(--ink-2); }
   .soc-row .ring {
     width: 34px; height: 34px; border-radius: 50%; border: 1.5px solid var(--maroon);
     display: grid; place-items: center; font-family: var(--display); font-weight: 700; font-size: 9px; color: var(--maroon);
@@ -380,7 +435,7 @@
     height: calc(var(--tab-h) + env(safe-area-inset-bottom));
     padding-bottom: env(safe-area-inset-bottom);
     background: var(--paper); border-top: 1px solid var(--line);
-    display: grid; grid-template-columns: repeat(3, 1fr);
+    display: grid; grid-template-columns: repeat(4, 1fr);
     z-index: 10;
   }
   .tab {
@@ -393,7 +448,7 @@
     content: ""; position: absolute; top: 0; left: 20%; right: 20%; height: 3px; background: var(--maroon);
   }
 
-  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 </style>
 
 <div class="app" id="app">
@@ -411,23 +466,38 @@
         <p>Stalls, sports, and a stage — 3 till 9 pm on the festival ground.</p>
       </div>
 
-      <a class="scroll-cue" href="#public-on" aria-label="See what's on">
-        <span>What's on</span>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 10l6 6 6-6"/></svg>
-      </a>
+      <div class="hero-actions">
+        <a class="scroll-cue" href="#public-on" aria-label="See what's on">
+          <span>What's on</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 10l6 6 6-6"/></svg>
+        </a>
+        <button class="exec-btn" id="exec-login" type="button">
+          <span>Exec login</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </button>
+      </div>
 
       <div class="badge-strip" id="badge-strip" aria-label="Participating clubs"></div>
     </div>
   </section>
 
-  <!-- ======== PUBLIC: what's on + exec login ======== -->
+  <!-- ======== PUBLIC: what's on ======== -->
   <section class="public" id="public">
     <div class="whatson-body" id="public-on"></div>
+  </section>
 
-    <section class="login" id="login">
-      <h2>Exec login</h2>
-      <p class="login-lead">Volunteering today? Your duty, your partner, and what's next, block by block.</p>
-      <form class="entry-form dark" id="entry-form" autocomplete="off">
+  <!-- ======== EXEC LOGIN ======== -->
+  <section class="login-view" id="login-view" hidden>
+    <canvas id="map-login"></canvas>
+    <div class="login-inner">
+      <button class="back" id="login-back" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>Back
+      </button>
+      <div>
+        <h1>Exec login</h1>
+        <p class="login-lead">Your duty, your partner, and what's next — block by block.</p>
+      </div>
+      <form class="entry-form" id="entry-form" autocomplete="off">
         <div class="field">
           <label for="f-name">First name</label>
           <input id="f-name" name="name" type="text" inputmode="text" autocapitalize="words" placeholder="e.g. Sandes" required>
@@ -438,15 +508,11 @@
             <option value="" disabled selected>Choose your society</option>
           </select>
         </div>
-        <div class="field" id="f-pass-field">
-          <label for="f-pass">Exec passcode</label>
-          <input id="f-pass" name="passcode" type="text" inputmode="text" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="four words, from the exec chat">
-        </div>
         <p class="form-err" id="f-err" role="alert" hidden></p>
         <button class="btn-primary" type="submit" id="f-go">Find my roster</button>
-        <p class="entry-note" id="f-note">Saved on this phone so you won't need to re-enter it.</p>
+        <p class="entry-note">Saved on this phone so you won't need to re-enter it. Not on the roster? You can still see the Team and What's On.</p>
       </form>
-    </section>
+    </div>
   </section>
 
   <!-- ======== SHELL ======== -->
@@ -500,13 +566,35 @@
         <div class="count" style="--c: var(--c-free)"><div class="n" id="t-free-n">0</div><div class="l">Free now</div></div>
         <div class="count" style="--c: var(--c-sport)"><div class="n" id="t-duty-n">0</div><div class="l">On duty</div></div>
       </div>
+      <div class="filter" id="t-filter">
+        <div class="filter-head">
+          <h2>Show</h2>
+          <button class="linkbtn" id="t-adv" type="button" aria-expanded="false">Advanced</button>
+        </div>
+        <div class="chips" id="t-socs"></div>
+        <div class="adv" id="t-advbox" hidden>
+          <p class="fine">Tick the people you want to see. Muting a society above unticks everyone in it; you can re-tick individuals here.</p>
+          <div id="t-advlist"></div>
+          <button class="linkbtn" id="t-reset" type="button">Show everyone</button>
+        </div>
+      </div>
       <div>
         <h2>Free right now</h2>
         <div class="chips" id="t-free"></div>
+        <p class="fine muted-note" id="t-free-muted" hidden></p>
       </div>
       <div>
         <h2>On duty</h2>
         <div class="duty-list" id="t-duty"></div>
+        <p class="fine muted-note" id="t-duty-muted" hidden></p>
+      </div>
+    </section>
+
+    <!-- MAP (placeholder — to be drawn) -->
+    <section class="view" id="view-map" role="tabpanel" hidden>
+      <div class="map-frame" aria-label="Festival map, coming soon">
+        <span class="eyebrow">Festival map</span>
+        <span class="fine">Coming soon.</span>
       </div>
     </section>
 
@@ -530,8 +618,11 @@
       <button class="tab" role="tab" data-view="team" aria-selected="false" type="button">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="8" r="3.5"/><circle cx="17" cy="10" r="2.5"/><path d="M3 19c0-3.3 2.7-5 6-5s6 1.7 6 5M15 19c0-2 1.5-3.5 4-3.5s3 1.5 3 3.5"/></svg>Team
       </button>
+      <button class="tab" role="tab" data-view="map" aria-selected="false" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z"/><path d="M9 4v14M15 6v14"/></svg>Map
+      </button>
       <button class="tab" role="tab" data-view="on" aria-selected="false" type="button">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z"/><path d="M9 4v14M15 6v14"/></svg>What's On
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13"/><circle cx="3.5" cy="6" r="1"/><circle cx="3.5" cy="12" r="1"/><circle cx="3.5" cy="18" r="1"/></svg>What's On
       </button>
     </nav>
   </div>
@@ -543,24 +634,44 @@
   const CLUBS = ['UQISC','UQNC','UQPA','UQSLA','UQPSA','UQTAS','UQGS','UQTELS','UQGIDDHA','UQNAATAK','UQISS'];
   const CLUB_SHORT = { UQISC:'ISC', UQNC:'NC', UQPA:'PA', UQSLA:'SLA', UQPSA:'PSA', UQTAS:'TAS', UQGS:'GS', UQTELS:'TELS', UQGIDDHA:'GIDDHA', UQNAATAK:'NAATAK', UQISS:'ISS' };
 
-  const CATS = {
-    sport:  { label: 'Sports',            color: 'var(--c-sport)' },
-    club:   { label: 'Club stall',        color: 'var(--c-club)' },
-    ticket: { label: 'Ticketing',         color: 'var(--c-ticket)' },
-    stage:  { label: 'Stage',             color: 'var(--c-stage)' },
-    crowd:  { label: 'Crowd & support',   color: 'var(--c-crowd)' },
-    fund:   { label: 'Fundraising stall', color: 'var(--c-fund)' },
-    free:   { label: 'Free',              color: 'var(--c-free)' },
-    hands:  { label: 'All hands',         color: 'var(--c-hands)' },
+  // Line icons, 24-box, drawn with the current colour. One per activity.
+  const ICONS = {
+    volleyball: '<circle cx="12" cy="12" r="9"/><path d="M12 3c-2.2 3.6-2.2 7.4 0 9.2 2.6 2 6.4 2.4 9 .8M3.4 10c3.8.6 6.8 2.4 7.4 5.4.5 2.6-.4 5-2.2 5.6"/>',
+    football:   '<circle cx="12" cy="12" r="9"/><path d="M12 7.5l4.3 3.1-1.6 5H9.3l-1.6-5z"/><path d="M12 7.5V3M16.3 10.6l4.2-1.4M14.7 15.6l2.6 3.6M9.3 15.6l-2.6 3.6M7.7 10.6L3.5 9.2"/>',
+    cricket:    '<path d="M15 3l6 6-8.3 8.3a2 2 0 0 1-2.8 0l-3.2-3.2a2 2 0 0 1 0-2.8z"/><path d="M7.5 16.5L4 20"/><circle cx="18.5" cy="18.5" r="2.5"/>',
+    ticket:     '<path d="M4 7h16v3a2 2 0 0 0 0 4v3H4v-3a2 2 0 0 0 0-4z"/><path d="M14 7v10" stroke-dasharray="2 2.5"/>',
+    mic:        '<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3M8 21h8"/>',
+    crowd:      '<circle cx="9" cy="8" r="3.5"/><circle cx="17" cy="10" r="2.5"/><path d="M3 19c0-3.3 2.7-5 6-5s6 1.7 6 5M15 19c0-2 1.5-3.5 4-3.5s3 1.5 3 3.5"/>',
+    heart:      '<path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 10c0 5.5-7 10-7 10z"/>',
+    tent:       '<path d="M3 20L12 4l9 16z"/><path d="M12 11l-3.5 9M12 11l3.5 9"/>',
+    sparkle:    '<path d="M12 3l2.2 5.8L20 11l-5.8 2.2L12 19l-2.2-5.8L4 11l5.8-2.2z"/><path d="M19 3v3M17.5 4.5h3"/>',
+    coffee:     '<path d="M4 8h13v6a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5z"/><path d="M17 10h2a2.5 2.5 0 0 1 0 5h-2M8 3.5c0 1 1 1 1 2M12 3.5c0 1 1 1 1 2"/>',
+    box:        '<path d="M3 8l9-4 9 4-9 4z"/><path d="M3 8v8l9 4 9-4V8M12 12v8"/>',
+    camera:     '<path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/>',
+    bowl:       '<path d="M3 11h18a9 9 0 0 1-18 0z"/><path d="M8 21h8M12 20v-2M7 6c1-1 2 0 3-1M12 6c1-1 2 0 3-1"/>',
   };
+  const iconHtml = (name, color, size) => `<span class="dicon ${size || ''}" style="--c:${color}" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${ICONS[name] || ICONS.box}</svg></span>`;
+
+  const CATS = {
+    sport:  { label: 'Sports',            color: 'var(--c-sport)',  icon: 'football' },
+    club:   { label: 'Club stall',        color: 'var(--c-club)',   icon: 'tent' },
+    ticket: { label: 'Ticketing',         color: 'var(--c-ticket)', icon: 'ticket' },
+    stage:  { label: 'Stage',             color: 'var(--c-stage)',  icon: 'mic' },
+    crowd:  { label: 'Crowd & support',   color: 'var(--c-crowd)',  icon: 'crowd' },
+    fund:   { label: 'Fundraising stall', color: 'var(--c-fund)',   icon: 'heart' },
+    free:   { label: 'Free',              color: 'var(--c-free)',   icon: 'coffee' },
+    hands:  { label: 'All hands',         color: 'var(--c-hands)',  icon: 'box' },
+    photo:  { label: 'Photo',             color: 'var(--c-photo)',  icon: 'camera' },
+  };
+  const dutyIcon = (d, size) => iconHtml(d.icon || CATS[d.cat].icon, CATS[d.cat].color, size);
 
   const DUTIES = {
     // tasks: the sub-jobs inside each job — shown as small tags on the duty card
-    vb: { cat:'sport', name:'Volleyball', where:'Volleyball court', do:'Keep games moving on the court. Call scores, rotate teams every 15 minutes, and keep the ball bag with you.',
+    vb: { cat:'sport', icon:'volleyball', name:'Volleyball', where:'Volleyball court', do:'Keep games moving on the court. Call scores, rotate teams every 15 minutes, and keep the ball bag with you.',
           tasks:['Scorekeeping', 'Rotating teams', 'Ball bag'] },
     fb: { cat:'sport', name:'Football', where:'Main oval', do:'Referee and keep the sideline clear. Games run 20 minutes — blow up when the stage calls time and swap teams.',
           tasks:['Refereeing', 'Sideline clear', 'Team swaps'] },
-    ck: { cat:'sport', name:'Cricket', where:'Cricket pitch', do:'Umpire the pitch and keep spectators behind the cones. Rotate batting sides every 6 overs.',
+    ck: { cat:'sport', icon:'cricket', name:'Cricket', where:'Cricket pitch', do:'Umpire the pitch and keep spectators behind the cones. Rotate batting sides every 6 overs.',
           tasks:['Umpiring', 'Getting people off the field', 'Spectators behind cones'] },
     tk: { cat:'ticket', name:'Ticketing', where:'Main entry gate', do:'Check tickets and stamp wrists. Hold the line at the barrier — never leave the table unattended.',
           tasks:['Checking tickets', 'Wristbands', 'Holding the barrier', 'Questions & directions'] },
@@ -574,12 +685,15 @@
           tasks:['Queues orderly', 'Spills', 'Cords & generators'] },
     'cr-gen':  { cat:'crowd', name:'Crowd & support', where:'Generators & cords sweep', do:'Do a full loop of every generator and cable run. Tape down anything loose, then rejoin the stage lawn.',
           tasks:['Full loop', 'Tape loose cords', 'Generator check'] },
-    'fund-pp':   { cat:'fund', name:'Pani Puri Stall', where:'Food row, stall 1', do:'Help the charity volunteers serve and take payment. Keep the queue moving.',
+    'fund-pp':   { cat:'fund', icon:'bowl', name:'Pani Puri Stall', where:'Food row, stall 1', do:'Help the charity volunteers serve and take payment. Keep the queue moving.',
           tasks:['Serving', 'Payments', 'Queue'] },
     'fund-bake': { cat:'fund', name:'Manali Project Bake Sale', where:'Food row, stall 2', do:'Help the charity volunteers serve and take payment. Keep the queue moving.',
           tasks:['Serving', 'Payments', 'Queue'] },
     'fund-hope': { cat:'fund', name:'Hope by Hands', where:'Food row, stall 3', do:'Help the charity volunteers serve and take payment. Keep the queue moving.',
           tasks:['Serving', 'Payments', 'Queue'] },
+    // Photo schedule — a duty like any other, so it shows up in the run sheet and Team.
+    'photo-pres': { cat:'photo', name:'Presidents\' photo', where:'Performance stage', do:'All club presidents at the stage steps for the group photo. Be there two minutes early — the photographer has a five-minute window before the next act.',
+          tasks:['Presidents only', 'Stage steps', '2 min early'] },
     free: { cat:'free', name:'Free', where:'Enjoy the festival', do:'You\'re off this block. Grab food, catch the stage — and be back a few minutes before your next duty.' },
     setup: { cat:'hands', name:'Setup', where:'All hands · 2:00 – 3:00 pm', do:'Everyone on deck. Marquees, tables, signage, sports gear — check in with your club lead for what to carry.',
           tasks:['Marquees', 'Tables & signage', 'Sports gear'] },
@@ -621,7 +735,7 @@
     for (const [id, ppl] of ROSTER[i]) if (ppl.includes(first)) return { id, people: ppl.filter(p => p !== first) };
     return { id:'free', people:[] };
   }
-  const soc = (first) => byFirst[first.toLowerCase()].s.join(' · ');
+  const soc = (first) => { const p = byFirst[first.toLowerCase()]; return p.s.join(' · ') + (p.role ? ' · ' + p.role : ''); };
   const full = (first) => byFirst[first.toLowerCase()].n;
   const esc = (s) => s.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
   // "A, B & C" — any number of people on a duty, not just pairs
@@ -644,33 +758,33 @@
   // Same cards as Team → On duty, minus the people. tags are visitor-facing.
   const WHATS_ON = [
     { h: 'Sports', items: [
-      { cat: 'sport', name: 'Volleyball', where: 'Volleyball court', blurb: 'Pick-up games all afternoon — jump in when a team rotates.', tags: ['Teams rotate every 15 min'] },
+      { cat: 'sport', icon: 'volleyball', name: 'Volleyball', where: 'Volleyball court', blurb: 'Pick-up games all afternoon — jump in when a team rotates.', tags: ['Teams rotate every 15 min'] },
       { cat: 'sport', name: 'Football',   where: 'Main oval',        blurb: 'Short games, fresh teams each time the stage calls it.', tags: ['20-minute games'] },
-      { cat: 'sport', name: 'Cricket',    where: 'Cricket pitch',    blurb: 'Bat, bowl, or watch from behind the cones.', tags: ['6 overs a side'] },
+      { cat: 'sport', icon: 'cricket', name: 'Cricket',    where: 'Cricket pitch',    blurb: 'Bat, bowl, or watch from behind the cones.', tags: ['6 overs a side'] },
     ]},
     { h: 'Stage & entry', items: [
       { cat: 'stage',  name: 'Performance stage', where: 'Stage lawn',      blurb: 'Performances through the evening. Announcements and sports call-outs come from here.', tags: ['Listen for call-outs'] },
       { cat: 'ticket', name: 'Ticketing',         where: 'Main entry gate', blurb: 'Show your ticket at the gate and get a wrist stamp.', tags: ['Wrist stamp'] },
     ]},
     { h: 'Fundraising & food', items: [
-      { cat: 'fund', name: 'Pani Puri Stall',              where: 'Food row, stall 1', blurb: 'Run by charity volunteers.' },
+      { cat: 'fund', icon: 'bowl', name: 'Pani Puri Stall',              where: 'Food row, stall 1', blurb: 'Run by charity volunteers.' },
       { cat: 'fund', name: 'UQ Manali Project Bake Sale',  where: 'Food row, stall 2', blurb: 'Run by charity volunteers.' },
       { cat: 'fund', name: 'Hope by Hands',                where: 'Food row, stall 3', blurb: 'Run by charity volunteers.' },
     ]},
     { h: 'Business stalls', items: [
-      { cat: 'ticket', label: 'Stall', name: 'Inaara' },
-      { cat: 'ticket', label: 'Stall', name: 'Dia Effect' },
+      { cat: 'ticket', icon: 'sparkle', label: 'Stall', name: 'Inaara' },
+      { cat: 'ticket', icon: 'sparkle', label: 'Stall', name: 'Dia Effect' },
     ]},
   ];
   function whatsOnHtml() {
     const row = (it, h) => {
       const cat = CATS[it.cat]; const label = it.label || cat.label;
       const showLabel = label !== it.name && label !== h;
-      return `<div class="duty-row" style="--c:${cat.color}"><span class="nm">${esc(it.name)}</span><span class="cat">${showLabel ? esc(label) : ''}</span>${it.where ? `<span class="wh">${esc(it.where)}</span>` : ''}${it.tags ? `<div class="subjobs tight">${it.tags.map(t => `<span class="subjob">${esc(t)}</span>`).join('')}</div>` : ''}${it.blurb ? `<span class="blurb">${esc(it.blurb)}</span>` : ''}</div>`;
+      return `<div class="duty-row" style="--c:${cat.color}">${iconHtml(it.icon || cat.icon, cat.color)}<span class="nm">${esc(it.name)}</span><span class="cat">${showLabel ? esc(label) : ''}</span>${it.where ? `<span class="wh">${esc(it.where)}</span>` : ''}${it.tags ? `<div class="subjobs tight">${it.tags.map(t => `<span class="subjob">${esc(t)}</span>`).join('')}</div>` : ''}${it.blurb ? `<span class="blurb">${esc(it.blurb)}</span>` : ''}</div>`;
     };
     const sections = WHATS_ON.map(sec => `<div><h2>${esc(sec.h)}</h2><div class="duty-list">${sec.items.map(it => row(it, sec.h)).join('')}</div></div>`).join('');
     const clubs = `<div><h2>Club stalls</h2><details class="duty-group" style="--c:${CATS.club.color}">
-      <summary><span class="nm">Club marquees</span><span class="cat">${CLUBS.length} societies</span><span class="wh">Tap to see who's here</span></summary>
+      <summary>${iconHtml('tent', CATS.club.color)}<span class="nm">Club marquees</span><span class="cat">${CLUBS.length} societies</span><span class="wh">Tap to see who's here</span></summary>
       ${CLUBS.map(c => `<div class="soc-row pub"><span class="ring ${CLUB_SHORT[c].length > 4 ? 'long' : ''}">${CLUB_SHORT[c]}</span><span class="nm">${c}</span></div>`).join('')}
     </details></div>`;
     return sections + clubs + `<p class="fine">Setup 2–3pm and pack-up 9–10pm are all hands.</p>`;
@@ -678,36 +792,41 @@
   $('exec-on').innerHTML = whatsOnHtml();
   $('public-on').innerHTML = whatsOnHtml();
 
+  function showPublic() {
+    $('shell').hidden = true; $('login-view').hidden = true;
+    $('entry').hidden = false; $('public').hidden = false;
+    window.scrollTo(0, 0);
+    requestAnimationFrame(() => drawMap($('map-entry')));
+  }
+  function showLogin() {
+    $('entry').hidden = true; $('public').hidden = true; $('shell').hidden = true;
+    $('login-view').hidden = false; $('f-err').hidden = true;
+    window.scrollTo(0, 0);
+    requestAnimationFrame(() => { drawMap($('map-login')); $('f-name').focus(); });
+  }
+  $('exec-login').addEventListener('click', showLogin);
+  $('login-back').addEventListener('click', showPublic);
+
   $('entry-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     const name = $('f-name').value.trim(); const society = sel.value;
     if (!name || !society) return;
     const err = $('f-err'); err.hidden = true;
     if (!rosterLoaded) {
-      const pass = $('f-pass').value;
-      if (!pass.trim()) { err.textContent = 'You\'ll need the exec passcode — it\'s in the exec chat.'; err.hidden = false; $('f-pass').focus(); return; }
-      $('f-go').disabled = true; $('f-go').textContent = 'Unlocking…';
-      const ok = await loadRoster({ passcode: pass });
-      $('f-go').disabled = false; $('f-go').textContent = 'Find my roster';
-      if (!ok) { err.textContent = 'That passcode isn\'t right. Check the exec chat and try again.'; err.hidden = false; $('f-pass').select(); return; }
+      $('f-go').disabled = true;
+      const ok = await loadRoster();
+      $('f-go').disabled = false;
+      if (!ok) { err.textContent = 'Couldn\'t load the roster. Check your connection and try again.'; err.hidden = false; return; }
     }
     ident = { name, society };
     try { localStorage.setItem('onshift.identity', JSON.stringify(ident)); } catch {}
     enter();
   });
-  // once this phone holds the key, the passcode field is redundant
-  function passFieldVisibility() {
-    $('f-pass-field').hidden = rosterLoaded;
-    $('f-note').textContent = rosterLoaded ? 'This phone is already unlocked — just your name and society.' : 'Saved on this phone so you won\'t need to re-enter it.';
-  }
   $('switch').addEventListener('click', () => {
     try { localStorage.removeItem('onshift.identity'); } catch {}
     ident = null; me = null;
-    $('shell').hidden = true; $('entry').hidden = false; $('public').hidden = false;
-    $('f-name').value = ''; sel.value = ''; $('f-pass').value = '';
-    passFieldVisibility();
-    window.scrollTo(0, 0);
-    requestAnimationFrame(() => drawMap($('map-entry')));
+    $('f-name').value = ''; sel.value = '';
+    showLogin();
   });
 
   function enter() {
@@ -715,10 +834,11 @@
     me = (p && p.s.includes(ident.society)) ? p : null;
     $('who-name').textContent = me ? me.first : ident.name;
     $('who-soc').textContent = ident.society;
-    $('entry').hidden = true; $('public').hidden = true; $('shell').hidden = false;
+    $('entry').hidden = true; $('public').hidden = true; $('login-view').hidden = true; $('shell').hidden = false;
     window.scrollTo(0, 0);
     const lb = liveBlock();
     live = lb !== null; block = live ? lb : 0;
+    renderFilter();
     showView(me ? 'now' : 'team');
     render();
     requestAnimationFrame(() => drawMap($('map-on')));
@@ -726,9 +846,9 @@
 
   // ---------- Views ----------
   function showView(v) {
-    ['now','team','on'].forEach(k => { $('view-' + k).hidden = k !== v; });
+    ['now','team','map','on'].forEach(k => { $('view-' + k).hidden = k !== v; });
     document.querySelectorAll('.tab').forEach(t => t.setAttribute('aria-selected', String(t.dataset.view === v)));
-    $('blockbar').hidden = v === 'on';
+    $('blockbar').hidden = v === 'on' || v === 'map';
     window.scrollTo(0, 0);
     if (v === 'on') requestAnimationFrame(() => drawMap($('map-on')));
   }
@@ -757,13 +877,14 @@
     const d = DUTIES[a.id]; const cat = CATS[d.cat];
     const partners = a.people.length
       ? `<div class="with"><span class="eyebrow">With</span><div class="partner-list">${a.people.map(p => `<div class="partner">${esc(full(p))}<span class="soc">${esc(soc(p))}</span></div>`).join('')}</div></div>`
-      : (d.cat === 'free' || d.cat === 'hands' ? '' : `<div class="with"><span class="eyebrow">With</span><div class="partner">Solo this block</div></div>`);
-    // the category line only earns its place when it says something the heading doesn't
-    const catLine = cat.label === d.name ? '' : `<div class="cat-label">${cat.label}</div>`;
+      : (['free', 'hands', 'photo'].includes(d.cat) ? '' : `<div class="with"><span class="eyebrow">With</span><div class="partner">Solo this block</div></div>`);
+    // status line: the pulsing dot says "this block is on now"; the category
+    // only follows when it says something the heading doesn't
+    const status = live ? 'Live' : 'Preview';
+    const catLine = `<div class="cat-label live">${status}${cat.label === d.name ? '' : ' · ' + cat.label}</div>`;
     return `<article class="duty-card ${extraClass || ''}" style="--c:${cat.color}">
       ${catLine}
-      <h1 class="duty-name">${esc(d.name)}</h1>
-      <div class="duty-where">${esc(d.where)}</div>
+      <div class="duty-head">${dutyIcon(d, 'lg')}<div><h1 class="duty-name">${esc(d.name)}</h1><div class="duty-where">${esc(d.where)}</div></div></div>
       <p class="duty-do">${esc(d.do)}</p>
       ${tasksHtml(d)}
       ${partners}
@@ -784,63 +905,110 @@
     else {
       const nb = block + 1; const na = assignmentFor(me.first, nb); const nd = DUTIES[na.id];
       const t = nb >= BLOCKS ? '9:00 pm' : fmt(DAY_START + nb * 30) + ' pm';
-      const withTxt = na.people.length ? 'with ' + names(na.people) : (nd.cat === 'free' ? 'nothing rostered' : nd.cat === 'hands' ? 'everyone' : 'solo');
-      $('now-next').innerHTML = `<div class="next" style="--c:${CATS[nd.cat].color}"><span class="eyebrow">Next up</span><span class="t">${t}</span><span class="d">${esc(nd.name)}${nd.club ? '' : ''}<small>${esc(nd.where)} · ${esc(withTxt)}</small></span></div>`;
+      const withTxt = na.people.length ? 'with ' + names(na.people) : (nd.cat === 'free' ? 'nothing rostered' : nd.cat === 'hands' ? 'everyone' : nd.cat === 'photo' ? 'all presidents' : 'solo');
+      $('now-next').innerHTML = `<div class="next" style="--c:${CATS[nd.cat].color}"><span class="eyebrow">Next up</span>${dutyIcon(nd, 'sm')}<span class="t">${t}</span><span class="d">${esc(nd.name)}${nd.club ? '' : ''}<small>${esc(nd.where)} · ${esc(withTxt)}</small></span></div>`;
     }
 
     // Run sheet
     $('rs').innerHTML = Array.from({ length: BLOCKS }, (_, i) => {
       const x = assignmentFor(me.first, i); const d = DUTIES[x.id];
-      const w = x.people.length ? 'with ' + names(x.people) : (d.cat === 'free' ? '' : 'solo');
+      const w = x.people.length ? 'with ' + names(x.people) : (d.cat === 'free' || d.cat === 'photo' ? '' : 'solo');
       return `<div class="rs-row ${i === block ? 'now' : ''}" style="--c:${CATS[d.cat].color}">
-        <span class="t">${fmt(DAY_START + i * 30)}</span><span class="bar"></span>
+        <span class="t">${fmt(DAY_START + i * 30)}</span>${dutyIcon(d, 'sm')}
         <span class="d">${esc(d.name)}${d.cat === 'free' ? '' : ''}<small>${esc(d.cat === 'free' ? 'Enjoy the festival' : d.where + (w ? ' · ' + w : ''))}</small></span>
       </div>`;
     }).join('');
   }
 
+  // ---------- Who you care about ----------
+  // A set of first names you've muted. Persists on this phone. You're never
+  // muted from your own view.
+  const HIDE_LS = 'onshift.hidden';
+  let hidden = new Set();
+  try { hidden = new Set(JSON.parse(localStorage.getItem(HIDE_LS)) || []); } catch {}
+  const saveHidden = () => { try { localStorage.setItem(HIDE_LS, JSON.stringify([...hidden])); } catch {} };
+  const shown = (first) => !hidden.has(first) || (me && first === me.first);
+  const socMembers = (c) => PEOPLE.filter(p => p.s.includes(c)).map(p => p.first);
+
+  function renderFilter() {
+    const socs = CLUBS.filter(c => socMembers(c).length);
+    $('t-socs').innerHTML = socs.map(c => {
+      const m = socMembers(c); const on = m.filter(shown).length;
+      const state = on === m.length ? '' : on === 0 ? 'off' : 'part';
+      return `<button type="button" class="chip soc-chip ${state}" data-soc="${c}" aria-pressed="${on > 0}">${c}<span class="cnt">${on}/${m.length}</span></button>`;
+    }).join('');
+    $('t-socs').querySelectorAll('.soc-chip').forEach(b => b.addEventListener('click', () => {
+      const m = socMembers(b.dataset.soc);
+      const allOn = m.every(shown);
+      m.forEach(f => { if (allOn) hidden.add(f); else hidden.delete(f); });
+      saveHidden(); renderFilter(); renderTeam();
+    }));
+    $('t-advlist').innerHTML = socs.map(c => `<div class="adv-soc"><h3>${c}</h3>${socMembers(c).map(f => {
+      const isMe = me && f === me.first;
+      return `<label class="adv-row"><input type="checkbox" data-first="${esc(f)}" ${shown(f) ? 'checked' : ''} ${isMe ? 'disabled' : ''}>${esc(full(f))}${isMe ? '<small>you</small>' : ''}</label>`;
+    }).join('')}</div>`).join('');
+    $('t-advlist').querySelectorAll('input').forEach(i => i.addEventListener('change', () => {
+      if (i.checked) hidden.delete(i.dataset.first); else hidden.add(i.dataset.first);
+      saveHidden(); renderFilter(); renderTeam();
+    }));
+  }
+  $('t-adv').addEventListener('click', () => {
+    const open = $('t-advbox').hidden; $('t-advbox').hidden = !open;
+    $('t-adv').setAttribute('aria-expanded', String(open)); $('t-adv').textContent = open ? 'Done' : 'Advanced';
+  });
+  $('t-reset').addEventListener('click', () => { hidden.clear(); saveHidden(); renderFilter(); renderTeam(); });
+
   function renderTeam() {
     const mine = me ? me.first : null;
     const chip = (p) => `<span class="chip ${p === mine ? 'me' : ''}">${esc(full(p))}<span class="soc">${esc(soc(p))}</span></span>`;
+    const mutedNote = (el, n) => { el.hidden = !n; el.textContent = n ? `${n} muted — change who you see under Show.` : ''; };
     if (block < 0 || block >= BLOCKS) {
       const d = DUTIES[block < 0 ? 'setup' : 'packup'];
       $('t-free-n').textContent = 0; $('t-duty-n').textContent = PEOPLE.length;
       $('t-free').innerHTML = `<span class="fine">Nobody — it's ${d.name.toLowerCase()}.</span>`;
-      $('t-duty').innerHTML = `<div class="duty-row" style="--c:${CATS.hands.color}"><span class="nm">${d.name} — all hands</span><span class="cat">All hands</span><span class="wh">${esc(d.where)}</span><span class="ppl">${PEOPLE.map(p => p.first === mine ? `<span class="me">${esc(p.n)}</span>` : esc(p.n)).join(', ')}</span></div>`;
+      $('t-duty').innerHTML = `<div class="duty-row" style="--c:${CATS.hands.color}">${dutyIcon(d)}<span class="nm">${d.name} — all hands</span><span class="cat">All hands</span><span class="wh">${esc(d.where)}</span><span class="ppl">${PEOPLE.filter(p => shown(p.first)).map(p => p.first === mine ? `<span class="me">${esc(p.n)}</span>` : esc(p.n)).join(', ')}</span></div>`;
+      mutedNote($('t-free-muted'), 0); mutedNote($('t-duty-muted'), PEOPLE.filter(p => !shown(p.first)).length);
       return;
     }
     const rows = ROSTER[block];
     const busy = new Set(rows.flatMap(r => r[1]));
     const free = PEOPLE.map(p => p.first).filter(f => !busy.has(f));
     $('t-free-n').textContent = free.length; $('t-duty-n').textContent = busy.size;
-    $('t-free').innerHTML = free.length ? free.map(chip).join('') : '<span class="fine">Everyone is on duty this block.</span>';
+    const freeShown = free.filter(shown);
+    $('t-free').innerHTML = freeShown.length ? freeShown.map(chip).join('') : `<span class="fine">${free.length ? 'Nobody you\'re watching is free.' : 'Everyone is on duty this block.'}</span>`;
+    mutedNote($('t-free-muted'), free.length - freeShown.length);
 
     // Group same duty into one row; keep pairs distinct with " · "
-    const order = ['sport','ticket','stage','crowd','club','fund'];
+    const order = ['photo','sport','ticket','stage','crowd','club','fund'];
     const grouped = {};
     rows.forEach(([id, ppl]) => { (grouped[id] ||= []).push(ppl); });
     const ids = Object.keys(grouped).sort((a, b) => order.indexOf(DUTIES[a].cat) - order.indexOf(DUTIES[b].cat) || DUTIES[a].name.localeCompare(DUTIES[b].name));
     const person = (p) => p === mine ? `<span class="me">${esc(full(p))}</span>` : esc(full(p));
-    const pplHtml = (id) => grouped[id].map(group => names(group, person)).join('&nbsp;&nbsp;·&nbsp;&nbsp;');
-    const count = (id) => grouped[id].reduce((n, g) => n + g.length, 0);
+    const pplHtml = (id) => grouped[id].map(group => group.filter(shown)).filter(g => g.length).map(group => names(group, person)).join('&nbsp;&nbsp;·&nbsp;&nbsp;');
+    const count = (id) => grouped[id].reduce((n, g) => n + g.filter(shown).length, 0);
+    const mutedHere = [...busy].filter(f => !shown(f)).length;
+    // duties where everyone's muted fold into a single line at the end
+    const quiet = Object.keys(grouped).filter(id => count(id) === 0);
+    const quietHtml = quiet.length ? `<p class="fine">Also on: ${quiet.map(id => esc(DUTIES[id].name)).join(' · ')} — people you've muted.</p>` : '';
+    mutedNote($('t-duty-muted'), mutedHere);
 
     // Club stalls fold into one row — there can be a dozen of them — and expand
     // to show each society's execs. Opens itself if you're on one.
-    const clubIds = ids.filter(id => DUTIES[id].cat === 'club');
-    const otherIds = ids.filter(id => DUTIES[id].cat !== 'club');
+    const clubIds = ids.filter(id => DUTIES[id].cat === 'club' && count(id) > 0);
+    const otherIds = ids.filter(id => DUTIES[id].cat !== 'club' && count(id) > 0);
     const clubHtml = clubIds.length ? (() => {
       const n = clubIds.reduce((s, id) => s + count(id), 0);
       const mineHere = mine && clubIds.some(id => grouped[id].some(g => g.includes(mine)));
       return `<details class="duty-group" style="--c:${CATS.club.color}" ${mineHere ? 'open' : ''}>
-        <summary><span class="nm">Club stalls</span><span class="cat">${clubIds.length} ${clubIds.length === 1 ? 'society' : 'societies'} · ${n} execs</span><span class="wh">Tap to ${mineHere ? 'collapse' : 'expand'}</span></summary>
+        <summary>${iconHtml('tent', CATS.club.color)}<span class="nm">Club stalls</span><span class="cat">${clubIds.length} ${clubIds.length === 1 ? 'society' : 'societies'} · ${n} execs</span><span class="wh">Tap to ${mineHere ? 'collapse' : 'expand'}</span></summary>
         ${clubIds.map(id => `<div class="soc-row"><span class="nm">${esc(DUTIES[id].club)}</span><span class="ppl">${pplHtml(id)}</span></div>`).join('')}
       </details>`;
     })() : '';
 
     $('t-duty').innerHTML = otherIds.map(id => {
       const d = DUTIES[id];
-      return `<div class="duty-row" style="--c:${CATS[d.cat].color}"><span class="nm">${esc(d.name)}</span><span class="cat">${[CATS[d.cat].label === d.name ? '' : CATS[d.cat].label, count(id) > 2 ? count(id) + ' on it' : ''].filter(Boolean).join(' · ')}</span><span class="wh">${esc(d.where)}</span>${tasksHtml(d, 'tight')}<span class="ppl">${pplHtml(id)}</span></div>`;
-    }).join('') + clubHtml;
+      return `<div class="duty-row" style="--c:${CATS[d.cat].color}">${dutyIcon(d)}<span class="nm">${esc(d.name)}</span><span class="cat">${[CATS[d.cat].label === d.name ? '' : CATS[d.cat].label, count(id) > 2 ? count(id) + ' on it' : ''].filter(Boolean).join(' · ')}</span><span class="wh">${esc(d.where)}</span>${tasksHtml(d, 'tight')}<span class="ppl">${pplHtml(id)}</span></div>`;
+    }).join('') + clubHtml + quietHtml;
   }
 
   // ---------- Preview stepper ----------
@@ -898,7 +1066,8 @@
     label('MONSOON DRIFT', .62 * w, .745 * h, -0.12, 11, .7);
     label('EQUATORIAL COUNTERCURRENT', .5 * w, .885 * h, 0.02, 10, .55);
     c.font = `600 12px "Cormorant SC", Georgia, serif`; c.textAlign = 'left';
-    PORTS.forEach(([n, px, py]) => {
+    // port labels only where there's room — on a short hero they crowd the title
+    if (h >= 480) PORTS.forEach(([n, px, py]) => {
       const x = px * w, y = py * h;
       c.fillStyle = 'rgba(245,239,227,.85)'; c.beginPath(); c.arc(x, y, 2.4, 0, Math.PI * 2); c.fill();
       c.strokeStyle = 'rgba(245,239,227,.5)'; c.lineWidth = 1; c.beginPath(); c.arc(x, y, 5.5, 0, Math.PI * 2); c.stroke();
@@ -916,61 +1085,36 @@
     v.addColorStop(0, 'rgba(74,22,14,0)'); v.addColorStop(1, 'rgba(74,22,14,.42)');
     c.fillStyle = v; c.fillRect(0, 0, w, h);
   }
-  const redraw = () => { drawMap($('map-entry')); drawMap($('map-on')); };
+  const redraw = () => { drawMap($('map-entry')); drawMap($('map-on')); drawMap($('map-login')); };
   if (document.fonts && document.fonts.load) document.fonts.load('600 12px "Cormorant SC"').then(redraw, redraw); else redraw();
   window.addEventListener('resize', redraw);
 
   // ---------- Roster loading ----------
-  // roster.enc is AES-GCM ciphertext. The key comes from one of:
-  //   - the exec passcode typed into the login form (PBKDF2 → key), or
-  //   - a #k= link that carries the derived key, or
-  //   - localStorage, once either of the above has worked on this phone.
-  // Nothing in this file or the repo can decrypt it.
-  const KEY_LS = 'onshift.key';
+  // roster.enc is AES-GCM ciphertext; the key is right here. That keeps the
+  // names out of the repo, out of view-source, and out of search engines
+  // (they're only ever rendered after someone types a name and society).
+  // It does not stop anyone who reads this script. That's the trade-off:
+  // zero friction on the day.
+  const ROSTER_KEY = 'DIEB7SEjh10qp5-CcwQS5tN3ldGXPNiTwynJa4i8PUw';
   let rosterLoaded = false;
   const b64u = (str) => Uint8Array.from(atob(str.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0));
-  const toB64u = (buf) => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-  const normPass = (s) => s.toLowerCase().trim().split(/[\s-]+/).join(' ');
-  function keyFromLink() {
-    const m = location.hash.match(/[#&]k=([A-Za-z0-9_-]{40,})/);
-    if (!m) return null;
-    // drop the key from the address bar so it isn't in screenshots or history
-    history.replaceState(null, '', location.pathname + location.search);
-    return m[1];
-  }
-  let encCache = null;
-  async function fetchEnc() {
-    if (encCache) return encCache;
-    const res = await fetch('roster.enc', { cache: 'no-store' });
-    if (!res.ok) throw new Error('no roster.enc');
-    return (encCache = await res.json());
-  }
-  async function deriveKey(passcode, enc) {
-    const base = await crypto.subtle.importKey('raw', new TextEncoder().encode(normPass(passcode)), 'PBKDF2', false, ['deriveKey']);
-    return crypto.subtle.deriveKey({ name: 'PBKDF2', salt: b64u(enc.salt), iterations: enc.rounds, hash: 'SHA-256' }, base, { name: 'AES-GCM', length: 256 }, true, ['decrypt']);
-  }
-  async function loadRoster({ passcode } = {}) {
-    let k = null;
-    if (!passcode) { k = keyFromLink(); if (!k) { try { k = localStorage.getItem(KEY_LS); } catch {} } if (!k) return false; }
+  async function loadRoster() {
+    if (rosterLoaded) return true;
     try {
-      const enc = await fetchEnc();
-      const key = passcode ? await deriveKey(passcode, enc) : await crypto.subtle.importKey('raw', b64u(k), 'AES-GCM', true, ['decrypt']);
+      const res = await fetch('roster.enc', { cache: 'no-store' });
+      if (!res.ok) throw new Error('no roster.enc');
+      const enc = await res.json();
+      const key = await crypto.subtle.importKey('raw', b64u(ROSTER_KEY), 'AES-GCM', false, ['decrypt']);
       const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: b64u(enc.iv) }, key, b64u(enc.ct));
       setRoster(JSON.parse(new TextDecoder().decode(pt)));
-      try { localStorage.setItem(KEY_LS, toB64u(await crypto.subtle.exportKey('raw', key))); } catch {}
       rosterLoaded = true;
       return true;
-    } catch (e) {
-      try { localStorage.removeItem(KEY_LS); } catch {}   // a stale key shouldn't keep failing silently
-      return false;
-    }
+    } catch (e) { return false; }
   }
 
   // ---------- Boot ----------
-  loadRoster().then(() => {
-    passFieldVisibility();
-    try { const s = localStorage.getItem('onshift.identity'); if (s) ident = JSON.parse(s); } catch {}
-    if (rosterLoaded && ident && ident.name && ident.society) enter(); else redraw();
-  });
+  try { const s = localStorage.getItem('onshift.identity'); if (s) ident = JSON.parse(s); } catch {}
+  if (ident && ident.name && ident.society) loadRoster().then(ok => { if (ok) enter(); else redraw(); });
+  else redraw();
 })();
 </script>
