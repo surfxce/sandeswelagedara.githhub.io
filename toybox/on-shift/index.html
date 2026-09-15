@@ -208,6 +208,27 @@
   }
   .tray-head { display: flex; align-items: center; justify-content: space-between; }
   .tray-head h2 { margin: 0; font-size: 13px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
+  .swap-list { display: grid; gap: 8px; }
+  .swap {
+    background: #fff; border-left: 8px solid var(--c); padding: 10px 12px; box-shadow: 0 1px 0 var(--line);
+    display: grid; grid-template-columns: 30px 1fr; gap: 4px 10px; align-items: start;
+  }
+  .swap .who-txt { font-weight: 700; font-size: 15px; line-height: 1.3; }
+  .swap .who-txt b { color: var(--maroon); }
+  .swap .when { grid-column: 2; font-size: 13px; color: var(--ink-2); }
+  .swap .acts { grid-column: 2; display: flex; gap: 8px; margin-top: 6px; }
+  .swap .acts button { flex: 1; height: 42px; border-radius: 6px; border: 0; font-weight: 800; font-size: 15px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+  .swap .acts button svg { width: 18px; height: 18px; }
+  .swap .acts .yes { background: #3E7A4A; color: #fff; }
+  .swap .acts .no { background: #B23A2E; color: #fff; }
+  .swap .acts .ghost { background: transparent; color: var(--maroon); border: 1.5px solid var(--line); }
+  .swap .state { grid-column: 2; font-size: 13px; font-weight: 700; color: var(--ink-2); margin-top: 4px; }
+  .swap .state.ok { color: #3E7A4A; }
+  .swap-ctl { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 12px; background: #fff; box-shadow: 0 1px 0 var(--line); border-left: 8px solid var(--line); margin-top: -6px; }
+  .swap-ctl .txt { font-size: 14px; color: var(--ink-2); }
+  .swap-ctl .txt b { color: var(--ink); }
+  .swap-ctl.open { border-left-color: var(--tan); }
+  .swap-ctl.taken { border-left-color: #3E7A4A; }
   .bcast-item.org { border-left-color: var(--maroon); background: #FFF8EE; }
   .bcast-item .tag { display: inline-block; margin-right: 6px; padding: 2px 6px; border-radius: 4px; background: var(--maroon); color: var(--cream); font-size: 10px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; vertical-align: middle; }
   .who {
@@ -638,7 +659,9 @@
     </header>
 
     <div class="tray" id="tray" hidden>
-      <div class="tray-head"><h2>Broadcasts</h2><button class="linkbtn" id="tray-close" type="button">Close</button></div>
+      <div class="tray-head"><h2>Swap requests</h2><button class="linkbtn" id="tray-close" type="button">Close</button></div>
+      <div class="swap-list" id="swap-list"></div>
+      <div class="tray-head"><h2>Broadcasts</h2></div>
       <form class="bcast-form" id="bcast-form" autocomplete="off">
         <input id="bcast-text" type="text" maxlength="280" placeholder="Post an update to every exec…" required>
         <button class="btn-small" type="submit">Post</button>
@@ -897,12 +920,25 @@
   };
 
   // ---------- Roster helpers ----------
+  // The roster as it stands after accepted swaps: the taker steps into the
+  // requester's slot, same duty, same partners.
+  let swaps = {};
+  function rowsFor(i) {
+    const taken = Object.values(swaps).filter(sw => sw.status === 'taken' && sw.block === i && sw.to);
+    if (!taken.length) return ROSTER[i];
+    return ROSTER[i].map(([id, ppl]) => {
+      let out = ppl.slice();
+      taken.forEach(sw => { if (sw.duty === id && out.includes(sw.from)) { out = out.filter(p => p !== sw.from && p !== sw.to); out.push(sw.to); } });
+      return [id, out];
+    }).filter(([, ppl]) => ppl.length);
+  }
   function assignmentFor(first, i) {
     if (i < 0) return { id:'setup', people:[] };
     if (i >= BLOCKS) return { id:'packup', people:[] };
-    for (const [id, ppl] of ROSTER[i]) if (ppl.includes(first)) return { id, people: ppl.filter(p => p !== first) };
+    for (const [id, ppl] of rowsFor(i)) if (ppl.includes(first)) return { id, people: ppl.filter(p => p !== first) };
     return { id:'free', people:[] };
   }
+  const isFree = (first, i) => i >= 0 && i < BLOCKS && assignmentFor(first, i).id === 'free';
   const soc = (first) => { const p = byFirst[first.toLowerCase()]; return p.s.join(' · ') + (p.role ? ' · ' + p.role : ''); };
   const full = (first) => byFirst[first.toLowerCase()].n;
   const esc = (s) => s.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -1066,7 +1102,8 @@
     }
     $('runsheet').hidden = false;
     const a = assignmentFor(me.first, block);
-    $('now-card').innerHTML = dutyCard(a);
+    $('now-card').innerHTML = dutyCard(a) + swapControl(a);
+    bindSwapControl();
 
     // Next block
     if (block >= BLOCKS) { $('now-next').innerHTML = ''; }
@@ -1150,7 +1187,7 @@
       mutedNote($('t-free-muted'), 0); mutedNote($('t-duty-muted'), PEOPLE.filter(p => !shown(p.first)).length);
       return;
     }
-    const rows = ROSTER[block];
+    const rows = rowsFor(block);
     const busy = new Set(rows.flatMap(r => r[1]));
     const free = PEOPLE.map(p => p.first).filter(f => !busy.has(f));
     $('t-free-n').textContent = free.length; $('t-duty-n').textContent = busy.size;
@@ -1324,7 +1361,7 @@
   let bcasts = {};
   const SEEN_LS = 'onshift.seen';
   let seen = 0; try { seen = Number(localStorage.getItem(SEEN_LS)) || 0; } catch {}
-  function unreadCount() { return Object.values(bcasts).filter(b => (b.t || 0) > seen).length; }
+  function unreadCount() { return Object.values(bcasts).filter(b => (b.t || 0) > seen).length + swapsForMe().length; }
   function renderBell() {
     const n = unreadCount(); const el = $('bell-n');
     el.hidden = !n; el.textContent = n > 9 ? '9+' : n;
@@ -1337,7 +1374,7 @@
   }
   function openTray(open) {
     $('tray').hidden = !open; $('bell').setAttribute('aria-expanded', String(open));
-    if (open) { renderBcasts(); seen = Date.now(); try { localStorage.setItem(SEEN_LS, String(seen)); } catch {} renderBell(); }
+    if (open) { renderSwaps(); renderBcasts(); seen = Date.now(); try { localStorage.setItem(SEEN_LS, String(seen)); } catch {} renderBell(); }
   }
   $('bell').addEventListener('click', () => openTray($('tray').hidden));
   $('tray-close').addEventListener('click', () => openTray(false));
@@ -1347,6 +1384,54 @@
     ref('broadcasts').push({ text, by: me ? me.first : (ident ? ident.name : 'Exec'), t: now() });
     $('bcast-text').value = '';
   });
+
+  // --- swap requests ---
+  // "X wants to swap out of Y" goes to everyone who's free that block. First
+  // to tap ✓ takes the slot (a transaction, so two taps can't both win).
+  const TICK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>';
+  const CROSS = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+  const mySwapFor = (i) => Object.entries(swaps).find(([, sw]) => me && sw.from === me.first && sw.block === i && sw.status !== 'withdrawn');
+  function swapControl(a) {
+    if (!db || !me || block < 0 || block >= BLOCKS || ['free', 'hands', 'photo'].includes(DUTIES[a.id].cat)) return '';
+    const mine = mySwapFor(block);
+    if (mine) {
+      const [id, sw] = mine;
+      return sw.status === 'taken'
+        ? `<div class="swap-ctl taken"><span class="txt"><b>${esc(sw.to)}</b> took this block for you.</span></div>`
+        : `<div class="swap-ctl open"><span class="txt">Swap request out to free execs…</span><button class="btn-small ghost" data-withdraw="${id}" type="button">Withdraw</button></div>`;
+    }
+    return `<div class="swap-ctl"><span class="txt">Can't make this block?</span><button class="btn-small ghost" id="swap-ask" type="button">Ask to swap out</button></div>`;
+  }
+  function bindSwapControl() {
+    const ask = $('swap-ask');
+    if (ask) ask.addEventListener('click', () => {
+      const a = assignmentFor(me.first, block);
+      if (!confirm(`Ask a free exec to take ${DUTIES[a.id].name}, ${range(block)}?`)) return;
+      ref('swaps').push({ from: me.first, block, duty: a.id, status: 'open', t: now() });
+    });
+    const wd = document.querySelector('[data-withdraw]');
+    if (wd) wd.addEventListener('click', () => ref('swaps/' + wd.dataset.withdraw).update({ status: 'withdrawn' }));
+  }
+  const swapsForMe = () => Object.entries(swaps).filter(([, sw]) => me && sw.status === 'open' && sw.from !== me.first && !(sw.declines || {})[me.first] && isFree(me.first, sw.block));
+  function renderSwaps() {
+    const el = $('swap-list'); if (!el) return;
+    const mine = Object.entries(swaps).filter(([, sw]) => me && sw.from === me.first && sw.status !== 'withdrawn');
+    const open = swapsForMe();
+    const card = ([id, sw], role) => {
+      const d = DUTIES[sw.duty] || {}; const color = CATS[d.cat] ? CATS[d.cat].color : 'var(--line)';
+      const acts = role === 'take'
+        ? `<div class="acts"><button type="button" class="yes" data-take="${id}">${TICK} I'll take it</button><button type="button" class="no" data-decline="${id}">${CROSS} Not me</button></div>`
+        : sw.status === 'taken' ? `<span class="state ok">${esc(sw.to)} took it</span>`
+        : `<span class="state">Open — waiting for a free exec</span>`;
+      return `<div class="swap" style="--c:${color}">${dutyIcon(d, 'sm')}<span class="who-txt"><b>${esc(sw.from)}</b> wants to swap out of <b>${esc(d.name || sw.duty)}</b></span><span class="when">${range(sw.block)} · ${esc(d.where || '')}</span>${acts}</div>`;
+    };
+    el.innerHTML = (open.map(x => card(x, 'take')).join('') + mine.map(x => card(x, 'mine')).join('')) || '<p class="fine">No swap requests right now.</p>';
+    el.querySelectorAll('[data-take]').forEach(b => b.addEventListener('click', () => {
+      ref('swaps/' + b.dataset.take).transaction(sw => { if (!sw || sw.status !== 'open') return; sw.status = 'taken'; sw.to = me.first; sw.tt = Date.now(); return sw; },
+        (err, committed) => { if (!committed) alert('Someone else got there first.'); });
+    }));
+    el.querySelectorAll('[data-decline]').forEach(b => b.addEventListener('click', () => ref('swaps/' + b.dataset.decline + '/declines/' + me.first).set(true)));
+  }
 
   // --- brackets (single elimination) ---
   let brackets = {};
@@ -1453,6 +1538,7 @@
     ref('scores').limitToLast(60).on('value', snap => { matches = snap.val() || {}; renderScores(); settleBrackets(); renderBrackets(); }, () => { unavailable($('scores-live'), 'scores'); if (pub) unavailable(pub, 'scores'); });
     ref('brackets').on('value', snap => { brackets = snap.val() || {}; renderBrackets(); }, () => { unavailable($('brackets'), 'brackets'); const pb = $('public-brackets'); if (pb) unavailable(pb, 'brackets'); });
     ref('broadcasts').limitToLast(30).on('value', snap => { bcasts = snap.val() || {}; renderBcasts(); }, () => { unavailable($('bcast-list'), 'updates'); });
+    ref('swaps').limitToLast(60).on('value', snap => { swaps = snap.val() || {}; if (!$('shell').hidden) { render(); renderSwaps(); renderBell(); } }, () => { unavailable($('swap-list'), 'swaps'); });
   }
   startLive();
 
