@@ -190,6 +190,21 @@
     font-family: var(--display); font-weight: 700; font-size: 22px; letter-spacing: .06em;
     color: var(--maroon); white-space: nowrap; flex: 0 0 auto;
   }
+  .deskbtn {
+    width: 44px; height: 44px; border-radius: 22px; border: 1.5px solid var(--maroon);
+    background: var(--maroon); color: var(--cream); display: grid; place-items: center; margin-left: auto; flex: 0 0 auto;
+  }
+  .deskbtn svg { width: 22px; height: 22px; }
+  .deskbtn + .bell { margin-left: 0; }
+  .topbar:has(.deskbtn:not([hidden])) .who .soc { display: none; }
+  .topbar:has(.deskbtn:not([hidden])) .who .nm { max-width: 10ch; }
+  .desk-head { display: flex; align-items: center; justify-content: space-between; }
+  .cover-row { display: grid; grid-template-columns: 30px 1fr auto; gap: 4px 10px; align-items: center; background: #fff; border-left: 8px solid var(--c); padding: 8px 12px; box-shadow: 0 1px 0 var(--line); }
+  .cover-row .nm { font-weight: 800; font-size: 15px; }
+  .cover-row .ct { font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--c); white-space: nowrap; }
+  .cover-row .ct.short { color: #B23A2E; }
+  .cover-row .ppl { grid-column: 2 / -1; font-size: 14px; color: var(--ink-2); }
+  .cover-row .ppl .coming { color: #3E7A4A; font-weight: 700; }
   .bell {
     position: relative; width: 44px; height: 44px; border-radius: 22px; border: 1.5px solid var(--line);
     background: var(--paper); color: var(--maroon); display: grid; place-items: center; margin-left: auto; flex: 0 0 auto;
@@ -229,6 +244,27 @@
   .swap-ctl .txt b { color: var(--ink); }
   .swap-ctl.open { border-left-color: var(--tan); }
   .swap-ctl.taken { border-left-color: #3E7A4A; }
+  [data-dm] { cursor: pointer; text-decoration: underline; text-decoration-color: var(--tan); text-underline-offset: 3px; text-decoration-thickness: 1.5px; }
+  .dm-convos { display: grid; gap: 6px; }
+  .dm-convo { display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; align-items: center; background: #fff; padding: 10px 12px; border-left: 8px solid var(--line); box-shadow: 0 1px 0 var(--line); cursor: pointer; }
+  .dm-convo.unread { border-left-color: var(--maroon); }
+  .dm-convo .nm { font-weight: 800; font-size: 15px; }
+  .dm-convo .last { grid-column: 1; font-size: 14px; color: var(--ink-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .dm-convo .n { grid-row: 1 / span 2; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 11px; background: #C0392B; color: #fff; font-size: 12px; font-weight: 800; display: grid; place-items: center; }
+  .dm-backdrop { position: fixed; inset: 0; background: rgba(43,26,20,.35); z-index: 20; }
+  .dm-sheet {
+    position: fixed; left: 50%; bottom: 0; transform: translateX(-50%); width: 100%; max-width: var(--maxw); z-index: 21;
+    background: var(--paper); border-top: 4px solid var(--maroon); border-radius: 14px 14px 0 0; padding: 14px 16px calc(16px + env(safe-area-inset-bottom));
+    display: grid; gap: 10px; max-height: 80vh; box-shadow: 0 -10px 30px rgba(74,22,14,.18);
+  }
+  .dm-head { display: flex; align-items: center; justify-content: space-between; }
+  .dm-head .nm { font-weight: 800; font-size: 18px; }
+  .dm-thread { display: grid; gap: 6px; overflow: auto; max-height: 38vh; padding: 2px 0; }
+  .msg { max-width: 82%; padding: 8px 12px; border-radius: 12px; font-size: 15px; line-height: 1.3; background: #fff; box-shadow: 0 1px 0 var(--line); justify-self: start; }
+  .msg.me { background: var(--maroon); color: var(--cream); justify-self: end; }
+  .msg .t { display: block; font-size: 11px; opacity: .7; margin-top: 2px; }
+  .dm-canned { display: flex; flex-wrap: wrap; gap: 6px; }
+  .dm-canned button { min-height: 36px; padding: 0 12px; border-radius: 18px; border: 1.5px solid var(--line); background: #fff; font-weight: 700; font-size: 14px; color: var(--maroon); }
   .bcast-item.org { border-left-color: var(--maroon); background: #FFF8EE; }
   .bcast-item .tag { display: inline-block; margin-right: 6px; padding: 2px 6px; border-radius: 4px; background: var(--maroon); color: var(--cream); font-size: 10px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; vertical-align: middle; }
   .who {
@@ -522,13 +558,42 @@
   .bm .pick { display: flex; gap: 4px; }
   .bracket .out { font-size: 13px; color: var(--ink-3); }
   .bracket .out s { margin-right: 2px; }
+  .teampick { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .teampick label { display: flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 10px; border: 1.5px solid var(--line); border-radius: 6px; background: var(--paper); font-weight: 700; font-size: 14px; color: var(--ink); }
+  .teampick label:has(input:checked) { border-color: var(--maroon); background: #fff; }
+  .teampick input { width: 20px; height: 20px; accent-color: var(--maroon); margin: 0; }
+  .more summary { list-style: none; cursor: pointer; font-weight: 700; color: var(--maroon); font-size: 14px; }
+  .more summary::-webkit-details-marker { display: none; }
+  .more summary::before { content: "+ "; }
+  .more .field { margin-top: 8px; }
+  .bracket .next .play { grid-column: 2; grid-row: 2 / span 2; height: 40px; padding: 0 14px; border-radius: 6px; border: 0; background: var(--maroon); color: var(--cream); font-weight: 800; }
+  /* drawn bracket: one column per round, lines joining winners forward */
+  .bdraw-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 6px; }
+  .bdraw { position: relative; display: flex; gap: 28px; align-items: stretch; width: max-content; min-width: 100%; padding: 4px 2px; }
+  .bcol { display: flex; flex-direction: column; justify-content: space-around; gap: 10px; min-width: 150px; }
+  .bcol h5 { margin: 0 0 2px; font-size: 10px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); text-align: center; }
+  .bbox { position: relative; background: #fff; border: 1.5px solid var(--line); border-left: 5px solid var(--c); border-radius: 6px; overflow: hidden; }
+  .bbox .row { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 6px 10px; font-weight: 700; font-size: 13px; min-height: 32px; }
+  .bbox .row + .row { border-top: 1px solid var(--line); }
+  .bbox .row.won { color: var(--maroon); background: #FFF8EE; }
+  .bbox .row.lost { color: var(--ink-3); text-decoration: line-through; font-weight: 600; }
+  .bbox .row.tbd { color: var(--ink-3); font-style: italic; font-weight: 500; }
+  .bbox .row .sc { font-variant-numeric: tabular-nums; color: var(--ink); }
+  .bbox.live { border-color: var(--c-club); }
+  .blines { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  .blines path { fill: none; stroke: var(--line); stroke-width: 2; }
+  .blines path.won { stroke: var(--tan); }
   .newmatch textarea { min-height: 120px; padding: 10px 14px; border-radius: 6px; background: var(--paper); color: var(--ink); border: 2px solid var(--line); width: 100%; resize: vertical; }
 
   /* ---------- Map (placeholder) ---------- */
-  .map-frame {
-    min-height: 60vh; border: 1.5px dashed var(--line); border-radius: 8px; background: #fff;
-    display: grid; place-content: center; justify-items: center; gap: 6px; text-align: center;
+  .mapz {
+    position: relative; height: 70vh; overflow: hidden; background: #fff; border-radius: 8px;
+    box-shadow: 0 1px 0 var(--line); touch-action: none; cursor: grab; user-select: none; -webkit-user-select: none;
   }
+  .mapz:active { cursor: grabbing; }
+  .mapz img { position: absolute; top: 0; left: 0; transform-origin: 0 0; will-change: transform; max-width: none; pointer-events: none; }
+  .mapz-ctl { position: absolute; right: 10px; bottom: 10px; display: grid; gap: 6px; }
+  .mapz-ctl button { width: 44px; height: 44px; border-radius: 8px; border: 1.5px solid var(--line); background: var(--paper); color: var(--maroon); font-size: 22px; font-weight: 800; box-shadow: 0 2px 6px rgba(74,22,14,.12); }
 
   /* ---------- What's On ---------- */
   .whatson { padding: 0; gap: 0; }
@@ -647,6 +712,7 @@
   <div class="shell" id="shell" hidden>
     <header class="topbar">
       <div class="wordmark">On Shift</div>
+      <button class="deskbtn" id="deskbtn" type="button" hidden aria-label="Organiser desk" title="Organiser desk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1M9 10h6M9 14h6M9 18h3"/></svg></button>
       <button class="bell" id="bell" type="button" aria-label="Broadcasts" aria-expanded="false" aria-controls="tray">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 21h4"/></svg>
         <span class="bell-n" id="bell-n" hidden></span>
@@ -661,13 +727,17 @@
     <div class="tray" id="tray" hidden>
       <div class="tray-head"><h2>Swap requests</h2><button class="linkbtn" id="tray-close" type="button">Close</button></div>
       <div class="swap-list" id="swap-list"></div>
-      <div class="tray-head"><h2>Broadcasts</h2></div>
-      <form class="bcast-form" id="bcast-form" autocomplete="off">
-        <input id="bcast-text" type="text" maxlength="280" placeholder="Post an update to every exec…" required>
+      <div class="tray-head"><h2>Messages</h2></div>
+      <div class="dm-convos" id="dm-convos"></div>
+      <div class="tray-head"><h2>Calls for help</h2></div>
+      <div class="swap-list" id="help-list"></div>
+      <div class="tray-head"><h2>Notices</h2></div>
+      <form class="bcast-form" id="bcast-form" autocomplete="off" hidden>
+        <input id="bcast-text" type="text" maxlength="280" placeholder="Notice to every exec…" required>
         <button class="btn-small" type="submit">Post</button>
       </form>
       <div class="bcast-list" id="bcast-list"></div>
-      <p class="fine">Every exec can post; your name goes on it. Organisers' posts are marked.</p>
+      <p class="fine">Need hands or a swap? Use the buttons under your duty card. Notices come from the organisers.</p>
     </div>
 
     <div class="blockbar" id="blockbar">
@@ -740,6 +810,27 @@
       </div>
     </section>
 
+    <!-- DESK (organisers) -->
+    <section class="view" id="view-desk" role="tabpanel" hidden>
+      <div class="desk-head"><h2 class="sec" style="margin:0">Organiser desk</h2><button class="linkbtn" id="desk-close" type="button">Back</button></div>
+      <div class="counts">
+        <div class="count" style="--c: var(--c-sport)"><div class="n" id="d-duty-n">0</div><div class="l">On duty</div></div>
+        <div class="count" style="--c: var(--c-free)"><div class="n" id="d-free-n">0</div><div class="l">Free</div></div>
+        <div class="count" style="--c: var(--c-club)"><div class="n" id="d-help-n">0</div><div class="l">Open help calls</div></div>
+        <div class="count" style="--c: var(--tan)"><div class="n" id="d-swap-n">0</div><div class="l">Open swaps</div></div>
+      </div>
+      <div><h2 class="sec">Coverage this block</h2><div class="duty-list" id="d-cover"></div></div>
+      <div><h2 class="sec">Help calls</h2><div class="swap-list" id="d-help"></div></div>
+      <div><h2 class="sec">Swap requests</h2><div class="swap-list" id="d-swaps"></div></div>
+      <div><h2 class="sec">Live matches</h2><div class="match-list" id="d-live"></div></div>
+      <div><h2 class="sec">Post a notice</h2>
+        <form class="bcast-form" id="desk-notice" autocomplete="off">
+          <input id="desk-text" type="text" maxlength="280" placeholder="Notice to every exec…" required>
+          <button class="btn-small" type="submit">Post</button>
+        </form>
+      </div>
+    </section>
+
     <!-- SCORES (live, shared) -->
     <section class="view" id="view-scores" role="tabpanel" hidden>
       <div>
@@ -751,10 +842,14 @@
         <form id="bracket-form" autocomplete="off">
           <div class="field"><label for="b-sport">Sport</label>
             <select id="b-sport" required><option value="vb">Volleyball</option><option value="fb">Football</option><option value="ck">Cricket</option></select></div>
-          <div class="field"><label for="b-teams">Teams, one per line, in seeding order</label>
-            <textarea id="b-teams" rows="6" placeholder="UQISC&#10;UQSLA&#10;UQNC&#10;UQPA" required></textarea></div>
+          <div class="field"><label>Teams — tick who's in</label>
+            <div class="teampick" id="b-pick"></div></div>
+          <details class="more"><summary>Other teams</summary>
+            <div class="field"><label for="b-teams">One per line</label>
+              <textarea id="b-teams" rows="3" placeholder="Staff XI&#10;Alumni"></textarea></div></details>
+          <label class="adv-row"><input type="checkbox" id="b-shuffle"> Shuffle the seeding</label>
           <button class="btn-primary dark" type="submit">Build bracket</button>
-          <p class="fine">Single elimination. An odd number gets a bye in round one. Building again replaces the bracket for that sport.</p>
+          <p class="fine">Single elimination. Seeded in the order ticked unless shuffled; an odd number gets a bye. Building again replaces that sport's bracket.</p>
         </form>
       </details>
       <div>
@@ -780,10 +875,15 @@
 
     <!-- MAP (placeholder — to be drawn) -->
     <section class="view" id="view-map" role="tabpanel" hidden>
-      <div class="map-frame" aria-label="Festival map, coming soon">
-        <span class="eyebrow">Festival map</span>
-        <span class="fine">Coming soon.</span>
+      <div class="mapz" id="mapz" aria-label="Festival map — drag to pan, pinch or scroll to zoom">
+        <img id="mapz-img" src="map.jpg" alt="UQ Sport Athletics Centre vendor map" draggable="false">
+        <div class="mapz-ctl">
+          <button type="button" data-z="1.4" aria-label="Zoom in">+</button>
+          <button type="button" data-z="0.7" aria-label="Zoom out">−</button>
+          <button type="button" data-z="0" aria-label="Reset">⟲</button>
+        </div>
       </div>
+      <p class="fine">UQ Sport Athletics Centre. Drag to pan, pinch or scroll to zoom, double-tap to zoom in. Pins for our stalls are coming.</p>
     </section>
 
     <!-- WHAT'S ON -->
@@ -797,6 +897,18 @@
         </div>
       </div>
       <div class="whatson-body" id="exec-on"></div>
+    </section>
+
+    <!-- DM sheet: tap any name to open -->
+    <div class="dm-backdrop" id="dm-backdrop" hidden></div>
+    <section class="dm-sheet" id="dm-sheet" hidden aria-label="Message">
+      <div class="dm-head"><span class="nm" id="dm-who">—</span><button class="linkbtn" id="dm-close" type="button">Close</button></div>
+      <div class="dm-thread" id="dm-thread"></div>
+      <div class="dm-canned" id="dm-canned"></div>
+      <form class="bcast-form" id="dm-form" autocomplete="off">
+        <input id="dm-text" type="text" maxlength="200" placeholder="Message…" required>
+        <button class="btn-small" type="submit">Send</button>
+      </form>
     </section>
 
     <nav class="tabs" role="tablist" aria-label="Views">
@@ -993,6 +1105,7 @@
     </details></div>`;
     return sections + clubs + `<p class="fine">Setup 2–3pm and pack-up 9–10pm are all hands.</p>`;
   }
+  $('b-pick').innerHTML = CLUBS.map(c => `<label><input type="checkbox" value="${c}">${c}</label>`).join('');
   $('exec-on').innerHTML = whatsOnHtml();
   $('public-on').innerHTML = whatsOnHtml();
 
@@ -1043,19 +1156,21 @@
     const lb = liveBlock();
     live = lb !== null; block = live ? lb : 0;
     renderFilter();
+    $('bcast-form').hidden = !(db && isAdmin()); $('deskbtn').hidden = !(db && isAdmin());
     showView(me ? 'now' : 'team');
     render();
     requestAnimationFrame(() => drawMap($('map-on')));
   }
 
   // ---------- Views ----------
-  function showView(v) {
-    ['now','team','scores','map','on'].forEach(k => { $('view-' + k).hidden = k !== v; });
+  let showView = function (v) {
+    ['now','team','scores','map','on','desk'].forEach(k => { $('view-' + k).hidden = k !== v; });
     document.querySelectorAll('.tab').forEach(t => t.setAttribute('aria-selected', String(t.dataset.view === v)));
+    if (v === 'desk') renderDesk();
     $('blockbar').hidden = v === 'on' || v === 'map' || v === 'scores';
     window.scrollTo(0, 0);
     if (v === 'on') requestAnimationFrame(() => drawMap($('map-on')));
-  }
+  };
   document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => showView(t.dataset.view)));
 
   // ---------- Render ----------
@@ -1068,6 +1183,7 @@
 
     renderNow();
     renderTeam();
+    renderDesk();
 
     $('pv-mode').textContent = live ? 'Live — following the clock' : 'Preview mode';
     $('pv-note').textContent = live
@@ -1080,7 +1196,7 @@
   function dutyCard(a, extraClass) {
     const d = DUTIES[a.id]; const cat = CATS[d.cat];
     const partners = a.people.length
-      ? `<div class="with"><span class="eyebrow">With</span><div class="partner-list">${a.people.map(p => `<div class="partner">${esc(full(p))}<span class="soc">${esc(soc(p))}</span></div>`).join('')}</div></div>`
+      ? `<div class="with"><span class="eyebrow">With</span><div class="partner-list">${a.people.map(p => `<div class="partner"><span data-dm="${esc(p)}">${esc(full(p))}</span><span class="soc">${esc(soc(p))}</span></div>`).join('')}</div></div>`
       : (['free', 'hands', 'photo'].includes(d.cat) ? '' : `<div class="with"><span class="eyebrow">With</span><div class="partner">Solo this block</div></div>`);
     // status line: the pulsing dot says "this block is on now"; the category
     // only follows when it says something the heading doesn't
@@ -1102,8 +1218,8 @@
     }
     $('runsheet').hidden = false;
     const a = assignmentFor(me.first, block);
-    $('now-card').innerHTML = dutyCard(a) + swapControl(a);
-    bindSwapControl();
+    $('now-card').innerHTML = dutyCard(a) + helpControl(a) + swapControl(a);
+    bindHelpControl(); bindSwapControl();
 
     // Next block
     if (block >= BLOCKS) { $('now-next').innerHTML = ''; }
@@ -1177,7 +1293,7 @@
 
   function renderTeam() {
     const mine = me ? me.first : null;
-    const chip = (p) => `<span class="chip ${p === mine ? 'me' : ''}">${esc(full(p))}<span class="soc">${esc(soc(p))}</span></span>`;
+    const chip = (p) => `<span class="chip ${p === mine ? 'me' : ''}"><span ${p === mine ? '' : `data-dm="${esc(p)}"`}>${esc(full(p))}</span><span class="soc">${esc(soc(p))}</span></span>`;
     const mutedNote = (el, n) => { el.hidden = !n; el.textContent = n ? `${n} muted — change who you see under Show.` : ''; };
     if (block < 0 || block >= BLOCKS) {
       const d = DUTIES[block < 0 ? 'setup' : 'packup'];
@@ -1200,7 +1316,7 @@
     const grouped = {};
     rows.forEach(([id, ppl]) => { (grouped[id] ||= []).push(ppl); });
     const ids = Object.keys(grouped).sort((a, b) => order.indexOf(DUTIES[a].cat) - order.indexOf(DUTIES[b].cat) || DUTIES[a].name.localeCompare(DUTIES[b].name));
-    const person = (p) => p === mine ? `<span class="me">${esc(full(p))}</span>` : esc(full(p));
+    const person = (p) => p === mine ? `<span class="me">${esc(full(p))}</span>` : `<span data-dm="${esc(p)}">${esc(full(p))}</span>`;
     const pplHtml = (id) => grouped[id].map(group => group.filter(shown)).filter(g => g.length).map(group => names(group, person)).join('&nbsp;&nbsp;·&nbsp;&nbsp;');
     const count = (id) => grouped[id].reduce((n, g) => n + g.filter(shown).length, 0);
     const mutedHere = [...busy].filter(f => !shown(f)).length;
@@ -1227,6 +1343,47 @@
       return `<div class="duty-row" style="--c:${CATS[d.cat].color}">${dutyIcon(d)}<span class="nm">${esc(d.name)}</span><span class="cat">${[CATS[d.cat].label === d.name ? '' : CATS[d.cat].label, count(id) > 2 ? count(id) + ' on it' : ''].filter(Boolean).join(' · ')}</span><span class="wh">${esc(d.where)}</span>${tasksHtml(d, 'tight')}<span class="ppl">${pplHtml(id)}</span></div>`;
     }).join('') + clubHtml + quietHtml;
   }
+
+  // ---------- Map: pan + zoom ----------
+  // Pointer events for drag, two pointers for pinch, wheel for desktop,
+  // double-tap to zoom in. Scale is clamped so you can't lose the map.
+  (function initMap() {
+    const box = $('mapz'), img = $('mapz-img'); if (!box || !img) return;
+    let s = 1, x = 0, y = 0, minS = 0.2, fitted = false;
+    const ptrs = new Map(); let pinch = null, lastTap = 0, moved = 0, pinched = false;
+    const apply = () => { img.style.transform = `translate(${x}px, ${y}px) scale(${s})`; };
+    const clamp = () => {
+      const bw = box.clientWidth, bh = box.clientHeight, iw = img.naturalWidth * s, ih = img.naturalHeight * s;
+      x = iw <= bw ? (bw - iw) / 2 : Math.min(0, Math.max(bw - iw, x));
+      y = ih <= bh ? (bh - ih) / 2 : Math.min(0, Math.max(bh - ih, y));
+    };
+    const fit = () => { if (!img.naturalWidth || !box.clientWidth) return; s = Math.min(box.clientWidth / img.naturalWidth, box.clientHeight / img.naturalHeight); minS = s * 0.8; clamp(); apply(); fitted = true; };
+    const zoomAt = (f, cx, cy) => { const ns = Math.min(Math.max(s * f, minS), 6); const k = ns / s; x = cx - (cx - x) * k; y = cy - (cy - y) * k; s = ns; clamp(); apply(); };
+    img.addEventListener('load', fit); if (img.complete) fit();
+    window.addEventListener('resize', () => { if (fitted) { clamp(); apply(); } });
+    box.addEventListener('pointerdown', e => { try { box.setPointerCapture(e.pointerId); } catch {} ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY }); if (ptrs.size === 1) { moved = 0; pinched = false; } if (ptrs.size === 2) { pinched = true; const [a, b] = [...ptrs.values()]; pinch = { d: Math.hypot(a.x - b.x, a.y - b.y), s }; } });
+    box.addEventListener('pointermove', e => {
+      if (!ptrs.has(e.pointerId)) return;
+      const prev = ptrs.get(e.pointerId); ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      const r = box.getBoundingClientRect();
+      if (ptrs.size === 2 && pinch) {
+        const [a, b] = [...ptrs.values()]; const d = Math.hypot(a.x - b.x, a.y - b.y);
+        const cx = (a.x + b.x) / 2 - r.left, cy = (a.y + b.y) / 2 - r.top;
+        zoomAt((pinch.s * d / pinch.d) / s, cx, cy);
+      } else if (ptrs.size === 1) { moved += Math.hypot(e.clientX - prev.x, e.clientY - prev.y); x += e.clientX - prev.x; y += e.clientY - prev.y; clamp(); apply(); }
+    });
+    const up = e => { ptrs.delete(e.pointerId); if (ptrs.size < 2) pinch = null; };
+    box.addEventListener('pointerup', e => {
+      up(e);
+      if (pinched || moved > 8 || ptrs.size) return;   // a tap is one finger, down and up, no drag
+      const t = Date.now(); if (t - lastTap < 300) { const r = box.getBoundingClientRect(); zoomAt(2, e.clientX - r.left, e.clientY - r.top); lastTap = 0; } else lastTap = t;
+    });
+    box.addEventListener('pointercancel', up);
+    box.addEventListener('wheel', e => { e.preventDefault(); const r = box.getBoundingClientRect(); zoomAt(e.deltaY < 0 ? 1.15 : 0.87, e.clientX - r.left, e.clientY - r.top); }, { passive: false });
+    box.querySelectorAll('.mapz-ctl button').forEach(b => b.addEventListener('click', () => { const z = Number(b.dataset.z); if (!z) fit(); else zoomAt(z, box.clientWidth / 2, box.clientHeight / 2); }));
+    // re-fit the first time the tab is shown (it was display:none at load)
+    const orig = showView; showView = function (v) { orig(v); if (v === 'map' && !fitted) requestAnimationFrame(fit); };
+  })();
 
   // ---------- Preview stepper ----------
   $('pv-prev').addEventListener('click', () => { live = false; block = Math.max(-1, block - 1); render(); });
@@ -1304,7 +1461,7 @@
   }
   const redraw = () => { drawMap($('map-entry')); drawMap($('map-on')); drawMap($('map-login')); };
   if (document.fonts && document.fonts.load) document.fonts.load('600 12px "Cormorant SC"').then(redraw, redraw); else redraw();
-  window.addEventListener('resize', redraw);
+  window.addEventListener('resize', () => { redraw(); const pb = $('public-brackets'); if (pb) drawBracketLines(pb); });
 
   // ---------- Live (Firebase Realtime Database) ----------
   // Shared state that has to survive a phone handover: scores and broadcasts.
@@ -1361,7 +1518,7 @@
   let bcasts = {};
   const SEEN_LS = 'onshift.seen';
   let seen = 0; try { seen = Number(localStorage.getItem(SEEN_LS)) || 0; } catch {}
-  function unreadCount() { return Object.values(bcasts).filter(b => (b.t || 0) > seen).length + swapsForMe().length; }
+  function unreadCount() { return Object.values(bcasts).filter(b => (b.t || 0) > seen).length + swapsForMe().length + helpsForMe().length + dmUnread(); }
   function renderBell() {
     const n = unreadCount(); const el = $('bell-n');
     el.hidden = !n; el.textContent = n > 9 ? '9+' : n;
@@ -1374,7 +1531,7 @@
   }
   function openTray(open) {
     $('tray').hidden = !open; $('bell').setAttribute('aria-expanded', String(open));
-    if (open) { renderSwaps(); renderBcasts(); seen = Date.now(); try { localStorage.setItem(SEEN_LS, String(seen)); } catch {} renderBell(); }
+    if (open) { renderDmConvos(); renderSwaps(); renderHelps(); renderBcasts(); seen = Date.now(); try { localStorage.setItem(SEEN_LS, String(seen)); } catch {} renderBell(); }
   }
   $('bell').addEventListener('click', () => openTray($('tray').hidden));
   $('tray-close').addEventListener('click', () => openTray(false));
@@ -1402,6 +1559,131 @@
     }
     return `<div class="swap-ctl"><span class="txt">Can't make this block?</span><button class="btn-small ghost" id="swap-ask" type="button">Ask to swap out</button></div>`;
   }
+  // --- calls for help ---
+  // "Ticketing needs hands — main entry gate" goes to every free exec. Any
+  // number can say they're coming; the caller (or an organiser) closes it.
+  let helps = {};
+  const myHelpFor = (i) => Object.entries(helps).find(([, h]) => me && h.from === me.first && h.block === i && h.status === 'open');
+  function helpControl(a) {
+    if (!db || !me || block < 0 || block >= BLOCKS || ['free', 'hands', 'photo'].includes(DUTIES[a.id].cat)) return '';
+    const mine = myHelpFor(block);
+    if (mine) {
+      const [id, h] = mine; const coming = Object.keys(h.responders || {});
+      return `<div class="swap-ctl open"><span class="txt">${coming.length ? `<b>${esc(names(coming))}</b> on the way.` : 'Call for hands is out…'}</span><button class="btn-small ghost" data-closehelp="${id}" type="button">Sorted</button></div>`;
+    }
+    return `<div class="swap-ctl"><span class="txt">Swamped?</span><button class="btn-small ghost" id="help-ask" type="button">Need hands here</button></div>`;
+  }
+  function bindHelpControl() {
+    const ask = $('help-ask');
+    if (ask) ask.addEventListener('click', () => {
+      const a = assignmentFor(me.first, block);
+      if (!confirm(`Call free execs to ${DUTIES[a.id].name}, ${DUTIES[a.id].where}?`)) return;
+      ref('help').push({ from: me.first, block, duty: a.id, status: 'open', t: now() });
+    });
+    document.querySelectorAll('[data-closehelp]').forEach(b => b.addEventListener('click', () => ref('help/' + b.dataset.closehelp).update({ status: 'closed', tt: Date.now() })));
+  }
+  const helpsForMe = () => Object.entries(helps).filter(([, h]) => me && h.status === 'open' && h.from !== me.first && !(h.declines || {})[me.first] && !(h.responders || {})[me.first] && isFree(me.first, h.block));
+  function helpCard([id, h], role) {
+    const d = DUTIES[h.duty] || {}; const color = CATS[d.cat] ? CATS[d.cat].color : 'var(--line)';
+    const coming = Object.keys(h.responders || {});
+    const acts = role === 'take'
+      ? `<div class="acts"><button type="button" class="yes" data-help="${id}">${TICK} On my way</button><button type="button" class="no" data-nohelp="${id}">${CROSS} Can't</button></div>`
+      : role === 'mine' ? `<div class="acts"><button type="button" class="ghost" data-closehelp="${id}">Sorted — close it</button></div>` : '';
+    return `<div class="swap" style="--c:${color}">${dutyIcon(d, 'sm')}<span class="who-txt"><b>${esc(d.name || h.duty)}</b> needs hands <span class="fine">— ${esc(h.from)}</span></span><span class="when">${esc(d.where || '')} · ${range(h.block)}${coming.length ? ` · <b>${esc(names(coming))}</b> coming` : ''}</span>${h.status === 'closed' ? '<span class="state ok">Sorted</span>' : acts}</div>`;
+  }
+  function renderHelps() {
+    const el = $('help-list'); if (!el) return;
+    const take = helpsForMe(); const mine = Object.entries(helps).filter(([, h]) => me && h.from === me.first && h.status === 'open');
+    const coming = Object.entries(helps).filter(([, h]) => me && h.status === 'open' && (h.responders || {})[me.first]);
+    el.innerHTML = (take.map(x => helpCard(x, 'take')).join('') + mine.map(x => helpCard(x, 'mine')).join('') + coming.map(x => helpCard(x, 'coming')).join('')) || '<p class="fine">Nobody needs hands right now.</p>';
+    bindHelpButtons(el);
+  }
+  function bindHelpButtons(el) {
+    el.querySelectorAll('[data-help]').forEach(b => b.addEventListener('click', () => ref('help/' + b.dataset.help + '/responders/' + me.first).set(true)));
+    el.querySelectorAll('[data-nohelp]').forEach(b => b.addEventListener('click', () => ref('help/' + b.dataset.nohelp + '/declines/' + me.first).set(true)));
+    el.querySelectorAll('[data-closehelp]').forEach(b => b.addEventListener('click', () => ref('help/' + b.dataset.closehelp).update({ status: 'closed', tt: Date.now() })));
+  }
+
+  // --- messages (exec to exec) ---
+  // Tap a name anywhere → a sheet with the thread, four one-tap lines, and a
+  // box. Stored under dm/{a~b}; unread is tracked per conversation on the phone.
+  const CANNED = ['Where are you?', 'Come to my spot when you can', 'Running 5 min late', 'All good here'];
+  let dms = {}; let dmOpen = null;
+  const DMSEEN_LS = 'onshift.dmseen';
+  let dmSeen = {}; try { dmSeen = JSON.parse(localStorage.getItem(DMSEEN_LS)) || {}; } catch {}
+  const pairKey = (a, b) => [a, b].sort().join('~');
+  const myConvos = () => !me ? [] : Object.entries(dms).filter(([k]) => k.split('~').includes(me.first)).map(([k, msgs]) => {
+    const other = k.split('~').find(n => n !== me.first) || me.first;
+    const list = Object.values(msgs || {}).sort((a, b) => (a.t || 0) - (b.t || 0));
+    const unread = list.filter(m => m.from !== me.first && (m.t || 0) > (dmSeen[k] || 0)).length;
+    return { k, other, list, last: list[list.length - 1], unread };
+  }).sort((a, b) => ((b.last || {}).t || 0) - ((a.last || {}).t || 0));
+  const dmUnread = () => myConvos().reduce((n, c) => n + c.unread, 0);
+  function openDm(other) {
+    if (!db || !me || !other || other === me.first) return;
+    dmOpen = other; $('dm-who').textContent = 'Message ' + full(other);
+    $('dm-canned').innerHTML = CANNED.map(t => `<button type="button" data-canned="${esc(t)}">${esc(t)}</button>`).join('');
+    $('dm-canned').querySelectorAll('button').forEach(b => b.addEventListener('click', () => sendDm(b.dataset.canned)));
+    $('dm-sheet').hidden = false; $('dm-backdrop').hidden = false;
+    renderDmThread(); $('dm-text').focus();
+  }
+  function closeDm() { dmOpen = null; $('dm-sheet').hidden = true; $('dm-backdrop').hidden = true; }
+  function sendDm(text) {
+    text = (text || '').trim(); if (!text || !dmOpen) return;
+    ref('dm/' + pairKey(me.first, dmOpen)).push({ from: me.first, to: dmOpen, text, t: now() });
+  }
+  function renderDmThread() {
+    if (!dmOpen) return;
+    const k = pairKey(me.first, dmOpen); const list = Object.values(dms[k] || {}).sort((a, b) => (a.t || 0) - (b.t || 0));
+    const el = $('dm-thread');
+    el.innerHTML = list.length ? list.map(m => `<div class="msg ${m.from === me.first ? 'me' : ''}">${esc(m.text)}<span class="t">${m.t ? clock(m.t) : ''}</span></div>`).join('') : '<p class="fine">No messages yet.</p>';
+    el.scrollTop = el.scrollHeight;
+    dmSeen[k] = Date.now(); try { localStorage.setItem(DMSEEN_LS, JSON.stringify(dmSeen)); } catch {}
+    renderDmConvos(); renderBell();
+  }
+  function renderDmConvos() {
+    const el = $('dm-convos'); if (!el) return; const c = myConvos();
+    el.innerHTML = c.length ? c.map(x => `<div class="dm-convo ${x.unread ? 'unread' : ''}" data-open-dm="${esc(x.other)}"><span class="nm">${esc(full(x.other))}</span>${x.unread ? `<span class="n">${x.unread}</span>` : ''}<span class="last">${x.last ? (x.last.from === me.first ? 'You: ' : '') + esc(x.last.text) : ''}</span></div>`).join('')
+      : '<p class="fine">Tap any name in the app to message them.</p>';
+    el.querySelectorAll('[data-open-dm]').forEach(d => d.addEventListener('click', () => { openTray(false); openDm(d.dataset.openDm); }));
+  }
+  document.addEventListener('click', e => { const n = e.target.closest('[data-dm]'); if (n) openDm(n.dataset.dm); });
+  $('dm-close').addEventListener('click', closeDm); $('dm-backdrop').addEventListener('click', closeDm);
+  $('dm-form').addEventListener('submit', e => { e.preventDefault(); sendDm($('dm-text').value); $('dm-text').value = ''; });
+
+  // --- organiser desk ---
+  const isAdmin = () => me && ADMINS.includes(me.first);
+  function renderDesk() {
+    if (!isAdmin() || $('view-desk').hidden) return;
+    const i = block; const inDay = i >= 0 && i < BLOCKS;
+    const rows = inDay ? rowsFor(i) : [];
+    const busy = new Set(rows.flatMap(r => r[1]));
+    $('d-duty-n').textContent = inDay ? busy.size : PEOPLE.length;
+    $('d-free-n').textContent = inDay ? PEOPLE.length - busy.size : 0;
+    const openHelp = Object.entries(helps).filter(([, h]) => h.status === 'open');
+    const openSwaps = Object.entries(swaps).filter(([, sw]) => sw.status === 'open');
+    $('d-help-n').textContent = openHelp.length; $('d-swap-n').textContent = openSwaps.length;
+    // coverage: every duty this block, who's on it, who's coming to help, what's short
+    const grouped = {}; rows.forEach(([id, ppl]) => { (grouped[id] ||= []).push(...ppl); });
+    const helpFor = (id) => openHelp.filter(([, h]) => h.duty === id && h.block === i).flatMap(([, h]) => Object.keys(h.responders || {}));
+    const swapOut = (id) => openSwaps.filter(([, sw]) => sw.duty === id && sw.block === i).map(([, sw]) => sw.from);
+    $('d-cover').innerHTML = Object.keys(grouped).length ? Object.keys(grouped).map(id => {
+      const d = DUTIES[id]; const ppl = grouped[id]; const coming = helpFor(id); const leaving = swapOut(id); const called = openHelp.some(([, h]) => h.duty === id && h.block === i);
+      return `<div class="cover-row" style="--c:${CATS[d.cat].color}">${dutyIcon(d, 'sm')}<span class="nm">${esc(d.name)}</span><span class="ct ${called ? 'short' : ''}">${ppl.length} on${called ? ' · needs hands' : ''}</span><span class="ppl">${ppl.map(p => leaving.includes(p) ? `<s>${esc(full(p))}</s>` : esc(full(p))).join(', ')}${coming.length ? ` · <span class="coming">+ ${esc(names(coming))} coming</span>` : ''}</span></div>`;
+    }).join('') : `<p class="fine">${inDay ? 'Nothing rostered this block.' : 'All hands — setup or pack-up.'}</p>`;
+    $('d-help').innerHTML = openHelp.length ? openHelp.map(x => helpCard(x, 'mine')).join('') : '<p class="fine">None open.</p>';
+    bindHelpButtons($('d-help'));
+    $('d-swaps').innerHTML = openSwaps.length ? openSwaps.map(([id, sw]) => { const d = DUTIES[sw.duty] || {}; return `<div class="swap" style="--c:${CATS[d.cat] ? CATS[d.cat].color : 'var(--line)'}">${dutyIcon(d, 'sm')}<span class="who-txt"><b>${esc(sw.from)}</b> wants out of <b>${esc(d.name)}</b></span><span class="when">${range(sw.block)} · waiting</span></div>`; }).join('') : '<p class="fine">None open.</p>';
+    const live = Object.entries(matches).filter(([, m]) => m.status === 'live');
+    $('d-live').innerHTML = live.length ? live.map(([id, m]) => matchCard(id, m, false)).join('') : '<p class="fine">Nothing on.</p>';
+  }
+  $('deskbtn').addEventListener('click', () => { showView('desk'); renderDesk(); });
+  $('desk-close').addEventListener('click', () => showView(me ? 'now' : 'team'));
+  $('desk-notice').addEventListener('submit', (e) => {
+    e.preventDefault(); if (!db) return;
+    const text = $('desk-text').value.trim(); if (!text) return;
+    ref('broadcasts').push({ text, by: me.first, t: now() }); $('desk-text').value = '';
+  });
   function bindSwapControl() {
     const ask = $('swap-ask');
     if (ask) ask.addEventListener('click', () => {
@@ -1489,19 +1771,46 @@
     };
     const roundsHtml = rounds.map((r, k) => `<div class="round"><h4>${roundName(r.length * 2, k, rounds.length)}</h4>${r.map((m, i) => `<div class="bm">${team(m.a, m, 'r')}${mid(m, k, i)}${team(m.b, m, '')}</div>`).join('')}</div>`).join('');
     const nextHtml = champion ? `<div class="champ">Champion — ${esc(champion)}</div>`
-      : next ? `<div class="next" style="--c:${color}"><span class="eyebrow">Up next</span><b>${esc(next.m.a)} v ${esc(next.m.b)}</b><span class="fine">${roundName(rounds[next.k].length * 2, next.k, rounds.length)}</span></div>` : '';
+      : next ? `<div class="next" style="--c:${color}"><span class="eyebrow">Up next</span><b>${esc(next.m.a)} v ${esc(next.m.b)}</b><span class="fine">${roundName(rounds[next.k].length * 2, next.k, rounds.length)}</span>${editable && !next.m.m ? `<button type="button" class="play" data-start="${sport}|${next.k}|${next.i}" data-jump="1">Play next</button>` : ''}</div>` : '';
     const outHtml = losers.size ? `<p class="out">Out: ${[...losers].map(t => `<s>${esc(t)}</s>`).join(', ')}</p>` : '';
     return `<div class="bracket" style="--c:${color}"><div class="head">${iconHtml(d.icon || 'football', color, 'sm')}<span class="ttl">${esc(SPORTS[sport] || sport)} bracket</span><span class="cnt">${(br.teams || []).length} teams</span></div>${nextHtml}${roundsHtml}${outHtml}</div>`;
+  }
+  // The drawing: every round as a column, including rounds not yet reached
+  // (TBD boxes), with lines from each match to the one its winner feeds.
+  function bracketDraw(sport, br) {
+    const color = CATS.sport.color; const d = DUTIES[sport] || {};
+    const rounds = br.rounds || []; const n = rounds[0] ? rounds[0].length : 0; if (!n) return '';
+    const cols = []; let count = n;
+    for (let k = 0; count >= 1; k++) { cols.push(rounds[k] || Array.from({ length: count }, () => ({ a: null, b: null, w: null }))); if (count === 1) break; count = Math.ceil(count / 2); }
+    const sc = (m) => m.m && matches[m.m] ? matches[m.m] : null;
+    const row = (t, m, side) => { const cls = !t ? 'tbd' : m.w ? (m.w === t ? 'won' : 'lost') : ''; const scv = sc(m); return `<div class="row ${cls}"><span>${t ? esc(t) : (m.b === null && m.a && side === 'b' ? 'bye' : 'TBD')}</span>${scv ? `<span class="sc">${side === 'a' ? scv.sa : scv.sb}</span>` : ''}</div>`; };
+    const colsHtml = cols.map((r, k) => `<div class="bcol"><h5>${roundName(r.length * 2, k, cols.length)}</h5>${r.map((m, i) => `<div class="bbox ${sc(m) && sc(m).status === 'live' ? 'live' : ''}" style="--c:${color}" data-k="${k}" data-i="${i}" data-w="${m.w ? 1 : 0}">${row(m.a, m, 'a')}${row(m.b, m, 'b')}</div>`).join('')}</div>`).join('');
+    const last = cols[cols.length - 1]; const champion = last.length === 1 && last[0].w ? last[0].w : null;
+    return `<div class="bracket" style="--c:${color}"><div class="head">${iconHtml(d.icon || 'football', color, 'sm')}<span class="ttl">${esc(SPORTS[sport] || sport)} bracket</span><span class="cnt">${(br.teams || []).length} teams</span></div>${champion ? `<div class="champ">Champion — ${esc(champion)}</div>` : ''}<div class="bdraw-wrap"><div class="bdraw" data-sport="${sport}">${colsHtml}<svg class="blines"></svg></div></div></div>`;
+  }
+  function drawBracketLines(root) {
+    root.querySelectorAll('.bdraw').forEach(wrap => {
+      const svg = wrap.querySelector('.blines'); const R = wrap.getBoundingClientRect(); let d = '';
+      wrap.querySelectorAll('.bbox').forEach(box => {
+        const k = +box.dataset.k, i = +box.dataset.i;
+        const to = wrap.querySelector(`.bbox[data-k="${k + 1}"][data-i="${Math.floor(i / 2)}"]`); if (!to) return;
+        const a = box.getBoundingClientRect(), b = to.getBoundingClientRect();
+        const x1 = a.right - R.left, y1 = a.top + a.height / 2 - R.top, x2 = b.left - R.left, y2 = b.top + b.height / 2 - R.top, xm = (x1 + x2) / 2;
+        d += `<path class="${box.dataset.w === '1' ? 'won' : ''}" d="M${x1} ${y1} H${xm} V${y2} H${x2}"/>`;
+      });
+      svg.setAttribute('viewBox', `0 0 ${wrap.scrollWidth} ${wrap.scrollHeight}`); svg.innerHTML = d;
+    });
   }
   function renderBrackets() {
     const ids = ['vb', 'fb', 'ck'].filter(k => brackets[k]);
     const html = (editable) => ids.length ? ids.map(k => bracketCard(k, brackets[k], editable)).join('') : '<p class="fine">No brackets yet.</p>';
-    const pub = $('public-brackets'); if (pub) pub.innerHTML = html(false);
+    const pub = $('public-brackets'); if (pub) { pub.innerHTML = ids.length ? ids.map(k => bracketDraw(k, brackets[k])).join('') : '<p class="fine">No brackets yet.</p>'; requestAnimationFrame(() => drawBracketLines(pub)); }
     const el = $('brackets'); el.innerHTML = html(true);
     el.querySelectorAll('[data-start]').forEach(b => b.addEventListener('click', async () => {
       const [sport, k, i] = b.dataset.start.split('|'); const br = brackets[sport]; const m = br.rounds[k][i];
       const pushed = await ref('scores').push({ sport, a: m.a, b: m.b, sa: 0, sb: 0, status: 'live', t: now(), by: me ? me.first : '' });
-      br.rounds[k][i].m = pushed.key; saveBracket(sport, br);
+      br.rounds[k][i].m = pushed.key; await saveBracket(sport, br);
+      if (b.dataset.jump) setTimeout(() => { const c = $('scores-live'); if (c) c.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 300);
     }));
     el.querySelectorAll('[data-win]').forEach(b => b.addEventListener('click', () => {
       const [sport, k, i, side] = b.dataset.win.split('|'); const br = brackets[sport]; const m = br.rounds[k][i];
@@ -1524,21 +1833,26 @@
   $('bracket-form').addEventListener('submit', (e) => {
     e.preventDefault(); if (!db) return;
     const sport = $('b-sport').value;
-    const teams = [...new Set($('b-teams').value.split('\n').map(t => t.trim()).filter(Boolean))].slice(0, 32);
-    if (teams.length < 2) return;
+    const ticked = [...$('b-pick').querySelectorAll('input:checked')].map(i => i.value);
+    const extra = $('b-teams').value.split('\n').map(t => t.trim()).filter(Boolean);
+    let teams = [...new Set(ticked.concat(extra))].slice(0, 32);
+    if (teams.length < 2) { alert('Tick at least two teams.'); return; }
+    if ($('b-shuffle').checked) for (let i = teams.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [teams[i], teams[j]] = [teams[j], teams[i]]; }
     if (brackets[sport] && !confirm(`Replace the ${SPORTS[sport]} bracket?`)) return;
     saveBracket(sport, buildBracket(teams));
-    $('b-teams').value = ''; e.target.closest('details').open = false;
+    $('b-teams').value = ''; $('b-pick').querySelectorAll('input').forEach(i => { i.checked = false; }); e.target.closest('details').open = false;
   });
 
   function startLive() {
     if (!db) { unavailable($('scores-live'), 'scores'); unavailable($('bcast-list'), 'updates'); unavailable($('brackets'), 'brackets'); const pub = $('public-scores'); if (pub) unavailable(pub, 'scores'); $('match-form').closest('details').hidden = true; $('bracket-form').closest('details').hidden = true; return; }
     const pub = $('public-scores');
     [$('scores-live'), $('bcast-list'), pub].forEach(el => { if (el) el.innerHTML = '<p class="fine">Connecting…</p>'; });
-    ref('scores').limitToLast(60).on('value', snap => { matches = snap.val() || {}; renderScores(); settleBrackets(); renderBrackets(); }, () => { unavailable($('scores-live'), 'scores'); if (pub) unavailable(pub, 'scores'); });
+    ref('scores').limitToLast(60).on('value', snap => { matches = snap.val() || {}; renderScores(); settleBrackets(); renderBrackets(); renderDesk(); }, () => { unavailable($('scores-live'), 'scores'); if (pub) unavailable(pub, 'scores'); });
     ref('brackets').on('value', snap => { brackets = snap.val() || {}; renderBrackets(); }, () => { unavailable($('brackets'), 'brackets'); const pb = $('public-brackets'); if (pb) unavailable(pb, 'brackets'); });
     ref('broadcasts').limitToLast(30).on('value', snap => { bcasts = snap.val() || {}; renderBcasts(); }, () => { unavailable($('bcast-list'), 'updates'); });
     ref('swaps').limitToLast(60).on('value', snap => { swaps = snap.val() || {}; if (!$('shell').hidden) { render(); renderSwaps(); renderBell(); } }, () => { unavailable($('swap-list'), 'swaps'); });
+    ref('dm').on('value', snap => { dms = snap.val() || {}; if (dmOpen) renderDmThread(); renderDmConvos(); renderBell(); }, () => {});
+    ref('help').limitToLast(60).on('value', snap => { helps = snap.val() || {}; if (!$('shell').hidden) { render(); renderHelps(); renderBell(); } }, () => { unavailable($('help-list'), 'help calls'); });
   }
   startLive();
 
