@@ -2,35 +2,80 @@
   "rules": {
     ".read": false,
     ".write": false,
-
     "spice-road": {
       "scores": {
         ".read": true,
         "$match": {
           ".write": true,
           ".validate": "newData.hasChildren(['sport', 'a', 'b', 'sa', 'sb', 'status', 't'])",
-          "sport":  { ".validate": "newData.isString() && newData.val().matches(/^(vb|fb|ck)$/)" },
-          "a":      { ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 24" },
-          "b":      { ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 24" },
-          "sa":     { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 999" },
-          "sb":     { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 999" },
-          "status": { ".validate": "newData.isString() && newData.val().matches(/^(live|done)$/)" },
-          "t":      { ".validate": "newData.isNumber()" },
-          "ended":  { ".validate": "newData.isNumber()" },
-          "by":     { ".validate": "newData.isString() && newData.val().length <= 40" },
-          "$other": { ".validate": false }
+          "sport": {
+            ".validate": "newData.isString() && newData.val().matches(/^(vb|fb|ck)$/)"
+          },
+          "a": {
+            ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 24"
+          },
+          "b": {
+            ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 24"
+          },
+          "sa": {
+            ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 999"
+          },
+          "sb": {
+            ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 999"
+          },
+          "status": {
+            ".validate": "newData.isString() && newData.val().matches(/^(live|done)$/)"
+          },
+          "t": {
+            ".validate": "newData.isNumber()"
+          },
+          "ended": {
+            ".validate": "newData.isNumber()"
+          },
+          "by": {
+            ".validate": "newData.isString() && newData.val().length <= 40"
+          },
+          "$other": {
+            ".validate": false
+          }
         }
       },
-
       "broadcasts": {
         ".read": true,
         "$post": {
           ".write": "!data.exists()",
           ".validate": "newData.hasChildren(['text', 'by', 't'])",
-          "text":   { ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 280" },
-          "by":     { ".validate": "newData.isString() && newData.val().length <= 40" },
-          "t":      { ".validate": "newData.isNumber()" },
-          "$other": { ".validate": false }
+          "text": {
+            ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 280"
+          },
+          "by": {
+            ".validate": "newData.isString() && newData.val().length <= 40"
+          },
+          "t": {
+            ".validate": "newData.isNumber()"
+          },
+          "$other": {
+            ".validate": false
+          }
+        }
+      },
+      "brackets": {
+        ".read": true,
+        "$sport": {
+          ".write": true,
+          ".validate": "$sport.matches(/^(vb|fb|ck)$/) && newData.hasChildren(['teams', 'rounds', 't'])",
+          "teams": {
+            ".validate": "newData.hasChildren()"
+          },
+          "rounds": {
+            ".validate": "newData.hasChildren()"
+          },
+          "t": {
+            ".validate": "newData.isNumber()"
+          },
+          "$other": {
+            ".validate": false
+          }
         }
       }
     }

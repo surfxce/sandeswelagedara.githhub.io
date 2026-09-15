@@ -184,18 +184,40 @@
   .topbar {
     display: flex; align-items: center; justify-content: space-between;
     padding: 12px 16px 8px;
-    gap: 12px;
+    gap: 8px;
   }
   .wordmark {
     font-family: var(--display); font-weight: 700; font-size: 22px; letter-spacing: .06em;
-    color: var(--maroon);
+    color: var(--maroon); white-space: nowrap; flex: 0 0 auto;
   }
+  .bell {
+    position: relative; width: 44px; height: 44px; border-radius: 22px; border: 1.5px solid var(--line);
+    background: var(--paper); color: var(--maroon); display: grid; place-items: center; margin-left: auto; flex: 0 0 auto;
+  }
+  .bell svg { width: 22px; height: 22px; }
+  .bell[aria-expanded="true"] { background: var(--paper-2); border-color: var(--maroon); }
+  .bell-n {
+    position: absolute; top: -4px; right: -4px; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 10px;
+    background: #C0392B; color: #fff; font-size: 12px; font-weight: 800; display: grid; place-items: center;
+    border: 2px solid var(--paper);
+  }
+  .tray {
+    position: relative; z-index: 5; margin: 0 16px 8px; padding: 12px 14px 14px; background: #fff;
+    border: 1.5px solid var(--line); border-top: 4px solid var(--maroon); box-shadow: 0 10px 24px rgba(74,22,14,.12);
+    display: grid; gap: 10px; max-height: 70vh; overflow: auto;
+  }
+  .tray-head { display: flex; align-items: center; justify-content: space-between; }
+  .tray-head h2 { margin: 0; font-size: 13px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
+  .bcast-item.org { border-left-color: var(--maroon); background: #FFF8EE; }
+  .bcast-item .tag { display: inline-block; margin-right: 6px; padding: 2px 6px; border-radius: 4px; background: var(--maroon); color: var(--cream); font-size: 10px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; vertical-align: middle; }
   .who {
     display: flex; align-items: center; gap: 8px;
     height: 44px; padding: 0 6px 0 12px; border-radius: 22px;
     border: 1.5px solid var(--line); background: var(--paper);
-    font-weight: 700; font-size: 15px; max-width: 60%;
+    font-weight: 700; font-size: 14px; flex: 0 1 auto; min-width: 0;
   }
+  .who .nm { max-width: 11ch; }
+  @media (max-width: 380px) { .who .soc { display: none; } }
   .who .nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .who .soc { color: var(--ink-3); font-weight: 500; }
   .who button {
@@ -452,6 +474,35 @@
   .bcast-form { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
   .bcast-form input { height: 44px; padding: 0 12px; border-radius: 6px; border: 1.5px solid var(--line); background: #fff; }
 
+  /* ---------- Brackets ---------- */
+  .bracket-list { display: grid; gap: 12px; }
+  .bracket { background: #fff; border-left: 8px solid var(--c); box-shadow: 0 1px 0 var(--line); padding: 12px 14px; display: grid; gap: 10px; }
+  .bracket .head { display: flex; align-items: center; gap: 10px; }
+  .bracket .head .ttl { font-weight: 800; font-size: 17px; flex: 1; }
+  .bracket .head .cnt { font-size: 12px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--c); }
+  .bracket .next { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 10px; padding: 10px 12px; background: var(--paper-2); border-left: 6px solid var(--c); }
+  .bracket .next .eyebrow { grid-column: 1 / -1; }
+  .bracket .next b { font-size: 17px; }
+  .bracket .champ { padding: 10px 12px; background: var(--paper-2); border-left: 6px solid var(--tan); font-weight: 800; font-size: 17px; }
+  .round { display: grid; gap: 4px; }
+  .round h4 { margin: 6px 0 2px; font-size: 11px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); }
+  .bm { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 6px; min-height: 40px; padding: 4px 0; border-bottom: 1px solid var(--line); font-weight: 700; font-size: 15px; }
+  .bm:last-child { border-bottom: 0; }
+  .bm .tm { overflow-wrap: anywhere; }
+  .bm .tm.r { text-align: right; }
+  .bm .tm.won { color: var(--maroon); }
+  .bm .tm.lost { color: var(--ink-3); text-decoration: line-through; text-decoration-color: var(--ink-3); font-weight: 600; }
+  .bm .tm.tbd { color: var(--ink-3); font-weight: 500; font-style: italic; }
+  .bm .mid { font-size: 11px; font-weight: 800; letter-spacing: .1em; color: var(--ink-3); display: grid; gap: 4px; justify-items: center; }
+  .bm .mid .sc { font-size: 15px; font-variant-numeric: tabular-nums; color: var(--ink); }
+  .bm .mid .live-tag { display: inline-flex; align-items: center; gap: 5px; color: var(--c-club); }
+  .bm .mid .live-tag::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--c-club); --c: var(--c-club); animation: live-ping 1.7s ease-out infinite; }
+  .bm .mid button { height: 30px; padding: 0 10px; border-radius: 6px; border: 1.5px solid var(--line); background: var(--paper); color: var(--maroon); font-weight: 700; font-size: 12px; }
+  .bm .pick { display: flex; gap: 4px; }
+  .bracket .out { font-size: 13px; color: var(--ink-3); }
+  .bracket .out s { margin-right: 2px; }
+  .newmatch textarea { min-height: 120px; padding: 10px 14px; border-radius: 6px; background: var(--paper); color: var(--ink); border: 2px solid var(--line); width: 100%; resize: vertical; }
+
   /* ---------- Map (placeholder) ---------- */
   .map-frame {
     min-height: 60vh; border: 1.5px dashed var(--line); border-radius: 8px; background: #fff;
@@ -537,6 +588,7 @@
   <section class="public" id="public">
     <div class="whatson-body" style="padding-bottom:0">
       <div><h2>Live scores</h2><div class="match-list" id="public-scores"></div></div>
+      <div><h2>Brackets</h2><div class="bracket-list" id="public-brackets"></div></div>
     </div>
     <div class="whatson-body" id="public-on"></div>
   </section>
@@ -574,12 +626,26 @@
   <div class="shell" id="shell" hidden>
     <header class="topbar">
       <div class="wordmark">On Shift</div>
+      <button class="bell" id="bell" type="button" aria-label="Broadcasts" aria-expanded="false" aria-controls="tray">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 21h4"/></svg>
+        <span class="bell-n" id="bell-n" hidden></span>
+      </button>
       <div class="who">
         <span class="nm" id="who-name">—</span>
         <span class="soc" id="who-soc"></span>
         <button type="button" id="switch">Switch</button>
       </div>
     </header>
+
+    <div class="tray" id="tray" hidden>
+      <div class="tray-head"><h2>Broadcasts</h2><button class="linkbtn" id="tray-close" type="button">Close</button></div>
+      <form class="bcast-form" id="bcast-form" autocomplete="off">
+        <input id="bcast-text" type="text" maxlength="280" placeholder="Post an update to every exec…" required>
+        <button class="btn-small" type="submit">Post</button>
+      </form>
+      <div class="bcast-list" id="bcast-list"></div>
+      <p class="fine">Every exec can post; your name goes on it. Organisers' posts are marked.</p>
+    </div>
 
     <div class="blockbar" id="blockbar">
       <div class="blockbar-top">
@@ -593,15 +659,6 @@
     <section class="view" id="view-now" role="tabpanel">
       <div id="now-card"></div>
       <div id="now-next"></div>
-
-      <section class="bcast" id="bcast">
-        <h2>Broadcasts</h2>
-        <div class="bcast-list" id="bcast-list"></div>
-        <form class="bcast-form" id="bcast-form" autocomplete="off" hidden>
-          <input id="bcast-text" type="text" maxlength="280" placeholder="Post an update to every exec…" required>
-          <button class="btn-small" type="submit">Post</button>
-        </form>
-      </section>
 
       <div class="nudge">
         <div class="txt"><b>Nudge me when the block changes</b><span id="nudge-state">Best effort — depends on your phone and browser.</span></div>
@@ -662,6 +719,21 @@
 
     <!-- SCORES (live, shared) -->
     <section class="view" id="view-scores" role="tabpanel" hidden>
+      <div>
+        <h2 class="sec">Brackets</h2>
+        <div class="bracket-list" id="brackets"></div>
+      </div>
+      <details class="newmatch">
+        <summary>Set up a bracket</summary>
+        <form id="bracket-form" autocomplete="off">
+          <div class="field"><label for="b-sport">Sport</label>
+            <select id="b-sport" required><option value="vb">Volleyball</option><option value="fb">Football</option><option value="ck">Cricket</option></select></div>
+          <div class="field"><label for="b-teams">Teams, one per line, in seeding order</label>
+            <textarea id="b-teams" rows="6" placeholder="UQISC&#10;UQSLA&#10;UQNC&#10;UQPA" required></textarea></div>
+          <button class="btn-primary dark" type="submit">Build bracket</button>
+          <p class="fine">Single elimination. An odd number gets a bye in round one. Building again replaces the bracket for that sport.</p>
+        </form>
+      </details>
       <div>
         <h2 class="sec">Live matches</h2>
         <div class="match-list" id="scores-live"></div>
@@ -935,7 +1007,6 @@
     const lb = liveBlock();
     live = lb !== null; block = live ? lb : 0;
     renderFilter();
-    $('bcast-form').hidden = !(db && me && ADMINS.includes(me.first));
     showView(me ? 'now' : 'team');
     render();
     requestAnimationFrame(() => drawMap($('map-on')));
@@ -1208,7 +1279,7 @@
     databaseURL: "https://silk-road-88f1c-default-rtdb.asia-southeast1.firebasedatabase.app",
     projectId: "silk-road-88f1c",
   };
-  const ADMINS = ['Sandes'];      // who sees the broadcast composer (UI gate only)
+  const ADMINS = ['Sandes', 'Archita', 'Sanuka'];   // organisers — their posts get a tag (UI only)
   const SPORTS = { vb: 'Volleyball', fb: 'Football', ck: 'Cricket' };
   let db = null;
   try { firebase.initializeApp(FB); db = firebase.database(); } catch (e) { db = null; }
@@ -1251,12 +1322,25 @@
 
   // --- broadcasts ---
   let bcasts = {};
-  function renderBcasts() {
-    const ids = Object.keys(bcasts).sort((a, b) => (bcasts[b].t || 0) - (bcasts[a].t || 0)).slice(0, 12);
-    const fresh = (t) => Date.now() - t < 30 * 60 * 1000;
-    $('bcast-list').innerHTML = ids.length ? ids.map(i => { const b = bcasts[i]; return `<div class="bcast-item ${fresh(b.t) ? 'fresh' : ''}"><span class="txt">${esc(b.text || '')}</span><span class="meta">${esc(b.by || 'Exec')} · ${b.t ? clock(b.t) : ''}</span></div>`; }).join('')
-      : '<p class="fine">Nothing posted yet. Updates from the organisers land here.</p>';
+  const SEEN_LS = 'onshift.seen';
+  let seen = 0; try { seen = Number(localStorage.getItem(SEEN_LS)) || 0; } catch {}
+  function unreadCount() { return Object.values(bcasts).filter(b => (b.t || 0) > seen).length; }
+  function renderBell() {
+    const n = unreadCount(); const el = $('bell-n');
+    el.hidden = !n; el.textContent = n > 9 ? '9+' : n;
   }
+  function renderBcasts() {
+    const ids = Object.keys(bcasts).sort((a, b) => (bcasts[b].t || 0) - (bcasts[a].t || 0)).slice(0, 20);
+    $('bcast-list').innerHTML = ids.length ? ids.map(i => { const b = bcasts[i]; const org = ADMINS.includes(b.by); return `<div class="bcast-item ${org ? 'org' : ''} ${(b.t || 0) > seen ? 'fresh' : ''}"><span class="txt">${org ? '<span class="tag">Organisers</span>' : ''}${esc(b.text || '')}</span><span class="meta">${esc(b.by || 'Exec')} · ${b.t ? clock(b.t) : ''}</span></div>`; }).join('')
+      : '<p class="fine">Nothing posted yet.</p>';
+    renderBell();
+  }
+  function openTray(open) {
+    $('tray').hidden = !open; $('bell').setAttribute('aria-expanded', String(open));
+    if (open) { renderBcasts(); seen = Date.now(); try { localStorage.setItem(SEEN_LS, String(seen)); } catch {} renderBell(); }
+  }
+  $('bell').addEventListener('click', () => openTray($('tray').hidden));
+  $('tray-close').addEventListener('click', () => openTray(false));
   $('bcast-form').addEventListener('submit', (e) => {
     e.preventDefault(); if (!db) return;
     const text = $('bcast-text').value.trim(); if (!text) return;
@@ -1264,12 +1348,111 @@
     $('bcast-text').value = '';
   });
 
+  // --- brackets (single elimination) ---
+  let brackets = {};
+  const roundName = (n, k, total) => n === 2 ? 'Final' : n === 4 ? 'Semi-finals' : n === 8 ? 'Quarter-finals' : `Round ${k + 1}`;
+  // rounds[0] is fixed at build time; every later round is re-derived from
+  // the winners before it, keeping any result already recorded for that pair.
+  function recompute(br) {
+    const rounds = [br.rounds[0]];
+    while (rounds[rounds.length - 1].length > 1) {
+      const prev = rounds[rounds.length - 1];
+      if (!prev.every(m => m.w)) break;
+      const winners = prev.map(m => m.w);
+      const old = (br.rounds[rounds.length] || []);
+      const next = [];
+      for (let i = 0; i < winners.length; i += 2) {
+        const a = winners[i], b = winners[i + 1] || null;
+        const keep = old.find(m => m.a === a && m.b === b) || {};
+        next.push(b ? { a, b, w: keep.w || null, m: keep.m || null } : { a, b: null, w: a });
+      }
+      rounds.push(next);
+    }
+    return { ...br, rounds };
+  }
+  function buildBracket(teams) {
+    const r0 = [];
+    for (let i = 0; i < teams.length; i += 2) {
+      const a = teams[i], b = teams[i + 1] || null;
+      r0.push(b ? { a, b, w: null, m: null } : { a, b: null, w: a });
+    }
+    return recompute({ teams, rounds: [r0], t: Date.now() });
+  }
+  const saveBracket = (sport, br) => ref('brackets/' + sport).set(recompute(br));
+  function bracketCard(sport, br, editable) {
+    const color = CATS.sport.color; const d = DUTIES[sport] || {};
+    const rounds = br.rounds || []; const last = rounds[rounds.length - 1] || [];
+    const champion = last.length === 1 && last[0].w ? last[0].w : null;
+    const winners = new Set(), losers = new Set();
+    rounds.forEach(r => r.forEach(m => { if (m.w) { winners.add(m.w); [m.a, m.b].forEach(t => { if (t && t !== m.w) losers.add(t); }); } }));
+    let next = null;
+    rounds.some((r, k) => r.some((m, i) => { if (!m.w && m.a && m.b) { next = { m, k, i }; return true; } return false; }));
+    const scoreOf = (m) => m.m && matches[m.m] ? matches[m.m] : null;
+    const team = (t, m, side) => {
+      if (!t && !m.b && m.a) return `<span class="tm ${side}"></span>`;   // a bye has no opponent
+      const cls = !t ? 'tbd' : m.w ? (m.w === t ? 'won' : 'lost') : '';
+      return `<span class="tm ${side} ${cls}">${t ? esc(t) : 'TBD'}</span>`;
+    };
+    const mid = (m, k, i) => {
+      if (!m.b) return '<span class="mid">BYE</span>';
+      const sc = scoreOf(m);
+      if (m.w) return `<span class="mid">${sc ? `<span class="sc">${sc.sa}–${sc.sb}</span>` : 'WON'}</span>`;
+      if (sc && sc.status === 'live') return `<span class="mid"><span class="live-tag">Live</span><span class="sc">${sc.sa}–${sc.sb}</span></span>`;
+      if (!editable) return `<span class="mid">${sc ? `<span class="sc">${sc.sa}–${sc.sb}</span>` : 'VS'}</span>`;
+      if (sc && sc.status === 'done') return `<span class="mid"><span class="sc">${sc.sa}–${sc.sb}</span><span class="pick"><button type="button" data-win="${sport}|${k}|${i}|a">${esc(m.a)}</button><button type="button" data-win="${sport}|${k}|${i}|b">${esc(m.b)}</button></span></span>`;
+      return `<span class="mid"><button type="button" data-start="${sport}|${k}|${i}">Start</button><span class="pick"><button type="button" data-win="${sport}|${k}|${i}|a" title="Forfeit / walkover">${esc(m.a)} ✓</button><button type="button" data-win="${sport}|${k}|${i}|b" title="Forfeit / walkover">${esc(m.b)} ✓</button></span></span>`;
+    };
+    const roundsHtml = rounds.map((r, k) => `<div class="round"><h4>${roundName(r.length * 2, k, rounds.length)}</h4>${r.map((m, i) => `<div class="bm">${team(m.a, m, 'r')}${mid(m, k, i)}${team(m.b, m, '')}</div>`).join('')}</div>`).join('');
+    const nextHtml = champion ? `<div class="champ">Champion — ${esc(champion)}</div>`
+      : next ? `<div class="next" style="--c:${color}"><span class="eyebrow">Up next</span><b>${esc(next.m.a)} v ${esc(next.m.b)}</b><span class="fine">${roundName(rounds[next.k].length * 2, next.k, rounds.length)}</span></div>` : '';
+    const outHtml = losers.size ? `<p class="out">Out: ${[...losers].map(t => `<s>${esc(t)}</s>`).join(', ')}</p>` : '';
+    return `<div class="bracket" style="--c:${color}"><div class="head">${iconHtml(d.icon || 'football', color, 'sm')}<span class="ttl">${esc(SPORTS[sport] || sport)} bracket</span><span class="cnt">${(br.teams || []).length} teams</span></div>${nextHtml}${roundsHtml}${outHtml}</div>`;
+  }
+  function renderBrackets() {
+    const ids = ['vb', 'fb', 'ck'].filter(k => brackets[k]);
+    const html = (editable) => ids.length ? ids.map(k => bracketCard(k, brackets[k], editable)).join('') : '<p class="fine">No brackets yet.</p>';
+    const pub = $('public-brackets'); if (pub) pub.innerHTML = html(false);
+    const el = $('brackets'); el.innerHTML = html(true);
+    el.querySelectorAll('[data-start]').forEach(b => b.addEventListener('click', async () => {
+      const [sport, k, i] = b.dataset.start.split('|'); const br = brackets[sport]; const m = br.rounds[k][i];
+      const pushed = await ref('scores').push({ sport, a: m.a, b: m.b, sa: 0, sb: 0, status: 'live', t: now(), by: me ? me.first : '' });
+      br.rounds[k][i].m = pushed.key; saveBracket(sport, br);
+    }));
+    el.querySelectorAll('[data-win]').forEach(b => b.addEventListener('click', () => {
+      const [sport, k, i, side] = b.dataset.win.split('|'); const br = brackets[sport]; const m = br.rounds[k][i];
+      const w = side === 'a' ? m.a : m.b;
+      if (!confirm(`${w} through to the next round?`)) return;
+      br.rounds[k][i].w = w; saveBracket(sport, br);
+    }));
+  }
+  // when a linked score match finishes with a clear winner, the bracket fills itself in
+  function settleBrackets() {
+    Object.entries(brackets).forEach(([sport, br]) => {
+      let changed = false;
+      (br.rounds || []).forEach(r => r.forEach(m => {
+        const sc = m.m && matches[m.m];
+        if (!m.w && sc && sc.status === 'done' && sc.sa !== sc.sb) { m.w = sc.sa > sc.sb ? m.a : m.b; changed = true; }
+      }));
+      if (changed) saveBracket(sport, br);
+    });
+  }
+  $('bracket-form').addEventListener('submit', (e) => {
+    e.preventDefault(); if (!db) return;
+    const sport = $('b-sport').value;
+    const teams = [...new Set($('b-teams').value.split('\n').map(t => t.trim()).filter(Boolean))].slice(0, 32);
+    if (teams.length < 2) return;
+    if (brackets[sport] && !confirm(`Replace the ${SPORTS[sport]} bracket?`)) return;
+    saveBracket(sport, buildBracket(teams));
+    $('b-teams').value = ''; e.target.closest('details').open = false;
+  });
+
   function startLive() {
-    if (!db) { unavailable($('scores-live'), 'scores'); unavailable($('bcast-list'), 'updates'); const pub = $('public-scores'); if (pub) unavailable(pub, 'scores'); $('match-form').closest('details').hidden = true; return; }
+    if (!db) { unavailable($('scores-live'), 'scores'); unavailable($('bcast-list'), 'updates'); unavailable($('brackets'), 'brackets'); const pub = $('public-scores'); if (pub) unavailable(pub, 'scores'); $('match-form').closest('details').hidden = true; $('bracket-form').closest('details').hidden = true; return; }
     const pub = $('public-scores');
     [$('scores-live'), $('bcast-list'), pub].forEach(el => { if (el) el.innerHTML = '<p class="fine">Connecting…</p>'; });
-    ref('scores').limitToLast(30).on('value', snap => { matches = snap.val() || {}; renderScores(); }, () => { unavailable($('scores-live'), 'scores'); if (pub) unavailable(pub, 'scores'); });
-    ref('broadcasts').limitToLast(20).on('value', snap => { bcasts = snap.val() || {}; renderBcasts(); }, () => { unavailable($('bcast-list'), 'updates'); });
+    ref('scores').limitToLast(60).on('value', snap => { matches = snap.val() || {}; renderScores(); settleBrackets(); renderBrackets(); }, () => { unavailable($('scores-live'), 'scores'); if (pub) unavailable(pub, 'scores'); });
+    ref('brackets').on('value', snap => { brackets = snap.val() || {}; renderBrackets(); }, () => { unavailable($('brackets'), 'brackets'); const pb = $('public-brackets'); if (pb) unavailable(pb, 'brackets'); });
+    ref('broadcasts').limitToLast(30).on('value', snap => { bcasts = snap.val() || {}; renderBcasts(); }, () => { unavailable($('bcast-list'), 'updates'); });
   }
   startLive();
 
