@@ -300,11 +300,12 @@
   }
   .rs { display: grid; border-top: 1px solid var(--line); }
   .rs-row {
-    display: grid; grid-template-columns: 54px 30px 1fr; gap: 0 10px; align-items: center;
+    display: grid; grid-template-columns: 54px 8px 30px 1fr; gap: 0 10px; align-items: center;
     min-height: 52px; padding: 8px 0; border-bottom: 1px solid var(--line);
   }
   .rs-row.now { background: linear-gradient(90deg, rgba(217,164,100,.28), transparent 70%); margin: 0 -16px; padding-inline: 16px; }
   .rs-row .t { font-size: 14px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--ink-2); }
+  .rs-row .bar { width: 8px; height: 100%; min-height: 36px; border-radius: 2px; background: var(--c); }
   .rs-row .d { font-weight: 700; font-size: 16px; line-height: 1.25; }
   .rs-row .d small { display: block; font-weight: 500; color: var(--ink-2); font-size: 14px; }
 
@@ -334,13 +335,22 @@
   .count .n { font-size: 34px; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
   .count .l { font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2); margin-top: 4px; }
   .filter { display: grid; gap: 8px; }
-  .filter-head { display: flex; align-items: baseline; justify-content: space-between; }
+  .filter-head { display: flex; align-items: center; justify-content: space-between; }
   .filter-head h2 { margin: 0; }
+  .filter-btns { display: flex; align-items: center; gap: 14px; }
+  .iconbtn {
+    display: inline-flex; align-items: center; gap: 7px; min-height: 36px; padding: 0 12px 0 10px; border-radius: 18px;
+    background: #fff; border: 1.5px solid var(--line); color: var(--maroon); font-weight: 700; font-size: 14px;
+  }
+  .iconbtn svg { width: 18px; height: 18px; }
+  .iconbtn[aria-expanded="true"] { background: var(--paper-2); border-color: var(--maroon); }
+  .badge-n { min-width: 20px; height: 20px; padding: 0 6px; border-radius: 10px; background: var(--maroon); color: var(--cream); font-size: 12px; display: grid; place-items: center; }
   .linkbtn { background: transparent; border: 0; padding: 4px 0; color: var(--maroon); font-weight: 700; font-size: 14px; text-decoration: underline; text-decoration-color: var(--tan); text-underline-offset: 3px; }
-  .soc-chip { cursor: pointer; }
-  .soc-chip.off { opacity: .45; text-decoration: line-through; text-decoration-color: var(--maroon); }
-  .soc-chip.part { border-style: dashed; }
-  .soc-chip .cnt { color: var(--ink-3); font-weight: 600; font-size: 12px; }
+  /* solid when a society is on, white when it's off, dashed when it's partly on */
+  .chip.soc-chip { cursor: pointer; background: var(--maroon); border-color: var(--maroon); color: var(--cream); }
+  .chip.soc-chip .cnt { color: inherit; opacity: .75; font-weight: 600; font-size: 12px; }
+  .chip.soc-chip.off { background: #fff; border-color: var(--line); color: var(--ink-2); }
+  .chip.soc-chip.part { background: #fff; border-color: var(--maroon); border-style: dashed; color: var(--maroon); }
   .adv { background: #fff; padding: 12px 14px; box-shadow: 0 1px 0 var(--line); display: grid; gap: 10px; }
   .adv-soc { display: grid; gap: 2px; }
   .adv-soc h3 { margin: 6px 0 4px; font-size: 12px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--maroon); }
@@ -569,9 +579,15 @@
       <div class="filter" id="t-filter">
         <div class="filter-head">
           <h2>Show</h2>
-          <button class="linkbtn" id="t-adv" type="button" aria-expanded="false">Advanced</button>
+          <div class="filter-btns">
+            <button class="iconbtn" id="t-soc-toggle" type="button" aria-expanded="false" aria-controls="t-socs">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/><circle cx="9" cy="7" r="2" fill="var(--paper)"/><circle cx="15" cy="12" r="2" fill="var(--paper)"/><circle cx="8" cy="17" r="2" fill="var(--paper)"/></svg>
+              <span>Societies</span><span class="badge-n" id="t-soc-badge" hidden></span>
+            </button>
+            <button class="linkbtn" id="t-adv" type="button" aria-expanded="false">Advanced</button>
+          </div>
         </div>
-        <div class="chips" id="t-socs"></div>
+        <div class="chips" id="t-socs" hidden></div>
         <div class="adv" id="t-advbox" hidden>
           <p class="fine">Tick the people you want to see. Muting a society above unticks everyone in it; you can re-tick individuals here.</p>
           <div id="t-advlist"></div>
@@ -914,7 +930,7 @@
       const x = assignmentFor(me.first, i); const d = DUTIES[x.id];
       const w = x.people.length ? 'with ' + names(x.people) : (d.cat === 'free' || d.cat === 'photo' ? '' : 'solo');
       return `<div class="rs-row ${i === block ? 'now' : ''}" style="--c:${CATS[d.cat].color}">
-        <span class="t">${fmt(DAY_START + i * 30)}</span>${dutyIcon(d, 'sm')}
+        <span class="t">${fmt(DAY_START + i * 30)}</span><span class="bar"></span>${dutyIcon(d, 'sm')}
         <span class="d">${esc(d.name)}${d.cat === 'free' ? '' : ''}<small>${esc(d.cat === 'free' ? 'Enjoy the festival' : d.where + (w ? ' · ' + w : ''))}</small></span>
       </div>`;
     }).join('');
@@ -932,6 +948,8 @@
 
   function renderFilter() {
     const socs = CLUBS.filter(c => socMembers(c).length);
+    const mutedN = PEOPLE.filter(p => !shown(p.first)).length;
+    $('t-soc-badge').hidden = !mutedN; $('t-soc-badge').textContent = mutedN;
     $('t-socs').innerHTML = socs.map(c => {
       const m = socMembers(c); const on = m.filter(shown).length;
       const state = on === m.length ? '' : on === 0 ? 'off' : 'part';
@@ -952,6 +970,10 @@
       saveHidden(); renderFilter(); renderTeam();
     }));
   }
+  $('t-soc-toggle').addEventListener('click', () => {
+    const open = $('t-socs').hidden; $('t-socs').hidden = !open;
+    $('t-soc-toggle').setAttribute('aria-expanded', String(open));
+  });
   $('t-adv').addEventListener('click', () => {
     const open = $('t-advbox').hidden; $('t-advbox').hidden = !open;
     $('t-adv').setAttribute('aria-expanded', String(open)); $('t-adv').textContent = open ? 'Done' : 'Advanced';
