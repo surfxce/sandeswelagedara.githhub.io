@@ -500,7 +500,7 @@
   .bm .mid button { height: 30px; padding: 0 10px; border-radius: 6px; border: 1.5px solid var(--line); background: var(--paper); color: var(--maroon); font-weight: 700; font-size: 12px; }
   .bm .pick { display: flex; gap: 4px; }
   .bracket .out { font-size: 13px; color: var(--ink-3); }
-  .bracket .out s { margin-right: 6px; }
+  .bracket .out s { margin-right: 2px; }
   .newmatch textarea { min-height: 120px; padding: 10px 14px; border-radius: 6px; background: var(--paper); color: var(--ink); border: 2px solid var(--line); width: 100%; resize: vertical; }
 
   /* ---------- Map (placeholder) ---------- */
@@ -1389,6 +1389,7 @@
     rounds.some((r, k) => r.some((m, i) => { if (!m.w && m.a && m.b) { next = { m, k, i }; return true; } return false; }));
     const scoreOf = (m) => m.m && matches[m.m] ? matches[m.m] : null;
     const team = (t, m, side) => {
+      if (!t && !m.b && m.a) return `<span class="tm ${side}"></span>`;   // a bye has no opponent
       const cls = !t ? 'tbd' : m.w ? (m.w === t ? 'won' : 'lost') : '';
       return `<span class="tm ${side} ${cls}">${t ? esc(t) : 'TBD'}</span>`;
     };
@@ -1404,7 +1405,7 @@
     const roundsHtml = rounds.map((r, k) => `<div class="round"><h4>${roundName(r.length * 2, k, rounds.length)}</h4>${r.map((m, i) => `<div class="bm">${team(m.a, m, 'r')}${mid(m, k, i)}${team(m.b, m, '')}</div>`).join('')}</div>`).join('');
     const nextHtml = champion ? `<div class="champ">Champion — ${esc(champion)}</div>`
       : next ? `<div class="next" style="--c:${color}"><span class="eyebrow">Up next</span><b>${esc(next.m.a)} v ${esc(next.m.b)}</b><span class="fine">${roundName(rounds[next.k].length * 2, next.k, rounds.length)}</span></div>` : '';
-    const outHtml = losers.size ? `<p class="out">Out: ${[...losers].map(t => `<s>${esc(t)}</s>`).join('')}</p>` : '';
+    const outHtml = losers.size ? `<p class="out">Out: ${[...losers].map(t => `<s>${esc(t)}</s>`).join(', ')}</p>` : '';
     return `<div class="bracket" style="--c:${color}"><div class="head">${iconHtml(d.icon || 'football', color, 'sm')}<span class="ttl">${esc(SPORTS[sport] || sport)} bracket</span><span class="cnt">${(br.teams || []).length} teams</span></div>${nextHtml}${roundsHtml}${outHtml}</div>`;
   }
   function renderBrackets() {
