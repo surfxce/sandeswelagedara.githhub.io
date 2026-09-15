@@ -62,7 +62,7 @@
   /* ---------- Entry ---------- */
   .entry {
     position: relative;
-    min-height: 100dvh;
+    min-height: 82dvh;
     display: flex;
     flex-direction: column;
     color: var(--cream);
@@ -128,6 +128,28 @@
   }
   .btn-primary:active { transform: translateY(1px); }
   .entry-note { font-size: 13px; opacity: .85; margin: 0; }
+  .scroll-cue {
+    align-self: center; display: inline-flex; align-items: center; gap: 8px;
+    color: var(--cream); text-decoration: none; font-weight: 700; font-size: 14px; letter-spacing: .12em; text-transform: uppercase;
+    padding: 10px 16px; border: 1.5px solid rgba(245, 239, 227, .55); border-radius: 22px; background: rgba(43, 26, 20, .32);
+  }
+  .scroll-cue svg { width: 18px; height: 18px; }
+
+  /* ---------- Public page below the hero ---------- */
+  .public { background: var(--paper); }
+  .public .whatson-body { padding-top: 22px; }
+  .login {
+    margin: 8px 0 0; padding: 26px 16px 32px;
+    background: var(--maroon-deep); color: var(--cream);
+    border-top: 6px solid var(--tan);
+  }
+  .login h2 {
+    margin: 0; font-family: var(--display); font-weight: 700; font-size: 34px; line-height: 1; letter-spacing: .04em;
+  }
+  .login-lead { margin: 8px 0 18px; font-size: 15px; opacity: .9; max-width: 36ch; }
+  .entry-form.dark { background: rgba(0, 0, 0, .22); }
+  .form-err { margin: 0; font-size: 14px; font-weight: 700; color: #F3C6B6; }
+  .btn-primary[disabled] { opacity: .6; }
 
   .badge-strip {
     position: relative; margin-top: auto;
@@ -241,7 +263,7 @@
   .toggle[aria-checked="true"] { background: var(--c-crowd); }
   .toggle[aria-checked="true"]::after { transform: translateX(24px); }
 
-  .runsheet h2, .team h2, .whatson h2 {
+  .runsheet h2, .team h2, .whatson h2, .public .whatson-body h2 {
     margin: 6px 0 8px; font-size: 13px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2);
   }
   .rs { display: grid; border-top: 1px solid var(--line); }
@@ -396,10 +418,26 @@
       <div class="lockup">
         <div class="eyebrow-serif">UQISC × PARTNER SOCIETY</div>
         <h1>Spice Road<small>FESTIVAL</small></h1>
-        <p>On Shift — your duty, your partner, and what's next, block by block.</p>
+        <p>Stalls, sports, and a stage — 3 till 9 pm on the festival ground.</p>
       </div>
 
-      <form class="entry-form" id="entry-form" autocomplete="off">
+      <a class="scroll-cue" href="#public-on" aria-label="See what's on">
+        <span>What's on</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 10l6 6 6-6"/></svg>
+      </a>
+
+      <div class="badge-strip" id="badge-strip" aria-label="Participating clubs"></div>
+    </div>
+  </section>
+
+  <!-- ======== PUBLIC: what's on + exec login ======== -->
+  <section class="public" id="public">
+    <div class="whatson-body" id="public-on"></div>
+
+    <section class="login" id="login">
+      <h2>Exec login</h2>
+      <p class="login-lead">Volunteering today? Your duty, your partner, and what's next, block by block.</p>
+      <form class="entry-form dark" id="entry-form" autocomplete="off">
         <div class="field">
           <label for="f-name">First name</label>
           <input id="f-name" name="name" type="text" inputmode="text" autocapitalize="words" placeholder="e.g. Sandes" required>
@@ -410,17 +448,15 @@
             <option value="" disabled selected>Choose your society</option>
           </select>
         </div>
-        <button class="btn-primary" type="submit">Find my roster</button>
-        <p class="entry-note">Saved on this phone so you won't need to re-enter it. Not on the roster? You can still see the Team and What's On.</p>
+        <div class="field" id="f-pass-field">
+          <label for="f-pass">Exec passcode</label>
+          <input id="f-pass" name="passcode" type="text" inputmode="text" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="four words, from the exec chat">
+        </div>
+        <p class="form-err" id="f-err" role="alert" hidden></p>
+        <button class="btn-primary" type="submit" id="f-go">Find my roster</button>
+        <p class="entry-note" id="f-note">Saved on this phone so you won't need to re-enter it.</p>
       </form>
-
-      <div class="entry-form" id="locked" hidden>
-        <div class="field"><label>Roster locked</label></div>
-        <p class="entry-note" style="font-size:15px;opacity:1">This page only unlocks from the link your club lead sent. Open that link on this phone once and it'll remember you.</p>
-      </div>
-
-      <div class="badge-strip" id="badge-strip" aria-label="Participating clubs"></div>
-    </div>
+    </section>
   </section>
 
   <!-- ======== SHELL ======== -->
@@ -644,20 +680,39 @@
   CLUBS.forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; sel.appendChild(o); });
   $('badge-strip').innerHTML = CLUBS.map(c => `<div class="badge" title="${c}">${CLUB_SHORT[c]}</div>`).join('');
   $('clubgrid').innerHTML = CLUBS.map(c => `<div class="club"><div class="ring">${CLUB_SHORT[c]}</div><div class="nm">${c}</div></div>`).join('');
+  // the public page shows the same What's On as the exec tab — one source, copied
+  $('public-on').innerHTML = document.querySelector('#view-on .whatson-body').innerHTML;
+  $('public-on').querySelectorAll('[id]').forEach(el => el.removeAttribute('id'));
 
-  $('entry-form').addEventListener('submit', (e) => {
+  $('entry-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     const name = $('f-name').value.trim(); const society = sel.value;
     if (!name || !society) return;
+    const err = $('f-err'); err.hidden = true;
+    if (!rosterLoaded) {
+      const pass = $('f-pass').value;
+      if (!pass.trim()) { err.textContent = 'You\'ll need the exec passcode — it\'s in the exec chat.'; err.hidden = false; $('f-pass').focus(); return; }
+      $('f-go').disabled = true; $('f-go').textContent = 'Unlocking…';
+      const ok = await loadRoster({ passcode: pass });
+      $('f-go').disabled = false; $('f-go').textContent = 'Find my roster';
+      if (!ok) { err.textContent = 'That passcode isn\'t right. Check the exec chat and try again.'; err.hidden = false; $('f-pass').select(); return; }
+    }
     ident = { name, society };
     try { localStorage.setItem('onshift.identity', JSON.stringify(ident)); } catch {}
     enter();
   });
+  // once this phone holds the key, the passcode field is redundant
+  function passFieldVisibility() {
+    $('f-pass-field').hidden = rosterLoaded;
+    $('f-note').textContent = rosterLoaded ? 'This phone is already unlocked — just your name and society.' : 'Saved on this phone so you won\'t need to re-enter it.';
+  }
   $('switch').addEventListener('click', () => {
     try { localStorage.removeItem('onshift.identity'); } catch {}
     ident = null; me = null;
-    $('shell').hidden = true; $('entry').hidden = false;
-    $('f-name').value = ''; sel.value = '';
+    $('shell').hidden = true; $('entry').hidden = false; $('public').hidden = false;
+    $('f-name').value = ''; sel.value = ''; $('f-pass').value = '';
+    passFieldVisibility();
+    window.scrollTo(0, 0);
     requestAnimationFrame(() => drawMap($('map-entry')));
   });
 
@@ -666,7 +721,8 @@
     me = (p && p.s.includes(ident.society)) ? p : null;
     $('who-name').textContent = me ? me.first : ident.name;
     $('who-soc').textContent = ident.society;
-    $('entry').hidden = true; $('shell').hidden = false;
+    $('entry').hidden = true; $('public').hidden = true; $('shell').hidden = false;
+    window.scrollTo(0, 0);
     const lb = liveBlock();
     live = lb !== null; block = live ? lb : 0;
     showView(me ? 'now' : 'team');
@@ -871,43 +927,56 @@
   window.addEventListener('resize', redraw);
 
   // ---------- Roster loading ----------
+  // roster.enc is AES-GCM ciphertext. The key comes from one of:
+  //   - the exec passcode typed into the login form (PBKDF2 → key), or
+  //   - a #k= link that carries the derived key, or
+  //   - localStorage, once either of the above has worked on this phone.
+  // Nothing in this file or the repo can decrypt it.
   const KEY_LS = 'onshift.key';
+  let rosterLoaded = false;
   const b64u = (str) => Uint8Array.from(atob(str.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0));
+  const toB64u = (buf) => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  const normPass = (s) => s.toLowerCase().trim().split(/[\s-]+/).join(' ');
   function keyFromLink() {
     const m = location.hash.match(/[#&]k=([A-Za-z0-9_-]{40,})/);
     if (!m) return null;
-    try { localStorage.setItem(KEY_LS, m[1]); } catch {}
     // drop the key from the address bar so it isn't in screenshots or history
     history.replaceState(null, '', location.pathname + location.search);
     return m[1];
   }
-  async function loadRoster() {
-    let k = keyFromLink();
-    if (!k) { try { k = localStorage.getItem(KEY_LS); } catch {} }
-    if (!k) return false;
+  let encCache = null;
+  async function fetchEnc() {
+    if (encCache) return encCache;
+    const res = await fetch('roster.enc', { cache: 'no-store' });
+    if (!res.ok) throw new Error('no roster.enc');
+    return (encCache = await res.json());
+  }
+  async function deriveKey(passcode, enc) {
+    const base = await crypto.subtle.importKey('raw', new TextEncoder().encode(normPass(passcode)), 'PBKDF2', false, ['deriveKey']);
+    return crypto.subtle.deriveKey({ name: 'PBKDF2', salt: b64u(enc.salt), iterations: enc.rounds, hash: 'SHA-256' }, base, { name: 'AES-GCM', length: 256 }, true, ['decrypt']);
+  }
+  async function loadRoster({ passcode } = {}) {
+    let k = null;
+    if (!passcode) { k = keyFromLink(); if (!k) { try { k = localStorage.getItem(KEY_LS); } catch {} } if (!k) return false; }
     try {
-      const res = await fetch('roster.enc', { cache: 'no-store' });
-      if (!res.ok) throw new Error('no roster.enc');
-      const { iv, ct } = await res.json();
-      const key = await crypto.subtle.importKey('raw', b64u(k), 'AES-GCM', false, ['decrypt']);
-      const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: b64u(iv) }, key, b64u(ct));
+      const enc = await fetchEnc();
+      const key = passcode ? await deriveKey(passcode, enc) : await crypto.subtle.importKey('raw', b64u(k), 'AES-GCM', true, ['decrypt']);
+      const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: b64u(enc.iv) }, key, b64u(enc.ct));
       setRoster(JSON.parse(new TextDecoder().decode(pt)));
+      try { localStorage.setItem(KEY_LS, toB64u(await crypto.subtle.exportKey('raw', key))); } catch {}
+      rosterLoaded = true;
       return true;
     } catch (e) {
       try { localStorage.removeItem(KEY_LS); } catch {}   // a stale key shouldn't keep failing silently
       return false;
     }
   }
-  function showLocked() {
-    $('entry-form').hidden = true;
-    $('locked').hidden = false;
-  }
 
   // ---------- Boot ----------
-  loadRoster().then(ok => {
-    if (!ok) { showLocked(); redraw(); return; }
+  loadRoster().then(() => {
+    passFieldVisibility();
     try { const s = localStorage.getItem('onshift.identity'); if (s) ident = JSON.parse(s); } catch {}
-    if (ident && ident.name && ident.society) enter(); else redraw();
+    if (rosterLoaded && ident && ident.name && ident.society) enter(); else redraw();
   });
 })();
 </script>
