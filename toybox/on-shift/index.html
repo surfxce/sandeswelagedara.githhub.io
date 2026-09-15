@@ -296,7 +296,38 @@
   .duty-row .wh { grid-column: 1 / -1; font-size: 14px; color: var(--ink-2); }
   .duty-row .ppl { grid-column: 1 / -1; margin-top: 4px; font-size: 16px; font-weight: 600; }
   .duty-row .ppl .me { color: var(--maroon); text-decoration: underline; text-decoration-color: var(--tan); text-underline-offset: 3px; }
-  .duty-row .cat { font-size: 11px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--c); align-self: start; }
+  .duty-row .cat { font-size: 11px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--c); align-self: start; white-space: nowrap; }
+
+  /* sub-jobs inside a job */
+  .subjobs { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+  .subjob {
+    font-size: 13px; font-weight: 700; line-height: 1; padding: 6px 9px; border-radius: 4px;
+    background: var(--paper-2); color: var(--ink-2); border-left: 3px solid var(--c);
+  }
+  .subjobs.tight { grid-column: 1 / -1; margin-top: 2px; }
+  .subjobs.tight .subjob { font-size: 12px; padding: 5px 8px; }
+
+  /* collapsed club stalls */
+  .duty-group {
+    background: #fff; border-left: 8px solid var(--c); box-shadow: 0 1px 0 var(--line);
+  }
+  .duty-group summary {
+    list-style: none; cursor: pointer; padding: 10px 12px;
+    display: grid; grid-template-columns: 1fr auto; gap: 2px 10px;
+  }
+  .duty-group summary::-webkit-details-marker { display: none; }
+  .duty-group summary .nm { font-weight: 800; font-size: 17px; }
+  .duty-group summary .cat { font-size: 11px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--c); align-self: start; white-space: nowrap; }
+  .duty-group summary .wh { grid-column: 1 / -1; font-size: 14px; color: var(--ink-2); }
+  .duty-group[open] summary { border-bottom: 1px solid var(--line); }
+  .soc-row {
+    display: grid; grid-template-columns: 76px 1fr; gap: 10px; align-items: baseline;
+    padding: 9px 12px; border-bottom: 1px solid var(--line);
+  }
+  .soc-row:last-child { border-bottom: 0; }
+  .soc-row .nm { font-weight: 800; font-size: 14px; color: var(--maroon); letter-spacing: .02em; }
+  .soc-row .ppl { font-size: 15px; font-weight: 600; }
+  .soc-row .ppl .me { color: var(--maroon); text-decoration: underline; text-decoration-color: var(--tan); text-underline-offset: 3px; }
 
   /* ---------- What's On ---------- */
   .whatson { padding: 0; gap: 0; }
@@ -527,23 +558,39 @@
   };
 
   const DUTIES = {
-    vb: { cat:'sport', name:'Volleyball', where:'Volleyball court', do:'Keep games moving on the court. Call scores, rotate teams every 15 minutes, and keep the ball bag with you.' },
-    fb: { cat:'sport', name:'Football', where:'Main oval', do:'Referee and keep the sideline clear. Games run 20 minutes — blow up when the stage calls time and swap teams.' },
-    ck: { cat:'sport', name:'Cricket', where:'Cricket pitch', do:'Umpire the pitch and keep spectators behind the cones. Rotate batting sides every 6 overs.' },
-    tk: { cat:'ticket', name:'Ticketing', where:'Main entry gate', do:'Check tickets and stamp wrists. Hold the line at the barrier — never leave the table unattended.' },
-    st: { cat:'stage', name:'Stage', where:'Performance stage', do:'Cue performers and make all announcements, including sports call-outs. Keep the mic within reach.' },
-    'cr-gate': { cat:'crowd', name:'Crowd & support', where:'Entry gate zone', do:'Walk the zone. Keep walkways clear, help anyone lost, and glance at cords and generators as you pass.' },
-    'cr-lawn': { cat:'crowd', name:'Crowd & support', where:'Stage lawn', do:'Walk the zone. Keep walkways clear, help anyone lost, and glance at cords and generators as you pass.' },
-    'cr-food': { cat:'crowd', name:'Crowd & support', where:'Food row', do:'Walk the zone. Keep the queues orderly, watch for spills, and glance at cords and generators as you pass.' },
-    'cr-gen':  { cat:'crowd', name:'Crowd & support', where:'Generators & cords sweep', do:'Do a full loop of every generator and cable run. Tape down anything loose, then rejoin the stage lawn.' },
-    'fund-pp':   { cat:'fund', name:'Pani Puri Stall', where:'Food row, stall 1', do:'Help the charity volunteers serve and take payment. Keep the queue moving.' },
-    'fund-bake': { cat:'fund', name:'Manali Project Bake Sale', where:'Food row, stall 2', do:'Help the charity volunteers serve and take payment. Keep the queue moving.' },
-    'fund-hope': { cat:'fund', name:'Hope by Hands', where:'Food row, stall 3', do:'Help the charity volunteers serve and take payment. Keep the queue moving.' },
+    // tasks: the sub-jobs inside each job — shown as small tags on the duty card
+    vb: { cat:'sport', name:'Volleyball', where:'Volleyball court', do:'Keep games moving on the court. Call scores, rotate teams every 15 minutes, and keep the ball bag with you.',
+          tasks:['Scorekeeping', 'Rotating teams', 'Ball bag'] },
+    fb: { cat:'sport', name:'Football', where:'Main oval', do:'Referee and keep the sideline clear. Games run 20 minutes — blow up when the stage calls time and swap teams.',
+          tasks:['Refereeing', 'Sideline clear', 'Team swaps'] },
+    ck: { cat:'sport', name:'Cricket', where:'Cricket pitch', do:'Umpire the pitch and keep spectators behind the cones. Rotate batting sides every 6 overs.',
+          tasks:['Umpiring', 'Getting people off the field', 'Spectators behind cones'] },
+    tk: { cat:'ticket', name:'Ticketing', where:'Main entry gate', do:'Check tickets and stamp wrists. Hold the line at the barrier — never leave the table unattended.',
+          tasks:['Checking tickets', 'Wristbands', 'Holding the barrier', 'Questions & directions'] },
+    st: { cat:'stage', name:'Stage', where:'Performance stage', do:'Cue performers and make all announcements, including sports call-outs. Keep the mic within reach.',
+          tasks:['Cueing performers', 'Announcements', 'Sports call-outs'] },
+    'cr-gate': { cat:'crowd', name:'Crowd & support', where:'Entry gate zone', do:'Walk the zone. Keep walkways clear, help anyone lost, and glance at cords and generators as you pass.',
+          tasks:['Walkways clear', 'Lost visitors', 'Cords & generators'] },
+    'cr-lawn': { cat:'crowd', name:'Crowd & support', where:'Stage lawn', do:'Walk the zone. Keep walkways clear, help anyone lost, and glance at cords and generators as you pass.',
+          tasks:['Walkways clear', 'Lost visitors', 'Cords & generators'] },
+    'cr-food': { cat:'crowd', name:'Crowd & support', where:'Food row', do:'Walk the zone. Keep the queues orderly, watch for spills, and glance at cords and generators as you pass.',
+          tasks:['Queues orderly', 'Spills', 'Cords & generators'] },
+    'cr-gen':  { cat:'crowd', name:'Crowd & support', where:'Generators & cords sweep', do:'Do a full loop of every generator and cable run. Tape down anything loose, then rejoin the stage lawn.',
+          tasks:['Full loop', 'Tape loose cords', 'Generator check'] },
+    'fund-pp':   { cat:'fund', name:'Pani Puri Stall', where:'Food row, stall 1', do:'Help the charity volunteers serve and take payment. Keep the queue moving.',
+          tasks:['Serving', 'Payments', 'Queue'] },
+    'fund-bake': { cat:'fund', name:'Manali Project Bake Sale', where:'Food row, stall 2', do:'Help the charity volunteers serve and take payment. Keep the queue moving.',
+          tasks:['Serving', 'Payments', 'Queue'] },
+    'fund-hope': { cat:'fund', name:'Hope by Hands', where:'Food row, stall 3', do:'Help the charity volunteers serve and take payment. Keep the queue moving.',
+          tasks:['Serving', 'Payments', 'Queue'] },
     free: { cat:'free', name:'Free', where:'Enjoy the festival', do:'You\'re off this block. Grab food, catch the stage — and be back a few minutes before your next duty.' },
-    setup: { cat:'hands', name:'Setup', where:'All hands · 2:00 – 3:00 pm', do:'Everyone on deck. Marquees, tables, signage, sports gear — check in with your club lead for what to carry.' },
-    packup: { cat:'hands', name:'Pack-up', where:'All hands · 9:00 – 10:00 pm', do:'Everyone on deck. Strike marquees, bag rubbish, return sports gear, and sweep your last zone before you go.' },
+    setup: { cat:'hands', name:'Setup', where:'All hands · 2:00 – 3:00 pm', do:'Everyone on deck. Marquees, tables, signage, sports gear — check in with your club lead for what to carry.',
+          tasks:['Marquees', 'Tables & signage', 'Sports gear'] },
+    packup: { cat:'hands', name:'Pack-up', where:'All hands · 9:00 – 10:00 pm', do:'Everyone on deck. Strike marquees, bag rubbish, return sports gear, and sweep your last zone before you go.',
+          tasks:['Strike marquees', 'Rubbish', 'Return gear', 'Sweep your zone'] },
   };
-  CLUBS.forEach(c => { DUTIES['stall-' + c] = { cat:'club', name: c + ' stall', where: c + ' marquee', club: c, do: 'Staff your club\'s marquee. Talk to visitors, run sign-ups, keep the table tidy.' }; });
+  CLUBS.forEach(c => { DUTIES['stall-' + c] = { cat:'club', name: c + ' stall', where: c + ' marquee', club: c, do: 'Staff your club\'s marquee. Talk to visitors, run sign-ups, keep the table tidy.',
+          tasks:['Talking to visitors', 'Sign-ups', 'Table tidy'] }; });
 
   // Roster — not in this file. It ships encrypted as roster.enc and is
   // decrypted in the browser with the key from the link execs were sent
@@ -580,6 +627,9 @@
   const soc = (first) => byFirst[first.toLowerCase()].s.join(' · ');
   const full = (first) => byFirst[first.toLowerCase()].n;
   const esc = (s) => s.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  // "A, B & C" — any number of people on a duty, not just pairs
+  const names = (firsts, fmtOne = full) => { const a = firsts.map(fmtOne); return a.length <= 1 ? a.join('') : a.slice(0, -1).join(', ') + ' & ' + a[a.length - 1]; };
+  const tasksHtml = (d, cls) => d.tasks && d.tasks.length ? `<div class="subjobs ${cls || ''}">${d.tasks.map(t => `<span class="subjob">${esc(t)}</span>`).join('')}</div>` : '';
 
   // ---------- State ----------
   let me = null;           // PEOPLE entry, or null if not on roster
@@ -658,11 +708,14 @@
     const partners = a.people.length
       ? `<div class="with"><span class="eyebrow">With</span><div class="partner-list">${a.people.map(p => `<div class="partner">${esc(full(p))}<span class="soc">${esc(soc(p))}</span></div>`).join('')}</div></div>`
       : (d.cat === 'free' || d.cat === 'hands' ? '' : `<div class="with"><span class="eyebrow">With</span><div class="partner">Solo this block</div></div>`);
+    // the category line only earns its place when it says something the heading doesn't
+    const catLine = cat.label === d.name ? '' : `<div class="cat-label">${cat.label}</div>`;
     return `<article class="duty-card ${extraClass || ''}" style="--c:${cat.color}">
-      <div class="cat-label">${cat.label}${d.club ? ' · ' + d.club : ''}</div>
+      ${catLine}
       <h1 class="duty-name">${esc(d.name)}</h1>
       <div class="duty-where">${esc(d.where)}</div>
       <p class="duty-do">${esc(d.do)}</p>
+      ${tasksHtml(d)}
       ${partners}
     </article>`;
   }
@@ -681,14 +734,14 @@
     else {
       const nb = block + 1; const na = assignmentFor(me.first, nb); const nd = DUTIES[na.id];
       const t = nb >= BLOCKS ? '9:00 pm' : fmt(DAY_START + nb * 30) + ' pm';
-      const withTxt = na.people.length ? 'with ' + na.people.map(full).join(' & ') : (nd.cat === 'free' ? 'nothing rostered' : nd.cat === 'hands' ? 'everyone' : 'solo');
+      const withTxt = na.people.length ? 'with ' + names(na.people) : (nd.cat === 'free' ? 'nothing rostered' : nd.cat === 'hands' ? 'everyone' : 'solo');
       $('now-next').innerHTML = `<div class="next" style="--c:${CATS[nd.cat].color}"><span class="eyebrow">Next up</span><span class="t">${t}</span><span class="d">${esc(nd.name)}${nd.club ? '' : ''}<small>${esc(nd.where)} · ${esc(withTxt)}</small></span></div>`;
     }
 
     // Run sheet
     $('rs').innerHTML = Array.from({ length: BLOCKS }, (_, i) => {
       const x = assignmentFor(me.first, i); const d = DUTIES[x.id];
-      const w = x.people.length ? 'with ' + x.people.map(full).join(' & ') : (d.cat === 'free' ? '' : 'solo');
+      const w = x.people.length ? 'with ' + names(x.people) : (d.cat === 'free' ? '' : 'solo');
       return `<div class="rs-row ${i === block ? 'now' : ''}" style="--c:${CATS[d.cat].color}">
         <span class="t">${fmt(DAY_START + i * 30)}</span><span class="bar"></span>
         <span class="d">${esc(d.name)}${d.cat === 'free' ? '' : ''}<small>${esc(d.cat === 'free' ? 'Enjoy the festival' : d.where + (w ? ' · ' + w : ''))}</small></span>
@@ -717,11 +770,27 @@
     const grouped = {};
     rows.forEach(([id, ppl]) => { (grouped[id] ||= []).push(ppl); });
     const ids = Object.keys(grouped).sort((a, b) => order.indexOf(DUTIES[a].cat) - order.indexOf(DUTIES[b].cat) || DUTIES[a].name.localeCompare(DUTIES[b].name));
-    $('t-duty').innerHTML = ids.map(id => {
+    const person = (p) => p === mine ? `<span class="me">${esc(full(p))}</span>` : esc(full(p));
+    const pplHtml = (id) => grouped[id].map(group => names(group, person)).join('&nbsp;&nbsp;·&nbsp;&nbsp;');
+    const count = (id) => grouped[id].reduce((n, g) => n + g.length, 0);
+
+    // Club stalls fold into one row — there can be a dozen of them — and expand
+    // to show each society's execs. Opens itself if you're on one.
+    const clubIds = ids.filter(id => DUTIES[id].cat === 'club');
+    const otherIds = ids.filter(id => DUTIES[id].cat !== 'club');
+    const clubHtml = clubIds.length ? (() => {
+      const n = clubIds.reduce((s, id) => s + count(id), 0);
+      const mineHere = mine && clubIds.some(id => grouped[id].some(g => g.includes(mine)));
+      return `<details class="duty-group" style="--c:${CATS.club.color}" ${mineHere ? 'open' : ''}>
+        <summary><span class="nm">Club stalls</span><span class="cat">${clubIds.length} ${clubIds.length === 1 ? 'society' : 'societies'} · ${n} execs</span><span class="wh">Tap to ${mineHere ? 'collapse' : 'expand'}</span></summary>
+        ${clubIds.map(id => `<div class="soc-row"><span class="nm">${esc(DUTIES[id].club)}</span><span class="ppl">${pplHtml(id)}</span></div>`).join('')}
+      </details>`;
+    })() : '';
+
+    $('t-duty').innerHTML = otherIds.map(id => {
       const d = DUTIES[id];
-      const ppl = grouped[id].map(pair => pair.map(p => p === mine ? `<span class="me">${esc(full(p))}</span>` : esc(full(p))).join(' & ')).join('&nbsp;&nbsp;·&nbsp;&nbsp;');
-      return `<div class="duty-row" style="--c:${CATS[d.cat].color}"><span class="nm">${esc(d.name)}</span><span class="cat">${CATS[d.cat].label}</span><span class="wh">${esc(d.where)}</span><span class="ppl">${ppl}</span></div>`;
-    }).join('');
+      return `<div class="duty-row" style="--c:${CATS[d.cat].color}"><span class="nm">${esc(d.name)}</span><span class="cat">${[CATS[d.cat].label === d.name ? '' : CATS[d.cat].label, count(id) > 2 ? count(id) + ' on it' : ''].filter(Boolean).join(' · ')}</span><span class="wh">${esc(d.where)}</span>${tasksHtml(d, 'tight')}<span class="ppl">${pplHtml(id)}</span></div>`;
+    }).join('') + clubHtml;
   }
 
   // ---------- Preview stepper ----------
@@ -734,7 +803,7 @@
     block = lb; render();
     if (nudge && 'Notification' in window && Notification.permission === 'granted' && me) {
       const a = assignmentFor(me.first, block); const d = DUTIES[a.id];
-      try { new Notification('New block — ' + d.name, { body: d.where + (a.people.length ? ' · with ' + a.people.map(full).join(' & ') : '') }); } catch {}
+      try { new Notification('New block — ' + d.name, { body: d.where + (a.people.length ? ' · with ' + names(a.people) : '') }); } catch {}
     }
   }, 20000);
 
