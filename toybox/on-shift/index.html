@@ -1163,7 +1163,10 @@
     if (!taken.length) return ROSTER[i];
     return ROSTER[i].map(([id, ppl]) => {
       let out = ppl.slice();
-      taken.forEach(sw => { if (sw.duty === id && out.includes(sw.from)) { out = out.filter(p => p !== sw.from && p !== sw.to); out.push(sw.to); } });
+      taken.forEach(sw => {
+        if (sw.duty === id && out.includes(sw.from)) { out = out.filter(p => p !== sw.from && p !== sw.to); out.push(sw.to); }
+        else if (out.includes(sw.to)) { out = out.filter(p => p !== sw.to); if (!out.includes(sw.from)) out.push(sw.from); }   // the requester takes the taker's old duty
+      });
       return [id, out];
     }).filter(([, ppl]) => ppl.length);
   }
@@ -1681,16 +1684,17 @@
   const TICK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>';
   const CROSS = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
   const mySwapFor = (i) => Object.entries(swaps).find(([, sw]) => me && sw.from === me.first && sw.block === i && sw.status !== 'withdrawn');
+  const sameSociety = (a, b) => { const pa = byFirst[a.toLowerCase()], pb = byFirst[b.toLowerCase()]; return !!(pa && pb && pa.s.some(c => pb.s.includes(c))); };
   function swapControl(a) {
-    if (!db || !me || block < 0 || block >= BLOCKS || ['free', 'hands', 'photo', 'play'].includes(DUTIES[a.id].cat)) return '';
-    const mine = mySwapFor(block);
+    if (!db || !me || block < 0 || block >= BLOCKS || ['free', 'hands', 'photo'].includes(DUTIES[a.id].cat)) return '';
+    const mine = mySwapFor(block); const playing = DUTIES[a.id].cat === 'play';
     if (mine) {
       const [id, sw] = mine;
       return sw.status === 'taken'
-        ? `<div class="swap-ctl taken"><span class="txt"><b>${esc(sw.to)}</b> took this block for you.</span></div>`
-        : `<div class="swap-ctl open"><span class="txt">Swap request out to free execs…</span><button class="btn-small ghost" data-withdraw="${id}" type="button">Withdraw</button></div>`;
+        ? `<div class="swap-ctl taken"><span class="txt"><b>${esc(sw.to)}</b> swapped with you.</span></div>`
+        : `<div class="swap-ctl open"><span class="txt">${playing ? 'Asking your society\'s execs…' : 'Swap request out to free execs…'}</span><button class="btn-small ghost" data-withdraw="${id}" type="button">Withdraw</button></div>`;
     }
-    return `<div class="swap-ctl"><span class="txt">Can't make this block?</span><button class="btn-small ghost" id="swap-ask" type="button">Ask to swap out</button></div>`;
+    return `<div class="swap-ctl"><span class="txt">${playing ? 'Can\'t play this one?' : 'Can\'t make this block?'}</span><button class="btn-small ghost" id="swap-ask" type="button">${playing ? 'Ask a teammate to sub in' : 'Ask to swap out'}</button></div>`;
   }
   // --- calls for help ---
   // "Ticketing needs hands — main entry gate" goes to every free exec. Any
@@ -2006,24 +2010,29 @@
     const ask = $('swap-ask');
     if (ask) ask.addEventListener('click', () => {
       const a = assignmentFor(me.first, block);
-      if (!confirm(`Ask a free exec to take ${DUTIES[a.id].name}, ${range(block)}?`)) return;
+      const d = DUTIES[a.id];
+      if (!confirm(d.cat === 'play' ? `Ask your society's execs to sub in for ${d.name.toLowerCase()}, ${range(block)}? Whoever takes it swaps duties with you.` : `Ask a free exec to take ${d.name}, ${range(block)}?`)) return;
       ref('swaps').push({ from: me.first, block, duty: a.id, status: 'open', t: now() });
     });
     const wd = document.querySelector('[data-withdraw]');
     if (wd) wd.addEventListener('click', () => ref('swaps/' + wd.dataset.withdraw).update({ status: 'withdrawn' }));
   }
-  const swapsForMe = () => Object.entries(swaps).filter(([, sw]) => me && sw.status === 'open' && sw.from !== me.first && !(sw.declines || {})[me.first] && isFree(me.first, sw.block));
+  const swapsForMe = () => Object.entries(swaps).filter(([, sw]) => me && sw.status === 'open' && sw.from !== me.first && !(sw.declines || {})[me.first]
+    && ((DUTIES[sw.duty] || {}).cat === 'play' ? sameSociety(me.first, sw.from) : isFree(me.first, sw.block)));
   function renderSwaps() {
     const el = $('swap-list'); if (!el) return;
     const mine = Object.entries(swaps).filter(([, sw]) => me && sw.from === me.first && sw.status !== 'withdrawn');
     const open = swapsForMe();
     const card = ([id, sw], role) => {
       const d = DUTIES[sw.duty] || {}; const color = CATS[d.cat] ? CATS[d.cat].color : 'var(--line)';
+      const play = d.cat === 'play';
+      const myA = me ? assignmentFor(me.first, sw.block) : null; const myD = myA ? DUTIES[myA.id] : null;
+      const trade = role === 'take' && play && myD && myD.cat !== 'free' ? `<span class="when">You'd play; <b>${esc(sw.from)}</b> takes your <b>${esc(myD.name)}</b>.</span>` : '';
       const acts = role === 'take'
-        ? `<div class="acts"><button type="button" class="yes" data-take="${id}">${TICK} I'll take it</button><button type="button" class="no" data-decline="${id}">${CROSS} Not me</button></div>`
-        : sw.status === 'taken' ? `<span class="state ok">${esc(sw.to)} took it</span>`
-        : `<span class="state">Open — waiting for a free exec</span>`;
-      return `<div class="swap" style="--c:${color}">${dutyIcon(d, 'sm')}<span class="who-txt"><b>${esc(sw.from)}</b> wants to swap out of <b>${esc(d.name || sw.duty)}</b></span><span class="when">${range(sw.block)} · ${esc(d.where || '')}</span>${acts}</div>`;
+        ? `<div class="acts"><button type="button" class="yes" data-take="${id}">${TICK} ${play ? 'Sub me in' : "I'll take it"}</button><button type="button" class="no" data-decline="${id}">${CROSS} Not me</button></div>`
+        : sw.status === 'taken' ? `<span class="state ok">${esc(sw.to)} ${play ? 'subbed in' : 'took it'}</span>`
+        : `<span class="state">Open — waiting for ${play ? 'a teammate' : 'a free exec'}</span>`;
+      return `<div class="swap" style="--c:${color}">${dutyIcon(d, 'sm')}<span class="who-txt"><b>${esc(sw.from)}</b> ${play ? 'needs a sub for' : 'wants to swap out of'} <b>${esc(d.name || sw.duty)}</b>${play ? ` <span class="fine">· ${esc((byFirst[sw.from.toLowerCase()] || {s: []}).s.join(' · '))} team</span>` : ''}</span><span class="when">${range(sw.block)} · ${esc(d.where || '')}</span>${trade}${acts}</div>`;
     };
     el.innerHTML = (open.map(x => card(x, 'take')).join('') + mine.map(x => card(x, 'mine')).join('')) || '<p class="fine">No swap requests right now.</p>';
     el.querySelectorAll('[data-take]').forEach(b => b.addEventListener('click', () => {
