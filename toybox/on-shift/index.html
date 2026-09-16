@@ -307,16 +307,17 @@
   .pm-card .acts .ghost { background: transparent; color: var(--maroon); border: 1.5px solid var(--line); }
   /* big screen */
   .screen { position: fixed; inset: 0; z-index: 100; background: #000; color: var(--cream); overflow: hidden; cursor: none; }
-  .screen-photo { position: absolute; inset: 0; background: #000 center / contain no-repeat; opacity: 0; transition: opacity 1.2s ease; }
-  .screen-photo.on { opacity: 1; animation: kb 9s ease-in-out forwards; }
-  @keyframes kb { from { transform: scale(1); } to { transform: scale(1.06); } }
+  /* the band: photos full height, side by side, gliding right to left */
+  .screen-band { position: absolute; top: 0; bottom: 7vh; left: 0; display: flex; align-items: stretch; gap: 0; will-change: transform; }
+  .screen-band figure { position: relative; margin: 0; height: 100%; flex: 0 0 auto; }
+  .screen-band img { display: block; height: 100%; width: auto; max-width: none; }
+  .screen-band figcaption { position: absolute; left: 24px; bottom: 20px; max-width: calc(100% - 48px); font-family: var(--display); font-weight: 600; font-size: clamp(20px, 2.4vw, 36px); line-height: 1.15; color: var(--cream); text-shadow: 0 2px 14px rgba(0,0,0,.8); }
+  .screen-band figcaption small { display: block; font-family: var(--body); font-size: .55em; font-weight: 500; opacity: .9; margin-top: 2px; }
   .screen-idle { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; gap: 10px; padding: 40px; background: linear-gradient(180deg, #5E1E14, #B45A28 60%, #D9A464); }
   .screen-idle .eyebrow-serif { font-family: var(--display); font-weight: 600; font-size: 20px; letter-spacing: .22em; }
   .screen-idle h1 { font-family: var(--display); font-weight: 700; margin: 0; font-size: clamp(56px, 12vw, 140px); line-height: .95; letter-spacing: .02em; }
   .screen-idle h1 small { display: block; font-size: .3em; letter-spacing: .3em; margin-top: 8px; }
   .screen-idle p { font-size: clamp(18px, 2.4vw, 30px); opacity: .95; max-width: 40ch; margin: 10px auto 0; }
-  .screen-cap { position: absolute; left: 4vw; bottom: 10vh; max-width: 70vw; font-family: var(--display); font-weight: 600; font-size: clamp(22px, 3.2vw, 44px); line-height: 1.15; text-shadow: 0 2px 14px rgba(0,0,0,.7); }
-  .screen-cap small { display: block; font-family: var(--body); font-size: .5em; font-weight: 500; opacity: .9; margin-top: 4px; }
   .screen-scores { position: absolute; left: 0; right: 0; bottom: 0; height: 7vh; min-height: 48px; background: var(--maroon-deep); border-top: 3px solid var(--tan); display: flex; align-items: center; overflow: hidden; }
   .screen-scores .track { display: flex; gap: 6vw; padding: 0 3vw; white-space: nowrap; font-weight: 800; font-size: clamp(18px, 2.6vw, 34px); font-variant-numeric: tabular-nums; }
   .screen-scores .track.marquee { animation: marquee 30s linear infinite; }
@@ -705,14 +706,12 @@
 </style>
 
 <section class="screen" id="screen" hidden aria-label="Big screen">
-  <div class="screen-photo" id="screen-a"></div>
-  <div class="screen-photo" id="screen-b"></div>
+  <div class="screen-band" id="screen-band"></div>
   <div class="screen-idle" id="screen-idle">
     <div class="eyebrow-serif">UQISC × UQSLA</div>
     <h1>Spice Road<small>FESTIVAL</small></h1>
     <p>Photos from the festival will appear here.<br>Send yours from <b>sandeswelagedara.com/toybox/on-shift</b></p>
   </div>
-  <div class="screen-cap" id="screen-cap"></div>
   <div class="screen-scores" id="screen-scores" hidden><div class="track" id="screen-track"></div></div>
   <button class="screen-exit" id="screen-exit" type="button" hidden>Exit big screen</button>
 </section>
@@ -1581,7 +1580,7 @@
   }
   const redraw = () => { drawMap($('map-entry')); drawMap($('map-on')); drawMap($('map-login')); };
   if (document.fonts && document.fonts.load) document.fonts.load('600 12px "Cormorant SC"').then(redraw, redraw); else redraw();
-  window.addEventListener('resize', () => { redraw(); const pb = $('public-brackets'); if (pb) drawBracketLines(pb); });
+  window.addEventListener('resize', () => { redraw(); const pb = $('public-brackets'); if (pb) drawBracketLines(pb); if (scrOn) bandFill(); });
 
   // ---------- Live (Firebase Realtime Database) ----------
   // Shared state that has to survive a phone handover: scores and broadcasts.
@@ -1871,20 +1870,55 @@
   }
 
   // big screen: cycles approved photos, live scores along the bottom
-  // Rotation is the newest SCR_KEEP photos; the oldest retire as new ones arrive.
-  // Unshown photos form a queue (oldest first); once all have had a turn it cycles.
-  const SCR_KEEP = 30;
-  let scrOn = false, scrIdx = -1, scrTimer = null, scrLayer = 0, wake = null; const scrShown = new Set();
-  function scrOrder() { return Object.keys(phApproved).sort((a, b) => (phApproved[b].t || 0) - (phApproved[a].t || 0)).slice(0, SCR_KEEP).reverse(); }
-  function scrTick() {
-    const ids = scrOrder(); $('screen-idle').hidden = ids.length > 0; $('screen-cap').hidden = !ids.length;
-    if (!ids.length) { ['screen-a', 'screen-b'].forEach(i => $(i).classList.remove('on')); return; }
-    const fresh = ids.findIndex(i => !scrShown.has(i));   // a queue: oldest unseen photo goes next
-    scrIdx = fresh >= 0 ? fresh : (scrIdx + 1) % ids.length;
-    scrShown.add(ids[scrIdx]); const ph = phApproved[ids[scrIdx]];
-    const layers = ['screen-a', 'screen-b']; const show = $(layers[scrLayer]), hide = $(layers[1 - scrLayer]); scrLayer = 1 - scrLayer;
-    show.style.backgroundImage = `url("${ph.data}")`; show.classList.remove('on'); void show.offsetWidth; show.classList.add('on'); hide.classList.remove('on');
-    $('screen-cap').innerHTML = `${esc(ph.cap || '')}${ph.by ? `<small>${esc(ph.by)}</small>` : ''}`;
+  // The band keeps the newest SCR_KEEP approved photos in a queue, oldest
+  // first. It scrolls continuously; when the leading photo has fully left
+  // the screen it's moved to the back (or dropped if it has since retired).
+  // New approvals join at the back. If there aren't enough photos to fill
+  // the width, the set repeats so the band never has a gap.
+  const SCR_KEEP = 30, SCR_SPEED = 0.07;   // fraction of the viewport width per second
+  let scrOn = false, wake = null, bandX = 0, bandRaf = 0, bandLast = 0;
+  const scrIds = () => Object.keys(phApproved).sort((a, b) => (phApproved[b].t || 0) - (phApproved[a].t || 0)).slice(0, SCR_KEEP).reverse();
+  function figure(id) {
+    const ph = phApproved[id]; const f = document.createElement('figure'); f.dataset.id = id;
+    f.innerHTML = `<img src="${ph.data}" alt=""><figcaption>${esc(ph.cap || '')}${ph.by ? `<small>${esc(ph.by)}</small>` : ''}</figcaption>`;
+    if (!ph.cap && !ph.by) f.querySelector('figcaption').remove();
+    // a photo's width isn't known until it decodes; assume 4:3 until then so the fill maths works
+    f.style.minWidth = Math.round($('screen-band').clientHeight * 4 / 3) + 'px';
+    const img = f.querySelector('img'); img.addEventListener('load', () => { f.style.minWidth = ''; if (scrOn) bandFill(); });
+    return f;
+  }
+  function bandFill() {
+    // make sure the band is at least two screens wide so there's always a next photo
+    const band = $('screen-band'); const ids = scrIds(); if (!ids.length) return;
+    let guard = 0;
+    while (band.scrollWidth + bandX < innerWidth * 2 && guard++ < 40) {
+      const have = [...band.children].map(f => f.dataset.id);
+      const next = ids.find(i => !have.includes(i)) || ids[(have.length) % ids.length];
+      band.appendChild(figure(next));
+    }
+  }
+  function bandSync() {
+    // called when the approved set changes: drop retired photos not on screen, then top up
+    const band = $('screen-band'); const keep = new Set(scrIds());
+    [...band.children].forEach(f => { const r = f.getBoundingClientRect(); if (!keep.has(f.dataset.id) && (r.right < 0 || r.left > innerWidth)) f.remove(); });
+    $('screen-idle').hidden = keep.size > 0; if (!keep.size) { band.innerHTML = ''; bandX = 0; return; }
+    bandFill();
+  }
+  function bandStep(ts) {
+    if (!scrOn) return;
+    const dt = Math.min(0.05, (ts - bandLast) / 1000 || 0); bandLast = ts;
+    const band = $('screen-band'); const first = band.firstElementChild;
+    if (first) {
+      bandX -= innerWidth * SCR_SPEED * dt;
+      const w = first.getBoundingClientRect().width;
+      if (-bandX >= w) {   // leading photo is fully off: recycle or retire it
+        bandX += w; const keep = new Set(scrIds());
+        if (keep.has(first.dataset.id) && [...band.children].filter(f => f.dataset.id === first.dataset.id).length === 1) band.appendChild(first); else first.remove();
+        bandFill();
+      }
+      band.style.transform = `translateX(${bandX}px)`;
+    }
+    bandRaf = requestAnimationFrame(bandStep);
   }
   function scrScores() {
     const live = Object.values(matches).filter(m => m.status === 'live');
@@ -1895,13 +1929,13 @@
     requestAnimationFrame(() => { if (track.scrollWidth > bar.clientWidth) { track.innerHTML = html + html; track.classList.add('marquee'); } });
   }
   async function startScreen() {
-    openSettings(false); scrOn = true; $('screen').hidden = false; scrIdx = -1;
+    openSettings(false); scrOn = true; $('screen').hidden = false;
     try { await document.documentElement.requestFullscreen(); } catch {}
     try { wake = await navigator.wakeLock.request('screen'); } catch {}
-    scrTick(); scrScores(); clearInterval(scrTimer); scrTimer = setInterval(scrTick, 8000);
+    $('screen-band').innerHTML = ''; bandX = 0; bandSync(); scrScores(); bandLast = performance.now(); cancelAnimationFrame(bandRaf); bandRaf = requestAnimationFrame(bandStep);
   }
   function stopScreen() {
-    scrOn = false; $('screen').hidden = true; clearInterval(scrTimer);
+    scrOn = false; $('screen').hidden = true; cancelAnimationFrame(bandRaf);
     if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
     if (wake) { wake.release().catch(() => {}); wake = null; }
   }
@@ -2132,7 +2166,7 @@
     ref('broadcasts').limitToLast(30).on('value', snap => { bcasts = snap.val() || {}; renderBcasts(); }, () => { unavailable($('bcast-list'), 'updates'); });
     ref('swaps').limitToLast(60).on('value', snap => { swaps = snap.val() || {}; if (!$('shell').hidden) { render(); renderSwaps(); renderBell(); } }, () => { unavailable($('swap-list'), 'swaps'); });
     ref('dm').on('value', snap => { dms = snap.val() || {}; if (dmOpen) renderDmThread(); renderDmConvos(); renderBell(); }, () => {});
-    ref('photos').orderByChild('status').equalTo('approved').on('value', snap => { phApproved = snap.val() || {}; renderPublicPhotos(); renderPhotoMod(); if (scrOn) { scrIdx = Math.min(scrIdx, scrOrder().length - 1); if (!scrOrder().length) scrTick(); } }, () => { const el = $('public-photos'); if (el) unavailable(el, 'photos'); });
+    ref('photos').orderByChild('status').equalTo('approved').on('value', snap => { phApproved = snap.val() || {}; renderPublicPhotos(); renderPhotoMod(); if (scrOn) bandSync(); }, () => { const el = $('public-photos'); if (el) unavailable(el, 'photos'); });
     ref('photos').orderByChild('status').equalTo('pending').on('value', snap => { phPending = snap.val() || {}; renderPhotoMod(); }, () => {});
     ref('help').limitToLast(60).on('value', snap => { helps = snap.val() || {}; if (!$('shell').hidden) { render(); renderHelps(); renderBell(); } }, () => { unavailable($('help-list'), 'help calls'); });
   }
