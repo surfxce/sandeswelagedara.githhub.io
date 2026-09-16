@@ -370,6 +370,7 @@
   .pm-card { display: grid; grid-template-columns: 96px 1fr; gap: 6px 12px; background: #fff; padding: 10px 12px; box-shadow: 0 1px 0 var(--line); border-left: 8px solid var(--c-stage); align-items: start; }
   .pm-card img { width: 96px; height: 96px; object-fit: cover; border-radius: 6px; grid-row: 1 / span 3; }
   .pm-card .meta { font-size: 13px; color: var(--ink-3); }
+  .pm-card .meta.ai { font-weight: 600; } .pm-card .meta.ai.approve { color: #3E7A4A; } .pm-card .meta.ai.reject { color: #B23A2E; } .pm-card .meta.ai.unsure { color: var(--tan); }
   .pm-card .cap { font-weight: 700; font-size: 15px; }
   .pm-card .acts { display: flex; gap: 8px; }
   .pm-card .acts button { flex: 1; height: 40px; border-radius: 6px; border: 0; font-weight: 800; font-size: 14px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
@@ -1050,8 +1051,14 @@
       <div><h2 class="sec">Swap requests</h2><div class="swap-list" id="d-swaps"></div></div>
       <div><h2 class="sec">Live matches</h2><div class="match-list" id="d-live"></div></div>
       <div><h2 class="sec">Photos <span class="fine" id="d-photo-counts"></span></h2>
+        <div class="set-row" style="padding:8px 0 10px">
+          <div class="txt"><b>AI review</b><span id="ai-state">Public uploads are checked by Gemini: on-topic and safe → straight to the screen; rejected → held below for you; unsure → waiting.</span></div>
+          <button class="toggle" id="ai-toggle" type="button" role="switch" aria-checked="false" aria-label="AI review"></button>
+        </div>
+        <h3 class="sec-sm">Waiting for you</h3>
         <div class="photo-mod" id="d-pending"></div>
-        <details class="more" style="margin-top:8px"><summary>Approved — take one down</summary><div class="photo-mod" id="d-approved"></div></details>
+        <details class="more" style="margin-top:8px"><summary>Auto-rejected — review</summary><div class="photo-mod" id="d-rejected"></div></details>
+        <details class="more" style="margin-top:8px"><summary>On the screen — take one down</summary><div class="photo-mod" id="d-approved"></div></details>
       </div>
       <div><h2 class="sec">Shout-outs <span class="fine">— remove anything that slipped through</span></h2><div class="swap-list" id="d-ticks"></div></div>
       <div><h2 class="sec">Incidents</h2><div class="swap-list" id="d-inc"></div></div>
@@ -2116,7 +2123,7 @@
     { icon: 'mic',     color: 'var(--c-stage)',  t: 'Bell', k: 'bell notifications broadcasts notices messages tray unread', p: 'The bell at the top. Swap requests and calls for help you can answer, messages, and notices from the organisers. The red number is what you haven\'t seen.' },
     { icon: 'crowd',   color: 'var(--c-club)',   t: 'Messages', k: 'message dm chat text someone name tap', p: 'Tap any name anywhere in the app to message them. Four one-tap lines and a box. Your conversations live in the bell.' },
     { icon: 'crowd',   color: 'var(--c-sport)',  t: 'Team', k: 'team who is free on duty filter societies mute advanced', p: 'Who\'s free and who\'s on what, this block. <b>‹ ›</b> to look at other blocks. <b>Societies</b> hides clubs you don\'t need to see; <b>Advanced</b> picks individual people.' },
-    { icon: 'football',color: 'var(--c-sport)',  t: 'Scores & brackets', k: 'scores bracket match referee start end plus minus timetable', p: 'Referees: <b>Start a match</b>, tap <b>+</b>/<b>−</b>, <b>End match</b>. Brackets fill themselves in as matches end; <b>Play next</b> starts the next one. Visitors see it all live on the public page.' },
+    { icon: 'football',color: 'var(--c-sport)',  t: 'Scores & brackets', k: 'scores bracket match referee start end plus minus timetable', p: 'Referees: <b>the score you tap is the score</b> — it goes to the big screen and the public page within a second, and nobody else keeps it. <b>Start a match</b>, tap <b>+</b>/<b>−</b>, <b>End match</b>. Brackets fill themselves in; <b>Play next</b> starts the next one.' },
     { icon: 'tent',    color: 'var(--c-club)',   t: 'Map', k: 'map where location pinch zoom', p: 'The ground. Drag to pan, pinch to zoom, double-tap to zoom in.' },
     { icon: 'sparkle', color: 'var(--c-ticket)', t: "What's On", k: 'whats on stalls timetable stage performances businesses clubs photos upload', p: 'Everything at the festival. Tap a sport for the match timetable, the stage for the running order, a business for what they do, a club for who\'s on the marquee. Send festival photos from the bottom.' },
     { icon: 'camera',  color: 'var(--c-photo)',  t: 'Photos & big screen', k: 'photos upload approve big screen tv slideshow', p: 'Anyone can send a photo in; organisers approve them; approved photos roll across the big screen. <b>Big screen mode</b> is under Settings for whoever runs the TV.' },
@@ -2146,7 +2153,7 @@
     { icon: 'coffee', color: 'var(--c-free)', h: 'Next up and your day', target: '#now-next, #runsheet', prep: () => showView('now'), p: 'What\'s coming next, then your whole day — every block, who with, and moments like the team photo. The <b>‹ › LIVE</b> buttons underneath let you look ahead.' },
     { icon: 'mic', color: 'var(--c-stage)', h: 'The bell', target: '#tray', prep: () => { showView('now'); openTray(true); }, after: () => openTray(false), p: 'Everything that needs you: <b>swap requests</b> and <b>calls for help</b> you can answer, your <b>messages</b>, and <b>notices</b> from the organisers. The red number on the bell is what\'s new.' },
     { icon: 'crowd', color: 'var(--c-club)', h: 'Team', target: '#t-filter, #t-free', prep: () => showView('team'), p: 'Who\'s <b>free right now</b> and who\'s <b>on duty</b>, this block. <b>Societies</b> hides clubs you don\'t need to see; <b>Advanced</b> picks individual people. The arrows at the top step through the day.' },
-    { icon: 'volleyball', color: 'var(--c-sport)', h: 'Scores', target: '#view-scores > div:nth-of-type(1), #view-scores > details:nth-of-type(1)', prep: () => showView('scores'), p: 'The sports competitions. Referees <b>start a match</b>, tap <b>+</b> and <b>−</b>, then <b>End match</b>. Brackets fill themselves in as matches finish. Everyone — and the crowd on the public page — sees it live.' },
+    { icon: 'volleyball', color: 'var(--c-sport)', h: 'Scores', target: '#view-scores > div:nth-of-type(1), #view-scores > details:nth-of-type(1)', prep: () => showView('scores'), p: 'Referees: <b>the score you tap is the score.</b> Every + goes to the big screen and the public page within a second — nobody else keeps score, so if you don\'t tap, the crowd sees 0–0. <b>Start a match</b>, tap + and −, <b>End match</b>; the bracket fills in from that.' },
     { icon: 'tent', color: 'var(--c-club)', h: 'Map', target: '#mapz', prep: () => showView('map'), p: 'The ground. Drag to pan, pinch to zoom, double-tap to zoom in.' },
     { icon: 'sparkle', color: 'var(--c-ticket)', h: "What's On", target: '#exec-on > div:nth-of-type(1)', prep: () => showView('on'), p: 'Everything at the festival. Tap a <b>sport</b> for its match timetable, the <b>stage</b> for the running order, a <b>business</b> for what they do, a <b>club</b> for who\'s on the marquee.' },
     { icon: 'camera', color: 'var(--c-photo)', h: 'Festival photos', target: '[data-share="exec"]', prep: () => showView('on'), p: 'Send in a photo from here. An organiser approves it and it rolls across the <b>big screen</b>.' },
@@ -2290,16 +2297,23 @@
   function photoCard(id, ph, mode) {
     const acts = mode === 'pending'
       ? `<div class="acts"><button type="button" class="yes" data-approve="${id}">${TICK} Approve</button><button type="button" class="no" data-reject="${id}">${CROSS} Reject</button></div>`
+      : mode === 'rejected'
+      ? `<div class="acts"><button type="button" class="yes" data-approve="${id}">${TICK} Approve anyway</button><button type="button" class="no" data-reject="${id}">${CROSS} Delete</button></div>`
       : `<div class="acts"><button type="button" class="ghost" data-reject="${id}">Take down</button></div>`;
-    return `<div class="pm-card"><img src="${ph.data}" alt=""><span class="cap">${esc(ph.cap || '(no caption)')}</span><span class="meta">${esc(ph.by || 'Anonymous')} · ${ph.t ? clock(ph.t) : ''}</span>${acts}</div>`;
+    const aiLine = ph.ai ? `<span class="meta ai ${ph.ai.verdict}">AI: ${esc(ph.ai.verdict)} — ${esc(ph.ai.reason || '')}</span>` : (mode === 'pending' && aiOn ? '<span class="meta">AI: checking…</span>' : '');
+    return `<div class="pm-card"><img src="${ph.data}" alt=""><span class="cap">${esc(ph.cap || '(no caption)')}</span><span class="meta">${esc(ph.by || 'Anonymous')} · ${ph.t ? clock(ph.t) : ''}</span>${aiLine}${acts}</div>`;
   }
+  let phRejected = {}, aiOn = true;
   function renderPhotoMod() {
     const pend = Object.keys(phPending).sort((a, b) => (phPending[a].t || 0) - (phPending[b].t || 0));
     const appr = Object.keys(phApproved).sort((a, b) => (phApproved[b].t || 0) - (phApproved[a].t || 0));
+    const rej = Object.keys(phRejected).sort((a, b) => (phRejected[b].t || 0) - (phRejected[a].t || 0));
     $('desk-n').hidden = !pend.length || $('deskbtn').hidden; $('desk-n').textContent = pend.length;
     if (adminMode) renderAdmin();
     if ($('view-desk').hidden) return;
-    $('d-photo-counts').textContent = `— ${pend.length} waiting · ${appr.length} on the screen`;
+    $('d-photo-counts').textContent = `— ${pend.length} waiting · ${rej.length} auto-rejected · ${appr.length} on the screen`;
+    $('ai-toggle').setAttribute('aria-checked', String(aiOn));
+    $('d-rejected').innerHTML = rej.length ? rej.map(i => photoCard(i, phRejected[i], 'rejected')).join('') : '<p class="fine">None.</p>';
     $('d-pending').innerHTML = pend.length ? pend.map(i => photoCard(i, phPending[i], 'pending')).join('') : '<p class="fine">Nothing waiting.</p>';
     $('d-approved').innerHTML = appr.length ? appr.map(i => photoCard(i, phApproved[i], 'approved')).join('') : '<p class="fine">None yet.</p>';
     $('view-desk').querySelectorAll('[data-approve]').forEach(b => b.addEventListener('click', () => ref('photos/' + b.dataset.approve).update({ status: 'approved', tt: Date.now() })));
@@ -2562,6 +2576,7 @@
     const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `spice-road-${new Date().toISOString().slice(0, 10)}.csv`; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
   }
   $('d-export').addEventListener('click', exportDay);
+  $('ai-toggle').addEventListener('click', () => { if (!db) return; ref('config/aiReview').set(!aiOn); });
   $('desk-notice').addEventListener('submit', (e) => {
     e.preventDefault(); if (!db) return;
     const text = $('desk-text').value.trim(); if (!text) return;
@@ -2749,6 +2764,8 @@
     ref('dm').on('value', snap => { dms = snap.val() || {}; if (dmOpen) renderDmThread(); renderDmConvos(); renderBell(); }, () => {});
     ref('photos').orderByChild('status').equalTo('approved').on('value', snap => { phApproved = snap.val() || {}; renderPublicPhotos(); renderPhotoMod(); if (scrOn) bandSync(); }, () => { const el = $('public-photos'); if (el) unavailable(el, 'photos'); });
     ref('photos').orderByChild('status').equalTo('pending').on('value', snap => { phPending = snap.val() || {}; renderPhotoMod(); }, () => {});
+    ref('photos').orderByChild('status').equalTo('rejected').on('value', snap => { phRejected = snap.val() || {}; renderPhotoMod(); }, () => {});
+    ref('config/aiReview').on('value', snap => { aiOn = snap.val() !== false; renderPhotoMod(); }, () => {});
     ref('ticker').limitToLast(40).on('value', snap => { ticks = snap.val() || {}; if (scrOn) renderTicker(); if (!$('view-desk').hidden) renderTicks(); }, () => {});
     ref('incidents').limitToLast(100).on('value', snap => { incidents = snap.val() || {}; renderIncidents(); }, () => {});
     ref('sim').on('value', snap => { sim = snap.val(); if (!$('shell').hidden) { const lb = liveBlock(); live = lb !== null; if (live) block = lb; else if (block < 0 || block >= BLOCKS) block = 0; render(); renderSim(); } renderStageNow(); }, () => {});
