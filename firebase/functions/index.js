@@ -18,7 +18,9 @@ import { GoogleGenAI } from '@google/genai';
 
 initializeApp();
 const GEMINI_API_KEY = defineSecret('GEMINI_API_KEY');
-const MODEL = 'gemini-2.5-flash';   // one line to change
+// Tried in order; the first one this key can use is remembered for the run.
+const MODELS = ['gemini-3-flash', 'gemini-3-flash-preview', 'gemini-3.0-flash', 'gemini-flash-latest'];
+let MODEL = MODELS[0];
 
 const BRIEF = `You are reviewing a photo someone submitted to a big screen at a university cultural festival run by student societies (UQISC and UQSLA at the University of Queensland). It is an outdoor daytime-into-evening event on a sports ground: club marquees, food and fundraising stalls, volleyball, football and cricket games, and a performance stage.
 
@@ -51,11 +53,17 @@ export const reviewPhoto = onValueCreated(
 
     try {
       const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY.value() });
-      const res = await ai.models.generateContent({
-        model: MODEL,
+      const ask = (model) => ai.models.generateContent({
+        model,
         contents: [{ role: 'user', parts: [{ inlineData: { mimeType: 'image/jpeg', data: m[1] } }, { text: BRIEF }] }],
-        config: { responseMimeType: 'application/json', temperature: 0.1, maxOutputTokens: 200 },
+        config: { responseMimeType: 'application/json', temperature: 0.1, maxOutputTokens: 400 },
       });
+      let res, lastErr;
+      for (const model of [MODEL, ...MODELS.filter(x => x !== MODEL)]) {
+        try { res = await ask(model); MODEL = model; break; }
+        catch (e) { lastErr = e; const msg = String(e && e.message || e); if (!/not found|not available|not supported|404|NOT_FOUND|no longer/i.test(msg)) throw e; }
+      }
+      if (!res) throw lastErr || new Error('No usable Gemini model');
       let out = {};
       try { out = JSON.parse(res.text); } catch { out = {}; }
       const verdict = ['approve', 'reject', 'unsure'].includes(out.verdict) ? out.verdict : 'unsure';
