@@ -28,6 +28,7 @@
     --c-free: #5F6E7A;
     --c-hands: #3E5A63;
     --c-photo: #4F6D9A;
+    --c-play: #2E7D5B;
 
     --display: "Cormorant SC", "Cormorant Garamond", Georgia, "Times New Roman", serif;
     --body: "Atkinson Hyperlegible Next", "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -1078,6 +1079,7 @@
     free:   { label: 'Free',              color: 'var(--c-free)',   icon: 'coffee' },
     hands:  { label: 'All hands',         color: 'var(--c-hands)',  icon: 'box' },
     photo:  { label: 'Photo',             color: 'var(--c-photo)',  icon: 'camera' },
+    play:   { label: 'Playing',           color: 'var(--c-play)',   icon: 'football' },
   };
   const dutyIcon = (d, size) => iconHtml(d.icon || CATS[d.cat].icon, CATS[d.cat].color, size);
 
@@ -1108,6 +1110,14 @@
     'fund-hope': { cat:'fund', name:'Hope by Hands', where:'Food row, stall 3', do:'Help the charity volunteers serve and take payment. Keep the queue moving.',
           tasks:['Serving', 'Payments', 'Queue'] },
     // Photo schedule — a duty like any other, so it shows up in the run sheet and Team.
+    // Playing, as distinct from running a sport: you're on the field for your
+    // society, not refereeing. Green so it never reads as a duty.
+    'play-vb': { cat:'play', icon:'volleyball', name:'Playing volleyball', where:'Volleyball court', do:'You\'re on the court for your society this block. Be there five minutes early, then hand back to whoever\'s refereeing.',
+          tasks:['Your society\'s team', '5 min early', 'Not refereeing'] },
+    'play-fb': { cat:'play', icon:'football', name:'Playing football', where:'Main oval', do:'You\'re on the oval for your society this block. Be there five minutes early, then hand back to whoever\'s refereeing.',
+          tasks:['Your society\'s team', '5 min early', 'Not refereeing'] },
+    'play-ck': { cat:'play', icon:'cricket', name:'Playing cricket', where:'Cricket pitch', do:'You\'re on the pitch for your society this block. Be there five minutes early, then hand back to whoever\'s umpiring.',
+          tasks:['Your society\'s team', '5 min early', 'Not umpiring'] },
     'photo-pres': { cat:'photo', name:'Presidents\' photo', where:'Performance stage', do:'All club presidents at the stage steps for the group photo. Be there two minutes early — the photographer has a five-minute window before the next act.',
           tasks:['Presidents only', 'Stage steps', '2 min early'] },
     free: { cat:'free', name:'Free', where:'Enjoy the festival', do:'You\'re off this block. Grab food, catch the stage — and be back a few minutes before your next duty.' },
@@ -1312,8 +1322,8 @@
   function dutyCard(a, extraClass) {
     const d = DUTIES[a.id]; const cat = CATS[d.cat];
     const partners = a.people.length
-      ? `<div class="with"><span class="eyebrow">With</span><div class="partner-list">${a.people.map(p => `<div class="partner"><span data-dm="${esc(p)}">${esc(full(p))}</span><span class="soc">${esc(soc(p))}</span></div>`).join('')}</div></div>`
-      : (['free', 'hands', 'photo'].includes(d.cat) ? '' : `<div class="with"><span class="eyebrow">With</span><div class="partner">Solo this block</div></div>`);
+      ? `<div class="with"><span class="eyebrow">${d.cat === 'play' ? 'Teammates' : 'With'}</span><div class="partner-list">${a.people.map(p => `<div class="partner"><span data-dm="${esc(p)}">${esc(full(p))}</span><span class="soc">${esc(soc(p))}</span></div>`).join('')}</div></div>`
+      : (['free', 'hands', 'photo', 'play'].includes(d.cat) ? '' : `<div class="with"><span class="eyebrow">With</span><div class="partner">Solo this block</div></div>`);
     // status line: the pulsing dot says "this block is on now"; the category
     // only follows when it says something the heading doesn't
     const status = live ? 'Live' : 'Preview';
@@ -1428,7 +1438,7 @@
     mutedNote($('t-free-muted'), free.length - freeShown.length);
 
     // Group same duty into one row; keep pairs distinct with " · "
-    const order = ['photo','sport','ticket','stage','crowd','club','fund'];
+    const order = ['photo','sport','play','ticket','stage','crowd','club','fund'];
     const grouped = {};
     rows.forEach(([id, ppl]) => { (grouped[id] ||= []).push(ppl); });
     const ids = Object.keys(grouped).sort((a, b) => order.indexOf(DUTIES[a].cat) - order.indexOf(DUTIES[b].cat) || DUTIES[a].name.localeCompare(DUTIES[b].name));
@@ -1672,7 +1682,7 @@
   const CROSS = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
   const mySwapFor = (i) => Object.entries(swaps).find(([, sw]) => me && sw.from === me.first && sw.block === i && sw.status !== 'withdrawn');
   function swapControl(a) {
-    if (!db || !me || block < 0 || block >= BLOCKS || ['free', 'hands', 'photo'].includes(DUTIES[a.id].cat)) return '';
+    if (!db || !me || block < 0 || block >= BLOCKS || ['free', 'hands', 'photo', 'play'].includes(DUTIES[a.id].cat)) return '';
     const mine = mySwapFor(block);
     if (mine) {
       const [id, sw] = mine;
@@ -1688,7 +1698,7 @@
   let helps = {};
   const myHelpFor = (i) => Object.entries(helps).find(([, h]) => me && h.from === me.first && h.block === i && h.status === 'open');
   function helpControl(a) {
-    if (!db || !me || block < 0 || block >= BLOCKS || ['free', 'hands', 'photo'].includes(DUTIES[a.id].cat)) return '';
+    if (!db || !me || block < 0 || block >= BLOCKS || ['free', 'hands', 'photo', 'play'].includes(DUTIES[a.id].cat)) return '';
     const mine = myHelpFor(block);
     if (mine) {
       const [id, h] = mine; const coming = Object.keys(h.responders || {});
