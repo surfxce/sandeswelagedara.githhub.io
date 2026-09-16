@@ -60,12 +60,12 @@ export const reviewPhoto = onValueCreated(
       const ask = async (model) => {
         const base = { model, contents: [{ role: 'user', parts: [{ inlineData: { mimeType: 'image/jpeg', data: m[1] } }, { text: BRIEF }] }] };
         const cfg = { responseMimeType: 'application/json', responseSchema: schema, temperature: 0.1, maxOutputTokens: 2048 };
-        try { return await ai.models.generateContent({ ...base, config: { ...cfg, thinkingConfig: { thinkingLevel: 'low' } } }); }
-        catch (e) {
-          const msg = String(e && e.message || e);
-          if (/thinking/i.test(msg)) return ai.models.generateContent({ ...base, config: cfg });   // model doesn't take thinkingConfig
-          throw e;
+        // as little thinking as the model allows: minimal → low → none
+        for (const level of ['minimal', 'low', null]) {
+          try { return await ai.models.generateContent({ ...base, config: level ? { ...cfg, thinkingConfig: { thinkingLevel: level } } : cfg }); }
+          catch (e) { const msg = String(e && e.message || e); if (!/thinking/i.test(msg)) throw e; }
         }
+        return ai.models.generateContent({ ...base, config: cfg });
       };
       let res, lastErr;
       for (const model of [MODEL, ...MODELS.filter(x => x !== MODEL)]) {
