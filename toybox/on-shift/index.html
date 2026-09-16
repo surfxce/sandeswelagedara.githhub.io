@@ -865,15 +865,7 @@
       <div><h2>Live scores</h2><div class="match-list" id="public-scores"></div></div>
       <div><h2>Brackets</h2><div class="bracket-list" id="public-brackets"></div></div>
       <div><h2>Shout-outs</h2>
-        <div class="share shout">
-          <p class="share-lead">Say something — it scrolls across the big screen. Keep it kind.</p>
-          <div class="two">
-            <div class="field"><label for="tk-by">Your name <small>(optional)</small></label><input id="tk-by" type="text" maxlength="24" placeholder="e.g. Priya"></div>
-            <div class="field"><label for="tk-text">Your shout-out</label><input id="tk-text" type="text" maxlength="120" placeholder="e.g. UQSLA volleyball let's go"></div>
-          </div>
-          <button class="btn-primary dark" id="tk-send" type="button">Send it</button>
-          <p class="fine" id="tk-msg"></p>
-        </div>
+        <div class="share shout" data-shout="pub"></div>
       </div>
       <div id="photos"><h2>Festival photos</h2>
         <div class="photo-strip" id="public-photos"></div>
@@ -1061,6 +1053,7 @@
         <div class="photo-mod" id="d-pending"></div>
         <details class="more" style="margin-top:8px"><summary>Approved — take one down</summary><div class="photo-mod" id="d-approved"></div></details>
       </div>
+      <div><h2 class="sec">Shout-outs <span class="fine">— remove anything that slipped through</span></h2><div class="swap-list" id="d-ticks"></div></div>
       <div><h2 class="sec">Incidents</h2><div class="swap-list" id="d-inc"></div></div>
       <div><h2 class="sec">Post a notice</h2>
         <form class="bcast-form" id="desk-notice" autocomplete="off">
@@ -1143,6 +1136,9 @@
       <div class="whatson-body" style="padding-top:0"><div><h2>Festival photos</h2>
         <div class="photo-strip" id="exec-photos"></div>
         <div class="share" data-share="exec"></div>
+      </div></div>
+      <div class="whatson-body" style="padding-top:0"><div><h2>Shout-outs</h2>
+        <div class="share shout" data-shout="exec"></div>
       </div></div>
     </section>
 
@@ -1572,6 +1568,7 @@
     if (!onboarded && !adminMode) setTimeout(startTour, 400);
     $('bcast-form').hidden = !(db && isAdmin()); $('deskbtn').hidden = !(db && isAdmin()); renderPhotoMod();
     const eb = $('ph-exec-by'); if (eb && !eb.value) eb.value = me ? me.first : ident.name;
+    const tb = $('tk-exec-by'); if (tb && !tb.value) tb.value = me ? me.first : ident.name;
     renderSim();
     if (adminMode) { $('who-name').textContent = 'Admin'; $('deskbtn').hidden = true; showView('admin'); renderAdmin(); return; }
     showView(me ? 'now' : 'team');
@@ -2428,21 +2425,32 @@
   $('ad-export').addEventListener('click', () => exportDay());
 
   // --- shout-outs ticker with a language filter (also enforced in the database rules) ---
-  const BLOCKED = /(^|[^a-z])(f+u+c*k+\w*|f+c+k+|s+h+i+t+\w*|s+h+1+t+|b+i+t+c+h+\w*|bastard\w*|c+u+n+t+\w*|c+o+c+k+s*|d+i+c+k+\w*|p+u+s+s+y+|t+w+a+t+s*|w+a+n+k+\w*|s+l+u+t+s*|w+h+o+r+e+s*|h+o+e+s*|a+r+s+e+\w*|a+s+s+h+o+l+e+s*|p+i+s+s+\w*|p+r+i+c+k+s*|b+o+l+l+o+c+k+s*|t+i+t+s+|b+o+o+b+s*|n+u+d+e+s*|n+a+k+e+d+|p+o+r+n+\w*|s+e+x+y*|s+e+x+u+a+l+\w*|p+e+n+i+s+|v+a+g+i+n+a+|d+i+l+d+o+s*|o+r+g+a+s+m+\w*|c+u+m+|j+i+z+z*|h+o+r+n+y+|r+a+p+e+\w*|m+o+l+e+s+t+\w*|n+i+g+g+\w*|c+h+i+n+k+s*|p+a+k+i+s*|s+p+i+c+s*|k+i+k+e+s*|f+a+g+\w*|r+e+t+a+r+d+\w*|t+r+a+n+n+y+|d+y+k+e+s*|c+o+o+n+s*|g+o+o+k+s*|w+o+g+s*|k+y+s+|kill yourself|h+i+t+l+e+r+|n+a+z+i+s*|terrorist\w*|curry muncher\w*)([^a-z]|$)/i;
+  const BLOCKED = /(^|[^a-z])(f+u+c*k+\w*|f+c+k+|s+h+i+t+\w*|s+h+1+t+|b+i+t+c+h+\w*|bastard\w*|c+u+n+t+\w*|c+o+c+k+s*|d+i+c+k+\w*|p+u+s+s+y+|t+w+a+t+s*|w+a+n+k+\w*|s+l+u+t+s*|w+h+o+r+e+s*|h+o+e+s*|a+r+s+e+\w*|a+s+s+h+o+l+e+s*|p+i+s+s+\w*|p+r+i+c+k+s*|b+o+l+l+o+c+k+s*|t+i+t+s+|b+o+o+b+s*|n+u+d+e+s*|n+a+k+e+d+|p+o+r+n+\w*|s+e+x+y*|s+e+x+u+a+l+\w*|p+e+n+i+s+|v+a+g+i+n+a+|d+i+l+d+o+s*|o+r+g+a+s+m+\w*|c+u+m+|j+i+z+z*|h+o+r+n+y+|r+a+p+e+\w*|m+o+l+e+s+t+\w*|n+i+g+g+\w*|c+h+i+n+k+s*|p+a+k+i+s*|s+p+i+c+s*|k+i+k+e+s*|f+a+g+\w*|r+e+t+a+r+d+\w*|t+r+a+n+n+y+|d+y+k+e+s*|c+o+o+n+s*|g+o+o+k+s*|w+o+g+s*|k+y+s+|kill yourself|h+i+t+l+e+r+|n+a+z+i+s*|terrorist\w*|curry muncher\w*|p+e+e+|p+e+e+ ?h+o+l+e+|w+e+e+ ?w+e+e+|p+o+o+p*|u+r+i+n+e+|suck (my|it|me|on)|lick (my|me|it)|eat (my|me)|blow (me|job)|b+l+o+w+j+o+b+s*|h+a+n+d+j+o+b+s*|b+o+n+e+r+s*|erection\w*|n+i+p+p+l+e+s*|b+u+t+t+ ?h+o+l+e+s*|a+n+u+s+|a+n+a+l+|scrotum|testicle\w*|v+u+l+v+a+|c+l+i+t+\w*|m+i+l+f+s*|t+h+o+t+s*|s+i+m+p+s*|g+e+n+i+t+a+l+\w*|b+a+l+l+ ?s+a+c+k+|p+e+[ae]*n+[i1u]+[st]+s*|p+e+n+1+s+|v+a+g+[i1]+n+a+|c+o+c+k+s*|d+[i1]+c+k+\w*)([^a-z]|$)/i;
   const normText = (t) => t.toLowerCase().replace(/[0@]/g, 'o').replace(/[1!|]/g, 'i').replace(/3/g, 'e').replace(/4/g, 'a').replace(/[5$]/g, 's').replace(/7/g, 't').replace(/[._*\-]+/g, '');
   const joinLetters = (t) => t.replace(/\b([a-z])\s+(?=[a-z]\b)/gi, '$1');   // "f u c k" → "fuck"
   const notAllowed = (t) => [t, normText(t), joinLetters(normText(t)), normText(t).replace(/\s+/g, '')].some(v => BLOCKED.test(v));
   let ticks = {};
-  $('tk-send').addEventListener('click', async () => {
-    const text = $('tk-text').value.trim(), by = $('tk-by').value.trim(); const msg = $('tk-msg');
-    if (!text) return;
-    if (notAllowed(text) || notAllowed(by)) { msg.textContent = 'Sorry, this language is not allowed.'; return; }
-    if (!db) { msg.textContent = 'No connection right now.'; return; }
-    $('tk-send').disabled = true;
-    try { await ref('ticker').push({ text, by, t: now() }); msg.textContent = 'Sent — watch the big screen.'; $('tk-text').value = ''; }
-    catch (e) { msg.textContent = 'Sorry, this language is not allowed.'; }   // the rules said no
-    $('tk-send').disabled = false;
-  });
+  function mountShout(root, pre) {
+    root.innerHTML = `
+      <p class="share-lead">Say something — it scrolls across the big screen. Keep it kind.</p>
+      <div class="two">
+        <div class="field"><label for="${pre}-by">Your name <small>(optional)</small></label><input id="${pre}-by" type="text" maxlength="24" placeholder="e.g. Priya"></div>
+        <div class="field"><label for="${pre}-text">Your shout-out</label><input id="${pre}-text" type="text" maxlength="120" placeholder="e.g. UQSLA volleyball let's go"></div>
+      </div>
+      <button class="btn-primary dark" id="${pre}-send" type="button">Send it</button>
+      <p class="fine" id="${pre}-msg"></p>`;
+    $(pre + '-send').addEventListener('click', async () => {
+      const text = $(pre + '-text').value.trim(), by = $(pre + '-by').value.trim(); const msg = $(pre + '-msg');
+      if (!text) return;
+      if (notAllowed(text) || notAllowed(by)) { msg.textContent = 'Sorry, this language is not allowed.'; return; }
+      if (!db) { msg.textContent = 'No connection right now.'; return; }
+      $(pre + '-send').disabled = true;
+      try { await ref('ticker').push({ text, by, t: now() }); msg.textContent = 'Sent — watch the big screen.'; $(pre + '-text').value = ''; }
+      catch (e) { msg.textContent = 'Sorry, this language is not allowed.'; }   // the rules said no
+      $(pre + '-send').disabled = false;
+    });
+  }
+  document.querySelectorAll('[data-shout]').forEach(el => mountShout(el, 'tk-' + el.dataset.shout));
   const TICK_LS = 'onshift.tickerHidden';
   let tickerHidden = false; try { tickerHidden = localStorage.getItem(TICK_LS) === '1'; } catch {}
   function renderTicker() {
@@ -2465,6 +2473,12 @@
     await ref('incidents').push({ type: $('inc-type').value, text: $('inc-text').value.trim(), by: me ? me.first : (ident ? ident.name : ''), block, t: now() });
     $('inc-text').value = ''; openInc(false); alert('Logged. Thank you.');
   });
+  function renderTicks() {
+    const el = $('d-ticks'); if (!el) return;
+    const ids = Object.keys(ticks).sort((a, b) => (ticks[b].t || 0) - (ticks[a].t || 0));
+    el.innerHTML = ids.length ? ids.map(i => { const x = ticks[i]; return `<div class="check" style="--c:var(--tan)"><b>“${esc(x.text)}” <span class="fine">— ${esc(x.by || 'anon')} · ${x.t ? clock(x.t) : ''}</span></b><button type="button" class="btn-small ghost" data-deltick="${i}" style="margin-top:6px">Remove</button></div>`; }).join('') : '<p class="fine">None yet.</p>';
+    el.querySelectorAll('[data-deltick]').forEach(b => b.addEventListener('click', () => { if (confirm('Remove this shout-out from the screen?')) ref('ticker/' + b.dataset.deltick).remove(); }));
+  }
   function renderIncidents() {
     const el = $('d-inc'); if (!el) return;
     const ids = Object.keys(incidents).sort((a, b) => (incidents[b].t || 0) - (incidents[a].t || 0));
@@ -2513,7 +2527,7 @@
     const openHelp = Object.entries(helps).filter(([, h]) => h.status === 'open');
     const openSwaps = Object.entries(swaps).filter(([, sw]) => sw.status === 'open');
     $('d-help-n').textContent = openHelp.length; $('d-swap-n').textContent = openSwaps.length;
-    renderIncidents();
+    renderIncidents(); renderTicks();
     $('d-help').innerHTML = openHelp.length ? openHelp.map(x => helpCard(x, 'mine')).join('') : '<p class="fine">None open.</p>';
     bindHelpButtons($('d-help'));
     $('d-swaps').innerHTML = openSwaps.length ? openSwaps.map(([id, sw]) => { const d = DUTIES[sw.duty] || {}; return `<div class="swap" style="--c:${CATS[d.cat] ? CATS[d.cat].color : 'var(--line)'}">${dutyIcon(d, 'sm')}<span class="who-txt"><b>${esc(sw.from)}</b> wants out of <b>${esc(d.name)}</b></span><span class="when">${range(sw.block)} · waiting</span></div>`; }).join('') : '<p class="fine">None open.</p>';
@@ -2735,7 +2749,7 @@
     ref('dm').on('value', snap => { dms = snap.val() || {}; if (dmOpen) renderDmThread(); renderDmConvos(); renderBell(); }, () => {});
     ref('photos').orderByChild('status').equalTo('approved').on('value', snap => { phApproved = snap.val() || {}; renderPublicPhotos(); renderPhotoMod(); if (scrOn) bandSync(); }, () => { const el = $('public-photos'); if (el) unavailable(el, 'photos'); });
     ref('photos').orderByChild('status').equalTo('pending').on('value', snap => { phPending = snap.val() || {}; renderPhotoMod(); }, () => {});
-    ref('ticker').limitToLast(40).on('value', snap => { ticks = snap.val() || {}; if (scrOn) renderTicker(); }, () => {});
+    ref('ticker').limitToLast(40).on('value', snap => { ticks = snap.val() || {}; if (scrOn) renderTicker(); if (!$('view-desk').hidden) renderTicks(); }, () => {});
     ref('incidents').limitToLast(100).on('value', snap => { incidents = snap.val() || {}; renderIncidents(); }, () => {});
     ref('sim').on('value', snap => { sim = snap.val(); if (!$('shell').hidden) { const lb = liveBlock(); live = lb !== null; if (live) block = lb; else if (block < 0 || block >= BLOCKS) block = 0; render(); renderSim(); } renderStageNow(); }, () => {});
     ref('help').limitToLast(60).on('value', snap => { helps = snap.val() || {}; if (!$('shell').hidden) { render(); renderHelps(); renderBell(); } }, () => { unavailable($('help-list'), 'help calls'); });
