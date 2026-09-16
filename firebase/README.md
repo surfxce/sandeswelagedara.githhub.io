@@ -11,3 +11,8 @@ Deploy (from this folder):
     firebase deploy --only functions
 
 Turn it on/off from the app: Desk → "AI review".
+
+Database rules live in `database.rules.json` here. Publish them with:
+
+    firebase deploy --only database
+

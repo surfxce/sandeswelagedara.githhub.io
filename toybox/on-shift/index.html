@@ -521,6 +521,7 @@
   }
   .cat-label.live::before { animation: live-ping 1.7s cubic-bezier(.2,.6,.4,1) infinite; }
   .duty-head { display: flex; align-items: center; gap: 14px; }
+  .duty-head.tap { cursor: pointer; } .duty-name .chev { font-size: .7em; vertical-align: middle; }
   .duty-head .dicon { align-self: flex-start; margin-top: 2px; }
   .duty-name {
     margin: 0; font-size: 36px; line-height: 1; font-weight: 800; letter-spacing: -.015em;
@@ -932,7 +933,7 @@
         </div>
         <p class="form-err" id="f-err" role="alert" hidden></p>
         <button class="btn-primary" type="submit" id="f-go">Find my roster</button>
-        <p class="entry-note">Saved on this phone so you won't need to re-enter it. Not on the roster? You can still see the Team and What's On.</p>
+        <p class="entry-note">Execs only — your first name and society have to match the roster. Saved on this phone so you won't need to re-enter it.</p>
       </form>
     </div>
   </section>
@@ -1044,7 +1045,7 @@
       </div>
     </section>
 
-    <!-- ADMIN (log in as "admin" / UQSLA) — everyone's roster, nothing else -->
+    <!-- ADMIN (see ADMIN_LOGIN) — everyone's roster, nothing else -->
     <section class="view" id="view-admin" role="tabpanel" hidden>
       <div class="desk-head"><h2 class="sec" style="margin:0">Admin · everyone's roster</h2><span class="fine" id="ad-live"></span></div>
       <div class="counts">
@@ -1494,6 +1495,9 @@
     'Inaara':     'Dummy text — a line or two about Inaara: what they make, where they\'re from, what to look for at the stall.',
     'Dia Effect': 'Dummy text — a line or two about Dia Effect: what they make, where they\'re from, what to look for at the stall.',
   };
+  // Committee head per duty. Null = not applicable (ticketing, crowd…). Fill in from the committee list.
+  const LEADS = { vb: 'Sports head — TBC', fb: 'Sports head — TBC', ck: 'Sports head — TBC', st: 'Stage head — TBC', 'fund-pp': 'Fundraising head — TBC', 'fund-bake': 'Fundraising head — TBC', 'fund-hope': 'Fundraising head — TBC' };
+  const leadFor = (id) => LEADS[id] || (id.startsWith('stall-') ? `${DUTIES[id].club} president — TBC` : null);
   const CLUB_INFO = Object.fromEntries(CLUBS.map(c => [c, { full: c + ' — full name to come', about: 'Dummy text — a sentence about the society and what\'s at their marquee.', execs: [] }]));
   // Round names the way Sandes wants them: the last two are Semi-finals and Final, the rest are Round 1, 2…
   const roundsTotal = (n) => { let t = 1; while (n > 1) { n = Math.ceil(n / 2); t++; } return t; };
@@ -1523,13 +1527,26 @@
     if (kind === 'sport') return { title: SPORTS[arg] + ' — match timetable', body: timetableHtml(arg) };
     if (kind === 'stage') return { title: 'Performance stage', body: `<div class="round">${STAGE_TIMES.map(x => `<div class="tt"><span class="t">${tm(x.t)}</span><span class="tm won" style="grid-column:2/-1;text-align:left">${esc(x.who)}<small>${esc(x.what)}</small></span></div>`).join('')}</div><p class="fine">Dummy schedule — the real running order goes here.</p>` };
     if (kind === 'biz') return { title: arg, body: `<p>${esc(BIZ[arg] || 'Dummy text.')}</p>` };
+    if (kind === 'duty') {
+      const d = DUTIES[arg]; if (!d) return { title: '', body: '' };
+      const i = block; const rows = i >= 0 && i < BLOCKS ? rowsFor(i).filter(([id]) => id === arg) : [];
+      const everyone = rows.flatMap(([, ppl]) => ppl); const mine = me ? assignmentFor(me.first, i) : null;
+      const partners = mine && mine.id === arg ? mine.people : [];
+      const others = everyone.filter(p => !partners.includes(p) && !(me && p === me.first));
+      const person = (p) => `<div class="tt"><span class="t"></span><span class="tm won" style="grid-column:2/-1;text-align:left"><span data-dm="${esc(p)}">${esc(full(p))}</span><small>${esc(soc(p))}</small></span></div>`;
+      const lead = leadFor(arg);
+      return { title: d.name, body: `<p><b>${esc(d.where)}</b> · ${range(i)}</p><p>${esc(d.do)}</p>
+        <h4 class="sec-sm">Committee head</h4><p class="fine">${lead ? esc(lead) : 'Not applicable for this one'}</p>
+        ${partners.length ? `<h4 class="sec-sm">With you</h4><div class="round">${partners.map(person).join('')}</div>` : ''}
+        <h4 class="sec-sm">${partners.length ? 'Also on ' + esc(d.name) : 'On ' + esc(d.name)} this block</h4>${others.length ? `<div class="round">${others.map(person).join('')}</div>` : '<p class="fine">Nobody else.</p>'}` };
+    }
     if (kind === 'person') { const f = arg; const p = byFirst[f.toLowerCase()]; return { title: p ? p.n : f, body: `<div class="round">${Array.from({ length: BLOCKS }, (_, i) => { const a = assignmentFor(f, i); const d = DUTIES[a.id]; const swp = a.id !== baseAssignment(f, i); return `<div class="tt"><span class="t">${fmt(DAY_START + i * 30)}</span><span class="tm ${a.id === 'free' ? 'tbd' : 'won'}" style="grid-column:2/-1;text-align:left"><span class="cell ${a.id === 'free' ? 'free' : ''} ${swp ? 'sw' : ''}" style="--c:${CATS[d.cat].color};margin-right:8px">${SHORT(a.id)}</span>${esc(d.name)}${swp ? ' <small style="display:inline">(swap)</small>' : ''}<small>${esc(a.id === 'free' ? 'Enjoy the festival' : d.where + (a.people.length ? ' · with ' + names(a.people) : ''))}</small></span></div>`; }).join('')}</div>` }; }
     if (kind === 'club') { const c = CLUB_INFO[arg]; return { title: arg, body: `<p><b>${esc(c.full)}</b></p><p>${esc(c.about)}</p><h4 class="sec-sm">Execs on the marquee</h4><p class="fine">${c.execs.length ? c.execs.map(esc).join(', ') : '—'}</p>` }; }
     return { title: '', body: '' };
   }
   function openInfo(key) { const { title, body } = infoHtml(key); $('info-title').textContent = title; $('info-body').innerHTML = body; $('info-sheet').hidden = false; $('info-backdrop').hidden = false; }
   function closeInfo() { $('info-sheet').hidden = true; $('info-backdrop').hidden = true; }
-  document.addEventListener('click', e => { const n = e.target.closest('[data-info]'); if (n) openInfo(n.dataset.info); });
+  document.addEventListener('click', e => { if (e.target.closest('[data-dm]')) return; const n = e.target.closest('[data-info]'); if (n) openInfo(n.dataset.info); });
   $('info-close').addEventListener('click', closeInfo); $('info-backdrop').addEventListener('click', closeInfo);
 
   function renderStageNow() {
@@ -1573,6 +1590,11 @@
   $('exec-login').addEventListener('click', showLogin);
   $('login-back').addEventListener('click', showPublic);
 
+  // Execs only: the name + society must match the roster exactly, or the admin login.
+  // Change ADMIN_LOGIN to something only organisers know.
+  const ADMIN_LOGIN = { name: 'spiceroad-admin', society: 'UQSLA' };
+  const isAdminLogin = (n, soc) => n.trim().toLowerCase() === ADMIN_LOGIN.name && soc === ADMIN_LOGIN.society;
+  const onRoster = (n, soc) => { const p = byFirst[n.trim().toLowerCase()]; return !!(p && p.s.includes(soc)); };
   $('entry-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     const name = $('f-name').value.trim(); const society = sel.value;
@@ -1583,6 +1605,9 @@
       const ok = await loadRoster();
       $('f-go').disabled = false;
       if (!ok) { err.textContent = 'Couldn\'t load the roster. Check your connection and try again.'; err.hidden = false; return; }
+    }
+    if (!onRoster(name, society) && !isAdminLogin(name, society)) {
+      err.textContent = 'That name and society aren\'t on the roster together. Check the spelling and your society, or ask your club lead.'; err.hidden = false; return;
     }
     ident = { name, society };
     try { localStorage.setItem('onshift.identity', JSON.stringify(ident)); } catch {}
@@ -1596,7 +1621,7 @@
   });
 
   function enter() {
-    adminMode = ident.name.trim().toLowerCase() === 'admin' && ident.society === 'UQSLA';
+    adminMode = isAdminLogin(ident.name, ident.society);
     const p = byFirst[ident.name.toLowerCase()];
     me = (p && p.s.includes(ident.society)) ? p : null;
     document.querySelector('.tabs').hidden = adminMode; $('blockbar').hidden = adminMode; $('bell').hidden = adminMode;
@@ -1664,7 +1689,7 @@
     const catLine = `<div class="cat-label ${live ? 'live' : ''}">${status}${cat.label === d.name ? '' : ' · ' + cat.label}</div>`;
     return `<article class="duty-card ${extraClass || ''}" style="--c:${cat.color}">
       ${catLine}
-      <div class="duty-head">${dutyIcon(d, 'lg')}<div><h1 class="duty-name">${esc(d.name)}</h1><div class="duty-where">${esc(d.where)}</div></div></div>
+      <div class="duty-head tap" data-info="duty:${a.id}" role="button" tabindex="0">${dutyIcon(d, 'lg')}<div><h1 class="duty-name">${esc(d.name)}<span class="chev">›</span></h1><div class="duty-where">${esc(d.where)}</div></div></div>
       <p class="duty-do">${esc(d.do)}</p>
       ${tasksHtml(d)}
       ${partners}
@@ -2189,7 +2214,7 @@
 
   // --- manual ---
   const MANUAL = [
-    { icon: 'coffee',  color: 'var(--c-free)',   t: 'Now', k: 'now duty card block time partner', p: 'Your current duty, where to be, what it involves, and who you\'re with. The dot pulses when it\'s <b>live</b>. Below it: what\'s next, then your whole day. The <b>‹ ›</b> buttons step through blocks when you want to look ahead.' },
+    { icon: 'coffee',  color: 'var(--c-free)',   t: 'Now', k: 'now duty card block time partner', p: 'Your current duty, where to be, what it involves, and who you\'re with. Tap the title for the committee head and everyone on it. The dot pulses when it\'s <b>live</b>. Below it: what\'s next, then your whole day. The <b>‹ ›</b> buttons step through blocks when you want to look ahead.' },
     { icon: 'crowd',   color: 'var(--c-crowd)',  t: 'Request more execs / Ask to swap', k: 'help swap hands sub cover cant make it exchange break not fussed', p: 'Under your duty card. <b>Request more execs</b> calls every free exec to you. <b>Ask to swap</b>: <b>Not fussed</b> asks everyone; <b>Want to take a break?</b> asks free execs to take over; <b>Don\'t want to do this?</b> lets you pick another activity — the execs on it are asked to swap places with you. In a sports competition, <b>Ask a teammate to sub in</b> goes to your society.' },
     { icon: 'mic',     color: 'var(--c-stage)',  t: 'Bell', k: 'bell notifications broadcasts notices messages tray unread', p: 'The bell at the top. Swap requests and calls for help you can answer, messages, and notices from the organisers. The red number is what you haven\'t seen.' },
     { icon: 'crowd',   color: 'var(--c-club)',   t: 'Messages', k: 'message dm chat text someone name tap', p: 'Tap any name anywhere in the app to message them. Four one-tap lines and a box. Your conversations live in the bell.' },
@@ -2219,7 +2244,7 @@
   // open the tray, open settings), then the spotlight cuts a hole around it.
   const TOUR = [
     { icon: 'coffee', color: 'var(--c-free)', h: 'Welcome', p: 'A one-minute tour of where everything is. Close it any time with the × — it won\'t come back. It\'s also under Settings → Manual if you want it again.', prep: () => { closeSheets(); showView('now'); } },
-    { icon: 'football', color: 'var(--c-sport)', h: 'Your duty, right now', target: '#now-card > .duty-card', prep: () => { showView('now'); tourDemoBlock(); }, p: 'The big card is what you\'re doing this block: <b>where to be</b>, <b>what it involves</b>, and <b>who you\'re with</b>. The dot pulses when the clock is live. Tap a name on it to message them.' },
+    { icon: 'football', color: 'var(--c-sport)', h: 'Your duty, right now', target: '#now-card > .duty-card', prep: () => { showView('now'); tourDemoBlock(); }, p: 'The big card is what you\'re doing this block: <b>where to be</b>, <b>what it involves</b>, and <b>who you\'re with</b>. The dot pulses when the clock is live. <b>Tap the title</b> for the committee head and everyone else on it; tap a name to message them.' },
     { icon: 'crowd', color: 'var(--c-crowd)', h: 'Stuck? Two buttons.', target: '#now-card .ctl-row', prep: () => { showView('now'); tourDemoBlock(); }, p: '<b>Request more execs</b> pings every free exec — they tap "on my way". <b>Ask to swap</b> gives you three options: <b>Not fussed</b> (everyone is asked), <b>take a break</b> (free execs come and take over), or <b>pick another activity</b> (the execs on it are asked to swap places with you). In a sports competition it reads <b>Ask a teammate to sub in</b>.' },
     { icon: 'coffee', color: 'var(--c-free)', h: 'Next up and your day', target: '#now-next, #runsheet', prep: () => showView('now'), p: 'What\'s coming next, then your whole day — every block, who with, and moments like the team photo. The <b>‹ › LIVE</b> buttons underneath let you look ahead.' },
     { icon: 'mic', color: 'var(--c-stage)', h: 'The bell', target: '#tray', prep: () => { showView('now'); openTray(true); }, after: () => openTray(false), p: 'Everything that needs you: <b>swap requests</b> and <b>calls for help</b> you can answer, your <b>messages</b>, and <b>notices</b> from the organisers. The red number on the bell is what\'s new.' },
@@ -2487,7 +2512,7 @@
   $('screen').addEventListener('click', e => { if (e.target.id === 'screen-exit') return; $('screen-exit').hidden = false; clearTimeout(exitT); exitT = setTimeout(() => { $('screen-exit').hidden = true; }, 3000); });
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && scrOn) stopScreen(); });
 
-  // --- admin: log in as "admin" / UQSLA to see everyone's roster and nothing else ---
+  // --- admin: log in with ADMIN_LOGIN to see everyone's roster and nothing else ---
   let adminMode = false;
   const SHORT = (id) => { const d = DUTIES[id] || {}; if (id === 'free') return '—'; if (id.startsWith('stall-')) return d.club.replace(/^UQ/, ''); if (id.startsWith('play-')) return 'PLAY ' + id.slice(5).toUpperCase(); if (id.startsWith('photo')) return 'PHOTO'; if (id.startsWith('cr-')) return 'CROWD'; if (id.startsWith('fund-')) return 'FUND'; return { vb: 'VB', fb: 'FB', ck: 'CK', tk: 'TKT', st: 'STAGE' }[id] || id.toUpperCase(); };
   const baseAssignment = (first, i) => { for (const [id, ppl] of ROSTER[i]) if (ppl.includes(first)) return id; return 'free'; };
@@ -2907,7 +2932,10 @@
   if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
   // arriving from the big-screen QR: straight to the photo section, even if this phone is signed in
   const wantsPhotos = location.hash === '#photos';
-  if (ident && ident.name && ident.society && !wantsPhotos) loadRoster().then(ok => { if (ok) enter(); else redraw(); });
+  if (ident && ident.name && ident.society && !wantsPhotos) loadRoster().then(ok => {
+    if (ok && (onRoster(ident.name, ident.society) || isAdminLogin(ident.name, ident.society))) enter();
+    else { ident = null; try { localStorage.removeItem('onshift.identity'); } catch {} redraw(); }
+  });
   else { redraw(); if (wantsPhotos) setTimeout(() => { const el = $('photos'); if (el) el.scrollIntoView({ block: 'start' }); }, 300); }
 })();
 </script>
