@@ -175,6 +175,37 @@
             }
           }
         }
+      },
+      "photos": {
+        ".read": true,
+        ".indexOn": [
+          "status"
+        ],
+        "$id": {
+          ".write": true,
+          ".validate": "newData.hasChildren(['data', 'status', 't'])",
+          "data": {
+            ".validate": "newData.isString() && newData.val().beginsWith('data:image/jpeg;base64,') && newData.val().length <= 400000"
+          },
+          "by": {
+            ".validate": "newData.isString() && newData.val().length <= 40"
+          },
+          "cap": {
+            ".validate": "newData.isString() && newData.val().length <= 80"
+          },
+          "status": {
+            ".validate": "newData.isString() && newData.val().matches(/^(pending|approved|rejected)$/)"
+          },
+          "t": {
+            ".validate": "newData.isNumber()"
+          },
+          "tt": {
+            ".validate": "newData.isNumber()"
+          },
+          "$other": {
+            ".validate": false
+          }
+        }
       }
     }
   }
