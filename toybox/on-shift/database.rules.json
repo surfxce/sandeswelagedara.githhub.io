@@ -206,6 +206,70 @@
             ".validate": false
           }
         }
+      },
+      "ticker": {
+        ".read": true,
+        "$id": {
+          ".write": "!data.exists()",
+          ".validate": "newData.hasChildren(['text', 'by', 't'])",
+          "text": {
+            ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 120 && !newData.val().matches(/.*(^|[^a-z])(fuck|fck|shit|sh1t|bitch|bastard|cunt|cock|dick|pussy|twat|wank|slut|whore|arsehole|asshole|prick|bollocks|tits|boobs|nude|naked|porn|sex|sexy|sexual|penis|vagina|dildo|orgasm|cum|jizz|horny|rape|molest|nigg|chink|paki|spic|kike|fag|retard|tranny|dyke|coon|gook|wog|kys|hitler|nazi|terrorist)[a-z]*([^a-z]|$).*/i)"
+          },
+          "by": {
+            ".validate": "newData.isString() && newData.val().length <= 24 && !newData.val().matches(/.*(^|[^a-z])(fuck|fck|shit|sh1t|bitch|bastard|cunt|cock|dick|pussy|twat|wank|slut|whore|arsehole|asshole|prick|bollocks|tits|boobs|nude|naked|porn|sex|sexy|sexual|penis|vagina|dildo|orgasm|cum|jizz|horny|rape|molest|nigg|chink|paki|spic|kike|fag|retard|tranny|dyke|coon|gook|wog|kys|hitler|nazi|terrorist)[a-z]*([^a-z]|$).*/i)"
+          },
+          "t": {
+            ".validate": "newData.isNumber()"
+          },
+          "$other": {
+            ".validate": false
+          }
+        }
+      },
+      "incidents": {
+        ".read": true,
+        "$id": {
+          ".write": "!data.exists()",
+          ".validate": "newData.hasChildren(['type', 'text', 'by', 't'])",
+          "type": {
+            ".validate": "newData.isString() && newData.val().length <= 30"
+          },
+          "text": {
+            ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 400"
+          },
+          "by": {
+            ".validate": "newData.isString() && newData.val().length <= 40"
+          },
+          "block": {
+            ".validate": "newData.isNumber()"
+          },
+          "t": {
+            ".validate": "newData.isNumber()"
+          },
+          "$other": {
+            ".validate": false
+          }
+        }
+      },
+      "sim": {
+        ".read": true,
+        ".write": true,
+        ".validate": "newData.hasChildren(['on', 'start', 'startMin', 'speed'])",
+        "on": {
+          ".validate": "newData.isBoolean()"
+        },
+        "start": {
+          ".validate": "newData.isNumber()"
+        },
+        "startMin": {
+          ".validate": "newData.isNumber()"
+        },
+        "speed": {
+          ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 120"
+        },
+        "$other": {
+          ".validate": false
+        }
       }
     }
   }
