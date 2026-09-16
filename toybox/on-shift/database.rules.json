@@ -111,6 +111,12 @@
           },
           "$other": {
             ".validate": false
+          },
+          "mode": {
+            ".validate": "newData.isString() && newData.val().matches(/^(free|any|duty|team)$/)"
+          },
+          "want": {
+            ".validate": "newData.isString() && newData.val().length <= 32"
           }
         }
       },
