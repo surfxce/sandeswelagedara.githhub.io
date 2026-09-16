@@ -284,12 +284,13 @@
   .dm-convo .nm { font-weight: 800; font-size: 15px; }
   .dm-convo .last { grid-column: 1; font-size: 14px; color: var(--ink-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .dm-convo .n { grid-row: 1 / span 2; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 11px; background: #C0392B; color: #fff; font-size: 12px; font-weight: 800; display: grid; place-items: center; }
-  .dm-backdrop { position: fixed; inset: 0; background: rgba(43,26,20,.35); z-index: 20; }
+  .dm-backdrop { position: fixed; inset: 0; background: rgba(43,26,20,.35); z-index: 20; touch-action: none; }
   .dm-sheet {
     position: fixed; left: 50%; bottom: 0; transform: translateX(-50%); width: 100%; max-width: var(--maxw); z-index: 21;
     background: var(--paper); border-top: 4px solid var(--maroon); border-radius: 14px 14px 0 0; padding: 14px 16px calc(16px + env(safe-area-inset-bottom));
-    display: grid; gap: 10px; max-height: 80vh; box-shadow: 0 -10px 30px rgba(74,22,14,.18);
+    display: grid; gap: 10px; max-height: 85vh; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; box-shadow: 0 -10px 30px rgba(74,22,14,.18);
   }
+  .dm-sheet > .dm-head { position: sticky; top: -14px; margin-top: -14px; padding-top: 14px; background: var(--paper); z-index: 1; }
   .dm-head { display: flex; align-items: center; justify-content: space-between; }
   .dm-head .nm { font-weight: 800; font-size: 18px; }
   .dm-thread { display: grid; gap: 6px; overflow: auto; max-height: 38vh; padding: 2px 0; }
