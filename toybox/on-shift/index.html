@@ -2051,7 +2051,9 @@
   function openSwapSheet(open) {
     $('swap-sheet').hidden = !open; $('swap-backdrop').hidden = !open; if (!open) return;
     const mineId = assignmentFor(me.first, block).id;
-    const rows = rowsFor(block).filter(([id]) => id !== mineId && !['play', 'photo', 'free', 'hands'].includes(DUTIES[id].cat));
+    // stalls are staffed by their own society — only offer yours (either, if you're in two)
+    const merged = {}; rowsFor(block).forEach(([id, ppl]) => { (merged[id] ||= []).push(...ppl); });   // one row per activity, however many pairs
+    const rows = Object.entries(merged).filter(([id]) => id !== mineId && !['play', 'photo', 'free', 'hands'].includes(DUTIES[id].cat) && !(DUTIES[id].club && !me.s.includes(DUTIES[id].club)));
     const rowsHtml = rows.map(([id, ppl]) => { const d = DUTIES[id]; return `<button type="button" class="swap-duty" style="--c:${CATS[d.cat].color}" data-swapduty="${id}">${dutyIcon(d, 'sm')}<b>${esc(d.name)}</b><span class="tick">✓</span><small>${esc(d.where)} · ${esc(names(ppl))}</small></button>`; }).join('');
     $('swap-duties').innerHTML = rowsHtml + `<button type="button" class="swap-duty any" data-swapduty="*">${iconHtml('crowd', 'var(--maroon-deep)', 'sm')}<b>Not fussed</b><span class="tick">✓</span><small>Ask every exec — whoever takes it swaps places with you.</small></button>`;
     const btns = [...$('swap-duties').querySelectorAll('[data-swapduty]')];
@@ -2685,6 +2687,11 @@
   const swapsForMe = () => Object.entries(swaps).filter(([, sw]) => {
     if (!me || sw.status !== 'open' || sw.from === me.first || (sw.declines || {})[me.first]) return false;
     const mode = swapMode(sw); const myId = assignmentFor(me.first, sw.block).id; const myCat = (DUTIES[myId] || {}).cat;
+    // stalls belong to a society: the taker must be in the requester's stall's society, and
+    // the requester must be in the taker's stall's society (they'd be swapping onto it)
+    const reqStall = (DUTIES[sw.duty] || {}).club, myStall = (DUTIES[myId] || {}).club;
+    if (reqStall && !me.s.includes(reqStall)) return false;
+    if (myStall && mode !== 'free') { const rp = byFirst[sw.from.toLowerCase()]; if (!rp || !rp.s.includes(myStall)) return false; }
     if (mode === 'team') return sameSociety(me.first, sw.from);
     if (mode === 'any')  return !['hands', 'photo'].includes(myCat);          // free or on duty, anyone
     if (mode === 'duty') return wantList(sw).includes(myId);                    // the execs on the activities they'd rather do
