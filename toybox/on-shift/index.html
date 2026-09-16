@@ -2278,12 +2278,13 @@
         // follow this photo so the sender sees what happened to it
         const watch = ref('photos/' + pushed.key); let t0 = Date.now();
         const stop = () => watch.off('value', onv);
+        const tidy = (r) => (r || '').trim().replace(/[.!]+$/, '');   // the model ends its sentence; we add the punctuation
         const onv = (snap) => {
           const ph = snap.val(); const msg = $(pre + '-msg');
           if (!ph) { msg.textContent = 'That one was taken down by an organiser.'; stop(); return; }
           if (ph.status === 'approved') { msg.textContent = 'It\'s on the big screen.'; stop(); }
-          else if (ph.status === 'rejected') { msg.textContent = 'Not approved' + (ph.ai && ph.ai.reason ? ' — ' + ph.ai.reason : '') + '. An organiser can still overrule.'; stop(); }
-          else if (ph.ai && ph.ai.verdict === 'unsure') { msg.textContent = 'Held for an organiser to look at' + (ph.ai.reason ? ' — ' + ph.ai.reason : '') + '.'; stop(); }
+          else if (ph.status === 'rejected') { msg.textContent = 'Not approved' + (ph.ai && ph.ai.reason ? ' — ' + tidy(ph.ai.reason) : '') + '. An organiser can still overrule.'; stop(); }
+          else if (ph.ai && ph.ai.verdict === 'unsure') { msg.textContent = 'Held for an organiser to look at' + (ph.ai.reason ? ' — ' + tidy(ph.ai.reason) : '') + '.'; stop(); }
           else if (Date.now() - t0 > 20000) { msg.textContent = 'Still checking — an organiser will look at it.'; stop(); }
         };
         watch.on('value', onv);
@@ -2357,7 +2358,9 @@
     let guard = 0;
     while (band.scrollWidth + bandX < innerWidth * 2 && guard++ < 40) {
       const have = [...band.children].map(f => f.dataset.id);
-      const next = ids.find(i => !have.includes(i)) || ids[(have.length) % ids.length];
+      const lastId = have[have.length - 1];
+      let next = ids.find(i => !have.includes(i));
+      if (!next) { const pool = ids.filter(i => i !== lastId); next = pool.length ? pool[have.length % pool.length] : ids[0]; }   // never the same photo twice in a row
       band.appendChild(figure(next));
     }
   }
@@ -2377,7 +2380,9 @@
       const w = first.getBoundingClientRect().width;
       if (-bandX >= w) {   // leading photo is fully off: recycle or retire it
         bandX += w; const keep = new Set(scrIds());
-        if (keep.has(first.dataset.id) && [...band.children].filter(f => f.dataset.id === first.dataset.id).length === 1) band.appendChild(first); else first.remove();
+        const others = [...band.children].filter(f => f !== first);
+        const lastNow = others.length ? others[others.length - 1].dataset.id : null;
+        if (keep.has(first.dataset.id) && others.every(f => f.dataset.id !== first.dataset.id) && lastNow !== first.dataset.id) band.appendChild(first); else first.remove();
         bandFill();
       }
       band.style.transform = `translateX(${bandX}px)`;
@@ -2386,7 +2391,8 @@
   }
   function scrScores() {
     const live = Object.values(matches).filter(m => m.status === 'live');
-    const bar = $('screen-scores'); bar.hidden = !live.length; if (!live.length) return;
+    const bar = $('screen-scores'); bar.hidden = false;
+    if (!live.length) { const track = $('screen-track'); track.classList.remove('marquee'); track.innerHTML = '<span><span class="sp">Scores</span>No live games right now</span>'; return; }
     const item = (m) => `<span><span class="sp">${esc(SPORTS[m.sport] || m.sport)}</span>${esc(m.a)} ${m.sa} – ${m.sb} ${esc(m.b)}<span class="lv"></span></span>`;
     const track = $('screen-track'); const html = live.map(item).join('');
     track.classList.remove('marquee'); track.innerHTML = html;
