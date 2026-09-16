@@ -267,6 +267,64 @@
   .msg .t { display: block; font-size: 11px; opacity: .7; margin-top: 2px; }
   .dm-canned { display: flex; flex-wrap: wrap; gap: 6px; }
   .dm-canned button { min-height: 36px; padding: 0 12px; border-radius: 18px; border: 1.5px solid var(--line); background: #fff; font-weight: 700; font-size: 14px; color: var(--maroon); }
+  /* moment banner (photos etc. that don't displace a duty) */
+  .moment { display: grid; grid-template-columns: 30px auto 1fr; gap: 4px 12px; align-items: center; padding: 12px 14px; background: #EEF1F7; border-left: 6px solid var(--c-photo); }
+  .moment .eyebrow { grid-column: 1 / -1; color: var(--c-photo); }
+  .moment .t { font-weight: 800; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .moment .d { font-weight: 700; }
+  .moment .d small { display: block; font-weight: 500; color: var(--ink-2); font-size: 14px; }
+  .rs-row.mo { grid-template-columns: 54px 8px 30px 1fr; background: #EEF1F7; }
+  /* emergency */
+  .btn-small.emg { background: #B23A2E; color: #fff; }
+  .emg-sheet { border-top-color: #B23A2E; }
+  .emg-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .emg { background: #fff; border: 1.5px solid var(--line); border-left: 6px solid #B23A2E; padding: 12px; display: grid; gap: 4px; cursor: pointer; }
+  .emg .nm { font-weight: 800; font-size: 16px; line-height: 1.15; }
+  .emg .role { font-size: 13px; color: var(--ink-2); }
+  .emg .call { display: none; margin-top: 6px; height: 44px; border-radius: 6px; background: #B23A2E; color: #fff; font-weight: 800; font-size: 15px; align-items: center; justify-content: center; gap: 8px; text-decoration: none; }
+  .emg.open { grid-column: 1 / -1; }
+  .emg.open .call { display: flex; }
+  .emg .call svg { width: 18px; height: 18px; }
+  /* manual */
+  .man-sheet { max-height: 88vh; }
+  .man-search { height: 46px; padding: 0 14px; border-radius: 6px; border: 1.5px solid var(--line); background: #fff; font-size: 16px; }
+  .man-body { overflow: auto; max-height: 56vh; display: grid; gap: 8px; }
+  .man-sec { background: #fff; border-left: 6px solid var(--c); padding: 10px 12px; box-shadow: 0 1px 0 var(--line); display: grid; grid-template-columns: 30px 1fr; gap: 4px 10px; align-items: start; }
+  .man-sec .ttl { font-weight: 800; font-size: 15px; align-self: center; }
+  .man-sec p { grid-column: 2; margin: 0; font-size: 14px; color: var(--ink-2); }
+  .man-sec p b { color: var(--ink); }
+  .man-sec mark { background: #FFE9A8; color: inherit; padding: 0 2px; }
+  /* onboarding */
+  .onb { position: fixed; inset: 0; z-index: 30; background: rgba(43,26,20,.55); display: grid; place-items: center; padding: 16px; }
+  .onb-card { position: relative; width: 100%; max-width: 420px; background: var(--paper); border-top: 5px solid var(--maroon); border-radius: 14px; padding: 22px 20px 18px; display: grid; gap: 16px; box-shadow: 0 20px 50px rgba(74,22,14,.35); }
+  .onb-x { position: absolute; top: 8px; right: 10px; width: 40px; height: 40px; border: 0; background: transparent; font-size: 28px; line-height: 1; color: var(--ink-3); cursor: pointer; }
+  .onb-slide { display: grid; gap: 10px; min-height: 220px; }
+  .onb-slide .ic { width: 56px; height: 56px; border-radius: 12px; }
+  .onb-slide h2 { margin: 0; font-family: var(--display); font-weight: 700; font-size: 30px; line-height: 1.05; letter-spacing: .02em; color: var(--maroon); }
+  .onb-slide p { margin: 0; font-size: 15px; color: var(--ink-2); }
+  .onb-slide p b { color: var(--ink); }
+  .onb-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .onb-dots { display: flex; gap: 6px; }
+  .onb-dots i { width: 8px; height: 8px; border-radius: 50%; background: var(--line); }
+  .onb-dots i.on { background: var(--maroon); }
+  /* admin roster grid */
+  .grid-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; background: #fff; box-shadow: 0 1px 0 var(--line); }
+  .rgrid { border-collapse: separate; border-spacing: 0; font-size: 12px; min-width: 100%; }
+  .rgrid th, .rgrid td { padding: 4px 4px; border-bottom: 1px solid var(--line); white-space: nowrap; text-align: center; }
+  .rgrid th { font-size: 10px; font-weight: 800; letter-spacing: .06em; color: var(--ink-3); background: var(--paper-2); position: sticky; top: 0; }
+  .rgrid th:first-child, .rgrid td:first-child { position: sticky; left: 0; background: #fff; text-align: left; font-weight: 800; z-index: 1; padding-left: 10px; box-shadow: 1px 0 0 var(--line); cursor: pointer; }
+  .rgrid th:first-child { background: var(--paper-2); z-index: 2; }
+  .rgrid td:first-child small { display: block; font-weight: 600; color: var(--ink-3); font-size: 10px; }
+  .rgrid .cell { display: inline-block; min-width: 40px; padding: 4px 5px; border-radius: 4px; background: var(--c); color: var(--cream); font-weight: 800; font-size: 11px; letter-spacing: .02em; }
+  .rgrid .cell.free { background: transparent; color: var(--ink-3); font-weight: 600; }
+  .rgrid .cell.sw { outline: 2px solid var(--maroon); outline-offset: 1px; }
+  .rgrid tr.now td { background: #FFF8EE; } .rgrid tr.now td:first-child { background: #FFF8EE; }
+  .rgrid th.now { color: var(--maroon); }
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 12px; margin-top: 8px; font-size: 12px; color: var(--ink-2); }
+  .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; background: var(--c); vertical-align: -1px; margin-right: 4px; }
+  .check { background: #fff; border-left: 8px solid var(--c); padding: 10px 12px; box-shadow: 0 1px 0 var(--line); font-size: 14px; }
+  .check b { display: block; font-size: 15px; }
+  .check.ok { border-left-color: #3E7A4A; }
   /* settings */
   .set-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--line); }
   .set-row:last-child { border-bottom: 0; }
@@ -858,6 +916,7 @@
     <!-- NOW -->
     <section class="view" id="view-now" role="tabpanel">
       <div id="now-card"></div>
+      <div id="now-moment"></div>
       <div id="now-next"></div>
 
       <section class="runsheet" id="runsheet">
@@ -916,6 +975,25 @@
         <div class="duty-list" id="t-duty"></div>
         <p class="fine muted-note" id="t-duty-muted" hidden></p>
       </div>
+    </section>
+
+    <!-- ADMIN (log in as "admin" / UQSLA) — everyone's roster, nothing else -->
+    <section class="view" id="view-admin" role="tabpanel" hidden>
+      <div class="desk-head"><h2 class="sec" style="margin:0">Admin · everyone's roster</h2><span class="fine" id="ad-live"></span></div>
+      <div class="counts">
+        <div class="count" style="--c: var(--c-sport)"><div class="n" id="ad-people">0</div><div class="l">Execs</div></div>
+        <div class="count" style="--c: var(--tan)"><div class="n" id="ad-swaps">0</div><div class="l">Swaps (open / done)</div></div>
+        <div class="count" style="--c: var(--c-club)"><div class="n" id="ad-help">0</div><div class="l">Help calls open</div></div>
+        <div class="count" style="--c: var(--c-photo)"><div class="n" id="ad-photos">0</div><div class="l">Photos waiting</div></div>
+      </div>
+      <div><h2 class="sec">Checks</h2><div class="swap-list" id="ad-checks"></div></div>
+      <div><h2 class="sec">Requests</h2><div class="swap-list" id="ad-req"></div></div>
+      <div><h2 class="sec">Roster grid <span class="fine">— tap a name for their day; outlined cells are swaps</span></h2>
+        <div class="grid-wrap"><table class="rgrid" id="ad-grid"></table></div>
+        <div class="legend" id="ad-legend"></div>
+      </div>
+      <div><h2 class="sec">Per block</h2><div class="swap-list" id="ad-blocks"></div></div>
+      <div class="btns"><button class="btn-small ghost" id="ad-export" type="button">Export the day (.csv)</button></div>
     </section>
 
     <!-- DESK (organisers) -->
@@ -1031,10 +1109,50 @@
         <button class="toggle" id="nudge" type="button" role="switch" aria-checked="false" aria-label="Nudge me when the block changes"></button>
       </div>
       <div class="set-row">
+        <div class="txt"><b>Manual</b><span>Every part of the app, searchable. Also replays the welcome tour.</span></div>
+        <button class="btn-small ghost" id="set-manual" type="button">Open</button>
+      </div>
+      <div class="set-row">
         <div class="txt"><b>Signed in as <span id="set-who">—</span></b><span>Saved on this phone.</span></div>
         <button class="btn-small ghost" id="set-switch" type="button">Switch</button>
       </div>
+      <div class="set-row emg-row">
+        <div class="txt"><b>emergency</b><span>Who to call when something's wrong.</span></div>
+        <button class="btn-small emg" id="set-emg" type="button">emergency</button>
+      </div>
     </section>
+
+    <!-- Emergency contacts -->
+    <div class="dm-backdrop" id="emg-backdrop" hidden></div>
+    <section class="dm-sheet emg-sheet" id="emg-sheet" hidden aria-label="Emergency contacts">
+      <div class="dm-head"><span class="nm">emergency</span><button class="linkbtn" id="emg-close" type="button">Close</button></div>
+      <p class="fine">Tap a name for the number. For anything medical or dangerous, call 000 first.</p>
+      <div class="emg-grid" id="emg-grid"></div>
+    </section>
+
+    <!-- Manual -->
+    <div class="dm-backdrop" id="man-backdrop" hidden></div>
+    <section class="dm-sheet man-sheet" id="man-sheet" hidden aria-label="Manual">
+      <div class="dm-head"><span class="nm">Manual</span><button class="linkbtn" id="man-close" type="button">Close</button></div>
+      <input class="man-search" id="man-search" type="search" placeholder="Search — e.g. swap, scores, photos, map…" autocomplete="off">
+      <div class="man-body" id="man-body"></div>
+      <div class="btns" style="margin-top:4px"><button class="btn-small ghost" id="man-tour" type="button">Replay the welcome tour</button></div>
+    </section>
+
+    <!-- Onboarding tour (first login) -->
+    <div class="onb" id="onb" hidden>
+      <div class="onb-card">
+        <button class="onb-x" id="onb-x" type="button" aria-label="Close">×</button>
+        <div class="onb-slide" id="onb-slide"></div>
+        <div class="onb-foot">
+          <div class="onb-dots" id="onb-dots"></div>
+          <div class="btns" style="margin:0">
+            <button class="btn-small ghost" id="onb-prev" type="button">Back</button>
+            <button class="btn-small" id="onb-next" type="button">Next</button>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- DM sheet: tap any name to open -->
     <div class="dm-backdrop" id="dm-backdrop" hidden></div>
@@ -1283,8 +1401,9 @@
   function infoHtml(key) {
     const [kind, arg] = key.split(':');
     if (kind === 'sport') return { title: SPORTS[arg] + ' — match timetable', body: timetableHtml(arg) };
-    if (kind === 'stage') return { title: 'Performance stage', body: `<div class="round">${STAGE_TIMES.map(x => `<div class="tt"><span class="t">${tm(x.t)}</span><span class="tm won" style="grid-column:2/-1">${esc(x.who)}<small>${esc(x.what)}</small></span></div>`).join('')}</div><p class="fine">Dummy schedule — the real running order goes here.</p>` };
+    if (kind === 'stage') return { title: 'Performance stage', body: `<div class="round">${STAGE_TIMES.map(x => `<div class="tt"><span class="t">${tm(x.t)}</span><span class="tm won" style="grid-column:2/-1;text-align:left">${esc(x.who)}<small>${esc(x.what)}</small></span></div>`).join('')}</div><p class="fine">Dummy schedule — the real running order goes here.</p>` };
     if (kind === 'biz') return { title: arg, body: `<p>${esc(BIZ[arg] || 'Dummy text.')}</p>` };
+    if (kind === 'person') { const f = arg; const p = byFirst[f.toLowerCase()]; return { title: p ? p.n : f, body: `<div class="round">${Array.from({ length: BLOCKS }, (_, i) => { const a = assignmentFor(f, i); const d = DUTIES[a.id]; const swp = a.id !== baseAssignment(f, i); return `<div class="tt"><span class="t">${fmt(DAY_START + i * 30)}</span><span class="tm ${a.id === 'free' ? 'tbd' : 'won'}" style="grid-column:2/-1;text-align:left">${esc(d.name)}${swp ? ' <small style="display:inline">(swap)</small>' : ''}<small>${esc(a.id === 'free' ? 'Enjoy the festival' : d.where + (a.people.length ? ' · with ' + names(a.people) : ''))}</small></span></div>`; }).join('')}</div>` }; }
     if (kind === 'club') { const c = CLUB_INFO[arg]; return { title: arg, body: `<p><b>${esc(c.full)}</b></p><p>${esc(c.about)}</p><h4 class="sec-sm">Execs on the marquee</h4><p class="fine">${c.execs.length ? c.execs.map(esc).join(', ') : '—'}</p>` }; }
     return { title: '', body: '' };
   }
@@ -1348,8 +1467,10 @@
   });
 
   function enter() {
+    adminMode = ident.name.trim().toLowerCase() === 'admin' && ident.society === 'UQSLA';
     const p = byFirst[ident.name.toLowerCase()];
     me = (p && p.s.includes(ident.society)) ? p : null;
+    document.querySelector('.tabs').hidden = adminMode; $('blockbar').hidden = adminMode; $('bell').hidden = adminMode;
     $('who-name').textContent = me ? me.first : ident.name;
     $('who-soc').textContent = ident.society;
     $('entry').hidden = true; $('public').hidden = true; $('login-view').hidden = true; $('shell').hidden = false;
@@ -1357,8 +1478,11 @@
     const lb = liveBlock();
     live = lb !== null; block = live ? lb : 0;
     renderFilter();
+    let onboarded = false; try { onboarded = localStorage.getItem(ONB_LS) === '1'; } catch {}
+    if (!onboarded && !adminMode) setTimeout(startTour, 400);
     $('bcast-form').hidden = !(db && isAdmin()); $('deskbtn').hidden = !(db && isAdmin()); renderPhotoMod();
     const eb = $('ph-exec-by'); if (eb && !eb.value) eb.value = me ? me.first : ident.name;
+    if (adminMode) { $('who-name').textContent = 'Admin'; $('deskbtn').hidden = true; showView('admin'); renderAdmin(); return; }
     showView(me ? 'now' : 'team');
     render();
     requestAnimationFrame(() => drawMap($('map-on')));
@@ -1366,10 +1490,10 @@
 
   // ---------- Views ----------
   let showView = function (v) {
-    ['now','team','scores','map','on','desk'].forEach(k => { $('view-' + k).hidden = k !== v; });
+    ['now','team','scores','map','on','desk','admin'].forEach(k => { $('view-' + k).hidden = k !== v; });
     document.querySelectorAll('.tab').forEach(t => t.setAttribute('aria-selected', String(t.dataset.view === v)));
     if (v === 'desk') { renderDesk(); renderPhotoMod(); }
-    $('blockbar').hidden = v === 'on' || v === 'map' || v === 'scores';
+    $('blockbar').hidden = v === 'on' || v === 'map' || v === 'scores' || v === 'admin';
     window.scrollTo(0, 0);
     if (v === 'on') requestAnimationFrame(() => drawMap($('map-on')));
   };
@@ -1377,6 +1501,7 @@
 
   // ---------- Render ----------
   function render() {
+    if (adminMode) { renderAdmin(); return; }
     // Block bar
     if (block < 0) { $('bb-label').textContent = 'Before block 1'; $('bb-time').textContent = 'Setup · 2:00 – 3:00 pm'; }
     else if (block >= BLOCKS) { $('bb-label').textContent = 'After block 12'; $('bb-time').textContent = 'Pack-up · 9:00 – 10:00 pm'; }
@@ -1415,6 +1540,16 @@
     </article>`;
   }
 
+  // Moments — a few minutes inside a block that everyone (or a named group)
+  // attends without leaving their duty. Shown as a banner on Now and in the run sheet.
+  const MOMENTS = [
+    { block: 5, at: '5:45 pm', name: 'Whole-team photo', where: 'Stage steps', note: 'Every exec — leave your spot for five minutes, then straight back.', who: 'all' },
+  ];
+  const momentsFor = (i) => MOMENTS.filter(m => m.block === i && (m.who === 'all' || (me && m.who.includes(me.first))));
+  function momentHtml(m) {
+    return `<div class="moment"><span class="eyebrow">Photo · everyone</span>${iconHtml('camera', 'var(--c-photo)', 'sm')}<span class="t">${esc(m.at)}</span><span class="d">${esc(m.name)}<small>${esc(m.where)} · ${esc(m.note)}</small></span></div>`;
+  }
+
   function renderNow() {
     if (!me) {
       $('now-card').innerHTML = `<div class="notice"><h2>You're not on today's roster yet</h2><p>No match for <b>${esc(ident.name)}</b> in <b>${esc(ident.society)}</b>. Check the spelling, or ask your club lead. You can still browse Team and What's On.</p></div>`;
@@ -1423,6 +1558,7 @@
     $('runsheet').hidden = false;
     const a = assignmentFor(me.first, block);
     $('now-card').innerHTML = dutyCard(a) + helpControl(a) + swapControl(a);
+    $('now-moment').innerHTML = momentsFor(block).map(momentHtml).join('');
     bindHelpControl(); bindSwapControl();
 
     // Next block
@@ -1438,10 +1574,11 @@
     $('rs').innerHTML = Array.from({ length: BLOCKS }, (_, i) => {
       const x = assignmentFor(me.first, i); const d = DUTIES[x.id];
       const w = x.people.length ? 'with ' + names(x.people) : (d.cat === 'free' || d.cat === 'photo' ? '' : 'solo');
+      const mo = momentsFor(i).map(m => `<div class="rs-row mo" style="--c:var(--c-photo)"><span class="t">${esc(m.at.replace(' pm', ''))}</span><span class="bar"></span>${iconHtml('camera', 'var(--c-photo)', 'sm')}<span class="d">${esc(m.name)}<small>${esc(m.where)} · everyone</small></span></div>`).join('');
       return `<div class="rs-row ${i === block ? 'now' : ''}" style="--c:${CATS[d.cat].color}">
         <span class="t">${fmt(DAY_START + i * 30)}</span><span class="bar"></span>${dutyIcon(d, 'sm')}
         <span class="d">${esc(d.name)}${d.cat === 'free' ? '' : ''}<small>${esc(d.cat === 'free' ? 'Enjoy the festival' : d.where + (w ? ' · ' + w : ''))}</small></span>
-      </div>`;
+      </div>` + mo;
     }).join('');
   }
 
@@ -1864,6 +2001,77 @@
   $('dm-form').addEventListener('submit', e => { e.preventDefault(); sendDm($('dm-text').value); $('dm-text').value = ''; });
 
   // --- settings sheet ---
+  // --- emergency contacts ---
+  // PLACEHOLDER NUMBERS — replace before the day.
+  const EMERGENCY = [
+    { n: 'Archita Sahu',              role: 'Organiser',              tel: '0400 000 001' },
+    { n: 'Sanuka Ranatunga',          role: 'Organiser · President',  tel: '0400 000 002' },
+    { n: 'Prabhas Bachu',             role: 'Organiser',              tel: '0400 000 003' },
+    { n: 'Thinanthanan Thirumurugan', role: 'Organiser',              tel: '0400 000 004' },
+    { n: 'Sandes Welagedara',         role: 'Technical difficulties', tel: '0400 000 005' },
+  ];
+  const PHONE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg>';
+  function openEmg(open) {
+    $('emg-sheet').hidden = !open; $('emg-backdrop').hidden = !open; if (!open) return;
+    $('emg-grid').innerHTML = EMERGENCY.map((c, i) => `<div class="emg" data-i="${i}" role="button" tabindex="0"><span class="nm">${esc(c.n)}</span><span class="role">${esc(c.role)}</span><a class="call" href="tel:${c.tel.replace(/\s/g, '')}">${PHONE} Call ${esc(c.tel)}</a></div>`).join('');
+    $('emg-grid').querySelectorAll('.emg').forEach(el => el.addEventListener('click', e => { if (e.target.closest('.call')) return; $('emg-grid').querySelectorAll('.emg').forEach(o => { if (o !== el) o.classList.remove('open'); }); el.classList.toggle('open'); }));
+  }
+  $('set-emg').addEventListener('click', () => { openSettings(false); openEmg(true); });
+  $('emg-close').addEventListener('click', () => openEmg(false)); $('emg-backdrop').addEventListener('click', () => openEmg(false));
+
+  // --- manual ---
+  const MANUAL = [
+    { icon: 'coffee',  color: 'var(--c-free)',   t: 'Now', k: 'now duty card block time partner', p: 'Your current duty, where to be, what it involves, and who you\'re with. The dot pulses when it\'s <b>live</b>. Below it: what\'s next, then your whole day. The <b>‹ ›</b> buttons step through blocks when you want to look ahead.' },
+    { icon: 'crowd',   color: 'var(--c-crowd)',  t: 'Need hands / Swap out', k: 'help swap hands sub cover cant make it exchange', p: 'Under your duty card. <b>Need hands here</b> calls every free exec to you. <b>Ask to swap out</b> offers your block to free execs. On a match, <b>Ask a teammate to sub in</b> goes to your society — whoever takes it swaps duties with you.' },
+    { icon: 'mic',     color: 'var(--c-stage)',  t: 'Bell', k: 'bell notifications broadcasts notices messages tray unread', p: 'The bell at the top. Swap requests and calls for help you can answer, messages, and notices from the organisers. The red number is what you haven\'t seen.' },
+    { icon: 'crowd',   color: 'var(--c-club)',   t: 'Messages', k: 'message dm chat text someone name tap', p: 'Tap any name anywhere in the app to message them. Four one-tap lines and a box. Your conversations live in the bell.' },
+    { icon: 'crowd',   color: 'var(--c-sport)',  t: 'Team', k: 'team who is free on duty filter societies mute advanced', p: 'Who\'s free and who\'s on what, this block. <b>‹ ›</b> to look at other blocks. <b>Societies</b> hides clubs you don\'t need to see; <b>Advanced</b> picks individual people.' },
+    { icon: 'football',color: 'var(--c-sport)',  t: 'Scores & brackets', k: 'scores bracket match referee start end plus minus timetable', p: 'Referees: <b>Start a match</b>, tap <b>+</b>/<b>−</b>, <b>End match</b>. Brackets fill themselves in as matches end; <b>Play next</b> starts the next one. Visitors see it all live on the public page.' },
+    { icon: 'tent',    color: 'var(--c-club)',   t: 'Map', k: 'map where location pinch zoom', p: 'The ground. Drag to pan, pinch to zoom, double-tap to zoom in.' },
+    { icon: 'sparkle', color: 'var(--c-ticket)', t: "What's On", k: 'whats on stalls timetable stage performances businesses clubs photos upload', p: 'Everything at the festival. Tap a sport for the match timetable, the stage for the running order, a business for what they do, a club for who\'s on the marquee. Send festival photos from the bottom.' },
+    { icon: 'camera',  color: 'var(--c-photo)',  t: 'Photos & big screen', k: 'photos upload approve big screen tv slideshow', p: 'Anyone can send a photo in; organisers approve them; approved photos roll across the big screen. <b>Big screen mode</b> is under Settings for whoever runs the TV.' },
+    { icon: 'box',     color: 'var(--c-hands)',  t: 'Settings', k: 'settings gear nudge switch user sign out big screen manual emergency', p: 'The gear. Big screen mode, a nudge when the block changes, switch who\'s signed in, this manual, and the red <b>emergency</b> button with who to call.' },
+    { icon: 'heart',   color: '#B23A2E',         t: 'emergency', k: 'emergency call phone number urgent 000 organiser help', p: 'Settings → <b>emergency</b>. Tap a name for a Call button. Anything medical or dangerous: <b>000 first</b>.' },
+  ];
+  function renderManual(q) {
+    q = (q || '').trim().toLowerCase();
+    const hit = MANUAL.filter(m => !q || (m.t + ' ' + m.k + ' ' + m.p).toLowerCase().includes(q));
+    const mark = (html) => q ? html.replace(new RegExp('(' + q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')(?![^<]*>)', 'gi'), '<mark>$1</mark>') : html;
+    $('man-body').innerHTML = hit.length ? hit.map(m => `<div class="man-sec" style="--c:${m.color}">${iconHtml(m.icon, m.color, 'sm')}<span class="ttl">${mark(esc(m.t))}</span><p>${mark(m.p)}</p></div>`).join('') : '<p class="fine">Nothing matches that — try another word.</p>';
+  }
+  function openManual(open) { $('man-sheet').hidden = !open; $('man-backdrop').hidden = !open; if (open) { $('man-search').value = ''; renderManual(''); } }
+  $('set-manual').addEventListener('click', () => { openSettings(false); openManual(true); });
+  $('man-close').addEventListener('click', () => openManual(false)); $('man-backdrop').addEventListener('click', () => openManual(false));
+  $('man-search').addEventListener('input', () => renderManual($('man-search').value));
+  $('man-tour').addEventListener('click', () => { openManual(false); startTour(); });
+
+  // --- onboarding tour: once, on first login; remembered on this phone like your name ---
+  const ONB_LS = 'onshift.onboarded';
+  const TOUR = [
+    { icon: 'coffee', color: 'var(--c-free)', h: 'Welcome to the Spice Road Experience', p: 'This is how the day runs. It takes a minute to read and then it\'ll just make sense. You can close it any time — it won\'t nag you again.' },
+    { icon: 'football', color: 'var(--c-sport)', h: 'Now', p: 'Your current duty is the big card: <b>where to be</b>, <b>what to do</b>, <b>who you\'re with</b>. Under it: what\'s next, and your whole day. The dot pulses when it\'s live.' },
+    { icon: 'crowd', color: 'var(--c-crowd)', h: 'Stuck? Two buttons.', p: '<b>Need hands here</b> — every free exec gets a ping and can say "on my way". <b>Ask to swap out</b> — a free exec can take your block. On a match, your society can sub in for you.' },
+    { icon: 'mic', color: 'var(--c-stage)', h: 'The bell', p: 'Swaps and calls you can answer, messages, and notices from the organisers. The red number is what\'s new. Tap any name in the app to message that person.' },
+    { icon: 'crowd', color: 'var(--c-club)', h: 'Team', p: 'Who\'s free and who\'s on what right now. Hide societies you don\'t need with <b>Societies</b>; pick individuals under <b>Advanced</b>.' },
+    { icon: 'volleyball', color: 'var(--c-sport)', h: 'Scores, brackets, map, what\'s on', p: 'Referees score on <b>Scores</b>; brackets fill in as matches end. <b>Map</b> is the ground. <b>What\'s On</b> has timetables, the stage, the businesses, and where to send photos.' },
+    { icon: 'heart', color: '#B23A2E', h: 'Settings', p: 'The gear at the top: big screen mode, a nudge when the block changes, this tour, the <b>manual</b>, and the red <b>emergency</b> button with who to call.' },
+    { icon: 'camera', color: 'var(--c-photo)', h: 'Questions?', p: 'If you forget any of this, the <b>manual</b> is under Settings — every section, with a search bar. And if you\'re still stuck:', last: true },
+  ];
+  let tourIdx = 0;
+  function renderTour() {
+    const t = TOUR[tourIdx];
+    $('onb-slide').innerHTML = `${iconHtml(t.icon, t.color, 'lg')}<h2>${t.h}</h2><p>${t.p}</p>${t.last ? `<div class="btns" style="margin-top:6px"><button class="btn-small" id="onb-msg" type="button">Message Sandes</button><button class="btn-small ghost" id="onb-man" type="button">Open the manual</button></div>` : ''}`;
+    $('onb-dots').innerHTML = TOUR.map((_, i) => `<i class="${i === tourIdx ? 'on' : ''}"></i>`).join('');
+    $('onb-prev').hidden = tourIdx === 0; $('onb-next').textContent = tourIdx === TOUR.length - 1 ? 'Done' : 'Next';
+    const msg = $('onb-msg'); if (msg) msg.addEventListener('click', () => { endTour(); if (me && me.first !== 'Sandes') openDm('Sandes'); });
+    const man = $('onb-man'); if (man) man.addEventListener('click', () => { endTour(); openManual(true); });
+  }
+  function startTour() { tourIdx = 0; renderTour(); $('onb').hidden = false; }
+  function endTour() { $('onb').hidden = true; try { localStorage.setItem(ONB_LS, '1'); } catch {} }
+  $('onb-x').addEventListener('click', endTour);
+  $('onb-next').addEventListener('click', () => { if (tourIdx >= TOUR.length - 1) endTour(); else { tourIdx++; renderTour(); } });
+  $('onb-prev').addEventListener('click', () => { if (tourIdx > 0) { tourIdx--; renderTour(); } });
+
   function openSettings(open) {
     $('set-sheet').hidden = !open; $('set-backdrop').hidden = !open;
     if (open) $('set-who').textContent = me ? full(me.first) : (ident ? ident.name : '—');
@@ -1950,6 +2158,7 @@
     const pend = Object.keys(phPending).sort((a, b) => (phPending[a].t || 0) - (phPending[b].t || 0));
     const appr = Object.keys(phApproved).sort((a, b) => (phApproved[b].t || 0) - (phApproved[a].t || 0));
     $('desk-n').hidden = !pend.length || $('deskbtn').hidden; $('desk-n').textContent = pend.length;
+    if (adminMode) renderAdmin();
     if ($('view-desk').hidden) return;
     $('d-photo-counts').textContent = `— ${pend.length} waiting · ${appr.length} on the screen`;
     $('d-pending').innerHTML = pend.length ? pend.map(i => photoCard(i, phPending[i], 'pending')).join('') : '<p class="fine">Nothing waiting.</p>';
@@ -2033,6 +2242,48 @@
   let exitT = null;
   $('screen').addEventListener('click', e => { if (e.target.id === 'screen-exit') return; $('screen-exit').hidden = false; clearTimeout(exitT); exitT = setTimeout(() => { $('screen-exit').hidden = true; }, 3000); });
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && scrOn) stopScreen(); });
+
+  // --- admin: log in as "admin" / UQSLA to see everyone's roster and nothing else ---
+  let adminMode = false;
+  const SHORT = (id) => { const d = DUTIES[id] || {}; if (id === 'free') return '—'; if (id.startsWith('stall-')) return d.club.replace(/^UQ/, ''); if (id.startsWith('play-')) return 'PLAY ' + id.slice(5).toUpperCase(); if (id.startsWith('photo')) return 'PHOTO'; if (id.startsWith('cr-')) return 'CROWD'; if (id.startsWith('fund-')) return 'FUND'; return { vb: 'VB', fb: 'FB', ck: 'CK', tk: 'TKT', st: 'STAGE' }[id] || id.toUpperCase(); };
+  const baseAssignment = (first, i) => { for (const [id, ppl] of ROSTER[i]) if (ppl.includes(first)) return id; return 'free'; };
+  function adminChecks() {
+    const out = [];
+    PEOPLE.forEach(p => {
+      const f = p.first; const ids = Array.from({ length: BLOCKS }, (_, i) => assignmentFor(f, i).id);
+      const onCount = ids.filter(id => id !== 'free').length;
+      if (!onCount) out.push({ c: 'var(--tan)', t: `${p.n} has nothing rostered`, s: 'Every block is free.' });
+      let run = 0, maxRun = 0; ids.forEach(id => { run = id === 'free' ? 0 : run + 1; maxRun = Math.max(maxRun, run); });
+      if (maxRun >= 6) out.push({ c: '#B23A2E', t: `${p.n} — ${maxRun} blocks straight without a break`, s: 'Three hours on. Worth a free block somewhere.' });
+      if (ids.every(id => id !== 'free')) out.push({ c: '#B23A2E', t: `${p.n} never gets a free block`, s: 'On duty for all 12 blocks.' });
+      for (let i = 0; i < BLOCKS; i++) { const hits = rowsFor(i).filter(([, ppl]) => ppl.includes(f)).length; if (hits > 1) out.push({ c: '#B23A2E', t: `${p.n} is in two places at ${range(i)}`, s: rowsFor(i).filter(([, ppl]) => ppl.includes(f)).map(([id]) => DUTIES[id].name).join(' and ') }); }
+    });
+    for (let i = 0; i < BLOCKS; i++) { const solo = rowsFor(i).filter(([id, ppl]) => ppl.length === 1 && !['free', 'photo'].includes(DUTIES[id].cat) && !id.startsWith('play-')); solo.forEach(([id, ppl]) => out.push({ c: 'var(--tan)', t: `${full(ppl[0])} is solo on ${DUTIES[id].name} at ${range(i)}`, s: 'Fine if intended — flagging in case it isn\'t.' })); }
+    return out;
+  }
+  function renderAdmin() {
+    if (!adminMode) return;
+    const lb = liveBlock(); $('ad-live').textContent = lb === null ? 'Not live yet' : lb < 0 ? 'Live · setup' : lb >= BLOCKS ? 'Live · pack-up' : 'Live · ' + range(lb);
+    $('ad-people').textContent = PEOPLE.length;
+    const sw = Object.values(swaps); $('ad-swaps').textContent = `${sw.filter(x => x.status === 'open').length} / ${sw.filter(x => x.status === 'taken').length}`;
+    $('ad-help').textContent = Object.values(helps).filter(h => h.status === 'open').length;
+    $('ad-photos').textContent = Object.keys(phPending).length;
+    const checks = adminChecks();
+    $('ad-checks').innerHTML = checks.length ? checks.map(c => `<div class="check" style="--c:${c.c}"><b>${esc(c.t)}</b>${esc(c.s)}</div>`).join('') : '<div class="check ok"><b>All clear</b>Everyone has something, nobody\'s double-booked, nobody\'s on for six blocks straight.</div>';
+    const reqs = [];
+    Object.values(swaps).forEach(x => { if (x.status === 'withdrawn') return; const d = DUTIES[x.duty] || {}; reqs.push(`<div class="check" style="--c:${x.status === 'open' ? 'var(--tan)' : '#3E7A4A'}"><b>${x.status === 'open' ? 'Open swap' : 'Swapped'} · ${esc(d.name || x.duty)} · ${range(x.block)}</b>${esc(x.from)}${x.to ? ' → ' + esc(x.to) : ' — waiting'}</div>`); });
+    Object.values(helps).forEach(h => { if (h.status !== 'open') return; const d = DUTIES[h.duty] || {}; const c = Object.keys(h.responders || {}); reqs.push(`<div class="check" style="--c:#B23A2E"><b>Needs hands · ${esc(d.name || h.duty)} · ${range(h.block)}</b>Called by ${esc(h.from)}${c.length ? ' · coming: ' + esc(names(c)) : ' · nobody yet'}</div>`); });
+    $('ad-req').innerHTML = reqs.join('') || '<p class="fine">Nothing open.</p>';
+    // the grid
+    const people = PEOPLE.slice().sort((a, b) => a.s[0].localeCompare(b.s[0]) || a.n.localeCompare(b.n));
+    const head = `<tr><th>Exec</th>${Array.from({ length: BLOCKS }, (_, i) => `<th class="${i === lb ? 'now' : ''}">${fmt(DAY_START + i * 30)}</th>`).join('')}</tr>`;
+    const rows = people.map(p => `<tr><td data-person="${esc(p.first)}">${esc(p.n)}<small>${esc(p.s.join(' · '))}${p.role ? ' · ' + esc(p.role) : ''}</small></td>${Array.from({ length: BLOCKS }, (_, i) => { const id = assignmentFor(p.first, i).id; const swp = id !== baseAssignment(p.first, i); const cat = CATS[DUTIES[id].cat]; return `<td><span class="cell ${id === 'free' ? 'free' : ''} ${swp ? 'sw' : ''}" style="--c:${cat.color}" title="${esc(DUTIES[id].name)}">${SHORT(id)}</span></td>`; }).join('')}</tr>`).join('');
+    $('ad-grid').innerHTML = head + rows;
+    $('ad-grid').querySelectorAll('[data-person]').forEach(td => td.addEventListener('click', () => openInfo('person:' + td.dataset.person)));
+    $('ad-legend').innerHTML = Object.entries(CATS).filter(([k]) => !['hands'].includes(k)).map(([k, c]) => `<span><i style="--c:${c.color}"></i>${esc(c.label)}</span>`).join('');
+    $('ad-blocks').innerHTML = Array.from({ length: BLOCKS }, (_, i) => { const rows = rowsFor(i); const busy = new Set(rows.flatMap(r => r[1])); return `<div class="check" style="--c:${i === lb ? 'var(--maroon)' : 'var(--line)'}"><b>${range(i)} — ${busy.size} on, ${PEOPLE.length - busy.size} free</b>${rows.map(([id, ppl]) => `${esc(DUTIES[id].name)} ${ppl.length}`).join(' · ')}</div>`; }).join('');
+  }
+  $('ad-export').addEventListener('click', () => exportDay());
 
   // --- organiser desk ---
   const isAdmin = () => me && ADMINS.includes(me.first);
