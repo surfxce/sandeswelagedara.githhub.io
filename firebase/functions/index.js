@@ -53,21 +53,32 @@ export const reviewPhoto = onValueCreated(
 
     try {
       const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY.value() });
-      const ask = (model) => ai.models.generateContent({
-        model,
-        contents: [{ role: 'user', parts: [{ inlineData: { mimeType: 'image/jpeg', data: m[1] } }, { text: BRIEF }] }],
-        config: { responseMimeType: 'application/json', temperature: 0.1, maxOutputTokens: 400 },
-      });
+      // Gemini 3 thinks before it answers and those tokens count against the
+      // output cap, so the cap is generous and thinking is turned down. The
+      // schema forces the JSON shape.
+      const schema = { type: 'OBJECT', properties: { verdict: { type: 'STRING', enum: ['approve', 'reject', 'unsure'] }, reason: { type: 'STRING' } }, required: ['verdict', 'reason'] };
+      const ask = async (model) => {
+        const base = { model, contents: [{ role: 'user', parts: [{ inlineData: { mimeType: 'image/jpeg', data: m[1] } }, { text: BRIEF }] }] };
+        const cfg = { responseMimeType: 'application/json', responseSchema: schema, temperature: 0.1, maxOutputTokens: 2048 };
+        try { return await ai.models.generateContent({ ...base, config: { ...cfg, thinkingConfig: { thinkingLevel: 'low' } } }); }
+        catch (e) {
+          const msg = String(e && e.message || e);
+          if (/thinking/i.test(msg)) return ai.models.generateContent({ ...base, config: cfg });   // model doesn't take thinkingConfig
+          throw e;
+        }
+      };
       let res, lastErr;
       for (const model of [MODEL, ...MODELS.filter(x => x !== MODEL)]) {
         try { res = await ask(model); MODEL = model; break; }
         catch (e) { lastErr = e; const msg = String(e && e.message || e); if (!/not found|not available|not supported|404|NOT_FOUND|no longer/i.test(msg)) throw e; }
       }
       if (!res) throw lastErr || new Error('No usable Gemini model');
+      const raw = (res && res.text) || '';
       let out = {};
-      try { out = JSON.parse(res.text); } catch { out = {}; }
+      try { out = JSON.parse(raw); } catch { const mm = /\{[\s\S]*\}/.exec(raw); if (mm) { try { out = JSON.parse(mm[0]); } catch {} } }
       const verdict = ['approve', 'reject', 'unsure'].includes(out.verdict) ? out.verdict : 'unsure';
-      const reason = String(out.reason || '').slice(0, 200) || 'No reason given';
+      const finish = res && res.candidates && res.candidates[0] && res.candidates[0].finishReason;
+      const reason = (String(out.reason || '').slice(0, 200)) || ('Could not read the reply' + (finish ? ` (${finish})` : '') + (raw ? ': ' + raw.slice(0, 120) : ': empty'));
       const update = { ai: { verdict, reason, model: MODEL, t: Date.now() } };
       if (verdict === 'approve') { update.status = 'approved'; update.tt = Date.now(); }
       if (verdict === 'reject') { update.status = 'rejected'; update.tt = Date.now(); }
