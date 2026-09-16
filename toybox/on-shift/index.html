@@ -869,7 +869,6 @@
         <div class="share shout" data-shout="pub"></div>
       </div>
       <div id="photos"><h2>Festival photos</h2>
-        <div class="photo-strip" id="public-photos"></div>
         <div class="share" data-share="pub"></div>
       </div>
     </div>
@@ -2286,7 +2285,7 @@
   function renderPublicPhotos() {
     const ids = Object.keys(phApproved).sort((a, b) => (phApproved[b].t || 0) - (phApproved[a].t || 0)).slice(0, 16);
     const imgs = ids.map(i => `<img src="${phApproved[i].data}" alt="${esc(phApproved[i].cap || 'Festival photo')}" loading="lazy">`).join('');
-    ['public-photos', 'exec-photos'].forEach(id => {
+    ['exec-photos'].forEach(id => {
       const el = $(id); if (!el) return;
       if (!ids.length) { el.classList.remove('roll'); el.innerHTML = '<span class="fine">Nothing on the wall yet — be first.</span>'; return; }
       const roll = ids.length >= 4;
@@ -2300,7 +2299,9 @@
       : mode === 'rejected'
       ? `<div class="acts"><button type="button" class="yes" data-approve="${id}">${TICK} Approve anyway</button><button type="button" class="no" data-reject="${id}">${CROSS} Delete</button></div>`
       : `<div class="acts"><button type="button" class="ghost" data-reject="${id}">Take down</button></div>`;
-    const aiLine = ph.ai ? `<span class="meta ai ${ph.ai.verdict}">AI: ${esc(ph.ai.verdict)} — ${esc(ph.ai.reason || '')}</span>` : (mode === 'pending' && aiOn ? '<span class="meta">AI: checking…</span>' : '');
+    const aiLine = ph.ai ? `<span class="meta ai ${ph.ai.verdict}">AI: ${esc(ph.ai.verdict)} — ${esc(ph.ai.reason || '')}</span>`
+      : mode === 'pending' ? `<span class="meta">${aiOn ? 'AI: checking…' : 'AI review is off — yours to call'}</span>`
+      : mode === 'approved' ? '<span class="meta">Exec upload — not reviewed, approved on trust</span>' : '';
     return `<div class="pm-card"><img src="${ph.data}" alt=""><span class="cap">${esc(ph.cap || '(no caption)')}</span><span class="meta">${esc(ph.by || 'Anonymous')} · ${ph.t ? clock(ph.t) : ''}</span>${aiLine}${acts}</div>`;
   }
   let phRejected = {}, aiOn = true;
@@ -2762,7 +2763,7 @@
     ref('broadcasts').limitToLast(30).on('value', snap => { bcasts = snap.val() || {}; renderBcasts(); }, () => { unavailable($('bcast-list'), 'updates'); });
     ref('swaps').limitToLast(60).on('value', snap => { swaps = snap.val() || {}; if (!$('shell').hidden) { render(); renderSwaps(); renderBell(); } }, () => { unavailable($('swap-list'), 'swaps'); });
     ref('dm').on('value', snap => { dms = snap.val() || {}; if (dmOpen) renderDmThread(); renderDmConvos(); renderBell(); }, () => {});
-    ref('photos').orderByChild('status').equalTo('approved').on('value', snap => { phApproved = snap.val() || {}; renderPublicPhotos(); renderPhotoMod(); if (scrOn) bandSync(); }, () => { const el = $('public-photos'); if (el) unavailable(el, 'photos'); });
+    ref('photos').orderByChild('status').equalTo('approved').on('value', snap => { phApproved = snap.val() || {}; renderPublicPhotos(); renderPhotoMod(); if (scrOn) bandSync(); }, () => {});
     ref('photos').orderByChild('status').equalTo('pending').on('value', snap => { phPending = snap.val() || {}; renderPhotoMod(); }, () => {});
     ref('photos').orderByChild('status').equalTo('rejected').on('value', snap => { phRejected = snap.val() || {}; renderPhotoMod(); }, () => {});
     ref('config/aiReview').on('value', snap => { aiOn = snap.val() !== false; renderPhotoMod(); }, () => {});
