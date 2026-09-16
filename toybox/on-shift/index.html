@@ -259,10 +259,14 @@
   .swap-opt { display: grid; gap: 4px; text-align: left; width: 100%; padding: 12px 14px; border-radius: 8px; border: 1.5px solid var(--line); background: #fff; color: var(--ink); cursor: pointer; }
   .swap-opt b { font-size: 16px; }
   .swap-opt span { font-size: 13px; color: var(--ink-2); }
-  .swap-any { display: grid; gap: 2px; justify-items: center; text-align: center; width: 100%; margin-top: 10px; padding: 14px 14px 12px; border-radius: 8px; border: 0; background: var(--maroon); color: var(--cream); cursor: pointer; }
-  .swap-any .or { font-size: 11px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; opacity: .7; }
-  .swap-any b { font-family: var(--display); font-weight: 700; font-size: 26px; line-height: 1; letter-spacing: .03em; }
-  .swap-any span:last-child { font-size: 13px; opacity: .9; }
+  .swap-duty.sel { border-color: var(--maroon); background: #fff; box-shadow: inset 0 0 0 1px var(--maroon); }
+  .swap-duty.any { background: var(--maroon); border-color: var(--maroon); color: var(--cream); }
+  .swap-duty.any small { color: var(--cream); opacity: .9; }
+  .swap-duty.any.sel { box-shadow: inset 0 0 0 2px var(--tan); }
+  .swap-duty .tick { grid-column: 3; width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid currentColor; display: grid; place-items: center; font-size: 13px; font-weight: 800; opacity: .35; }
+  .swap-duty.sel .tick { opacity: 1; background: var(--maroon); color: var(--cream); border-color: var(--maroon); }
+  .swap-duty.any.sel .tick { background: var(--tan); color: var(--maroon-deep); border-color: var(--tan); }
+  .swap-duty { grid-template-columns: 30px 1fr 22px; }
   .swap-opt.static { cursor: default; }
   .swap-duties { display: grid; gap: 6px; margin-top: 8px; }
   .swap-duty { display: grid; grid-template-columns: 30px 1fr; gap: 2px 10px; align-items: center; padding: 8px 10px; border-radius: 6px; border: 1.5px solid var(--line); border-left: 6px solid var(--c); background: var(--paper); text-align: left; cursor: pointer; }
@@ -1223,7 +1227,7 @@
       <button class="swap-opt" type="button" data-swapmode="free"><b>Want to take a break?</b><span>Free execs are notified to come swap.</span></button>
       <div class="swap-opt static"><b>Don't want to do this?</b><span>Pick what you'd rather be doing. The execs on it are asked to swap with you.</span>
         <div class="swap-duties" id="swap-duties"></div>
-        <button class="swap-any" type="button" data-swapmode="any"><span class="or">or</span><b>Not fussed</b><span>Ask every exec — whoever takes it swaps places with you.</span></button>
+        <button class="btn-primary dark" id="swap-send" type="button" disabled style="margin-top:10px">Send request</button>
       </div>
     </section>
 
@@ -2032,7 +2036,7 @@
     if (mine) {
       const [id, sw] = mine;
       if (sw.status === 'taken') return `<div class="ctl state ok"><b>${esc(sw.to)}</b> swapped with you</div>`;
-      const who = playing ? 'your society' : sw.mode === 'any' ? 'everyone' : sw.mode === 'duty' ? `execs on ${esc((DUTIES[sw.want] || {}).name || 'that')}` : 'free execs';
+      const who = playing ? 'your society' : sw.mode === 'any' ? 'everyone' : sw.mode === 'duty' ? `execs on ${esc(wantList(sw).map(id => (DUTIES[id] || {}).name || id).join(' & '))}` : 'free execs';
       return `<div class="ctl state">Asking ${who}…<button class="linkbtn" data-withdraw="${id}" type="button">Withdraw</button></div>`;
     }
     return `<button class="ctl" id="swap-open" type="button">${playing ? 'Ask a teammate to sub in' : 'Ask to swap'}</button>`;
@@ -2047,8 +2051,17 @@
     $('swap-sheet').hidden = !open; $('swap-backdrop').hidden = !open; if (!open) return;
     const mineId = assignmentFor(me.first, block).id;
     const rows = rowsFor(block).filter(([id]) => id !== mineId && !['play', 'photo', 'free', 'hands'].includes(DUTIES[id].cat));
-    $('swap-duties').innerHTML = rows.length ? rows.map(([id, ppl]) => { const d = DUTIES[id]; return `<button type="button" class="swap-duty" style="--c:${CATS[d.cat].color}" data-swapduty="${id}">${dutyIcon(d, 'sm')}<b>${esc(d.name)}</b><small>${esc(d.where)} · ${esc(names(ppl))}</small></button>`; }).join('') : '<p class="fine">Nothing else is on this block.</p>';
-    $('swap-duties').querySelectorAll('[data-swapduty]').forEach(b => b.addEventListener('click', () => sendSwap('duty', b.dataset.swapduty)));
+    const rowsHtml = rows.map(([id, ppl]) => { const d = DUTIES[id]; return `<button type="button" class="swap-duty" style="--c:${CATS[d.cat].color}" data-swapduty="${id}">${dutyIcon(d, 'sm')}<b>${esc(d.name)}</b><span class="tick">✓</span><small>${esc(d.where)} · ${esc(names(ppl))}</small></button>`; }).join('');
+    $('swap-duties').innerHTML = rowsHtml + `<button type="button" class="swap-duty any" data-swapduty="*">${iconHtml('crowd', 'var(--maroon-deep)', 'sm')}<b>Not fussed</b><span class="tick">✓</span><small>Ask every exec — whoever takes it swaps places with you.</small></button>`;
+    const btns = [...$('swap-duties').querySelectorAll('[data-swapduty]')];
+    const refresh = () => { const sel = btns.filter(b => b.classList.contains('sel')).map(b => b.dataset.swapduty); $('swap-send').disabled = !sel.length; $('swap-send').textContent = sel.includes('*') ? 'Ask every exec' : sel.length ? `Ask execs on ${sel.map(id => DUTIES[id].name).join(' & ')}` : 'Send request'; };
+    btns.forEach(b => b.addEventListener('click', () => {
+      if (b.dataset.swapduty === '*') { const on = !b.classList.contains('sel'); btns.forEach(x => x.classList.toggle('sel', false)); b.classList.toggle('sel', on); }
+      else { btns.find(x => x.dataset.swapduty === '*').classList.remove('sel'); b.classList.toggle('sel'); }
+      refresh();
+    }));
+    refresh();
+    $('swap-send').onclick = () => { const sel = btns.filter(b => b.classList.contains('sel')).map(b => b.dataset.swapduty); if (!sel.length) return; if (sel.includes('*')) sendSwap('any'); else sendSwap('duty', sel.join(',')); };
   }
   function sendSwap(mode, want) {
     const a = assignmentFor(me.first, block); const d = DUTIES[a.id];
@@ -2058,6 +2071,8 @@
   }
   $('swap-close').addEventListener('click', () => openSwapSheet(false)); $('swap-backdrop').addEventListener('click', () => openSwapSheet(false));
   $('swap-sheet').querySelectorAll('[data-swapmode]').forEach(b => b.addEventListener('click', () => sendSwap(b.dataset.swapmode)));
+  const wantList = (sw) => String(sw.want || '').split(',').filter(Boolean);
+  const wantNames = (sw) => wantList(sw).map(id => (DUTIES[id] || {}).name || id).join(' or ');
   // --- calls for help ---
   // "Ticketing needs hands — main entry gate" goes to every free exec. Any
   // number can say they're coming; the caller (or an organiser) closes it.
@@ -2671,7 +2686,7 @@
     const mode = swapMode(sw); const myId = assignmentFor(me.first, sw.block).id; const myCat = (DUTIES[myId] || {}).cat;
     if (mode === 'team') return sameSociety(me.first, sw.from);
     if (mode === 'any')  return !['hands', 'photo'].includes(myCat);          // free or on duty, anyone
-    if (mode === 'duty') return myId === sw.want;                               // the execs on the activity they'd rather do
+    if (mode === 'duty') return wantList(sw).includes(myId);                    // the execs on the activities they'd rather do
     return isFree(me.first, sw.block);                                          // a break: free execs
   });
   function renderSwaps() {
@@ -2684,8 +2699,8 @@
       const myA = me ? assignmentFor(me.first, sw.block) : null; const myD = myA ? DUTIES[myA.id] : null;
       const onDuty = myD && myD.cat !== 'free';
       const trade = role === 'take' && onDuty ? `<span class="when">You'd ${play ? 'play' : 'take ' + esc(d.name)}; <b>${esc(sw.from)}</b> takes your <b>${esc(myD.name)}</b>.</span>` : '';
-      const waitingFor = { team: 'a teammate', any: 'anyone', duty: 'execs on ' + ((DUTIES[sw.want] || {}).name || 'that activity'), free: 'a free exec' }[mode];
-      const verb = mode === 'team' ? 'needs a sub for' : mode === 'duty' ? `would rather be on <b>${esc((DUTIES[sw.want] || {}).name || '')}</b> than` : mode === 'any' ? 'wants a swap out of' : 'wants a break from';
+      const waitingFor = { team: 'a teammate', any: 'anyone', duty: 'execs on ' + wantNames(sw), free: 'a free exec' }[mode];
+      const verb = mode === 'team' ? 'needs a sub for' : mode === 'duty' ? `would rather be on <b>${esc(wantNames(sw))}</b> than` : mode === 'any' ? 'wants a swap out of' : 'wants a break from';
       const acts = role === 'take'
         ? `<div class="acts"><button type="button" class="yes" data-take="${id}">${TICK} ${play ? 'Sub me in' : onDuty ? 'Swap with me' : "I'll take it"}</button><button type="button" class="no" data-decline="${id}">${CROSS} Not me</button></div>`
         : sw.status === 'taken' ? `<span class="state ok">${esc(sw.to)} ${play ? 'subbed in' : onDuty ? 'swapped in' : 'took it'}</span>`
