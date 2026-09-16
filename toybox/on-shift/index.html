@@ -248,8 +248,9 @@
   .swap .state { grid-column: 2; font-size: 13px; font-weight: 700; color: var(--ink-2); margin-top: 4px; }
   .swap .state.ok { color: #3E7A4A; }
   /* two buttons side by side under the duty card */
-  .ctl-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: -6px; }
-  .ctl-row .ctl { min-height: 52px; padding: 8px 10px; border-radius: 8px; border: 1.5px solid var(--line); background: #fff; color: var(--maroon); font-weight: 800; font-size: 14px; line-height: 1.15; text-align: center; box-shadow: 0 1px 0 var(--line); }
+  /* sits inside the card's footprint: same left bar, same white, a hairline above */
+  .ctl-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: -6px 0 0; padding: 12px 16px 14px; background: #fff; border-left: 10px solid var(--c); border-top: 1px dashed var(--line); box-shadow: 0 1px 0 var(--line), 0 6px 18px rgba(74, 22, 14, .07); }
+  .ctl-row .ctl { min-height: 46px; padding: 6px 10px; border-radius: 8px; border: 1.5px solid var(--line); background: var(--paper); color: var(--maroon); font-weight: 800; font-size: 14px; line-height: 1.15; text-align: center; }
   .ctl-row .ctl.state { border-color: var(--tan); color: var(--ink); font-weight: 600; font-size: 13px; display: grid; gap: 4px; align-content: center; }
   .ctl-row .ctl.state.ok { border-color: #3E7A4A; }
   .ctl-row .ctl.state b { color: var(--ink); }
@@ -2037,7 +2038,7 @@
   function controlsHtml(a) {
     const h = helpControl(a), sw = swapControl(a);
     if (!h && !sw) return '';
-    return `<div class="ctl-row">${h || '<span></span>'}${sw}</div>`;
+    return `<div class="ctl-row" style="--c:${CATS[DUTIES[a.id].cat].color}">${h || '<span></span>'}${sw}</div>`;
   }
   // the sheet: three ways to ask
   function openSwapSheet(open) {
