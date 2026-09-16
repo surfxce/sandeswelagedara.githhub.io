@@ -2273,8 +2273,21 @@
       $(pre + '-send').disabled = true; $(pre + '-msg').textContent = 'Sending…';
       try {
         // everyone's photos are reviewed the same way — a hundred execs is a crowd too
-        await ref('photos').push({ data, by: $(pre + '-by').value.trim(), cap: $(pre + '-cap').value.trim(), status: 'pending', t: now() });
-        $(pre + '-msg').textContent = pre === 'ph-exec' ? 'Sent — it\'ll be on the big screen in a few seconds once it\'s checked.' : 'Thanks — it\'ll go on the big screen once it\'s checked.';
+        const pushed = await ref('photos').push({ data, by: $(pre + '-by').value.trim(), cap: $(pre + '-cap').value.trim(), status: 'pending', t: now() });
+        $(pre + '-msg').textContent = 'Sent — checking it now…';
+        // follow this photo so the sender sees what happened to it
+        const watch = ref('photos/' + pushed.key); let t0 = Date.now();
+        const stop = () => watch.off('value', onv);
+        const onv = (snap) => {
+          const ph = snap.val(); const msg = $(pre + '-msg');
+          if (!ph) { msg.textContent = 'That one was taken down by an organiser.'; stop(); return; }
+          if (ph.status === 'approved') { msg.textContent = 'It\'s on the big screen.'; stop(); }
+          else if (ph.status === 'rejected') { msg.textContent = 'Not approved' + (ph.ai && ph.ai.reason ? ' — ' + ph.ai.reason : '') + '. An organiser can still overrule.'; stop(); }
+          else if (ph.ai && ph.ai.verdict === 'unsure') { msg.textContent = 'Held for an organiser to look at' + (ph.ai.reason ? ' — ' + ph.ai.reason : '') + '.'; stop(); }
+          else if (Date.now() - t0 > 20000) { msg.textContent = 'Still checking — an organiser will look at it.'; stop(); }
+        };
+        watch.on('value', onv);
+        setTimeout(() => { if ($(pre + '-msg').textContent.startsWith('Sent')) { $(pre + '-msg').textContent = 'Sent — an organiser will look at it.'; stop(); } }, 25000);
         data = null; $(pre + '-preview').hidden = true; $(pre + '-file').value = ''; $(pre + '-cap').value = ''; $(pre + '-pick-lbl').textContent = 'Choose another photo';
       } catch (e) { $(pre + '-msg').textContent = 'Couldn\'t send — check your connection and try again.'; $(pre + '-send').disabled = false; }
     });
