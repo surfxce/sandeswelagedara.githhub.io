@@ -1,6 +1,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Spice Road Experience</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="theme-color" content="#6E2418">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Spice Road">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -396,6 +402,21 @@
   @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
   .screen-scores .sp { color: var(--tan); font-family: var(--display); letter-spacing: .06em; margin-right: .5em; }
   .screen-scores .lv { display: inline-block; width: .5em; height: .5em; border-radius: 50%; background: #E8583C; margin-left: .5em; vertical-align: middle; animation: live-ping 1.7s ease-out infinite; --c: #E8583C; }
+  .screen-ticker { position: absolute; left: 0; right: 0; top: 0; height: 6vh; min-height: 40px; background: rgba(43,26,20,.78); color: var(--cream); display: flex; align-items: center; overflow: hidden; border-bottom: 2px solid var(--tan); }
+  .screen-ticker .track { display: flex; gap: 5vw; padding: 0 3vw; white-space: nowrap; font-size: clamp(16px, 2.2vw, 28px); font-weight: 600; }
+  .screen-ticker .track.marquee { animation: marquee 45s linear infinite; }
+  .screen-ticker .by { color: var(--tan); font-family: var(--display); font-weight: 700; margin-left: .5em; }
+  .stage-now { display: grid; grid-template-columns: 30px 1fr; gap: 2px 12px; align-items: center; padding: 12px 14px; background: #fff; border-left: 8px solid var(--c-stage); box-shadow: 0 1px 0 var(--line); }
+  .stage-now .eyebrow { grid-column: 1 / -1; color: var(--c-stage); }
+  .stage-now b { font-size: 17px; }
+  .stage-now small { display: block; font-size: 14px; color: var(--ink-2); }
+  .share.shout { border-left-color: var(--tan); }
+  .inc-form { display: grid; gap: 12px; }
+  .inc-form textarea { padding: 10px 14px; border-radius: 6px; background: #fff; color: var(--ink); border: 1.5px solid var(--line); width: 100%; resize: vertical; font: inherit; }
+  .inc-form .field label { color: var(--ink-2); }
+  .inc-form .field select { border-color: var(--line); background-color: #fff; }
+  .bb-left { font-weight: 500; color: var(--ink-3); margin-left: 6px; }
+  .bb-sim { display: inline-block; margin-left: 8px; padding: 2px 6px; border-radius: 4px; background: #B23A2E; color: #fff; font-size: 10px; font-weight: 800; letter-spacing: .1em; vertical-align: middle; }
   .screen-exit { position: absolute; top: 20px; right: 20px; height: 48px; padding: 0 18px; border-radius: 24px; border: 0; background: rgba(245,239,227,.9); color: var(--maroon-deep); font-weight: 800; font-size: 16px; cursor: pointer; }
   .duty-row.tap, .soc-row.tap { cursor: pointer; }
   .duty-row.tap:active, .soc-row.tap:active { background: var(--paper-2); }
@@ -802,6 +823,7 @@
     <div class="qr big"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 33 33" shape-rendering="crispEdges"><path stroke="#2b1a14" d="M0 0.5h7m1 0h1m2 0h3m1 0h2m1 0h1m2 0h3m2 0h7m-33 1h1m5 0h1m2 0h3m1 0h2m1 0h1m1 0h5m3 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m7 0h1m2 0h1m2 0h2m1 0h2m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m2 0h1m4 0h2m4 0h2m2 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h1m1 0h2m2 0h1m1 0h3m2 0h2m1 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m1 0h3m2 0h1m1 0h1m2 0h2m1 0h1m2 0h1m1 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-25 1h1m1 0h1m1 0h1m4 0h3m1 0h1m1 0h2m-25 1h1m3 0h1m1 0h7m2 0h1m1 0h1m1 0h4m1 0h6m2 0h1m-33 1h4m1 0h1m1 0h1m1 0h1m2 0h1m1 0h2m1 0h1m4 0h2m1 0h1m3 0h3m-30 1h2m1 0h2m2 0h2m2 0h3m2 0h1m1 0h1m1 0h2m1 0h2m2 0h1m1 0h1m-32 1h6m1 0h1m3 0h3m1 0h1m4 0h2m1 0h3m6 0h1m-32 1h1m1 0h6m1 0h2m1 0h1m1 0h2m2 0h1m1 0h2m3 0h1m1 0h2m1 0h2m-32 1h1m1 0h2m2 0h1m1 0h2m1 0h1m1 0h1m3 0h1m3 0h2m5 0h1m-29 1h4m1 0h2m1 0h1m1 0h5m4 0h1m2 0h1m1 0h3m2 0h2m-32 1h1m1 0h2m1 0h1m2 0h2m1 0h2m2 0h3m1 0h3m2 0h3m-26 1h1m3 0h10m2 0h1m2 0h3m1 0h1m1 0h1m1 0h2m1 0h1m-32 1h4m4 0h4m2 0h3m1 0h1m4 0h1m5 0h3m-32 1h1m3 0h1m1 0h1m2 0h2m3 0h2m1 0h1m2 0h4m3 0h1m1 0h1m1 0h1m-28 1h1m3 0h1m2 0h4m2 0h6m1 0h4m3 0h1m-32 1h1m1 0h1m1 0h4m1 0h1m4 0h2m2 0h7m1 0h1m1 0h2m1 0h1m-32 1h1m1 0h1m1 0h2m2 0h1m3 0h3m1 0h1m6 0h1m1 0h1m1 0h1m3 0h1m-26 1h3m1 0h3m3 0h2m3 0h1m1 0h2m4 0h1m1 0h1m-28 1h1m3 0h3m1 0h1m4 0h2m1 0h2m1 0h1m1 0h2m2 0h1m-30 1h7m4 0h2m2 0h1m1 0h12m3 0h1m-25 1h1m2 0h2m1 0h5m2 0h1m2 0h1m3 0h1m1 0h1m-31 1h7m1 0h1m2 0h1m3 0h1m2 0h1m1 0h3m1 0h1m1 0h1m1 0h2m1 0h1m-32 1h1m5 0h1m2 0h1m1 0h3m2 0h1m4 0h2m1 0h1m3 0h1m2 0h2m-33 1h1m1 0h3m1 0h1m1 0h3m1 0h2m2 0h1m2 0h1m1 0h2m1 0h6m-30 1h1m1 0h3m1 0h1m2 0h1m3 0h1m3 0h2m2 0h1m1 0h2m1 0h4m-30 1h1m1 0h3m1 0h1m2 0h7m2 0h1m1 0h2m1 0h1m2 0h3m1 0h1m-31 1h1m5 0h1m3 0h1m1 0h1m2 0h3m1 0h6m1 0h1m-27 1h7m1 0h3m2 0h2m2 0h1m2 0h7m5 0h1"/></svg></div>
   </div>
   <div class="qr-badge" id="screen-qr"><div class="qr"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 33 33" shape-rendering="crispEdges"><path stroke="#2b1a14" d="M0 0.5h7m1 0h1m2 0h3m1 0h2m1 0h1m2 0h3m2 0h7m-33 1h1m5 0h1m2 0h3m1 0h2m1 0h1m1 0h5m3 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m7 0h1m2 0h1m2 0h2m1 0h2m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m2 0h1m4 0h2m4 0h2m2 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h1m1 0h2m2 0h1m1 0h3m2 0h2m1 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m1 0h3m2 0h1m1 0h1m2 0h2m1 0h1m2 0h1m1 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-25 1h1m1 0h1m1 0h1m4 0h3m1 0h1m1 0h2m-25 1h1m3 0h1m1 0h7m2 0h1m1 0h1m1 0h4m1 0h6m2 0h1m-33 1h4m1 0h1m1 0h1m1 0h1m2 0h1m1 0h2m1 0h1m4 0h2m1 0h1m3 0h3m-30 1h2m1 0h2m2 0h2m2 0h3m2 0h1m1 0h1m1 0h2m1 0h2m2 0h1m1 0h1m-32 1h6m1 0h1m3 0h3m1 0h1m4 0h2m1 0h3m6 0h1m-32 1h1m1 0h6m1 0h2m1 0h1m1 0h2m2 0h1m1 0h2m3 0h1m1 0h2m1 0h2m-32 1h1m1 0h2m2 0h1m1 0h2m1 0h1m1 0h1m3 0h1m3 0h2m5 0h1m-29 1h4m1 0h2m1 0h1m1 0h5m4 0h1m2 0h1m1 0h3m2 0h2m-32 1h1m1 0h2m1 0h1m2 0h2m1 0h2m2 0h3m1 0h3m2 0h3m-26 1h1m3 0h10m2 0h1m2 0h3m1 0h1m1 0h1m1 0h2m1 0h1m-32 1h4m4 0h4m2 0h3m1 0h1m4 0h1m5 0h3m-32 1h1m3 0h1m1 0h1m2 0h2m3 0h2m1 0h1m2 0h4m3 0h1m1 0h1m1 0h1m-28 1h1m3 0h1m2 0h4m2 0h6m1 0h4m3 0h1m-32 1h1m1 0h1m1 0h4m1 0h1m4 0h2m2 0h7m1 0h1m1 0h2m1 0h1m-32 1h1m1 0h1m1 0h2m2 0h1m3 0h3m1 0h1m6 0h1m1 0h1m1 0h1m3 0h1m-26 1h3m1 0h3m3 0h2m3 0h1m1 0h2m4 0h1m1 0h1m-28 1h1m3 0h3m1 0h1m4 0h2m1 0h2m1 0h1m1 0h2m2 0h1m-30 1h7m4 0h2m2 0h1m1 0h12m3 0h1m-25 1h1m2 0h2m1 0h5m2 0h1m2 0h1m3 0h1m1 0h1m-31 1h7m1 0h1m2 0h1m3 0h1m2 0h1m1 0h3m1 0h1m1 0h1m1 0h2m1 0h1m-32 1h1m5 0h1m2 0h1m1 0h3m2 0h1m4 0h2m1 0h1m3 0h1m2 0h2m-33 1h1m1 0h3m1 0h1m1 0h3m1 0h2m2 0h1m2 0h1m1 0h2m1 0h6m-30 1h1m1 0h3m1 0h1m2 0h1m3 0h1m3 0h2m2 0h1m1 0h2m1 0h4m-30 1h1m1 0h3m1 0h1m2 0h7m2 0h1m1 0h2m1 0h1m2 0h3m1 0h1m-31 1h1m5 0h1m3 0h1m1 0h1m2 0h3m1 0h6m1 0h1m-27 1h7m1 0h3m2 0h2m2 0h1m2 0h7m5 0h1"/></svg></div><span>Send your<br>photo</span></div>
+  <div class="screen-ticker" id="screen-ticker" hidden><div class="track" id="ticker-track"></div></div>
   <div class="screen-scores" id="screen-scores" hidden><div class="track" id="screen-track"></div></div>
   <button class="screen-exit" id="screen-exit" type="button" hidden>Exit big screen</button>
 </section>
@@ -839,8 +861,20 @@
   <!-- ======== PUBLIC: what's on ======== -->
   <section class="public" id="public">
     <div class="whatson-body" style="padding-bottom:0">
+      <div class="stage-now" id="stage-now" hidden></div>
       <div><h2>Live scores</h2><div class="match-list" id="public-scores"></div></div>
       <div><h2>Brackets</h2><div class="bracket-list" id="public-brackets"></div></div>
+      <div><h2>Shout-outs</h2>
+        <div class="share shout">
+          <p class="share-lead">Say something — it scrolls across the big screen. Keep it kind.</p>
+          <div class="two">
+            <div class="field"><label for="tk-by">Your name <small>(optional)</small></label><input id="tk-by" type="text" maxlength="24" placeholder="e.g. Priya"></div>
+            <div class="field"><label for="tk-text">Your shout-out</label><input id="tk-text" type="text" maxlength="120" placeholder="e.g. UQSLA volleyball let's go"></div>
+          </div>
+          <button class="btn-primary dark" id="tk-send" type="button">Send it</button>
+          <p class="fine" id="tk-msg"></p>
+        </div>
+      </div>
       <div id="photos"><h2>Festival photos</h2>
         <div class="photo-strip" id="public-photos"></div>
         <div class="share" data-share="pub"></div>
@@ -1027,6 +1061,7 @@
         <div class="photo-mod" id="d-pending"></div>
         <details class="more" style="margin-top:8px"><summary>Approved — take one down</summary><div class="photo-mod" id="d-approved"></div></details>
       </div>
+      <div><h2 class="sec">Incidents</h2><div class="swap-list" id="d-inc"></div></div>
       <div><h2 class="sec">Post a notice</h2>
         <form class="bcast-form" id="desk-notice" autocomplete="off">
           <input id="desk-text" type="text" maxlength="280" placeholder="Notice to every exec…" required>
@@ -1034,7 +1069,7 @@
         </form>
       </div>
       <div><h2 class="sec">After the day</h2>
-        <div class="btns" style="margin-top:0"><button class="btn-small ghost" id="d-export" type="button">Export the day (.csv)</button></div>
+        <div class="btns" style="margin-top:0"><button class="btn-small ghost" id="d-export" type="button">Export the day (.csv)</button><button class="btn-small ghost" id="d-zip" type="button">Download all photos (.zip)</button></div>
         <p class="fine">Who did what per block (after swaps), plus swaps, help calls, notices and match results.</p>
       </div>
     </section>
@@ -1131,10 +1166,31 @@
         <div class="txt"><b>Signed in as <span id="set-who">—</span></b><span>Saved on this phone.</span></div>
         <button class="btn-small ghost" id="set-switch" type="button">Switch</button>
       </div>
+      <div class="set-row">
+        <div class="txt"><b>Log incident</b><span>First aid, lost property, behaviour, equipment. Timestamped, organisers see it.</span></div>
+        <button class="btn-small ghost" id="set-inc" type="button">Log</button>
+      </div>
+      <div class="set-row" id="set-sim-row" hidden>
+        <div class="txt"><b>Rehearsal clock</b><span id="sim-state">Runs the day at a block a minute, on every phone. Off = real time.</span></div>
+        <button class="toggle" id="sim-toggle" type="button" role="switch" aria-checked="false" aria-label="Rehearsal clock"></button>
+      </div>
       <div class="set-row emg-row">
         <div class="txt"><b>Emergency</b><span>Who to call when something's wrong.</span></div>
         <button class="btn-small emg" id="set-emg" type="button">Emergency</button>
       </div>
+    </section>
+
+    <!-- Log incident -->
+    <div class="dm-backdrop" id="inc-backdrop" hidden></div>
+    <section class="dm-sheet" id="inc-sheet" hidden aria-label="Log incident">
+      <div class="dm-head"><span class="nm">Log incident</span><button class="linkbtn" id="inc-close" type="button">Close</button></div>
+      <form id="inc-form" autocomplete="off" class="inc-form">
+        <div class="field"><label for="inc-type">What kind</label>
+          <select id="inc-type" required><option value="First aid">First aid</option><option value="Lost property">Lost property</option><option value="Behaviour">Behaviour</option><option value="Equipment">Equipment</option><option value="Other">Other</option></select></div>
+        <div class="field"><label for="inc-text">What happened, where, and how it was handled</label><textarea id="inc-text" rows="4" maxlength="400" required></textarea></div>
+        <button class="btn-primary dark" type="submit">Log it</button>
+        <p class="fine" id="inc-msg">Goes to the organisers' desk and the end-of-day export. For anything medical or dangerous, call 000 first.</p>
+      </form>
     </section>
 
     <!-- Emergency contacts -->
@@ -1305,8 +1361,15 @@
   const BLOCKS = 12;
   const fmt = (m) => { let h = Math.floor(m / 60), mm = m % 60; const ap = h >= 12 ? 'pm' : 'am'; h = h % 12 || 12; return h + ':' + String(mm).padStart(2, '0') + (ap === 'pm' ? '' : ' am'); };
   const range = (i) => { const a = DAY_START + i * 30; return fmt(a) + ' – ' + fmt(a + 30) + ' pm'; };
+  // Rehearsal clock: when sim.on, every phone runs the day from 2:45 pm at
+  // `speed` sim-minutes per real minute (30 = a block a minute).
+  let sim = null;
+  const nowMin = () => {
+    if (sim && sim.on && sim.start) return sim.startMin + (Date.now() - sim.start) / 60000 * sim.speed;
+    const d = new Date(); return d.getHours() * 60 + d.getMinutes() + d.getSeconds() / 60;
+  };
   const liveBlock = () => {
-    const d = new Date(); const m = d.getHours() * 60 + d.getMinutes();
+    const m = nowMin();
     if (m < 14 * 60 || m >= 22 * 60) return null;
     if (m < DAY_START) return -1;                  // setup
     if (m >= DAY_START + BLOCKS * 30) return BLOCKS; // pack-up
@@ -1430,6 +1493,15 @@
   document.addEventListener('click', e => { const n = e.target.closest('[data-info]'); if (n) openInfo(n.dataset.info); });
   $('info-close').addEventListener('click', closeInfo); $('info-backdrop').addEventListener('click', closeInfo);
 
+  function renderStageNow() {
+    const el = $('stage-now'); if (!el) return;
+    const m = nowMin(); let cur = null, next = null;
+    STAGE_TIMES.forEach(x => { if (x.t <= m) cur = x; else if (!next) next = x; });
+    if (!cur && !next) { el.hidden = true; return; }
+    el.hidden = false;
+    el.innerHTML = `<span class="eyebrow">${cur ? 'On stage now' : 'First on stage'}</span>${iconHtml('mic', 'var(--c-stage)', 'sm')}<span>${cur ? `<b>${esc(cur.who)}</b><small>${esc(cur.what)}${next ? ` · next: ${esc(next.who)} at ${tm(next.t)}` : ' · last act of the night'}</small>` : `<b>${esc(next.who)}</b><small>${esc(next.what)} · ${tm(next.t)}</small>`}</span>`;
+  }
+
   function whatsOnHtml() {
     const row = (it, h) => {
       const cat = CATS[it.cat]; const label = it.label || cat.label;
@@ -1500,6 +1572,7 @@
     if (!onboarded && !adminMode) setTimeout(startTour, 400);
     $('bcast-form').hidden = !(db && isAdmin()); $('deskbtn').hidden = !(db && isAdmin()); renderPhotoMod();
     const eb = $('ph-exec-by'); if (eb && !eb.value) eb.value = me ? me.first : ident.name;
+    renderSim();
     if (adminMode) { $('who-name').textContent = 'Admin'; $('deskbtn').hidden = true; showView('admin'); renderAdmin(); return; }
     showView(me ? 'now' : 'team');
     render();
@@ -1523,7 +1596,7 @@
     // Block bar
     if (block < 0) { $('bb-label').textContent = 'Before block 1'; $('bb-time').textContent = 'Setup · 2:00 – 3:00 pm'; }
     else if (block >= BLOCKS) { $('bb-label').textContent = 'After block 12'; $('bb-time').textContent = 'Pack-up · 9:00 – 10:00 pm'; }
-    else { $('bb-label').textContent = `Block ${block + 1} of ${BLOCKS}`; $('bb-time').textContent = range(block); }
+    else { const left = live ? Math.max(0, Math.ceil(DAY_START + (block + 1) * 30 - nowMin())) : null; $('bb-label').innerHTML = `Block ${block + 1} of ${BLOCKS}${left !== null ? `<span class="bb-left">· ${left} min left</span>` : ''}${sim && sim.on ? '<span class="bb-sim">REHEARSAL</span>' : ''}`; $('bb-time').textContent = range(block); }
     $('bb-seg').innerHTML = Array.from({ length: BLOCKS }, (_, i) => `<span class="${i < block ? 'done' : i === block ? 'now' : ''}"></span>`).join('');
 
     renderNow();
@@ -1753,13 +1826,15 @@
   $('pv-live').addEventListener('click', () => { const lb = liveBlock(); if (lb === null) return; live = true; block = lb; render(); });
   setInterval(() => {
     if (!live || $('shell').hidden) return;
-    const lb = liveBlock(); if (lb === null || lb === block) return;
+    const lb = liveBlock(); if (lb === null) return;
+    if (lb === block) { if (block >= 0 && block < BLOCKS) { const left = Math.max(0, Math.ceil(DAY_START + (block + 1) * 30 - nowMin())); const el = $('bb-label').querySelector('.bb-left'); if (el) el.textContent = `· ${left} min left`; } return; }
     block = lb; render();
     if (nudge && 'Notification' in window && Notification.permission === 'granted' && me) {
       const a = assignmentFor(me.first, block); const d = DUTIES[a.id];
       try { new Notification('New block — ' + d.name, { body: d.where + (a.people.length ? ' · with ' + names(a.people) : '') }); } catch {}
     }
-  }, 20000);
+    renderStageNow();
+  }, 10000);
 
   // ---------- Nudge toggle (best effort) ----------
   $('nudge').addEventListener('click', async () => {
@@ -2048,7 +2123,7 @@
     { icon: 'tent',    color: 'var(--c-club)',   t: 'Map', k: 'map where location pinch zoom', p: 'The ground. Drag to pan, pinch to zoom, double-tap to zoom in.' },
     { icon: 'sparkle', color: 'var(--c-ticket)', t: "What's On", k: 'whats on stalls timetable stage performances businesses clubs photos upload', p: 'Everything at the festival. Tap a sport for the match timetable, the stage for the running order, a business for what they do, a club for who\'s on the marquee. Send festival photos from the bottom.' },
     { icon: 'camera',  color: 'var(--c-photo)',  t: 'Photos & big screen', k: 'photos upload approve big screen tv slideshow', p: 'Anyone can send a photo in; organisers approve them; approved photos roll across the big screen. <b>Big screen mode</b> is under Settings for whoever runs the TV.' },
-    { icon: 'box',     color: 'var(--c-hands)',  t: 'Settings', k: 'settings gear notification notify switch user sign out big screen manual emergency', p: 'The gear. Big screen mode, a notification when the block changes, switch who\'s signed in, this manual, and the red <b>Emergency</b> button with who to call.' },
+    { icon: 'box',     color: 'var(--c-hands)',  t: 'Settings', k: 'settings gear notification notify switch user sign out big screen manual emergency', p: 'The gear. Big screen mode, a notification when the block changes, switch who\'s signed in, this manual, <b>Log incident</b> (first aid, lost property, behaviour, equipment — timestamped for the organisers), and the red <b>Emergency</b> button with who to call.' },
     { icon: 'heart',   color: '#B23A2E',         t: 'Emergency', k: 'emergency call phone number urgent 000 organiser help', p: 'Settings → <b>Emergency</b>. Tap a name for a Call button. Anything medical or dangerous: <b>000 first</b>.' },
   ];
   function renderManual(q) {
@@ -2078,7 +2153,7 @@
     { icon: 'tent', color: 'var(--c-club)', h: 'Map', target: '#mapz', prep: () => showView('map'), p: 'The ground. Drag to pan, pinch to zoom, double-tap to zoom in.' },
     { icon: 'sparkle', color: 'var(--c-ticket)', h: "What's On", target: '#exec-on > div:nth-of-type(1)', prep: () => showView('on'), p: 'Everything at the festival. Tap a <b>sport</b> for its match timetable, the <b>stage</b> for the running order, a <b>business</b> for what they do, a <b>club</b> for who\'s on the marquee.' },
     { icon: 'camera', color: 'var(--c-photo)', h: 'Festival photos', target: '[data-share="exec"]', prep: () => showView('on'), p: 'Send in a photo from here. An organiser approves it and it rolls across the <b>big screen</b>.' },
-    { icon: 'box', color: 'var(--c-hands)', h: 'Settings', target: '#set-sheet', prep: () => { showView('now'); openSettings(true); }, after: () => openSettings(false), p: 'The gear at the top. Turn on a <b>notification</b> when the block changes, <b>switch</b> who\'s signed in, open the <b>manual</b>, and the red <b>Emergency</b> button has who to call.' },
+    { icon: 'box', color: 'var(--c-hands)', h: 'Settings', target: '#set-sheet', prep: () => { showView('now'); openSettings(true); }, after: () => openSettings(false), p: 'The gear at the top. Turn on a <b>notification</b> when the block changes, <b>switch</b> who\'s signed in, open the <b>manual</b>, <b>log an incident</b> (first aid, lost property, behaviour) so the organisers have a record, and the red <b>Emergency</b> button has who to call.' },
     { icon: 'heart', color: '#B23A2E', h: 'Questions?', prep: () => { closeSheets(); showView('now'); }, p: 'If you forget any of this, the <b>manual</b> under Settings has every section and a search bar. Still stuck?', last: true },
   ];
   let tourIdx = 0, tourOn = false, tourSaved = null;
@@ -2141,7 +2216,7 @@
     $('set-sheet').hidden = !open; $('set-backdrop').hidden = !open;
     if (open) $('set-who').textContent = me ? full(me.first) : (ident ? ident.name : '—');
   }
-  $('gear').addEventListener('click', () => openSettings(true));
+  $('gear').addEventListener('click', () => { renderSim(); openSettings(true); });
   $('set-close').addEventListener('click', () => openSettings(false)); $('set-backdrop').addEventListener('click', () => openSettings(false));
   $('set-switch').addEventListener('click', () => { openSettings(false); $('switch').click(); });
 
@@ -2297,7 +2372,7 @@
     openSettings(false); scrOn = true; $('screen').hidden = false;
     try { await document.documentElement.requestFullscreen(); } catch {}
     try { wake = await navigator.wakeLock.request('screen'); } catch {}
-    $('screen-band').innerHTML = ''; bandX = 0; bandSync(); scrScores(); bandLast = performance.now(); cancelAnimationFrame(bandRaf); bandRaf = requestAnimationFrame(bandStep);
+    $('screen-band').innerHTML = ''; bandX = 0; bandSync(); scrScores(); renderTicker(); bandLast = performance.now(); cancelAnimationFrame(bandRaf); bandRaf = requestAnimationFrame(bandStep);
   }
   function stopScreen() {
     scrOn = false; $('screen').hidden = true; cancelAnimationFrame(bandRaf);
@@ -2352,6 +2427,80 @@
   }
   $('ad-export').addEventListener('click', () => exportDay());
 
+  // --- shout-outs ticker with a language filter (also enforced in the database rules) ---
+  const BLOCKED = /(^|[^a-z])(f+u+c*k+\w*|f+c+k+|s+h+i+t+\w*|s+h+1+t+|b+i+t+c+h+\w*|bastard\w*|c+u+n+t+\w*|c+o+c+k+s*|d+i+c+k+\w*|p+u+s+s+y+|t+w+a+t+s*|w+a+n+k+\w*|s+l+u+t+s*|w+h+o+r+e+s*|h+o+e+s*|a+r+s+e+\w*|a+s+s+h+o+l+e+s*|p+i+s+s+\w*|p+r+i+c+k+s*|b+o+l+l+o+c+k+s*|t+i+t+s+|b+o+o+b+s*|n+u+d+e+s*|n+a+k+e+d+|p+o+r+n+\w*|s+e+x+y*|s+e+x+u+a+l+\w*|p+e+n+i+s+|v+a+g+i+n+a+|d+i+l+d+o+s*|o+r+g+a+s+m+\w*|c+u+m+|j+i+z+z*|h+o+r+n+y+|r+a+p+e+\w*|m+o+l+e+s+t+\w*|n+i+g+g+\w*|c+h+i+n+k+s*|p+a+k+i+s*|s+p+i+c+s*|k+i+k+e+s*|f+a+g+\w*|r+e+t+a+r+d+\w*|t+r+a+n+n+y+|d+y+k+e+s*|c+o+o+n+s*|g+o+o+k+s*|w+o+g+s*|k+y+s+|kill yourself|h+i+t+l+e+r+|n+a+z+i+s*|terrorist\w*|curry muncher\w*)([^a-z]|$)/i;
+  const normText = (t) => t.toLowerCase().replace(/[0@]/g, 'o').replace(/[1!|]/g, 'i').replace(/3/g, 'e').replace(/4/g, 'a').replace(/[5$]/g, 's').replace(/7/g, 't').replace(/[._*\-]+/g, '');
+  const joinLetters = (t) => t.replace(/\b([a-z])\s+(?=[a-z]\b)/gi, '$1');   // "f u c k" → "fuck"
+  const notAllowed = (t) => [t, normText(t), joinLetters(normText(t)), normText(t).replace(/\s+/g, '')].some(v => BLOCKED.test(v));
+  let ticks = {};
+  $('tk-send').addEventListener('click', async () => {
+    const text = $('tk-text').value.trim(), by = $('tk-by').value.trim(); const msg = $('tk-msg');
+    if (!text) return;
+    if (notAllowed(text) || notAllowed(by)) { msg.textContent = 'Sorry, this language is not allowed.'; return; }
+    if (!db) { msg.textContent = 'No connection right now.'; return; }
+    $('tk-send').disabled = true;
+    try { await ref('ticker').push({ text, by, t: now() }); msg.textContent = 'Sent — watch the big screen.'; $('tk-text').value = ''; }
+    catch (e) { msg.textContent = 'Sorry, this language is not allowed.'; }   // the rules said no
+    $('tk-send').disabled = false;
+  });
+  const TICK_LS = 'onshift.tickerHidden';
+  let tickerHidden = false; try { tickerHidden = localStorage.getItem(TICK_LS) === '1'; } catch {}
+  function renderTicker() {
+    const bar = $('screen-ticker'); if (!bar) return;
+    const ids = Object.keys(ticks).sort((a, b) => (ticks[b].t || 0) - (ticks[a].t || 0)).slice(0, 25);
+    bar.hidden = tickerHidden || !ids.length; if (bar.hidden) return;
+    const html = ids.map(i => `<span>“${esc(ticks[i].text)}”${ticks[i].by ? `<span class="by">— ${esc(ticks[i].by)}</span>` : ''}</span>`).join('');
+    const track = $('ticker-track'); track.classList.remove('marquee'); track.innerHTML = html;
+    requestAnimationFrame(() => { if (track.scrollWidth > bar.clientWidth) { track.innerHTML = html + html; track.classList.add('marquee'); } });
+  }
+  document.addEventListener('keydown', e => { if (scrOn && (e.key === 'h' || e.key === 'H')) { tickerHidden = !tickerHidden; try { localStorage.setItem(TICK_LS, tickerHidden ? '1' : '0'); } catch {} renderTicker(); } });
+
+  // --- incidents ---
+  let incidents = {};
+  function openInc(open) { $('inc-sheet').hidden = !open; $('inc-backdrop').hidden = !open; if (open) $('inc-text').focus(); }
+  $('set-inc').addEventListener('click', () => { openSettings(false); openInc(true); });
+  $('inc-close').addEventListener('click', () => openInc(false)); $('inc-backdrop').addEventListener('click', () => openInc(false));
+  $('inc-form').addEventListener('submit', async e => {
+    e.preventDefault(); if (!db) return;
+    await ref('incidents').push({ type: $('inc-type').value, text: $('inc-text').value.trim(), by: me ? me.first : (ident ? ident.name : ''), block, t: now() });
+    $('inc-text').value = ''; openInc(false); alert('Logged. Thank you.');
+  });
+  function renderIncidents() {
+    const el = $('d-inc'); if (!el) return;
+    const ids = Object.keys(incidents).sort((a, b) => (incidents[b].t || 0) - (incidents[a].t || 0));
+    el.innerHTML = ids.length ? ids.map(i => { const x = incidents[i]; return `<div class="check" style="--c:#B23A2E"><b>${esc(x.type)} · ${x.t ? clock(x.t) : ''} · ${esc(x.by || '')}</b>${esc(x.text)}</div>`; }).join('') : '<p class="fine">None logged.</p>';
+  }
+
+  // --- rehearsal clock (Sandes / UQISC only) ---
+  const canSim = () => me && me.first === 'Sandes' && me.s.includes('UQISC');
+  function renderSim() {
+    $('set-sim-row').hidden = !canSim();
+    const on = !!(sim && sim.on); $('sim-toggle').setAttribute('aria-checked', String(on));
+    $('sim-state').textContent = on ? `On — it's ${tm(Math.floor(nowMin()))} in the rehearsal. Every phone follows this.` : 'Runs the day at a block a minute, on every phone. Off = real time.';
+  }
+  $('sim-toggle').addEventListener('click', () => {
+    if (!db || !canSim()) return;
+    const on = !(sim && sim.on);
+    if (on && !confirm('Start the rehearsal clock? Every phone will jump to 2:45 pm and run a block a minute until you turn it off.')) return;
+    ref('sim').set({ on, start: now(), startMin: 14 * 60 + 45, speed: 30 });
+  });
+
+  // --- all photos as one zip, for marketing ---
+  $('d-zip').addEventListener('click', async () => {
+    const b = $('d-zip'); b.disabled = true; b.textContent = 'Packing…';
+    try {
+      if (!window.JSZip) await new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js'; sc.onload = res; sc.onerror = rej; document.head.appendChild(sc); });
+      const zip = new JSZip(); const ids = Object.keys(phApproved).sort((a, b) => (phApproved[a].t || 0) - (phApproved[b].t || 0));
+      const rows = ['file,by,caption,time'];
+      ids.forEach((id, i) => { const ph = phApproved[id]; const name = `spice-road-${String(i + 1).padStart(3, '0')}${ph.by ? '-' + ph.by.replace(/[^a-z0-9]+/gi, '-') : ''}.jpg`; zip.file(name, ph.data.split(',')[1], { base64: true }); rows.push([name, ph.by || '', ph.cap || '', ph.t ? new Date(ph.t).toLocaleString() : ''].map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')); });
+      zip.file('captions.csv', rows.join('\n'));
+      const blob = await zip.generateAsync({ type: 'blob' });
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `spice-road-photos-${new Date().toISOString().slice(0, 10)}.zip`; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+      b.textContent = `Downloaded ${ids.length} photos`;
+    } catch (e) { b.textContent = 'Couldn\'t build the zip — try again'; }
+    b.disabled = false; setTimeout(() => { b.textContent = 'Download all photos (.zip)'; }, 4000);
+  });
+
   // --- organiser desk ---
   const isAdmin = () => me && ADMINS.includes(me.first);
   function renderDesk() {
@@ -2364,6 +2513,7 @@
     const openHelp = Object.entries(helps).filter(([, h]) => h.status === 'open');
     const openSwaps = Object.entries(swaps).filter(([, sw]) => sw.status === 'open');
     $('d-help-n').textContent = openHelp.length; $('d-swap-n').textContent = openSwaps.length;
+    renderIncidents();
     $('d-help').innerHTML = openHelp.length ? openHelp.map(x => helpCard(x, 'mine')).join('') : '<p class="fine">None open.</p>';
     bindHelpButtons($('d-help'));
     $('d-swaps').innerHTML = openSwaps.length ? openSwaps.map(([id, sw]) => { const d = DUTIES[sw.duty] || {}; return `<div class="swap" style="--c:${CATS[d.cat] ? CATS[d.cat].color : 'var(--line)'}">${dutyIcon(d, 'sm')}<span class="who-txt"><b>${esc(sw.from)}</b> wants out of <b>${esc(d.name)}</b></span><span class="when">${range(sw.block)} · waiting</span></div>`; }).join('') : '<p class="fine">None open.</p>';
@@ -2388,6 +2538,10 @@
     Object.values(bcasts).sort((a, b) => (a.t || 0) - (b.t || 0)).forEach(b => L.push(row(b.by, b.text, when(b.t))));
     L.push(''); L.push(row('MATCHES')); L.push(row('sport', 'team a', 'team b', 'score a', 'score b', 'status', 'started', 'ended', 'started by'));
     Object.values(matches).sort((a, b) => (a.t || 0) - (b.t || 0)).forEach(m => L.push(row(SPORTS[m.sport] || m.sport, m.a, m.b, m.sa, m.sb, m.status, when(m.t), when(m.ended), m.by)));
+    L.push(''); L.push(row('INCIDENTS')); L.push(row('type', 'by', 'block', 'text', 'logged at'));
+    Object.values(incidents).sort((a, b) => (a.t || 0) - (b.t || 0)).forEach(x => L.push(row(x.type, x.by, x.block + 1, x.text, when(x.t))));
+    L.push(''); L.push(row('SHOUT-OUTS')); L.push(row('by', 'text', 'sent at'));
+    Object.values(ticks).sort((a, b) => (a.t || 0) - (b.t || 0)).forEach(x => L.push(row(x.by, x.text, when(x.t))));
     L.push(''); L.push(row('BRACKETS')); L.push(row('sport', 'round', 'team a', 'team b', 'winner'));
     Object.entries(brackets).forEach(([sp, br]) => (br.rounds || []).forEach((r, k) => r.forEach(m => L.push(row(SPORTS[sp] || sp, rname(k, roundsTotal(br.rounds[0].length)), m.a, m.b, m.w)))));
     const blob = new Blob(['\ufeff' + L.join('\n')], { type: 'text/csv;charset=utf-8' });
@@ -2581,6 +2735,9 @@
     ref('dm').on('value', snap => { dms = snap.val() || {}; if (dmOpen) renderDmThread(); renderDmConvos(); renderBell(); }, () => {});
     ref('photos').orderByChild('status').equalTo('approved').on('value', snap => { phApproved = snap.val() || {}; renderPublicPhotos(); renderPhotoMod(); if (scrOn) bandSync(); }, () => { const el = $('public-photos'); if (el) unavailable(el, 'photos'); });
     ref('photos').orderByChild('status').equalTo('pending').on('value', snap => { phPending = snap.val() || {}; renderPhotoMod(); }, () => {});
+    ref('ticker').limitToLast(40).on('value', snap => { ticks = snap.val() || {}; if (scrOn) renderTicker(); }, () => {});
+    ref('incidents').limitToLast(100).on('value', snap => { incidents = snap.val() || {}; renderIncidents(); }, () => {});
+    ref('sim').on('value', snap => { sim = snap.val(); if (!$('shell').hidden) { const lb = liveBlock(); live = lb !== null; if (live) block = lb; else if (block < 0 || block >= BLOCKS) block = 0; render(); renderSim(); } renderStageNow(); }, () => {});
     ref('help').limitToLast(60).on('value', snap => { helps = snap.val() || {}; if (!$('shell').hidden) { render(); renderHelps(); renderBell(); } }, () => { unavailable($('help-list'), 'help calls'); });
   }
   startLive();
@@ -2610,6 +2767,8 @@
 
   // ---------- Boot ----------
   try { const s = localStorage.getItem('onshift.identity'); if (s) ident = JSON.parse(s); } catch {}
+  renderStageNow(); setInterval(renderStageNow, 30000);
+  if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
   // arriving from the big-screen QR: straight to the photo section, even if this phone is signed in
   const wantsPhotos = location.hash === '#photos';
   if (ident && ident.name && ident.society && !wantsPhotos) loadRoster().then(ok => { if (ok) enter(); else redraw(); });
