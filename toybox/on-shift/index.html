@@ -247,6 +247,24 @@
   .swap .acts .ghost { background: transparent; color: var(--maroon); border: 1.5px solid var(--line); }
   .swap .state { grid-column: 2; font-size: 13px; font-weight: 700; color: var(--ink-2); margin-top: 4px; }
   .swap .state.ok { color: #3E7A4A; }
+  /* two buttons side by side under the duty card */
+  .ctl-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: -6px; }
+  .ctl-row .ctl { min-height: 52px; padding: 8px 10px; border-radius: 8px; border: 1.5px solid var(--line); background: #fff; color: var(--maroon); font-weight: 800; font-size: 14px; line-height: 1.15; text-align: center; box-shadow: 0 1px 0 var(--line); }
+  .ctl-row .ctl.state { border-color: var(--tan); color: var(--ink); font-weight: 600; font-size: 13px; display: grid; gap: 4px; align-content: center; }
+  .ctl-row .ctl.state.ok { border-color: #3E7A4A; }
+  .ctl-row .ctl.state b { color: var(--ink); }
+  .ctl-row .ctl.state .linkbtn { font-size: 12px; padding: 0; justify-self: center; }
+  /* the swap sheet */
+  .swap-opt { display: grid; gap: 4px; text-align: left; width: 100%; padding: 12px 14px; border-radius: 8px; border: 1.5px solid var(--line); background: #fff; color: var(--ink); cursor: pointer; }
+  .swap-opt b { font-size: 16px; }
+  .swap-opt span { font-size: 13px; color: var(--ink-2); }
+  .swap-opt.any { border-color: var(--maroon); background: var(--maroon); color: var(--cream); }
+  .swap-opt.any span { color: var(--cream); opacity: .9; }
+  .swap-opt.static { cursor: default; }
+  .swap-duties { display: grid; gap: 6px; margin-top: 8px; }
+  .swap-duty { display: grid; grid-template-columns: 30px 1fr; gap: 2px 10px; align-items: center; padding: 8px 10px; border-radius: 6px; border: 1.5px solid var(--line); border-left: 6px solid var(--c); background: var(--paper); text-align: left; cursor: pointer; }
+  .swap-duty b { font-size: 14px; }
+  .swap-duty small { grid-column: 2; font-size: 12px; color: var(--ink-2); }
   .swap-ctl { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 12px; background: #fff; box-shadow: 0 1px 0 var(--line); border-left: 8px solid var(--line); margin-top: -6px; }
   .swap-ctl .txt { font-size: 14px; color: var(--ink-2); }
   .swap-ctl .txt b { color: var(--ink); }
@@ -1195,6 +1213,17 @@
       </form>
     </section>
 
+    <!-- Ask to swap -->
+    <div class="dm-backdrop" id="swap-backdrop" hidden></div>
+    <section class="dm-sheet" id="swap-sheet" hidden aria-label="Ask to swap">
+      <div class="dm-head"><span class="nm">Ask to swap</span><button class="linkbtn" id="swap-close" type="button">Close</button></div>
+      <button class="swap-opt any" type="button" data-swapmode="any"><b>Not fussed</b><span>Every exec is asked. Whoever takes it swaps places with you — a free exec just takes over.</span></button>
+      <button class="swap-opt" type="button" data-swapmode="free"><b>Want to take a break?</b><span>Free execs are notified to come swap.</span></button>
+      <div class="swap-opt static"><b>Don't want to do this?</b><span>Pick what you'd rather be doing. The execs on it are asked to swap with you.</span>
+        <div class="swap-duties" id="swap-duties"></div>
+      </div>
+    </section>
+
     <!-- Emergency contacts -->
     <div class="dm-backdrop" id="emg-backdrop" hidden></div>
     <section class="dm-sheet emg-sheet" id="emg-sheet" hidden aria-label="Emergency contacts">
@@ -1651,7 +1680,7 @@
     }
     $('runsheet').hidden = false;
     const a = assignmentFor(me.first, block);
-    $('now-card').innerHTML = dutyCard(a) + helpControl(a) + swapControl(a);
+    $('now-card').innerHTML = dutyCard(a) + controlsHtml(a);
     $('now-moment').innerHTML = momentsFor(block).map(momentHtml).join('');
     bindHelpControl(); bindSwapControl();
 
@@ -1993,17 +2022,39 @@
   const CROSS = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
   const mySwapFor = (i) => Object.entries(swaps).find(([, sw]) => me && sw.from === me.first && sw.block === i && sw.status !== 'withdrawn');
   const sameSociety = (a, b) => { const pa = byFirst[a.toLowerCase()], pb = byFirst[b.toLowerCase()]; return !!(pa && pb && pa.s.some(c => pb.s.includes(c))); };
+  // Under the duty card: two buttons side by side. Each turns into its status once used.
   function swapControl(a) {
     if (!db || !me || block < 0 || block >= BLOCKS || ['free', 'hands', 'photo'].includes(DUTIES[a.id].cat)) return '';
     const mine = mySwapFor(block); const playing = DUTIES[a.id].cat === 'play';
     if (mine) {
       const [id, sw] = mine;
-      return sw.status === 'taken'
-        ? `<div class="swap-ctl taken"><span class="txt"><b>${esc(sw.to)}</b> swapped with you.</span></div>`
-        : `<div class="swap-ctl open"><span class="txt">${playing ? 'Asking your society\'s execs…' : 'Swap request out to free execs…'}</span><button class="btn-small ghost" data-withdraw="${id}" type="button">Withdraw</button></div>`;
+      if (sw.status === 'taken') return `<div class="ctl state ok"><b>${esc(sw.to)}</b> swapped with you</div>`;
+      const who = playing ? 'your society' : sw.mode === 'any' ? 'everyone' : sw.mode === 'duty' ? `execs on ${esc((DUTIES[sw.want] || {}).name || 'that')}` : 'free execs';
+      return `<div class="ctl state">Asking ${who}…<button class="linkbtn" data-withdraw="${id}" type="button">Withdraw</button></div>`;
     }
-    return `<div class="swap-ctl"><span class="txt">${playing ? 'Can\'t play this one?' : 'Can\'t make this block?'}</span><button class="btn-small ghost" id="swap-ask" type="button">${playing ? 'Ask a teammate to sub in' : 'Ask to swap out'}</button></div>`;
+    return `<button class="ctl" id="swap-open" type="button">${playing ? 'Ask a teammate to sub in' : 'Ask to swap'}</button>`;
   }
+  function controlsHtml(a) {
+    const h = helpControl(a), sw = swapControl(a);
+    if (!h && !sw) return '';
+    return `<div class="ctl-row">${h || '<span></span>'}${sw}</div>`;
+  }
+  // the sheet: three ways to ask
+  function openSwapSheet(open) {
+    $('swap-sheet').hidden = !open; $('swap-backdrop').hidden = !open; if (!open) return;
+    const mineId = assignmentFor(me.first, block).id;
+    const rows = rowsFor(block).filter(([id]) => id !== mineId && !['play', 'photo', 'free', 'hands'].includes(DUTIES[id].cat));
+    $('swap-duties').innerHTML = rows.length ? rows.map(([id, ppl]) => { const d = DUTIES[id]; return `<button type="button" class="swap-duty" style="--c:${CATS[d.cat].color}" data-swapduty="${id}">${dutyIcon(d, 'sm')}<b>${esc(d.name)}</b><small>${esc(d.where)} · ${esc(names(ppl))}</small></button>`; }).join('') : '<p class="fine">Nothing else is on this block.</p>';
+    $('swap-duties').querySelectorAll('[data-swapduty]').forEach(b => b.addEventListener('click', () => sendSwap('duty', b.dataset.swapduty)));
+  }
+  function sendSwap(mode, want) {
+    const a = assignmentFor(me.first, block); const d = DUTIES[a.id];
+    const rec = { from: me.first, block, duty: a.id, status: 'open', t: now(), mode };
+    if (mode === 'duty') rec.want = want;
+    ref('swaps').push(rec); openSwapSheet(false);
+  }
+  $('swap-close').addEventListener('click', () => openSwapSheet(false)); $('swap-backdrop').addEventListener('click', () => openSwapSheet(false));
+  $('swap-sheet').querySelectorAll('[data-swapmode]').forEach(b => b.addEventListener('click', () => sendSwap(b.dataset.swapmode)));
   // --- calls for help ---
   // "Ticketing needs hands — main entry gate" goes to every free exec. Any
   // number can say they're coming; the caller (or an organiser) closes it.
@@ -2014,9 +2065,9 @@
     const mine = myHelpFor(block);
     if (mine) {
       const [id, h] = mine; const coming = Object.keys(h.responders || {});
-      return `<div class="swap-ctl open"><span class="txt">${coming.length ? `<b>${esc(names(coming))}</b> on the way.` : 'Call for hands is out…'}</span><button class="btn-small ghost" data-closehelp="${id}" type="button">Sorted</button></div>`;
+        return `<div class="ctl state ${coming.length ? 'ok' : ''}">${coming.length ? `<b>${esc(names(coming))}</b> on the way` : 'Asking free execs…'}<button class="linkbtn" data-closehelp="${id}" type="button">Sorted</button></div>`;
     }
-    return `<div class="swap-ctl"><span class="txt">Swamped?</span><button class="btn-small ghost" id="help-ask" type="button">Need hands here</button></div>`;
+    return `<button class="ctl" id="help-ask" type="button">Request more execs</button>`;
   }
   function bindHelpControl() {
     const ask = $('help-ask');
@@ -2118,7 +2169,7 @@
   // --- manual ---
   const MANUAL = [
     { icon: 'coffee',  color: 'var(--c-free)',   t: 'Now', k: 'now duty card block time partner', p: 'Your current duty, where to be, what it involves, and who you\'re with. The dot pulses when it\'s <b>live</b>. Below it: what\'s next, then your whole day. The <b>‹ ›</b> buttons step through blocks when you want to look ahead.' },
-    { icon: 'crowd',   color: 'var(--c-crowd)',  t: 'Need hands / Swap out', k: 'help swap hands sub cover cant make it exchange', p: 'Under your duty card. <b>Need hands here</b> calls every free exec to you. <b>Ask to swap out</b> offers your block to free execs. In a sports competition, <b>Ask a teammate to sub in</b> goes to your society — whoever takes it swaps duties with you.' },
+    { icon: 'crowd',   color: 'var(--c-crowd)',  t: 'Request more execs / Ask to swap', k: 'help swap hands sub cover cant make it exchange break not fussed', p: 'Under your duty card. <b>Request more execs</b> calls every free exec to you. <b>Ask to swap</b>: <b>Not fussed</b> asks everyone; <b>Want to take a break?</b> asks free execs to take over; <b>Don\'t want to do this?</b> lets you pick another activity — the execs on it are asked to swap places with you. In a sports competition, <b>Ask a teammate to sub in</b> goes to your society.' },
     { icon: 'mic',     color: 'var(--c-stage)',  t: 'Bell', k: 'bell notifications broadcasts notices messages tray unread', p: 'The bell at the top. Swap requests and calls for help you can answer, messages, and notices from the organisers. The red number is what you haven\'t seen.' },
     { icon: 'crowd',   color: 'var(--c-club)',   t: 'Messages', k: 'message dm chat text someone name tap', p: 'Tap any name anywhere in the app to message them. Four one-tap lines and a box. Your conversations live in the bell.' },
     { icon: 'crowd',   color: 'var(--c-sport)',  t: 'Team', k: 'team who is free on duty filter societies mute advanced', p: 'Who\'s free and who\'s on what, this block. <b>‹ ›</b> to look at other blocks. <b>Societies</b> hides clubs you don\'t need to see; <b>Advanced</b> picks individual people.' },
@@ -2148,7 +2199,7 @@
   const TOUR = [
     { icon: 'coffee', color: 'var(--c-free)', h: 'Welcome', p: 'A one-minute tour of where everything is. Close it any time with the × — it won\'t come back. It\'s also under Settings → Manual if you want it again.', prep: () => { closeSheets(); showView('now'); } },
     { icon: 'football', color: 'var(--c-sport)', h: 'Your duty, right now', target: '#now-card > .duty-card', prep: () => { showView('now'); tourDemoBlock(); }, p: 'The big card is what you\'re doing this block: <b>where to be</b>, <b>what it involves</b>, and <b>who you\'re with</b>. The dot pulses when the clock is live. Tap a name on it to message them.' },
-    { icon: 'crowd', color: 'var(--c-crowd)', h: 'Stuck? Two buttons.', target: '#now-card .swap-ctl', prep: () => { showView('now'); tourDemoBlock(); }, p: '<b>Need hands here</b> pings every free exec — they tap "on my way". <b>Ask to swap out</b> offers your block to a free exec. In a sports competition it reads <b>Ask a teammate to sub in</b> and goes to your society instead.' },
+    { icon: 'crowd', color: 'var(--c-crowd)', h: 'Stuck? Two buttons.', target: '#now-card .ctl-row', prep: () => { showView('now'); tourDemoBlock(); }, p: '<b>Request more execs</b> pings every free exec — they tap "on my way". <b>Ask to swap</b> gives you three options: <b>Not fussed</b> (everyone is asked), <b>take a break</b> (free execs come and take over), or <b>pick another activity</b> (the execs on it are asked to swap places with you). In a sports competition it reads <b>Ask a teammate to sub in</b>.' },
     { icon: 'coffee', color: 'var(--c-free)', h: 'Next up and your day', target: '#now-next, #runsheet', prep: () => showView('now'), p: 'What\'s coming next, then your whole day — every block, who with, and moments like the team photo. The <b>‹ › LIVE</b> buttons underneath let you look ahead.' },
     { icon: 'mic', color: 'var(--c-stage)', h: 'The bell', target: '#tray', prep: () => { showView('now'); openTray(true); }, after: () => openTray(false), p: 'Everything that needs you: <b>swap requests</b> and <b>calls for help</b> you can answer, your <b>messages</b>, and <b>notices</b> from the organisers. The red number on the bell is what\'s new.' },
     { icon: 'crowd', color: 'var(--c-club)', h: 'Team', target: '#t-filter, #t-free', prep: () => showView('team'), p: 'Who\'s <b>free right now</b> and who\'s <b>on duty</b>, this block. <b>Societies</b> hides clubs you don\'t need to see; <b>Advanced</b> picks individual people. The arrows at the top step through the day.' },
@@ -2602,32 +2653,41 @@
     ref('broadcasts').push({ text, by: me.first, t: now() }); $('desk-text').value = '';
   });
   function bindSwapControl() {
-    const ask = $('swap-ask');
-    if (ask) ask.addEventListener('click', () => {
-      const a = assignmentFor(me.first, block);
-      const d = DUTIES[a.id];
-      if (!confirm(d.cat === 'play' ? `Ask your society's execs to sub in for ${d.name.toLowerCase()}, ${range(block)}? Whoever takes it swaps duties with you.` : `Ask a free exec to take ${d.name}, ${range(block)}?`)) return;
-      ref('swaps').push({ from: me.first, block, duty: a.id, status: 'open', t: now() });
+    const open = $('swap-open');
+    if (open) open.addEventListener('click', () => {
+      const a = assignmentFor(me.first, block); const d = DUTIES[a.id];
+      if (d.cat === 'play') { if (confirm(`Ask your society's execs to sub in for ${d.name.toLowerCase()}, ${range(block)}? Whoever takes it swaps duties with you.`)) sendSwap('team'); return; }
+      openSwapSheet(true);
     });
     const wd = document.querySelector('[data-withdraw]');
     if (wd) wd.addEventListener('click', () => ref('swaps/' + wd.dataset.withdraw).update({ status: 'withdrawn' }));
   }
-  const swapsForMe = () => Object.entries(swaps).filter(([, sw]) => me && sw.status === 'open' && sw.from !== me.first && !(sw.declines || {})[me.first]
-    && ((DUTIES[sw.duty] || {}).cat === 'play' ? sameSociety(me.first, sw.from) : isFree(me.first, sw.block)));
+  const swapMode = (sw) => sw.mode || ((DUTIES[sw.duty] || {}).cat === 'play' ? 'team' : 'free');
+  const swapsForMe = () => Object.entries(swaps).filter(([, sw]) => {
+    if (!me || sw.status !== 'open' || sw.from === me.first || (sw.declines || {})[me.first]) return false;
+    const mode = swapMode(sw); const myId = assignmentFor(me.first, sw.block).id; const myCat = (DUTIES[myId] || {}).cat;
+    if (mode === 'team') return sameSociety(me.first, sw.from);
+    if (mode === 'any')  return !['hands', 'photo'].includes(myCat);          // free or on duty, anyone
+    if (mode === 'duty') return myId === sw.want;                               // the execs on the activity they'd rather do
+    return isFree(me.first, sw.block);                                          // a break: free execs
+  });
   function renderSwaps() {
     const el = $('swap-list'); if (!el) return;
     const mine = Object.entries(swaps).filter(([, sw]) => me && sw.from === me.first && sw.status !== 'withdrawn');
     const open = swapsForMe();
     const card = ([id, sw], role) => {
       const d = DUTIES[sw.duty] || {}; const color = CATS[d.cat] ? CATS[d.cat].color : 'var(--line)';
-      const play = d.cat === 'play';
+      const play = d.cat === 'play'; const mode = swapMode(sw);
       const myA = me ? assignmentFor(me.first, sw.block) : null; const myD = myA ? DUTIES[myA.id] : null;
-      const trade = role === 'take' && play && myD && myD.cat !== 'free' ? `<span class="when">You'd play; <b>${esc(sw.from)}</b> takes your <b>${esc(myD.name)}</b>.</span>` : '';
+      const onDuty = myD && myD.cat !== 'free';
+      const trade = role === 'take' && onDuty ? `<span class="when">You'd ${play ? 'play' : 'take ' + esc(d.name)}; <b>${esc(sw.from)}</b> takes your <b>${esc(myD.name)}</b>.</span>` : '';
+      const waitingFor = { team: 'a teammate', any: 'anyone', duty: 'execs on ' + ((DUTIES[sw.want] || {}).name || 'that activity'), free: 'a free exec' }[mode];
+      const verb = mode === 'team' ? 'needs a sub for' : mode === 'duty' ? `would rather be on <b>${esc((DUTIES[sw.want] || {}).name || '')}</b> than` : mode === 'any' ? 'wants a swap out of' : 'wants a break from';
       const acts = role === 'take'
-        ? `<div class="acts"><button type="button" class="yes" data-take="${id}">${TICK} ${play ? 'Sub me in' : "I'll take it"}</button><button type="button" class="no" data-decline="${id}">${CROSS} Not me</button></div>`
-        : sw.status === 'taken' ? `<span class="state ok">${esc(sw.to)} ${play ? 'subbed in' : 'took it'}</span>`
-        : `<span class="state">Open — waiting for ${play ? 'a teammate' : 'a free exec'}</span>`;
-      return `<div class="swap" style="--c:${color}">${dutyIcon(d, 'sm')}<span class="who-txt"><b>${esc(sw.from)}</b> ${play ? 'needs a sub for' : 'wants to swap out of'} <b>${esc(d.name || sw.duty)}</b>${play ? ` <span class="fine">· ${esc((byFirst[sw.from.toLowerCase()] || {s: []}).s.join(' · '))} team</span>` : ''}</span><span class="when">${range(sw.block)} · ${esc(d.where || '')}</span>${trade}${acts}</div>`;
+        ? `<div class="acts"><button type="button" class="yes" data-take="${id}">${TICK} ${play ? 'Sub me in' : onDuty ? 'Swap with me' : "I'll take it"}</button><button type="button" class="no" data-decline="${id}">${CROSS} Not me</button></div>`
+        : sw.status === 'taken' ? `<span class="state ok">${esc(sw.to)} ${play ? 'subbed in' : onDuty ? 'swapped in' : 'took it'}</span>`
+        : `<span class="state">Open — waiting for ${waitingFor}</span>`;
+      return `<div class="swap" style="--c:${color}">${dutyIcon(d, 'sm')}<span class="who-txt"><b>${esc(sw.from)}</b> ${verb} <b>${esc(d.name || sw.duty)}</b>${play ? ` <span class="fine">· ${esc((byFirst[sw.from.toLowerCase()] || {s: []}).s.join(' · '))} team</span>` : ''}</span><span class="when">${range(sw.block)} · ${esc(d.where || '')}</span>${trade}${acts}</div>`;
     };
     el.innerHTML = (open.map(x => card(x, 'take')).join('') + mine.map(x => card(x, 'mine')).join('')) || '<p class="fine">No swap requests right now.</p>';
     el.querySelectorAll('[data-take]').forEach(b => b.addEventListener('click', () => {
