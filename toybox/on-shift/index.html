@@ -294,18 +294,25 @@
   .man-sec p { grid-column: 2; margin: 0; font-size: 14px; color: var(--ink-2); }
   .man-sec p b { color: var(--ink); }
   .man-sec mark { background: #FFE9A8; color: inherit; padding: 0 2px; }
-  /* onboarding */
-  .onb { position: fixed; inset: 0; z-index: 30; background: rgba(43,26,20,.55); display: grid; place-items: center; padding: 16px; }
-  .onb-card { position: relative; width: 100%; max-width: 420px; background: var(--paper); border-top: 5px solid var(--maroon); border-radius: 14px; padding: 22px 20px 18px; display: grid; gap: 16px; box-shadow: 0 20px 50px rgba(74,22,14,.35); }
-  .onb-x { position: absolute; top: 8px; right: 10px; width: 40px; height: 40px; border: 0; background: transparent; font-size: 28px; line-height: 1; color: var(--ink-3); cursor: pointer; }
-  .onb-slide { display: grid; gap: 10px; min-height: 220px; }
-  .onb-slide .ic { width: 56px; height: 56px; border-radius: 12px; }
-  .onb-slide h2 { margin: 0; font-family: var(--display); font-weight: 700; font-size: 30px; line-height: 1.05; letter-spacing: .02em; color: var(--maroon); }
+  /* onboarding: a spotlight cut out of a dark screen, with a card pointing at it */
+  .onb { position: fixed; inset: 0; z-index: 40; }
+  .onb-block { position: absolute; inset: 0; }                       /* swallows taps on the page underneath */
+  .onb-spot { position: fixed; border-radius: 12px; box-shadow: 0 0 0 200vmax rgba(43,26,20,.72); pointer-events: none; transition: top .25s, left .25s, width .25s, height .25s; outline: 2px solid var(--tan); outline-offset: 3px; }
+  .onb-spot.none { outline: none; }
+  .onb-tip { position: fixed; width: min(360px, calc(100vw - 24px)); background: var(--paper); border-top: 5px solid var(--maroon); border-radius: 14px; padding: 18px 18px 14px; display: grid; gap: 12px; box-shadow: 0 20px 50px rgba(74,22,14,.35); }
+  .onb-arrow { position: absolute; width: 18px; height: 18px; background: var(--paper); transform: rotate(45deg); display: none; }
+  .onb-tip.below .onb-arrow { display: block; top: -9px; border-top: 5px solid var(--maroon); border-left: 5px solid var(--maroon); border-radius: 3px 0 0 0; }
+  .onb-tip.above .onb-arrow { display: block; bottom: -9px; box-shadow: 4px 4px 8px rgba(74,22,14,.12); }
+  .onb-x { position: absolute; top: 6px; right: 8px; width: 40px; height: 40px; border: 0; background: transparent; font-size: 26px; line-height: 1; color: var(--ink-3); cursor: pointer; }
+  .onb-slide { display: grid; gap: 8px; padding-right: 28px; }
+  .onb-slide .dicon { margin-bottom: 2px; }
+  .onb-slide h2 { margin: 0; font-family: var(--display); font-weight: 700; font-size: 26px; line-height: 1.05; letter-spacing: .02em; color: var(--maroon); }
   .onb-slide p { margin: 0; font-size: 15px; color: var(--ink-2); }
   .onb-slide p b { color: var(--ink); }
+  .onb-slide .btns { padding-right: 0; }
   .onb-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-  .onb-dots { display: flex; gap: 6px; }
-  .onb-dots i { width: 8px; height: 8px; border-radius: 50%; background: var(--line); }
+  .onb-dots { display: flex; gap: 5px; flex-wrap: wrap; }
+  .onb-dots i { width: 7px; height: 7px; border-radius: 50%; background: var(--line); }
   .onb-dots i.on { background: var(--maroon); }
   /* admin roster grid */
   .grid-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; background: #fff; box-shadow: 0 1px 0 var(--line); }
@@ -315,9 +322,9 @@
   .rgrid th:first-child, .rgrid td:first-child { position: sticky; left: 0; background: #fff; text-align: left; font-weight: 800; z-index: 1; padding-left: 10px; box-shadow: 1px 0 0 var(--line); cursor: pointer; }
   .rgrid th:first-child { background: var(--paper-2); z-index: 2; }
   .rgrid td:first-child small { display: block; font-weight: 600; color: var(--ink-3); font-size: 10px; }
-  .rgrid .cell { display: inline-block; min-width: 40px; padding: 4px 5px; border-radius: 4px; background: var(--c); color: var(--cream); font-weight: 800; font-size: 11px; letter-spacing: .02em; }
-  .rgrid .cell.free { background: transparent; color: var(--ink-3); font-weight: 600; }
-  .rgrid .cell.sw { outline: 2px solid var(--maroon); outline-offset: 1px; }
+  .cell, .rgrid .cell { display: inline-block; min-width: 40px; padding: 4px 5px; border-radius: 4px; background: var(--c); color: var(--cream); font-weight: 800; font-size: 11px; letter-spacing: .02em; }
+  .cell.free, .rgrid .cell.free { background: transparent; color: var(--ink-3); font-weight: 600; }
+  .cell.sw, .rgrid .cell.sw { outline: 2px solid var(--maroon); outline-offset: 1px; }
   .rgrid tr.now td { background: #FFF8EE; } .rgrid tr.now td:first-child { background: #FFF8EE; }
   .rgrid th.now { color: var(--maroon); }
   .legend { display: flex; flex-wrap: wrap; gap: 6px 12px; margin-top: 8px; font-size: 12px; color: var(--ink-2); }
@@ -1141,7 +1148,10 @@
 
     <!-- Onboarding tour (first login) -->
     <div class="onb" id="onb" hidden>
-      <div class="onb-card">
+      <div class="onb-block"></div>
+      <div class="onb-spot" id="onb-spot"></div>
+      <div class="onb-tip" id="onb-tip">
+        <span class="onb-arrow" id="onb-arrow"></span>
         <button class="onb-x" id="onb-x" type="button" aria-label="Close">×</button>
         <div class="onb-slide" id="onb-slide"></div>
         <div class="onb-foot">
@@ -1403,7 +1413,7 @@
     if (kind === 'sport') return { title: SPORTS[arg] + ' — match timetable', body: timetableHtml(arg) };
     if (kind === 'stage') return { title: 'Performance stage', body: `<div class="round">${STAGE_TIMES.map(x => `<div class="tt"><span class="t">${tm(x.t)}</span><span class="tm won" style="grid-column:2/-1;text-align:left">${esc(x.who)}<small>${esc(x.what)}</small></span></div>`).join('')}</div><p class="fine">Dummy schedule — the real running order goes here.</p>` };
     if (kind === 'biz') return { title: arg, body: `<p>${esc(BIZ[arg] || 'Dummy text.')}</p>` };
-    if (kind === 'person') { const f = arg; const p = byFirst[f.toLowerCase()]; return { title: p ? p.n : f, body: `<div class="round">${Array.from({ length: BLOCKS }, (_, i) => { const a = assignmentFor(f, i); const d = DUTIES[a.id]; const swp = a.id !== baseAssignment(f, i); return `<div class="tt"><span class="t">${fmt(DAY_START + i * 30)}</span><span class="tm ${a.id === 'free' ? 'tbd' : 'won'}" style="grid-column:2/-1;text-align:left">${esc(d.name)}${swp ? ' <small style="display:inline">(swap)</small>' : ''}<small>${esc(a.id === 'free' ? 'Enjoy the festival' : d.where + (a.people.length ? ' · with ' + names(a.people) : ''))}</small></span></div>`; }).join('')}</div>` }; }
+    if (kind === 'person') { const f = arg; const p = byFirst[f.toLowerCase()]; return { title: p ? p.n : f, body: `<div class="round">${Array.from({ length: BLOCKS }, (_, i) => { const a = assignmentFor(f, i); const d = DUTIES[a.id]; const swp = a.id !== baseAssignment(f, i); return `<div class="tt"><span class="t">${fmt(DAY_START + i * 30)}</span><span class="tm ${a.id === 'free' ? 'tbd' : 'won'}" style="grid-column:2/-1;text-align:left"><span class="cell ${a.id === 'free' ? 'free' : ''} ${swp ? 'sw' : ''}" style="--c:${CATS[d.cat].color};margin-right:8px">${SHORT(a.id)}</span>${esc(d.name)}${swp ? ' <small style="display:inline">(swap)</small>' : ''}<small>${esc(a.id === 'free' ? 'Enjoy the festival' : d.where + (a.people.length ? ' · with ' + names(a.people) : ''))}</small></span></div>`; }).join('')}</div>` }; }
     if (kind === 'club') { const c = CLUB_INFO[arg]; return { title: arg, body: `<p><b>${esc(c.full)}</b></p><p>${esc(c.about)}</p><h4 class="sec-sm">Execs on the marquee</h4><p class="fine">${c.execs.length ? c.execs.map(esc).join(', ') : '—'}</p>` }; }
     return { title: '', body: '' };
   }
@@ -2022,7 +2032,7 @@
   // --- manual ---
   const MANUAL = [
     { icon: 'coffee',  color: 'var(--c-free)',   t: 'Now', k: 'now duty card block time partner', p: 'Your current duty, where to be, what it involves, and who you\'re with. The dot pulses when it\'s <b>live</b>. Below it: what\'s next, then your whole day. The <b>‹ ›</b> buttons step through blocks when you want to look ahead.' },
-    { icon: 'crowd',   color: 'var(--c-crowd)',  t: 'Need hands / Swap out', k: 'help swap hands sub cover cant make it exchange', p: 'Under your duty card. <b>Need hands here</b> calls every free exec to you. <b>Ask to swap out</b> offers your block to free execs. On a match, <b>Ask a teammate to sub in</b> goes to your society — whoever takes it swaps duties with you.' },
+    { icon: 'crowd',   color: 'var(--c-crowd)',  t: 'Need hands / Swap out', k: 'help swap hands sub cover cant make it exchange', p: 'Under your duty card. <b>Need hands here</b> calls every free exec to you. <b>Ask to swap out</b> offers your block to free execs. In a sports competition, <b>Ask a teammate to sub in</b> goes to your society — whoever takes it swaps duties with you.' },
     { icon: 'mic',     color: 'var(--c-stage)',  t: 'Bell', k: 'bell notifications broadcasts notices messages tray unread', p: 'The bell at the top. Swap requests and calls for help you can answer, messages, and notices from the organisers. The red number is what you haven\'t seen.' },
     { icon: 'crowd',   color: 'var(--c-club)',   t: 'Messages', k: 'message dm chat text someone name tap', p: 'Tap any name anywhere in the app to message them. Four one-tap lines and a box. Your conversations live in the bell.' },
     { icon: 'crowd',   color: 'var(--c-sport)',  t: 'Team', k: 'team who is free on duty filter societies mute advanced', p: 'Who\'s free and who\'s on what, this block. <b>‹ ›</b> to look at other blocks. <b>Societies</b> hides clubs you don\'t need to see; <b>Advanced</b> picks individual people.' },
@@ -2047,30 +2057,77 @@
 
   // --- onboarding tour: once, on first login; remembered on this phone like your name ---
   const ONB_LS = 'onshift.onboarded';
+  // Each step points at a real thing: prep() gets it on screen (switch tab,
+  // open the tray, open settings), then the spotlight cuts a hole around it.
   const TOUR = [
-    { icon: 'coffee', color: 'var(--c-free)', h: 'Welcome to the Spice Road Experience', p: 'This is how the day runs. It takes a minute to read and then it\'ll just make sense. You can close it any time — it won\'t nag you again.' },
-    { icon: 'football', color: 'var(--c-sport)', h: 'Now', p: 'Your current duty is the big card: <b>where to be</b>, <b>what to do</b>, <b>who you\'re with</b>. Under it: what\'s next, and your whole day. The dot pulses when it\'s live.' },
-    { icon: 'crowd', color: 'var(--c-crowd)', h: 'Stuck? Two buttons.', p: '<b>Need hands here</b> — every free exec gets a ping and can say "on my way". <b>Ask to swap out</b> — a free exec can take your block. On a match, your society can sub in for you.' },
-    { icon: 'mic', color: 'var(--c-stage)', h: 'The bell', p: 'Swaps and calls you can answer, messages, and notices from the organisers. The red number is what\'s new. Tap any name in the app to message that person.' },
-    { icon: 'crowd', color: 'var(--c-club)', h: 'Team', p: 'Who\'s free and who\'s on what right now. Hide societies you don\'t need with <b>Societies</b>; pick individuals under <b>Advanced</b>.' },
-    { icon: 'volleyball', color: 'var(--c-sport)', h: 'Scores, brackets, map, what\'s on', p: 'Referees score on <b>Scores</b>; brackets fill in as matches end. <b>Map</b> is the ground. <b>What\'s On</b> has timetables, the stage, the businesses, and where to send photos.' },
-    { icon: 'heart', color: '#B23A2E', h: 'Settings', p: 'The gear at the top: big screen mode, a nudge when the block changes, this tour, the <b>manual</b>, and the red <b>emergency</b> button with who to call.' },
-    { icon: 'camera', color: 'var(--c-photo)', h: 'Questions?', p: 'If you forget any of this, the <b>manual</b> is under Settings — every section, with a search bar. And if you\'re still stuck:', last: true },
+    { icon: 'coffee', color: 'var(--c-free)', h: 'Welcome', p: 'A one-minute tour of where everything is. Close it any time with the × — it won\'t come back. It\'s also under Settings → Manual if you want it again.', prep: () => { closeSheets(); showView('now'); } },
+    { icon: 'football', color: 'var(--c-sport)', h: 'Your duty, right now', target: '#now-card > .duty-card', prep: () => { showView('now'); tourDemoBlock(); }, p: 'The big card is what you\'re doing this block: <b>where to be</b>, <b>what it involves</b>, and <b>who you\'re with</b>. The dot pulses when the clock is live. Tap a name on it to message them.' },
+    { icon: 'crowd', color: 'var(--c-crowd)', h: 'Stuck? Two buttons.', target: '#now-card .swap-ctl', prep: () => { showView('now'); tourDemoBlock(); }, p: '<b>Need hands here</b> pings every free exec — they tap "on my way". <b>Ask to swap out</b> offers your block to a free exec. In a sports competition it reads <b>Ask a teammate to sub in</b> and goes to your society instead.' },
+    { icon: 'coffee', color: 'var(--c-free)', h: 'Next up and your day', target: '#now-next, #runsheet', prep: () => showView('now'), p: 'What\'s coming next, then your whole day — every block, who with, and moments like the team photo. The <b>‹ › LIVE</b> buttons underneath let you look ahead.' },
+    { icon: 'mic', color: 'var(--c-stage)', h: 'The bell', target: '#tray', prep: () => { showView('now'); openTray(true); }, after: () => openTray(false), p: 'Everything that needs you: <b>swap requests</b> and <b>calls for help</b> you can answer, your <b>messages</b>, and <b>notices</b> from the organisers. The red number on the bell is what\'s new.' },
+    { icon: 'crowd', color: 'var(--c-club)', h: 'Team', target: '#t-filter, #t-free', prep: () => showView('team'), p: 'Who\'s <b>free right now</b> and who\'s <b>on duty</b>, this block. <b>Societies</b> hides clubs you don\'t need to see; <b>Advanced</b> picks individual people. The arrows at the top step through the day.' },
+    { icon: 'volleyball', color: 'var(--c-sport)', h: 'Scores', target: '#view-scores > div:nth-of-type(1), #view-scores > details:nth-of-type(1)', prep: () => showView('scores'), p: 'The sports competitions. Referees <b>start a match</b>, tap <b>+</b> and <b>−</b>, then <b>End match</b>. Brackets fill themselves in as matches finish. Everyone — and the crowd on the public page — sees it live.' },
+    { icon: 'tent', color: 'var(--c-club)', h: 'Map', target: '#mapz', prep: () => showView('map'), p: 'The ground. Drag to pan, pinch to zoom, double-tap to zoom in.' },
+    { icon: 'sparkle', color: 'var(--c-ticket)', h: "What's On", target: '#exec-on > div:nth-of-type(1)', prep: () => showView('on'), p: 'Everything at the festival. Tap a <b>sport</b> for its match timetable, the <b>stage</b> for the running order, a <b>business</b> for what they do, a <b>club</b> for who\'s on the marquee.' },
+    { icon: 'camera', color: 'var(--c-photo)', h: 'Festival photos', target: '[data-share="exec"]', prep: () => showView('on'), p: 'Send in a photo from here. An organiser approves it and it rolls across the <b>big screen</b>.' },
+    { icon: 'box', color: 'var(--c-hands)', h: 'Settings', target: '#set-sheet', prep: () => { showView('now'); openSettings(true); }, after: () => openSettings(false), p: 'The gear at the top. <b>Big screen mode</b> for whoever runs the TV, a nudge when the block changes, <b>switch</b> who\'s signed in, the <b>manual</b>, and the red <b>emergency</b> button with who to call.' },
+    { icon: 'heart', color: '#B23A2E', h: 'Questions?', prep: () => { closeSheets(); showView('now'); }, p: 'If you forget any of this, the <b>manual</b> under Settings has every section and a search bar. Still stuck?', last: true },
   ];
-  let tourIdx = 0;
+  let tourIdx = 0, tourOn = false, tourSaved = null;
+  function closeSheets() { openTray(false); openSettings(false); }
+  // the Now steps need a block where you actually have a duty with buttons on it
+  function tourDemoBlock() {
+    if (!me) return;
+    const ok = (i) => !['free', 'hands', 'photo', 'play'].includes(DUTIES[assignmentFor(me.first, i).id].cat);
+    if (block >= 0 && block < BLOCKS && ok(block)) return;
+    for (let i = 0; i < BLOCKS; i++) if (ok(i)) { live = false; block = i; render(); return; }
+  }
+  function tourRect(sel) {
+    const els = [...document.querySelectorAll(sel)].filter(e => e.offsetParent !== null || getComputedStyle(e).position === 'fixed'); if (!els.length) return null;
+    const rs = els.map(e => e.getBoundingClientRect());
+    return { top: Math.min(...rs.map(r => r.top)), left: Math.min(...rs.map(r => r.left)), right: Math.max(...rs.map(r => r.right)), bottom: Math.max(...rs.map(r => r.bottom)) };
+  }
+  function placeTour() {
+    if (!tourOn) return;
+    const t = TOUR[tourIdx]; const spot = $('onb-spot'), tip = $('onb-tip'); const pad = 6;
+    let r = t.target ? tourRect(t.target) : null;
+    if (r) {
+      const first = document.querySelector(t.target.split(',')[0].trim());
+      if (first && (r.top < 70 || r.bottom > innerHeight - 20)) { first.scrollIntoView({ block: 'center' }); r = tourRect(t.target); }
+      spot.classList.remove('none');
+      spot.style.top = (r.top - pad) + 'px'; spot.style.left = (r.left - pad) + 'px'; spot.style.width = (r.right - r.left + pad * 2) + 'px'; spot.style.height = (r.bottom - r.top + pad * 2) + 'px';
+    } else { spot.classList.add('none'); spot.style.top = '50%'; spot.style.left = '50%'; spot.style.width = '0'; spot.style.height = '0'; }
+    // the card goes under the target if there's room, else above, else centred
+    const th = tip.offsetHeight, tw = tip.offsetWidth;
+    let left = r ? Math.min(Math.max(12, (r.left + r.right) / 2 - tw / 2), innerWidth - tw - 12) : (innerWidth - tw) / 2;
+    tip.classList.remove('below', 'above');
+    if (r && r.bottom + th + 24 < innerHeight) { tip.style.top = (r.bottom + pad + 14) + 'px'; tip.classList.add('below'); }
+    else if (r && r.top - th - 24 > 0) { tip.style.top = (r.top - pad - th - 14) + 'px'; tip.classList.add('above'); }
+    else tip.style.top = Math.max(12, (innerHeight - th) / 2) + 'px';
+    tip.style.left = left + 'px';
+    if (r) $('onb-arrow').style.left = Math.min(Math.max(16, (r.left + r.right) / 2 - left - 9), tw - 34) + 'px';
+  }
   function renderTour() {
     const t = TOUR[tourIdx];
-    $('onb-slide').innerHTML = `${iconHtml(t.icon, t.color, 'lg')}<h2>${t.h}</h2><p>${t.p}</p>${t.last ? `<div class="btns" style="margin-top:6px"><button class="btn-small" id="onb-msg" type="button">Message Sandes</button><button class="btn-small ghost" id="onb-man" type="button">Open the manual</button></div>` : ''}`;
+    $('onb-slide').innerHTML = `${iconHtml(t.icon, t.color)}<h2>${t.h}</h2><p>${t.p}</p>${t.last ? `<div class="btns" style="margin-top:6px"><button class="btn-small" id="onb-msg" type="button">Message Sandes</button><button class="btn-small ghost" id="onb-man" type="button">Open the manual</button></div>` : ''}`;
     $('onb-dots').innerHTML = TOUR.map((_, i) => `<i class="${i === tourIdx ? 'on' : ''}"></i>`).join('');
     $('onb-prev').hidden = tourIdx === 0; $('onb-next').textContent = tourIdx === TOUR.length - 1 ? 'Done' : 'Next';
     const msg = $('onb-msg'); if (msg) msg.addEventListener('click', () => { endTour(); if (me && me.first !== 'Sandes') openDm('Sandes'); });
     const man = $('onb-man'); if (man) man.addEventListener('click', () => { endTour(); openManual(true); });
+    if (t.prep) t.prep();
+    requestAnimationFrame(() => requestAnimationFrame(placeTour));
   }
-  function startTour() { tourIdx = 0; renderTour(); $('onb').hidden = false; }
-  function endTour() { $('onb').hidden = true; try { localStorage.setItem(ONB_LS, '1'); } catch {} }
+  function stepTour(d) { const cur = TOUR[tourIdx]; if (cur.after) cur.after(); tourIdx += d; renderTour(); }
+  function startTour() { tourIdx = 0; tourOn = true; tourSaved = { live, block }; $('onb').hidden = false; renderTour(); }
+  function endTour() {
+    const cur = TOUR[tourIdx]; if (cur && cur.after) cur.after(); tourOn = false; $('onb').hidden = true; closeSheets();
+    if (tourSaved) { live = tourSaved.live; block = tourSaved.block; tourSaved = null; if (!$('shell').hidden) render(); }
+    showView(me ? 'now' : 'team'); try { localStorage.setItem(ONB_LS, '1'); } catch {}
+  }
   $('onb-x').addEventListener('click', endTour);
-  $('onb-next').addEventListener('click', () => { if (tourIdx >= TOUR.length - 1) endTour(); else { tourIdx++; renderTour(); } });
-  $('onb-prev').addEventListener('click', () => { if (tourIdx > 0) { tourIdx--; renderTour(); } });
+  $('onb-next').addEventListener('click', () => { if (tourIdx >= TOUR.length - 1) endTour(); else stepTour(1); });
+  $('onb-prev').addEventListener('click', () => { if (tourIdx > 0) stepTour(-1); });
+  window.addEventListener('resize', placeTour); window.addEventListener('scroll', placeTour, true);
 
   function openSettings(open) {
     $('set-sheet').hidden = !open; $('set-backdrop').hidden = !open;
