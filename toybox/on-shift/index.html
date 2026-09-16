@@ -2167,7 +2167,7 @@
   // Same behaviour; execs get their name filled in.
   function mountShare(root, pre) {
     root.innerHTML = `
-      <p class="share-lead">Took a good one? Send it in — it goes on the big screen once an organiser okays it.</p>
+      <p class="share-lead">${pre === 'ph-exec' ? 'Took a good one? Send it in — exec photos go straight to the big screen.' : 'Took a good one? Send it in — it goes on the big screen once an organiser okays it.'}</p>
       <label class="share-pick" for="${pre}-file">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>
         <span id="${pre}-pick-lbl">Choose a photo</span>
@@ -2194,8 +2194,10 @@
       if (!data || !db) return;
       $(pre + '-send').disabled = true; $(pre + '-msg').textContent = 'Sending…';
       try {
-        await ref('photos').push({ data, by: $(pre + '-by').value.trim(), cap: $(pre + '-cap').value.trim(), status: 'pending', t: now() });
-        $(pre + '-msg').textContent = 'Thanks — it\'ll go on the big screen once an organiser okays it.';
+        // execs are trusted: their photos go straight up (organisers can still take them down)
+        const trusted = pre === 'ph-exec' && !!me;
+        await ref('photos').push({ data, by: $(pre + '-by').value.trim(), cap: $(pre + '-cap').value.trim(), status: trusted ? 'approved' : 'pending', t: now(), ...(trusted ? { tt: Date.now() } : {}) });
+        $(pre + '-msg').textContent = trusted ? 'Sent — it\'s on the big screen.' : 'Thanks — it\'ll go on the big screen once an organiser okays it.';
         data = null; $(pre + '-preview').hidden = true; $(pre + '-file').value = ''; $(pre + '-cap').value = ''; $(pre + '-pick-lbl').textContent = 'Choose another photo';
       } catch (e) { $(pre + '-msg').textContent = 'Couldn\'t send — check your connection and try again.'; $(pre + '-send').disabled = false; }
     });
