@@ -1,6 +1,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>On Shift</title>
+<title>Spice Road Experience</title>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -187,9 +187,10 @@
     gap: 8px;
   }
   .wordmark {
-    font-family: var(--display); font-weight: 700; font-size: 22px; letter-spacing: .06em;
+    font-family: var(--display); font-weight: 700; font-size: 20px; line-height: 1; letter-spacing: .06em;
     color: var(--maroon); white-space: nowrap; flex: 0 0 auto;
   }
+  .wordmark small { display: block; font-size: 10px; font-weight: 600; letter-spacing: .24em; text-transform: uppercase; margin-top: 3px; opacity: .8; }
   .deskbtn {
     width: 44px; height: 44px; border-radius: 22px; border: 1.5px solid var(--maroon);
     background: var(--maroon); color: var(--cream); display: grid; place-items: center; margin-left: auto; flex: 0 0 auto;
@@ -277,6 +278,11 @@
   .photo-strip::-webkit-scrollbar { display: none; }
   .photo-strip img { flex: 0 0 auto; width: 96px; height: 96px; object-fit: cover; border-radius: 8px; box-shadow: 0 1px 0 var(--line); }
   .photo-strip .fine { align-self: center; }
+  .photo-strip.roll { overflow: hidden; contain: inline-size; }
+  .view > *, .whatson-body > * { min-width: 0; }
+  .photo-strip.roll .track { display: flex; gap: 8px; width: max-content; animation: roll calc(var(--n) * 3.2s) linear infinite; }
+  .photo-strip.roll:hover .track, .photo-strip.roll:active .track { animation-play-state: paused; }
+  @keyframes roll { from { transform: translateX(0); } to { transform: translateX(calc(-50% - 4px)); } }
   .share { background: #fff; border-left: 8px solid var(--c-stage); padding: 12px 14px 14px; box-shadow: 0 1px 0 var(--line); display: grid; gap: 12px; margin-top: 8px; }
   .share-lead { margin: 0; font-size: 15px; color: var(--ink-2); }
   .share-pick { display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 56px; border: 1.5px dashed var(--line); border-radius: 8px; background: var(--paper); font-weight: 800; color: var(--maroon); cursor: pointer; }
@@ -702,7 +708,7 @@
   <div class="screen-photo" id="screen-a"></div>
   <div class="screen-photo" id="screen-b"></div>
   <div class="screen-idle" id="screen-idle">
-    <div class="eyebrow-serif">UQISC × PARTNER SOCIETY</div>
+    <div class="eyebrow-serif">UQISC × UQSLA</div>
     <h1>Spice Road<small>FESTIVAL</small></h1>
     <p>Photos from the festival will appear here.<br>Send yours from <b>sandeswelagedara.com/toybox/on-shift</b></p>
   </div>
@@ -721,7 +727,7 @@
 
     <div class="entry-inner">
       <div class="lockup">
-        <div class="eyebrow-serif">UQISC × PARTNER SOCIETY</div>
+        <div class="eyebrow-serif">UQISC × UQSLA</div>
         <h1>Spice Road<small>FESTIVAL</small></h1>
         <p>Stalls, sports, and a stage — 3 till 9 pm on the festival ground.</p>
       </div>
@@ -748,21 +754,7 @@
       <div><h2>Brackets</h2><div class="bracket-list" id="public-brackets"></div></div>
       <div><h2>Festival photos</h2>
         <div class="photo-strip" id="public-photos"></div>
-        <div class="share">
-          <p class="share-lead">Took a good one? Send it in — it goes on the big screen once an organiser okays it.</p>
-          <label class="share-pick" for="ph-file">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>
-            <span id="ph-pick-lbl">Choose a photo</span>
-          </label>
-          <input id="ph-file" type="file" accept="image/*" hidden>
-          <div class="share-preview" id="ph-preview" hidden><img id="ph-img" alt="Your photo"><span class="fine" id="ph-size"></span></div>
-          <div class="two">
-            <div class="field"><label for="ph-by">Your name <small>(optional)</small></label><input id="ph-by" type="text" maxlength="40" placeholder="e.g. Priya"></div>
-            <div class="field"><label for="ph-cap">Caption <small>(optional)</small></label><input id="ph-cap" type="text" maxlength="80" placeholder="e.g. Volleyball final"></div>
-          </div>
-          <button class="btn-primary dark" id="ph-send" type="button" disabled>Send it in</button>
-          <p class="fine" id="ph-msg"></p>
-        </div>
+        <div class="share" data-share="pub"></div>
       </div>
     </div>
     <div class="whatson-body" id="public-on"></div>
@@ -800,7 +792,7 @@
   <!-- ======== SHELL ======== -->
   <div class="shell" id="shell" hidden>
     <header class="topbar">
-      <div class="wordmark">On Shift</div>
+      <div class="wordmark">Spice Road<small>Experience</small></div>
       <button class="deskbtn" id="deskbtn" type="button" hidden aria-label="Organiser desk" title="Organiser desk"><span class="bell-n" id="desk-n" hidden></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1M9 10h6M9 14h6M9 18h3"/></svg></button>
       <button class="bell" id="gear" type="button" aria-label="Settings">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
@@ -997,6 +989,10 @@
         </div>
       </div>
       <div class="whatson-body" id="exec-on"></div>
+      <div class="whatson-body" style="padding-top:0"><div><h2>Festival photos</h2>
+        <div class="photo-strip" id="exec-photos"></div>
+        <div class="share" data-share="exec"></div>
+      </div></div>
     </section>
 
     <!-- Settings sheet -->
@@ -1275,6 +1271,7 @@
     live = lb !== null; block = live ? lb : 0;
     renderFilter();
     $('bcast-form').hidden = !(db && isAdmin()); $('deskbtn').hidden = !(db && isAdmin()); renderPhotoMod();
+    const eb = $('ph-exec-by'); if (eb && !eb.value) eb.value = me ? me.first : ident.name;
     showView(me ? 'now' : 'team');
     render();
     requestAnimationFrame(() => drawMap($('map-on')));
@@ -1805,28 +1802,55 @@
       c2.getContext('2d').drawImage(c, 0, 0, c2.width, c2.height); return c2.toDataURL('image/jpeg', 0.6);
     } finally { URL.revokeObjectURL(url); }
   }
-  $('ph-file').addEventListener('change', async () => {
-    const f = $('ph-file').files[0]; if (!f) return;
-    $('ph-msg').textContent = 'Getting it ready…'; $('ph-send').disabled = true; phData = null;
-    try {
-      phData = await shrink(f);
-      $('ph-img').src = phData; $('ph-preview').hidden = false; $('ph-size').textContent = Math.round(phData.length * 0.75 / 1024) + ' KB';
-      $('ph-pick-lbl').textContent = 'Choose a different photo'; $('ph-msg').textContent = ''; $('ph-send').disabled = !db;
-    } catch (e) { $('ph-msg').textContent = 'That one didn\'t work — try another photo.'; }
-  });
-  $('ph-send').addEventListener('click', async () => {
-    if (!phData || !db) return;
-    $('ph-send').disabled = true; $('ph-msg').textContent = 'Sending…';
-    try {
-      await ref('photos').push({ data: phData, by: $('ph-by').value.trim(), cap: $('ph-cap').value.trim(), status: 'pending', t: now() });
-      $('ph-msg').textContent = 'Thanks — it\'ll go on the big screen once an organiser okays it.';
-      phData = null; $('ph-preview').hidden = true; $('ph-file').value = ''; $('ph-cap').value = ''; $('ph-pick-lbl').textContent = 'Choose another photo';
-    } catch (e) { $('ph-msg').textContent = 'Couldn\'t send — check your connection and try again.'; $('ph-send').disabled = false; }
-  });
+  // The share card appears on the public page and on the exec What's On tab.
+  // Same behaviour; execs get their name filled in.
+  function mountShare(root, pre) {
+    root.innerHTML = `
+      <p class="share-lead">Took a good one? Send it in — it goes on the big screen once an organiser okays it.</p>
+      <label class="share-pick" for="${pre}-file">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>
+        <span id="${pre}-pick-lbl">Choose a photo</span>
+      </label>
+      <input id="${pre}-file" type="file" accept="image/*" hidden>
+      <div class="share-preview" id="${pre}-preview" hidden><img id="${pre}-img" alt="Your photo"><span class="fine" id="${pre}-size"></span></div>
+      <div class="two">
+        <div class="field"><label for="${pre}-by">Your name <small>(optional)</small></label><input id="${pre}-by" type="text" maxlength="40" placeholder="e.g. Priya"></div>
+        <div class="field"><label for="${pre}-cap">Caption <small>(optional)</small></label><input id="${pre}-cap" type="text" maxlength="80" placeholder="e.g. Volleyball final"></div>
+      </div>
+      <button class="btn-primary dark" id="${pre}-send" type="button" disabled>Send it in</button>
+      <p class="fine" id="${pre}-msg"></p>`;
+    let data = null;
+    $(pre + '-file').addEventListener('change', async () => {
+      const f = $(pre + '-file').files[0]; if (!f) return;
+      $(pre + '-msg').textContent = 'Getting it ready…'; $(pre + '-send').disabled = true; data = null;
+      try {
+        data = await shrink(f);
+        $(pre + '-img').src = data; $(pre + '-preview').hidden = false; $(pre + '-size').textContent = Math.round(data.length * 0.75 / 1024) + ' KB';
+        $(pre + '-pick-lbl').textContent = 'Choose a different photo'; $(pre + '-msg').textContent = ''; $(pre + '-send').disabled = !db;
+      } catch (e) { $(pre + '-msg').textContent = 'That one didn\'t work — try another photo.'; }
+    });
+    $(pre + '-send').addEventListener('click', async () => {
+      if (!data || !db) return;
+      $(pre + '-send').disabled = true; $(pre + '-msg').textContent = 'Sending…';
+      try {
+        await ref('photos').push({ data, by: $(pre + '-by').value.trim(), cap: $(pre + '-cap').value.trim(), status: 'pending', t: now() });
+        $(pre + '-msg').textContent = 'Thanks — it\'ll go on the big screen once an organiser okays it.';
+        data = null; $(pre + '-preview').hidden = true; $(pre + '-file').value = ''; $(pre + '-cap').value = ''; $(pre + '-pick-lbl').textContent = 'Choose another photo';
+      } catch (e) { $(pre + '-msg').textContent = 'Couldn\'t send — check your connection and try again.'; $(pre + '-send').disabled = false; }
+    });
+  }
+  document.querySelectorAll('[data-share]').forEach(el => mountShare(el, 'ph-' + el.dataset.share));
+  // Latest photos glide right-to-left; the track is doubled so the loop is seamless.
   function renderPublicPhotos() {
-    const el = $('public-photos'); if (!el) return;
-    const ids = Object.keys(phApproved).sort((a, b) => (phApproved[b].t || 0) - (phApproved[a].t || 0)).slice(0, 12);
-    el.innerHTML = ids.length ? ids.map(i => `<img src="${phApproved[i].data}" alt="${esc(phApproved[i].cap || 'Festival photo')}" loading="lazy">`).join('') : '<span class="fine">Nothing on the wall yet — be first.</span>';
+    const ids = Object.keys(phApproved).sort((a, b) => (phApproved[b].t || 0) - (phApproved[a].t || 0)).slice(0, 16);
+    const imgs = ids.map(i => `<img src="${phApproved[i].data}" alt="${esc(phApproved[i].cap || 'Festival photo')}" loading="lazy">`).join('');
+    ['public-photos', 'exec-photos'].forEach(id => {
+      const el = $(id); if (!el) return;
+      if (!ids.length) { el.classList.remove('roll'); el.innerHTML = '<span class="fine">Nothing on the wall yet — be first.</span>'; return; }
+      const roll = ids.length >= 4;
+      el.classList.toggle('roll', roll);
+      el.innerHTML = roll ? `<div class="track" style="--n:${ids.length}">${imgs}${imgs}</div>` : imgs;
+    });
   }
   function photoCard(id, ph, mode) {
     const acts = mode === 'pending'
@@ -1847,12 +1871,17 @@
   }
 
   // big screen: cycles approved photos, live scores along the bottom
-  let scrOn = false, scrIdx = -1, scrTimer = null, scrLayer = 0, wake = null;
-  function scrOrder() { return Object.keys(phApproved).sort((a, b) => (phApproved[a].t || 0) - (phApproved[b].t || 0)); }
+  // Rotation is the newest SCR_KEEP photos; the oldest retire as new ones arrive.
+  // Unshown photos form a queue (oldest first); once all have had a turn it cycles.
+  const SCR_KEEP = 30;
+  let scrOn = false, scrIdx = -1, scrTimer = null, scrLayer = 0, wake = null; const scrShown = new Set();
+  function scrOrder() { return Object.keys(phApproved).sort((a, b) => (phApproved[b].t || 0) - (phApproved[a].t || 0)).slice(0, SCR_KEEP).reverse(); }
   function scrTick() {
     const ids = scrOrder(); $('screen-idle').hidden = ids.length > 0; $('screen-cap').hidden = !ids.length;
     if (!ids.length) { ['screen-a', 'screen-b'].forEach(i => $(i).classList.remove('on')); return; }
-    scrIdx = (scrIdx + 1) % ids.length; const ph = phApproved[ids[scrIdx]];
+    const fresh = ids.findIndex(i => !scrShown.has(i));   // a queue: oldest unseen photo goes next
+    scrIdx = fresh >= 0 ? fresh : (scrIdx + 1) % ids.length;
+    scrShown.add(ids[scrIdx]); const ph = phApproved[ids[scrIdx]];
     const layers = ['screen-a', 'screen-b']; const show = $(layers[scrLayer]), hide = $(layers[1 - scrLayer]); scrLayer = 1 - scrLayer;
     show.style.backgroundImage = `url("${ph.data}")`; show.classList.remove('on'); void show.offsetWidth; show.classList.add('on'); hide.classList.remove('on');
     $('screen-cap').innerHTML = `${esc(ph.cap || '')}${ph.by ? `<small>${esc(ph.by)}</small>` : ''}`;
