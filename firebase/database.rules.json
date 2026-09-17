@@ -321,6 +321,13 @@
         }
       },
       "spicy-cache": { ".read": true },
+      "pfp": {
+        ".read": true,
+        "$first": {
+          ".write": true,
+          ".validate": "$first.matches(/^[a-z-]{1,30}$/) && newData.isString() && newData.val().beginsWith('data:image/jpeg;base64,') && newData.val().length <= 24000"
+        }
+      },
       "spicy-usage": { ".read": true }
     }
   }

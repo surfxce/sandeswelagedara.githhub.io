@@ -28,3 +28,15 @@ pushes "Message Sandes"). Phone numbers never leave the phone. Generic answers
 are cached for a day under `spicy-cache`; `spicy-usage/<date>` counts calls and
 the function stops answering after 800 in a day (`SPICY_DAILY_CAP`). Organisers
 see every question on the Desk.
+
+`spicy` rows also carry `show` — an id from the app's list of pointable
+things (buttons, tabs, settings rows). The app turns it into a **Show me**
+button that spotlights the control the same way the welcome tour does.
+
+## Profile pictures
+
+`spice-road/pfp/<first>` holds each exec's photo as a small JPEG data URL,
+added from their own phone on the welcome slide or under Settings → Your
+photo (squared and shrunk to 128 px before upload). Anyone can write any
+name — same honour system as the rest. `tools/onshift-pfp.mjs` is the bulk
+alternative: it bakes a folder of photos into the encrypted roster instead.

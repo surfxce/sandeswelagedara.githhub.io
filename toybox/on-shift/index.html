@@ -304,6 +304,9 @@
   .pfp.s32 { width: 32px; height: 32px; font-size: 12px; }
   .pfp.s44 { width: 44px; height: 44px; font-size: 16px; }
   .pfp.s72 { width: 72px; height: 72px; font-size: 26px; }
+  .pfp-pick { display: flex; align-items: center; gap: 12px; margin: 2px 0 4px; }
+  .pfp-pick .fine { margin: 0; }
+  .who #who-pfp { cursor: pointer; }
   .partner .pfp { width: 28px; height: 28px; font-size: 11px; margin-right: 6px; }
   .tt .pfp { margin-right: 6px; }
   .dm-head .nm { display: inline-flex; align-items: center; gap: 10px; }
@@ -1220,6 +1223,10 @@
         <div class="txt"><b>Manual</b><span>Every part of the app, searchable. Also replays the welcome tour.</span></div>
         <button class="btn-small ghost" id="set-manual" type="button">Open</button>
       </div>
+      <div class="set-row" id="set-photo-row">
+        <div class="txt"><b>Your photo</b><span>Shown next to your name so people can find you.</span></div>
+        <button class="btn-small ghost" id="set-photo" type="button">Add</button>
+      </div>
       <div class="set-row">
         <div class="txt"><b>Signed in as <span id="set-who">—</span></b><span>Saved on this phone.</span></div>
         <button class="btn-small ghost" id="set-switch" type="button">Switch</button>
@@ -1293,6 +1300,7 @@
     </section>
 
     <!-- Onboarding tour (first login) -->
+    <input type="file" id="pfp-file" accept="image/*" hidden>
     <div class="onb" id="onb" hidden>
       <div class="onb-block"></div>
       <div class="onb-spot" id="onb-spot"></div>
@@ -1487,11 +1495,13 @@
   // "A, B & C" — any number of people on a duty, not just pairs
   // Profile picture: the roster photo if there is one, otherwise initials.
   // Takes a first name or a full name (emergency contacts aren't all execs).
+  let pfps = {};   // spice-road/pfp — photos execs added from their phones
   const PFP_COLORS = ['#7A2E22', '#B8623A', '#3E6B5A', '#4B5A8A', '#8A5A2E', '#5B3B6E'];
   function pfp(name, size) {
-    name = name || ''; const p = byFirst[name.split(' ')[0].toLowerCase()];
+    name = name || ''; const first = name.split(' ')[0].toLowerCase(); const p = byFirst[first];
     const cls = 'pfp' + (size ? ' s' + size : '');
-    if (p && p.pic && p.pic.startsWith('data:image/')) return `<span class="${cls}"><img src="${p.pic}" alt=""></span>`;
+    const pic = pfps[first] || (p && p.pic);
+    if (pic && typeof pic === 'string' && pic.startsWith('data:image/')) return `<span class="${cls}"><img src="${pic}" alt=""></span>`;
     const nm = p ? p.n : name;
     const ini = nm.split(' ').map(w => w[0]).filter(Boolean).slice(0, 2).join('').toUpperCase();
     let h = 0; for (const ch of nm) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
@@ -2277,7 +2287,7 @@
     { icon: 'tent',    color: 'var(--c-club)',   t: 'Map', k: 'map where location pinch zoom', p: 'The ground. Drag to pan, pinch to zoom, double-tap to zoom in.' },
     { icon: 'sparkle', color: 'var(--c-ticket)', t: "What's On", k: 'whats on stalls timetable stage performances businesses clubs photos upload', p: 'Everything at the festival. Tap a sport for the match timetable, the stage for the running order, a business for what they do, a club for who\'s on the marquee. Send festival photos from the bottom.' },
     { icon: 'camera',  color: 'var(--c-photo)',  t: 'Photos & big screen', k: 'photos upload approve big screen tv slideshow', p: 'Anyone can send a photo in; organisers approve them; approved photos roll across the big screen. <b>Big screen mode</b> is under Settings for whoever runs the TV.' },
-    { icon: 'sparkle', color: 'var(--tan)',      t: 'Spicy', k: 'spicy ask question help bot chat ai assistant who do i talk to where is', p: 'Settings → <b>Spicy</b>. Ask anything — what your duty involves, who\'s on what right now, how a part of the app works. It answers from the roster and this manual, points you to a person when there is one, and says so when it doesn\'t know. Every answer has a <b>Message Sandes</b> button.' },
+    { icon: 'sparkle', color: 'var(--tan)',      t: 'Spicy', k: 'spicy ask question help bot chat ai assistant who do i talk to where is', p: 'Settings → <b>Spicy</b>. Ask anything — what your duty involves, who\'s on what right now, how a part of the app works. It answers from the roster and this manual, points you to a person when there is one, and says so when it doesn\'t know. When the answer is a button or a place in the app, tap <b>Show me</b> and Spicy spotlights it on screen. Every answer has a <b>Message Sandes</b> button.' },
     { icon: 'box',     color: 'var(--c-hands)',  t: 'Settings', k: 'settings gear notification notify switch user sign out big screen manual emergency spicy', p: 'The gear. Big screen mode, a notification when the block changes, switch who\'s signed in, <b>Spicy</b> (ask it anything), this manual, <b>Log incident</b> (first aid, lost property, behaviour, equipment — timestamped for the organisers), and the red <b>Emergency</b> button with who to call.' },
     { icon: 'heart',   color: '#B23A2E',         t: 'Emergency', k: 'emergency call phone number urgent 000 organiser help', p: 'Settings → <b>Emergency</b>. Tap a name for a Call button. Anything medical or dangerous: <b>000 first</b>.' },
   ];
@@ -2298,7 +2308,7 @@
   // Each step points at a real thing: prep() gets it on screen (switch tab,
   // open the tray, open settings), then the spotlight cuts a hole around it.
   const TOUR = [
-    { icon: 'coffee', color: 'var(--c-free)', h: 'Welcome', me: true, p: 'A one-minute tour of where everything is. Close it any time with the × — it won\'t come back. It\'s also under Settings → Manual if you want it again.', prep: () => { closeSheets(); showView('now'); } },
+    { icon: 'coffee', color: 'var(--c-free)', h: 'Welcome', me: true, p: 'Add a photo first — it shows next to your name everywhere, so execs who haven\'t met you can find you. Then a one-minute tour of where everything is. Close it any time with the × — it won\'t come back. It\'s also under Settings → Manual if you want it again.', prep: () => { closeSheets(); showView('now'); } },
     { icon: 'football', color: 'var(--c-sport)', h: 'Your duty, right now', target: '#now-card > .duty-card', prep: () => { showView('now'); tourDemoBlock(); }, p: 'The big card is what you\'re doing this block: <b>where to be</b>, <b>what it involves</b>, and <b>who you\'re with</b>. The dot pulses when the clock is live. <b>Tap the title</b> for the committee head and everyone else on it; tap a name to message them.' },
     { icon: 'crowd', color: 'var(--c-crowd)', h: 'Stuck? Two buttons.', target: '#now-card .ctl-row', prep: () => { showView('now'); tourDemoBlock(); }, p: '<b>Request more execs</b> pings every free exec — they tap "on my way". <b>Ask to swap</b> gives you three options: <b>Not fussed</b> (everyone is asked), <b>take a break</b> (free execs come and take over), or <b>pick another activity</b> (the execs on it are asked to swap places with you). In a sports competition it reads <b>Ask a teammate to sub in</b>.' },
     { icon: 'coffee', color: 'var(--c-free)', h: 'Next up and your day', target: '#now-next, #runsheet', prep: () => showView('now'), p: 'What\'s coming next, then your whole day — every block, who with, and moments like the team photo. The <b>‹ › LIVE</b> buttons underneath let you look ahead.' },
@@ -2309,7 +2319,7 @@
     { icon: 'sparkle', color: 'var(--c-ticket)', h: "What's On", target: '#exec-on > div:nth-of-type(1)', prep: () => showView('on'), p: 'Everything at the festival. Tap a <b>sport</b> for its match timetable, the <b>stage</b> for the running order, a <b>business</b> for what they do, a <b>club</b> for who\'s on the marquee.' },
     { icon: 'camera', color: 'var(--c-photo)', h: 'Festival photos', target: '[data-share="exec"]', prep: () => showView('on'), p: 'Send in a photo from here. An organiser approves it and it rolls across the <b>big screen</b>.' },
     { icon: 'box', color: 'var(--c-hands)', h: 'Settings', target: '#set-sheet', prep: () => { showView('now'); openSettings(true); }, after: () => openSettings(false), p: 'The gear at the top. Turn on a <b>notification</b> when the block changes, <b>switch</b> who\'s signed in, open the <b>manual</b>, <b>log an incident</b> (first aid, lost property, behaviour) so the organisers have a record, and the red <b>Emergency</b> button has who to call.' },
-    { icon: 'heart', color: '#B23A2E', h: 'Questions?', prep: () => { closeSheets(); showView('now'); }, p: 'If you forget any of this, the <b>manual</b> under Settings has every section and a search bar. Still stuck? <b>Ask Spicy</b> — it knows the app and the day, and who\'s where right now. Or message Sandes.', last: true },
+    { icon: 'heart', color: '#B23A2E', h: 'Questions?', prep: () => { closeSheets(); showView('now'); }, p: 'If you forget any of this, the <b>manual</b> under Settings has every section and a search bar. Still stuck? <b>Ask Spicy</b> — it knows the app and the day, and who\'s where right now, and it can <b>point at</b> whatever it\'s talking about. Or message Sandes.', last: true },
   ];
   let tourIdx = 0, tourOn = false, tourSaved = null;
   function closeSheets() { openTray(false); openSettings(false); if ($('spicy-sheet')) openSpicy(false); }
@@ -2327,7 +2337,7 @@
   }
   function placeTour() {
     if (!tourOn) return;
-    const t = TOUR[tourIdx]; const spot = $('onb-spot'), tip = $('onb-tip'); const pad = 6;
+    const t = pointStep || TOUR[tourIdx]; const spot = $('onb-spot'), tip = $('onb-tip'); const pad = 6;
     let r = t.target ? tourRect(t.target) : null;
     if (r) {
       const first = document.querySelector(t.target.split(',')[0].trim());
@@ -2346,26 +2356,41 @@
     if (r) $('onb-arrow').style.left = Math.min(Math.max(16, (r.left + r.right) / 2 - left - 9), tw - 34) + 'px';
   }
   function renderTour() {
+    if (pointStep) {
+      $('onb-slide').innerHTML = `${iconHtml('sparkle', 'var(--tan)')}<h2>${esc(pointStep.title)}</h2><p>${esc(pointStep.text)}</p>`;
+      $('onb-dots').innerHTML = ''; $('onb-prev').hidden = true; $('onb-next').textContent = 'Got it';
+      if (pointStep.prep) pointStep.prep();
+      requestAnimationFrame(() => requestAnimationFrame(placeTour));
+      return;
+    }
     const t = TOUR[tourIdx];
     const hi = t.me && me; // the welcome slide greets you with your own picture
-    $('onb-slide').innerHTML = `${hi ? pfp(me.first, 72) : iconHtml(t.icon, t.color)}<h2>${hi ? 'Hi ' + esc(me.first) : t.h}</h2><p>${t.p}</p>${t.last ? `<div class="btns" style="margin-top:6px"><button class="btn-small" id="onb-spicy" type="button">Ask Spicy</button><button class="btn-small ghost" id="onb-msg" type="button">Message Sandes</button><button class="btn-small ghost" id="onb-man" type="button">Open the manual</button></div>` : ''}`;
+    const mine = hi && !!pfps[me.first.toLowerCase()];
+    const pick = hi ? `<div class="pfp-pick">${pfp(me.first, 72)}<div><button class="btn-small ${mine ? 'ghost' : ''}" id="onb-photo" type="button">${mine ? 'Change photo' : 'Add a photo of you'}</button><p class="fine" id="onb-photo-msg">${mine ? 'Looking good.' : 'So people can find you on the day.'}</p></div></div>` : '';
+    $('onb-slide').innerHTML = `${hi ? '' : iconHtml(t.icon, t.color)}<h2>${hi ? 'Hi ' + esc(me.first) : t.h}</h2>${pick}<p>${t.p}</p>${t.last ? `<div class="btns" style="margin-top:6px"><button class="btn-small" id="onb-spicy" type="button">Ask Spicy</button><button class="btn-small ghost" id="onb-msg" type="button">Message Sandes</button><button class="btn-small ghost" id="onb-man" type="button">Open the manual</button></div>` : ''}`;
     $('onb-dots').innerHTML = TOUR.map((_, i) => `<i class="${i === tourIdx ? 'on' : ''}"></i>`).join('');
     $('onb-prev').hidden = tourIdx === 0; $('onb-next').textContent = tourIdx === TOUR.length - 1 ? 'Done' : 'Next';
     const msg = $('onb-msg'); if (msg) msg.addEventListener('click', () => { endTour(); if (me && me.first !== 'Sandes') openDm('Sandes'); });
     const man = $('onb-man'); if (man) man.addEventListener('click', () => { endTour(); openManual(true); });
     const sp = $('onb-spicy'); if (sp) sp.addEventListener('click', () => { endTour(); openSpicy(true); });
+    const ph = $('onb-photo'); if (ph) ph.addEventListener('click', () => pickPhoto('onb-photo-msg'));
     if (t.prep) t.prep();
     requestAnimationFrame(() => requestAnimationFrame(placeTour));
   }
   function stepTour(d) { const cur = TOUR[tourIdx]; if (cur.after) cur.after(); tourIdx += d; renderTour(); }
   function startTour() { tourIdx = 0; tourOn = true; tourSaved = { live, block }; $('onb').hidden = false; renderTour(); }
   function endTour() {
+    if (pointStep) {   // a Spicy pointer: put things back, but don't touch the tour's "seen" flag
+      if (pointStep.after) pointStep.after(); pointStep = null; tourOn = false; $('onb').hidden = true;
+      if (tourSaved) { live = tourSaved.live; block = tourSaved.block; tourSaved = null; if (!$('shell').hidden) render(); }
+      return;
+    }
     const cur = TOUR[tourIdx]; if (cur && cur.after) cur.after(); tourOn = false; $('onb').hidden = true; closeSheets();
     if (tourSaved) { live = tourSaved.live; block = tourSaved.block; tourSaved = null; if (!$('shell').hidden) render(); }
     showView(me ? 'now' : 'team'); try { localStorage.setItem(ONB_LS, '1'); } catch {}
   }
   $('onb-x').addEventListener('click', endTour);
-  $('onb-next').addEventListener('click', () => { if (tourIdx >= TOUR.length - 1) endTour(); else stepTour(1); });
+  $('onb-next').addEventListener('click', () => { if (pointStep || tourIdx >= TOUR.length - 1) endTour(); else stepTour(1); });
   $('onb-prev').addEventListener('click', () => { if (tourIdx > 0) stepTour(-1); });
   window.addEventListener('resize', placeTour); window.addEventListener('scroll', placeTour, true);
 
@@ -2388,6 +2413,7 @@ Escalation: anything medical or dangerous — call 000 first, then tell an organ
     L.push('\n## Stage running order\n' + STAGE_TIMES.map(x => `${tm(x.t)} — ${x.who}: ${x.what}`).join('\n'));
     L.push('\n## Moments\n' + MOMENTS.map(m => `${m.at} (block ${m.block + 1}) — ${m.name} at ${m.where}. ${m.note} Who: ${m.who === 'all' ? 'everyone' : m.who.join(', ')}.`).join('\n'));
     L.push('\n## Emergency contacts (numbers are in the app under Settings → Emergency — never give a number)\n' + EMERGENCY.map(c => `${c.n} — ${c.role}`).join('\n'));
+    L.push('\n## Things Spicy can point at (put the id in "show" when the answer is about tapping or finding one of these)\n' + Object.entries(POINTS).map(([id, pt]) => `${id} — ${pt.what}`).join('\n'));
     L.push('\n## How the app works\n' + MANUAL.map(m => `- ${m.t}: ${strip(m.p)}`).join('\n') + '\n' + TOUR.map(t => `- ${t.h}: ${strip(t.p)}`).join('\n'));
     // the live part: what time it is, who's where now and next
     const lb = liveBlock(); const cur = lb !== null ? lb : block;
@@ -2414,6 +2440,54 @@ Escalation: anything medical or dangerous — call 000 first, then tell an organ
   // same normalisation as the function, so "Where's the ball bag?" and
   // "where is the ball bag" share a cached answer
   const spicyKey = (q) => { const t = q.toLowerCase().replace(/[’']/g, '').replace(/\bwheres\b/g, 'where is').replace(/\bwhats\b/g, 'what is').replace(/\bwhos\b/g, 'who is').replace(/[^a-z0-9 ]+/g, ' ').replace(/\s+/g, ' ').trim(); let h = 5381; for (const ch of t) h = ((h * 33) ^ ch.charCodeAt(0)) >>> 0; return h.toString(16); };
+  // Everything Spicy can point at. The id goes to Gemini in the notes; when
+  // an answer names one, the app offers "Show me" and spotlights it exactly
+  // the way the welcome tour does.
+  const inSettings = { prep: () => { closeSheets(); showView('now'); openSettings(true); }, after: () => openSettings(false) };
+  const onNow = () => { closeSheets(); showView('now'); tourDemoBlock(); };
+  const POINTS = {
+    'duty-title':      { what: 'the title of your duty card — tap it for the committee head and everyone on that duty', target: '#now-card .duty-head', prep: onNow },
+    'swap-button':     { what: 'the Ask to swap button under your duty card', target: '#swap-open', prep: onNow },
+    'help-button':     { what: 'the Request more execs button under your duty card', target: '#help-ask', prep: onNow },
+    'next-up':         { what: 'the Next up box on the Now tab', target: '#now-next', prep: () => { closeSheets(); showView('now'); } },
+    'runsheet':        { what: 'your whole day, block by block, on the Now tab', target: '#runsheet', prep: () => { closeSheets(); showView('now'); } },
+    'block-arrows':    { what: 'the ‹ › LIVE buttons on the Now tab that step through blocks', target: '#preview', prep: () => { closeSheets(); showView('now'); } },
+    'bell':            { what: 'the bell at the top — swap requests, help calls, messages and notices', target: '#bell', prep: () => { closeSheets(); showView('now'); } },
+    'messages':        { what: 'your message conversations, inside the bell tray', target: '#dm-convos', prep: () => { closeSheets(); showView('now'); openTray(true); }, after: () => openTray(false) },
+    'gear':            { what: 'the Settings gear at the top', target: '#gear', prep: () => { closeSheets(); showView('now'); } },
+    'your-photo':      { what: 'the circle at the top with your photo (tap it for Settings)', target: '#who-pfp', prep: () => { closeSheets(); showView('now'); } },
+    'team-tab':        { what: 'the Team tab', target: '[data-view="team"]', prep: () => { closeSheets(); showView('now'); } },
+    'team-free':       { what: 'the Free right now list on the Team tab', target: '#t-free', prep: () => { closeSheets(); showView('team'); } },
+    'team-filter':     { what: 'the Societies and Advanced filters on the Team tab', target: '#t-filter', prep: () => { closeSheets(); showView('team'); } },
+    'team-arrows':     { what: 'the ‹ › LIVE arrows on the Team tab that step through blocks', target: '#t-prev, #t-next, #t-live', prep: () => { closeSheets(); showView('team'); } },
+    'scores-tab':      { what: 'the Scores tab', target: '[data-view="scores"]', prep: () => { closeSheets(); showView('now'); } },
+    'start-match':     { what: 'the Start a match form on the Scores tab', target: '#match-form', prep: () => { closeSheets(); showView('scores'); $('match-form').closest('details').open = true; } },
+    'live-scores':     { what: 'the live matches with + and − on the Scores tab', target: '#scores-live', prep: () => { closeSheets(); showView('scores'); } },
+    'brackets':        { what: 'the brackets on the Scores tab', target: '#brackets', prep: () => { closeSheets(); showView('scores'); } },
+    'new-bracket':     { what: 'the New bracket form on the Scores tab', target: '#bracket-form', prep: () => { closeSheets(); showView('scores'); $('bracket-form').closest('details').open = true; } },
+    'map-tab':         { what: 'the Map tab', target: '[data-view="map"]', prep: () => { closeSheets(); showView('now'); } },
+    'map':             { what: 'the festival map — drag to pan, pinch to zoom', target: '#mapz', prep: () => { closeSheets(); showView('map'); } },
+    'whats-on-tab':    { what: "the What's On tab", target: '[data-view="on"]', prep: () => { closeSheets(); showView('now'); } },
+    'whats-on':        { what: "the What's On cards — sports timetables, the stage, businesses, clubs", target: '#exec-on', prep: () => { closeSheets(); showView('on'); } },
+    'photo-upload':    { what: "where to send in festival photos, at the bottom of What's On", target: '[data-share="exec"]', prep: () => { closeSheets(); showView('on'); } },
+    'shout-out':       { what: "the shout-out box at the bottom of What's On", target: '[data-shout="exec"]', prep: () => { closeSheets(); showView('on'); } },
+    'settings-spicy':  { what: 'Spicy, under Settings', target: '.set-row:has(#set-spicy)', ...inSettings },
+    'settings-manual': { what: 'the Manual, under Settings', target: '.set-row:has(#set-manual)', ...inSettings },
+    'settings-incident': { what: 'Log incident, under Settings', target: '.set-row:has(#set-inc)', ...inSettings },
+    'settings-emergency': { what: 'the red Emergency button, under Settings', target: '.set-row:has(#set-emg)', ...inSettings },
+    'settings-photo':  { what: 'Your photo, under Settings', target: '#set-photo-row', ...inSettings },
+    'settings-switch': { what: 'Switch who is signed in, under Settings', target: '.set-row:has(#set-switch)', ...inSettings },
+    'settings-screen': { what: 'Big screen mode, under Settings', target: '.set-row:has(#screen-start)', ...inSettings },
+    'settings-notify': { what: 'the block-change notification toggle, under Settings', target: '.set-row:has(#nudge)', ...inSettings },
+    'desk':            { what: 'the Organiser desk button at the top (organisers only)', target: '#deskbtn', prep: () => { closeSheets(); showView('now'); } },
+  };
+  let pointStep = null;
+  function startPoint(id, text) {
+    const pt = POINTS[id]; if (!pt) return;
+    tourSaved = { live, block }; tourOn = true;
+    pointStep = { target: pt.target, prep: pt.prep, after: pt.after, title: 'Right here', text };
+    $('onb').hidden = false; renderTour();
+  }
   const SPICY_CHIPS = ['What do I do at my duty?', 'How do I swap out?', "Who's on with me next block?"];
   let spicyThread = [], spicyRows = {}, spicyListening = false;
   function openSpicy(open) {
@@ -2428,11 +2502,12 @@ Escalation: anything medical or dangerous — call 000 first, then tell an organ
     else el.innerHTML = spicyThread.map((x, i) => {
       const q = x.q ? `<div class="msg me">${esc(x.q)}</div>` : '';
       if (x.pending) return q + `<div class="msg spicy"><span class="spicy-wait">Spicy is thinking</span></div>`;
-      const acts = !x.err && me && me.first !== 'Sandes'
-        ? `<div class="spicy-acts">${x.sure === false ? '<span class="fine">Spicy isn\'t sure about this one.</span>' : ''}<button type="button" class="btn-small ghost" data-spicy-msg="${i}">Message Sandes</button></div>`
-        : (x.err && me && me.first !== 'Sandes' ? `<div class="spicy-acts"><button type="button" class="btn-small ghost" data-spicy-msg="${i}">Message Sandes</button></div>` : '');
+      const show = !x.err && x.show && POINTS[x.show] ? `<button type="button" class="btn-small" data-spicy-show="${i}">Show me</button>` : '';
+      const msg = me && me.first !== 'Sandes' ? `<button type="button" class="btn-small ghost" data-spicy-msg="${i}">Message Sandes</button>` : '';
+      const acts = show || msg ? `<div class="spicy-acts">${!x.err && x.sure === false ? '<span class="fine">Spicy isn\'t sure about this one.</span>' : ''}${show}${msg}</div>` : '';
       return q + `<div class="msg spicy ${x.sure === false ? 'unsure' : ''}">${esc(x.a)}${x.cached ? '<span class="t">Asked before — same answer.</span>' : ''}</div>` + acts;
     }).join('');
+    el.querySelectorAll('[data-spicy-show]').forEach(b => b.addEventListener('click', () => { const x = spicyThread[Number(b.dataset.spicyShow)]; openSpicy(false); startPoint(x.show, x.a); }));
     el.querySelectorAll('[data-spicy-msg]').forEach(b => b.addEventListener('click', () => {
       const x = spicyThread[Number(b.dataset.spicyMsg)]; openSpicy(false); openDm('Sandes');
       if (x && x.q && $('dm-text')) $('dm-text').value = ('Q: ' + x.q).slice(0, 200);
@@ -2449,11 +2524,11 @@ Escalation: anything medical or dangerous — call 000 first, then tell an organ
     // asked before by anyone this block, and not personal? same answer, no
     // round trip. Keyed by block so "who's on volleyball" never goes stale.
     const lb = liveBlock(); const blk = lb !== null ? lb : block;
-    try { const c = (await ref(`spicy-cache/${spicyKey(q)}-${blk}`).get()).val(); if (c && c.a && Date.now() - (c.t || 0) < 86400000) { done({ a: c.a, sure: true, cached: true }); return; } } catch {}
+    try { const c = (await ref(`spicy-cache/${spicyKey(q)}-${blk}`).get()).val(); if (c && c.a && Date.now() - (c.t || 0) < 86400000) { done({ a: c.a, sure: true, cached: true, show: c.show || '' }); return; } } catch {}
     const hist = spicyThread.filter(x => x !== item && x.a && !x.err && !x.pending).slice(-3).map(x => `Q: ${x.q}\nA: ${x.a}`).join('\n').slice(0, 4000);
     const row = ref('spicy').push();
     const timer = setTimeout(() => { if (item.pending) { row.off(); done({ a: 'Spicy\'s not answering right now — message Sandes.', sure: false, err: true }); } }, 40000);
-    row.on('value', snap => { const v = snap.val(); if (v && v.a) { clearTimeout(timer); row.off(); done({ a: v.a, sure: v.sure !== false }); } });
+    row.on('value', snap => { const v = snap.val(); if (v && v.a) { clearTimeout(timer); row.off(); done({ a: v.a, sure: v.sure !== false, show: v.show || '' }); } });
     try { await row.set({ q, by: me.first, soc: me.s[0], blk, notes: spicyNotes().slice(0, 40000), hist, t: now() }); }
     catch (e) { clearTimeout(timer); row.off(); done({ a: 'Couldn\'t send that one.', sure: false, err: true }); }
   }
@@ -2468,9 +2543,36 @@ Escalation: anything medical or dangerous — call 000 first, then tell an organ
     el.innerHTML = ids.length ? ids.map(i => { const x = spicyRows[i]; const bad = x.a && x.sure === false; return `<div class="check" style="--c:${bad ? '#B23A2E' : 'var(--tan)'}"><b>${esc(x.by || '?')} <span class="fine">· ${x.t ? clock(x.t) : ''}</span></b><div>${esc(x.q)}</div><div class="fine">${x.a ? esc(x.a) : 'Waiting for an answer…'}</div></div>`; }).join('') : '<p class="fine">Nothing asked yet.</p>';
   }
 
+  // Your photo: picked on the phone, squared and shrunk here, shared through
+  // the database so every exec sees it next to your name within a second.
+  let photoMsgId = null;
+  function pickPhoto(msgId) { if (!me) return; photoMsgId = msgId; $('pfp-file').value = ''; $('pfp-file').click(); }
+  async function squarePhoto(file, size) {
+    let img;
+    try { img = await createImageBitmap(file, { imageOrientation: 'from-image' }); }
+    catch { img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = URL.createObjectURL(file); }); }
+    const w = img.width, h = img.height, k = Math.min(w, h);
+    const c = document.createElement('canvas'); c.width = size; c.height = size;
+    c.getContext('2d').drawImage(img, (w - k) / 2, (h - k) / 2, k, k, 0, 0, size, size);
+    return c.toDataURL('image/jpeg', 0.72);
+  }
+  $('pfp-file').addEventListener('change', async () => {
+    const f = $('pfp-file').files[0]; if (!f || !me) return;
+    const say = (t) => { const el = photoMsgId && $(photoMsgId); if (el) el.textContent = t; };
+    say('Saving…');
+    try {
+      const data = await squarePhoto(f, 128);
+      if (!db) throw new Error('offline');
+      await ref('pfp/' + me.first.toLowerCase()).set(data);
+      say('Saved — everyone sees it next to your name.');
+    } catch (e) { say('That one didn\'t work — try another photo.'); }
+  });
+  $('set-photo').addEventListener('click', () => pickPhoto('set-photo-msg'));
+  $('who-pfp').addEventListener('click', () => { renderSim(); openSettings(true); });
+
   function openSettings(open) {
     $('set-sheet').hidden = !open; $('set-backdrop').hidden = !open;
-    if (open) $('set-who').textContent = me ? full(me.first) : (ident ? ident.name : '—');
+    if (open) { $('set-who').textContent = me ? full(me.first) : (ident ? ident.name : '—'); const row = $('set-photo-row'); row.hidden = !me; if (me) { const has = !!pfps[me.first.toLowerCase()]; $('set-photo').textContent = has ? 'Change' : 'Add'; row.querySelector('.txt').innerHTML = `<b>Your photo</b><span id="set-photo-msg">${has ? 'Shown next to your name.' : 'Shown next to your name so people can find you.'}</span>`; row.querySelector('.txt').insertAdjacentHTML('afterbegin', pfp(me.first, 44)); row.style.alignItems = 'center'; } }
   }
   $('gear').addEventListener('click', () => { renderSim(); openSettings(true); });
   $('set-close').addEventListener('click', () => openSettings(false)); $('set-backdrop').addEventListener('click', () => openSettings(false));
@@ -3056,6 +3158,7 @@ Escalation: anything medical or dangerous — call 000 first, then tell an organ
     ref('config/aiReview').on('value', snap => { aiOn = snap.val() !== false; renderPhotoMod(); }, () => {});
     ref('ticker').limitToLast(40).on('value', snap => { ticks = snap.val() || {}; if (scrOn) renderTicker(); if (!$('view-desk').hidden) renderTicks(); }, () => {});
     ref('incidents').limitToLast(100).on('value', snap => { incidents = snap.val() || {}; renderIncidents(); }, () => {});
+    ref('pfp').on('value', snap => { pfps = snap.val() || {}; if (!$('shell').hidden) { render(); $('who-pfp').innerHTML = me ? pfp(me.first, 32) : ''; if (tourOn) renderTour(); } }, () => {});
     ref('sim').on('value', snap => { sim = snap.val(); if (!$('shell').hidden) { const lb = liveBlock(); live = lb !== null; if (live) block = lb; else if (block < 0 || block >= BLOCKS) block = 0; render(); renderSim(); } renderStageNow(); }, () => {});
     ref('help').limitToLast(60).on('value', snap => { helps = snap.val() || {}; if (!$('shell').hidden) { render(); renderHelps(); renderBell(); } }, () => { unavailable($('help-list'), 'help calls'); });
   }
