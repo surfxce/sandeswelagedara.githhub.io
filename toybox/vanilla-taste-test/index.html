@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vanilla Bean Test</title>
+<style>
+  :root {
+    --bg: #F7E9CE;
+    --card: #FBF2DF;
+    --ink: #241454;
+    --ink-soft: #6B5F86;
+    --row-bg-1: #2A1750;
+    --row-bg-2: #1E1040;
+    --spoon-bg: #6C58A8;
+    --tab-active: #6C58A8;
+    --tab-inactive: #FFFFFF;
+    --circle-bg: #F3E7CF;
+    --icon-color: #D98C86;
+    --pref-bg: #F3E7CF;
+    --pref-selected-a: #F0B8C8;
+    --pref-selected-b: #B79FE0;
+    --border: #E4D2A8;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #1B1330;
+      --card: #241A3E;
+      --ink: #EFE7F7;
+      --ink-soft: #A99BC4;
+      --row-bg-1: #120A26;
+      --row-bg-2: #0C0718;
+      --spoon-bg: #4B3B80;
+      --tab-active: #8672C4;
+      --tab-inactive: #2E2350;
+      --circle-bg: #2E2350;
+      --icon-color: #E8A6A0;
+      --pref-bg: #2E2350;
+      --pref-selected-a: #C98BA5;
+      --pref-selected-b: #8B72C4;
+      --border: #3A2E5C;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #1B1330;
+    --card: #241A3E;
+    --ink: #EFE7F7;
+    --ink-soft: #A99BC4;
+    --row-bg-1: #120A26;
+    --row-bg-2: #0C0718;
+    --spoon-bg: #4B3B80;
+    --tab-active: #8672C4;
+    --tab-inactive: #2E2350;
+    --circle-bg: #2E2350;
+    --icon-color: #E8A6A0;
+    --pref-bg: #2E2350;
+    --pref-selected-a: #C98BA5;
+    --pref-selected-b: #8B72C4;
+    --border: #3A2E5C;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+    min-height: 100vh;
+    padding: 32px 16px 64px;
+  }
+  .wrap { max-width: 900px; margin: 0 auto; }
+  .top-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 24px; }
+  h1 {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 2.1rem;
+    font-weight: 400;
+    margin: 0;
+    color: var(--ink);
+  }
+  .reset-link {
+    background: none; border: none; color: var(--ink-soft);
+    text-decoration: underline; font-size: 0.82rem; cursor: pointer; padding: 0;
+  }
+  .tabs { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 22px; }
+  .tab-btn, .add-tab-btn {
+    padding: 11px 20px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--tab-inactive);
+    color: var(--ink);
+    font-size: 0.95rem;
+    cursor: pointer;
+  }
+  .tab-btn.active {
+    background: var(--tab-active);
+    color: #fff;
+    border-color: var(--tab-active);
+  }
+  .add-tab-btn {
+    background: transparent;
+    color: var(--ink-soft);
+    border-style: dashed;
+  }
+
+  .scroll-area { overflow-x: auto; }
+  .grid-row {
+    display: grid;
+    grid-template-columns: 44px minmax(120px,1fr) minmax(120px,1fr) 130px 150px;
+    gap: 10px;
+    align-items: center;
+    min-width: 620px;
+  }
+  .legend-row {
+    padding: 0 6px 10px;
+    color: var(--ink-soft);
+    font-size: 0.85rem;
+  }
+  .legend-row .grid-row > div:nth-child(4),
+  .legend-row .grid-row > div:nth-child(5) { text-align: center; }
+
+  .trial-row {
+    background: linear-gradient(135deg, var(--row-bg-1), var(--row-bg-2));
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 12px;
+    color: #fff;
+  }
+  .row-num {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 1.8rem;
+  }
+  .spoon-box {
+    background: var(--spoon-bg);
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 0.9rem;
+    text-align: center;
+  }
+  .spoon-box .spoon-title { display: block; opacity: 0.85; font-size: 0.8rem; margin-bottom: 2px; }
+  .spoon-box .spoon-name { font-weight: 700; font-size: 1rem; }
+
+  .diff-col { display: flex; justify-content: center; }
+  .diff-toggle {
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    border: none;
+    background: var(--circle-bg);
+    color: var(--icon-color);
+    font-size: 1.5rem;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .diff-toggle:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+
+  .pref-col { display: flex; gap: 8px; justify-content: center; }
+  .pref-btn {
+    width: 44px; height: 52px;
+    border-radius: 8px;
+    border: none;
+    background: var(--pref-bg);
+    color: var(--ink);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .pref-btn.selected {
+    background: linear-gradient(135deg, var(--pref-selected-a), var(--pref-selected-b));
+    color: #fff;
+  }
+  .pref-btn:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+
+  .summary-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px 20px;
+    margin-top: 20px;
+    font-size: 1.02rem;
+  }
+  .summary-card .progress {
+    display: block;
+    margin-top: 6px;
+    font-size: 0.82rem;
+    color: var(--ink-soft);
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top-row">
+    <h1>Vanilla Bean Test</h1>
+    <button class="reset-link" id="resetAll">Reset all</button>
+  </div>
+
+  <div class="tabs" id="tabs"></div>
+
+  <div class="scroll-area">
+    <div class="legend-row">
+      <div class="grid-row">
+        <div></div><div></div><div></div>
+        <div>Thought they were different?</div>
+        <div>Liked which one better?</div>
+      </div>
+    </div>
+
+    <div id="trials"></div>
+  </div>
+
+  <div class="summary-card">
+    <span id="summaryText">No responses recorded yet.</span>
+  </div>
+</div>
+
+<script>
+(function () {
+  // A = vanilla, B = vanilla bean. Fixed sequence so every participant gets the same 8 trials.
+  var CODES = ['AB', 'AA', 'BB', 'BA', 'BB', 'AB', 'AA', 'BA'];
+  var NAMES = { A: 'Vanilla', B: 'Vanilla Bean' };
+  var STORE_KEY = 'vanillaBeanTest.participants.v2';
+
+  var tabsEl = document.getElementById('tabs');
+  var trialsEl = document.getElementById('trials');
+  var summaryEl = document.getElementById('summaryText');
+  var resetAllBtn = document.getElementById('resetAll');
+
+  var participants = [];
+  var activeIndex = 0;
+
+  function load() {
+    try {
+      var raw = window.localStorage.getItem(STORE_KEY);
+      var data = raw ? JSON.parse(raw) : null;
+      if (data && Array.isArray(data) && data.length) return data;
+    } catch (e) {}
+    return [newParticipant(1)];
+  }
+
+  function save() {
+    try { window.localStorage.setItem(STORE_KEY, JSON.stringify(participants)); } catch (e) {}
+  }
+
+  function newParticipant(n) {
+    return {
+      name: 'Participant ' + n,
+      answers: new Array(CODES.length).fill(null),   // null | 'different' | 'same'
+      betters: new Array(CODES.length).fill(null)    // null | 1 | 2
+    };
+  }
+
+  function renderTabs() {
+    tabsEl.innerHTML = '';
+    participants.forEach(function (p, i) {
+      var btn = document.createElement('button');
+      btn.className = 'tab-btn' + (i === activeIndex ? ' active' : '');
+      btn.textContent = p.name;
+      btn.addEventListener('click', function () { activeIndex = i; renderAll(); });
+      tabsEl.appendChild(btn);
+    });
+    var addBtn = document.createElement('button');
+    addBtn.className = 'add-tab-btn';
+    addBtn.textContent = '+ Add participant';
+    addBtn.addEventListener('click', function () {
+      participants.push(newParticipant(participants.length + 1));
+      activeIndex = participants.length - 1;
+      save();
+      renderAll();
+    });
+    tabsEl.appendChild(addBtn);
+  }
+
+  function renderTrials() {
+    var p = participants[activeIndex];
+    trialsEl.innerHTML = '';
+    CODES.forEach(function (code, i) {
+      var row = document.createElement('div');
+      row.className = 'trial-row';
+      var a = code[0], b = code[1];
+      var diffState = p.answers[i]; // null | 'different' | 'same'
+      var icon = diffState === 'different' ? '&#10003;' : (diffState === 'same' ? '&#10007;' : '');
+
+      row.innerHTML =
+        '<div class="grid-row">' +
+          '<div class="row-num">' + (i + 1) + '.</div>' +
+          '<div class="spoon-box"><span class="spoon-title">Spoon 1:</span><span class="spoon-name">' + NAMES[a] + '</span></div>' +
+          '<div class="spoon-box"><span class="spoon-title">Spoon 2:</span><span class="spoon-name">' + NAMES[b] + '</span></div>' +
+          '<div class="diff-col"><button class="diff-toggle" data-i="' + i + '" aria-label="Thought they were different? Tap to toggle">' + icon + '</button></div>' +
+          '<div class="pref-col">' +
+            '<button class="pref-btn' + (p.betters[i] === 1 ? ' selected' : '') + '" data-i="' + i + '" data-val="1">1</button>' +
+            '<button class="pref-btn' + (p.betters[i] === 2 ? ' selected' : '') + '" data-i="' + i + '" data-val="2">2</button>' +
+          '</div>' +
+        '</div>';
+      trialsEl.appendChild(row);
+    });
+
+    trialsEl.querySelectorAll('.diff-toggle').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var i = parseInt(btn.getAttribute('data-i'), 10);
+        var cur = p.answers[i];
+        p.answers[i] = cur === null ? 'different' : (cur === 'different' ? 'same' : 'different');
+        save();
+        renderTrials();
+        renderSummary();
+      });
+    });
+
+    trialsEl.querySelectorAll('.pref-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var i = parseInt(btn.getAttribute('data-i'), 10);
+        var val = parseInt(btn.getAttribute('data-val'), 10);
+        p.betters[i] = (p.betters[i] === val) ? null : val;
+        save();
+        renderTrials();
+        renderSummary();
+      });
+    });
+  }
+
+  function renderSummary() {
+    var p = participants[activeIndex];
+    var totalAnswered = 0, correct = 0, prefAnswered = 0, voteA = 0, voteB = 0;
+
+    CODES.forEach(function (code, i) {
+      var trueVal = code[0] === code[1] ? 'same' : 'different';
+      if (p.answers[i]) {
+        totalAnswered++;
+        if (p.answers[i] === trueVal) correct++;
+      }
+      if (p.betters[i]) {
+        prefAnswered++;
+        var letter = p.betters[i] === 1 ? code[0] : code[1];
+        if (letter === 'A') voteA++; else voteB++;
+      }
+    });
+
+    if (totalAnswered === 0 && prefAnswered === 0) {
+      summaryEl.innerHTML = 'No responses recorded yet.';
+      return;
+    }
+
+    var diffPart = totalAnswered === 0
+      ? 'not enough data on telling them apart'
+      : ((correct / totalAnswered) >= 0.75 ? 'can tell the difference' : 'cannot tell the difference');
+
+    var prefPart;
+    if (prefAnswered === 0) {
+      prefPart = 'no preference recorded';
+    } else if (voteA === voteB) {
+      prefPart = 'no clear favorite';
+    } else {
+      prefPart = voteA > voteB ? 'likes vanilla more' : 'likes vanilla bean more';
+    }
+
+    var sentence = diffPart.charAt(0).toUpperCase() + diffPart.slice(1) + ', ' + prefPart + '.';
+    var progress = (totalAnswered < CODES.length || prefAnswered < CODES.length)
+      ? '<span class="progress">' + totalAnswered + '/' + CODES.length + ' difference answers, ' + prefAnswered + '/' + CODES.length + ' preference answers recorded so far.</span>'
+      : '';
+    summaryEl.innerHTML = sentence + progress;
+  }
+
+  function renderAll() {
+    renderTabs();
+    renderTrials();
+    renderSummary();
+  }
+
+  resetAllBtn.addEventListener('click', function () {
+    if (confirm('Reset every participant? This can\'t be undone.')) {
+      participants = [newParticipant(1)];
+      activeIndex = 0;
+      save();
+      renderAll();
+    }
+  });
+
+  participants = load();
+  renderAll();
+})();
+</script>
+</body>
+</html>
