@@ -298,6 +298,27 @@
   .msg.me { background: var(--maroon); color: var(--cream); justify-self: end; }
   .msg .t { display: block; font-size: 11px; opacity: .7; margin-top: 2px; }
   .dm-canned { display: flex; flex-wrap: wrap; gap: 6px; }
+  /* profile pictures: a photo from the roster, or initials */
+  .pfp { display: inline-grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; overflow: hidden; background: var(--maroon); color: var(--cream); font-weight: 800; font-size: 10px; letter-spacing: .02em; vertical-align: middle; flex: none; line-height: 1; }
+  .pfp img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .pfp.s32 { width: 32px; height: 32px; font-size: 12px; }
+  .pfp.s44 { width: 44px; height: 44px; font-size: 16px; }
+  .pfp.s72 { width: 72px; height: 72px; font-size: 26px; }
+  .partner .pfp { width: 28px; height: 28px; font-size: 11px; margin-right: 6px; }
+  .tt .pfp { margin-right: 6px; }
+  .dm-head .nm { display: inline-flex; align-items: center; gap: 10px; }
+  .emg-top { display: flex; align-items: center; gap: 10px; }
+  .emg-top > div { display: grid; gap: 2px; }
+  /* Spicy */
+  .spicy-thread { max-height: 48vh; }
+  .msg.spicy { background: #FFF8EE; border-left: 3px solid var(--tan); white-space: pre-wrap; }
+  .msg.spicy.unsure { border-left-color: #B23A2E; }
+  .msg.spicy .t { display: block; margin-top: 4px; font-size: 11px; color: var(--ink-3); }
+  .spicy-acts { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; justify-self: start; margin: -2px 0 4px; }
+  .spicy-acts .fine { margin: 0; }
+  .spicy-wait { color: var(--ink-3); font-style: italic; }
+  @keyframes spicy-dots { 0%, 20% { content: '.'; } 40% { content: '..'; } 60%, 100% { content: '...'; } }
+  .spicy-wait::after { content: '...'; animation: spicy-dots 1.2s steps(1) infinite; }
   .dm-canned button { min-height: 36px; padding: 0 12px; border-radius: 18px; border: 1.5px solid var(--line); background: #fff; font-weight: 700; font-size: 14px; color: var(--maroon); }
   /* moment banner (photos etc. that don't displace a duty) */
   .moment { display: grid; grid-template-columns: 30px auto 1fr; gap: 4px 12px; align-items: center; padding: 12px 14px; background: #EEF1F7; border-left: 6px solid var(--c-photo); }
@@ -470,6 +491,8 @@
     font-weight: 700; font-size: 14px; flex: 0 1 auto; min-width: 0;
   }
   .who .nm { max-width: 11ch; }
+  .who #who-pfp:empty { display: none; }
+  .who #who-pfp { display: inline-flex; margin-left: -6px; }
   @media (max-width: 380px) { .who .soc { display: none; } }
   .who .nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .who button { display: none; }   /* Switch lives in Settings now */
@@ -951,6 +974,7 @@
         <span class="bell-n" id="bell-n" hidden></span>
       </button>
       <div class="who">
+        <span id="who-pfp"></span>
         <span class="nm" id="who-name">—</span>
         <span class="soc" id="who-soc"></span>
         <button type="button" id="switch">Switch</button>
@@ -1087,6 +1111,7 @@
         <details class="more" style="margin-top:8px"><summary>On the screen — take one down</summary><div class="photo-mod" id="d-approved"></div></details>
       </div>
       <div><h2 class="sec">Shout-outs <span class="fine">— remove anything that slipped through</span></h2><div class="swap-list" id="d-ticks"></div></div>
+      <div><h2 class="sec">Spicy questions <span class="fine">— what execs are asking; red = it couldn't answer</span></h2><div class="swap-list" id="d-spicy"></div></div>
       <div><h2 class="sec">Incidents</h2><div class="swap-list" id="d-inc"></div></div>
       <div><h2 class="sec">Post a notice</h2>
         <form class="bcast-form" id="desk-notice" autocomplete="off">
@@ -1188,6 +1213,10 @@
         <button class="toggle" id="nudge" type="button" role="switch" aria-checked="false" aria-label="Notification when the block changes"></button>
       </div>
       <div class="set-row">
+        <div class="txt"><b>Spicy</b><span>Ask anything about the day or the app. Doesn't know? It'll say so.</span></div>
+        <button class="btn-small" id="set-spicy" type="button">Ask</button>
+      </div>
+      <div class="set-row">
         <div class="txt"><b>Manual</b><span>Every part of the app, searchable. Also replays the welcome tour.</span></div>
         <button class="btn-small ghost" id="set-manual" type="button">Open</button>
       </div>
@@ -1207,6 +1236,19 @@
         <div class="txt"><b>Emergency</b><span>Who to call when something's wrong.</span></div>
         <button class="btn-small emg" id="set-emg" type="button">Emergency</button>
       </div>
+    </section>
+
+    <!-- Spicy -->
+    <div class="dm-backdrop" id="spicy-backdrop" hidden></div>
+    <section class="dm-sheet" id="spicy-sheet" hidden aria-label="Ask Spicy">
+      <div class="dm-head"><span class="nm">Spicy</span><button class="linkbtn" id="spicy-close" type="button">Close</button></div>
+      <p class="fine">Knows the day and the app — duties, who's where right now, how everything works. If it doesn't know, it says so.</p>
+      <div class="dm-thread spicy-thread" id="spicy-thread"></div>
+      <div class="dm-canned" id="spicy-chips"></div>
+      <form class="bcast-form" id="spicy-form" autocomplete="off">
+        <input id="spicy-text" type="text" maxlength="300" placeholder="Ask anything…" required>
+        <button class="btn-small" type="submit">Ask</button>
+      </form>
     </section>
 
     <!-- Log incident -->
@@ -1443,6 +1485,18 @@
   const full = (first) => byFirst[first.toLowerCase()].n;
   const esc = (s) => s.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
   // "A, B & C" — any number of people on a duty, not just pairs
+  // Profile picture: the roster photo if there is one, otherwise initials.
+  // Takes a first name or a full name (emergency contacts aren't all execs).
+  const PFP_COLORS = ['#7A2E22', '#B8623A', '#3E6B5A', '#4B5A8A', '#8A5A2E', '#5B3B6E'];
+  function pfp(name, size) {
+    name = name || ''; const p = byFirst[name.split(' ')[0].toLowerCase()];
+    const cls = 'pfp' + (size ? ' s' + size : '');
+    if (p && p.pic && p.pic.startsWith('data:image/')) return `<span class="${cls}"><img src="${p.pic}" alt=""></span>`;
+    const nm = p ? p.n : name;
+    const ini = nm.split(' ').map(w => w[0]).filter(Boolean).slice(0, 2).join('').toUpperCase();
+    let h = 0; for (const ch of nm) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+    return `<span class="${cls}" style="background:${PFP_COLORS[h % PFP_COLORS.length]}">${esc(ini)}</span>`;
+  }
   const names = (firsts, fmtOne = full) => { const a = firsts.map(fmtOne); return a.length <= 1 ? a.join('') : a.slice(0, -1).join(', ') + ' & ' + a[a.length - 1]; };
   const tasksHtml = (d, cls) => d.tasks && d.tasks.length ? `<div class="subjobs ${cls || ''}">${d.tasks.map(t => `<span class="subjob">${esc(t)}</span>`).join('')}</div>` : '';
 
@@ -1533,7 +1587,7 @@
       const everyone = rows.flatMap(([, ppl]) => ppl); const mine = me ? assignmentFor(me.first, i) : null;
       const partners = mine && mine.id === arg ? mine.people : [];
       const others = everyone.filter(p => !partners.includes(p) && !(me && p === me.first));
-      const person = (p) => `<div class="tt"><span class="t"></span><span class="tm won" style="grid-column:2/-1;text-align:left"><span data-dm="${esc(p)}">${esc(full(p))}</span><small>${esc(soc(p))}</small></span></div>`;
+      const person = (p) => `<div class="tt"><span class="t"></span><span class="tm won" style="grid-column:2/-1;text-align:left;display:flex;align-items:center"><span class="pfp-wrap">${pfp(p, 32)}</span><span data-dm="${esc(p)}">${esc(full(p))}<small>${esc(soc(p))}</small></span></span></div>`;
       const lead = leadFor(arg);
       return { title: d.name, body: `<p><b>${esc(d.where)}</b> · ${range(i)}</p><p>${esc(d.do)}</p>
         <h4 class="sec-sm">Committee head</h4><p class="fine">${lead ? esc(lead) : 'Not applicable for this one'}</p>
@@ -1625,7 +1679,7 @@
     const p = byFirst[ident.name.toLowerCase()];
     me = (p && p.s.includes(ident.society)) ? p : null;
     document.querySelector('.tabs').hidden = adminMode; $('blockbar').hidden = adminMode; $('bell').hidden = adminMode;
-    $('who-name').textContent = me ? me.first : ident.name;
+    $('who-name').textContent = me ? me.first : ident.name; $('who-pfp').innerHTML = me ? pfp(me.first, 32) : '';
     $('who-soc').textContent = ident.society;
     $('entry').hidden = true; $('public').hidden = true; $('login-view').hidden = true; $('shell').hidden = false;
     window.scrollTo(0, 0);
@@ -1681,7 +1735,7 @@
   function dutyCard(a, extraClass) {
     const d = DUTIES[a.id]; const cat = CATS[d.cat];
     const partners = a.people.length
-      ? `<div class="with"><span class="eyebrow">${d.cat === 'play' ? 'Teammates' : 'With'}</span><div class="partner-list">${a.people.map(p => `<div class="partner"><span data-dm="${esc(p)}">${esc(full(p))}</span><span class="soc">${esc(soc(p))}</span></div>`).join('')}</div></div>`
+      ? `<div class="with"><span class="eyebrow">${d.cat === 'play' ? 'Teammates' : 'With'}</span><div class="partner-list">${a.people.map(p => `<div class="partner"><span data-dm="${esc(p)}">${pfp(p)}${esc(full(p))}</span><span class="soc">${esc(soc(p))}</span></div>`).join('')}</div></div>`
       : (['free', 'hands', 'photo', 'play'].includes(d.cat) ? '' : `<div class="with"><span class="eyebrow">With</span><div class="partner">Solo this block</div></div>`);
     // status line: the pulsing dot says "this block is on now"; the category
     // only follows when it says something the heading doesn't
@@ -2163,7 +2217,7 @@
   const dmUnread = () => myConvos().reduce((n, c) => n + c.unread, 0);
   function openDm(other) {
     if (!db || !me || !other || other === me.first) return;
-    dmOpen = other; $('dm-who').textContent = 'Message ' + full(other);
+    dmOpen = other; $('dm-who').innerHTML = pfp(other, 44) + '<span>Message ' + esc(full(other)) + '</span>';
     $('dm-canned').innerHTML = CANNED.map(t => `<button type="button" data-canned="${esc(t)}">${esc(t)}</button>`).join('');
     $('dm-canned').querySelectorAll('button').forEach(b => b.addEventListener('click', () => sendDm(b.dataset.canned)));
     $('dm-sheet').hidden = false; $('dm-backdrop').hidden = false;
@@ -2206,7 +2260,7 @@
   const PHONE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg>';
   function openEmg(open) {
     $('emg-sheet').hidden = !open; $('emg-backdrop').hidden = !open; if (!open) return;
-    $('emg-grid').innerHTML = EMERGENCY.map((c, i) => `<div class="emg" data-i="${i}" role="button" tabindex="0"><span class="nm">${esc(c.n)}</span><span class="role">${esc(c.role)}</span><a class="call" href="tel:${c.tel.replace(/\s/g, '')}">${PHONE} Call ${esc(c.tel)}</a></div>`).join('');
+    $('emg-grid').innerHTML = EMERGENCY.map((c, i) => `<div class="emg" data-i="${i}" role="button" tabindex="0"><div class="emg-top">${pfp(c.n, 44)}<div><span class="nm">${esc(c.n)}</span><span class="role">${esc(c.role)}</span></div></div><a class="call" href="tel:${c.tel.replace(/\s/g, '')}">${PHONE} Call ${esc(c.tel)}</a></div>`).join('');
     $('emg-grid').querySelectorAll('.emg').forEach(el => el.addEventListener('click', e => { if (e.target.closest('.call')) return; $('emg-grid').querySelectorAll('.emg').forEach(o => { if (o !== el) o.classList.remove('open'); }); el.classList.toggle('open'); }));
   }
   $('set-emg').addEventListener('click', () => { openSettings(false); openEmg(true); });
@@ -2223,7 +2277,8 @@
     { icon: 'tent',    color: 'var(--c-club)',   t: 'Map', k: 'map where location pinch zoom', p: 'The ground. Drag to pan, pinch to zoom, double-tap to zoom in.' },
     { icon: 'sparkle', color: 'var(--c-ticket)', t: "What's On", k: 'whats on stalls timetable stage performances businesses clubs photos upload', p: 'Everything at the festival. Tap a sport for the match timetable, the stage for the running order, a business for what they do, a club for who\'s on the marquee. Send festival photos from the bottom.' },
     { icon: 'camera',  color: 'var(--c-photo)',  t: 'Photos & big screen', k: 'photos upload approve big screen tv slideshow', p: 'Anyone can send a photo in; organisers approve them; approved photos roll across the big screen. <b>Big screen mode</b> is under Settings for whoever runs the TV.' },
-    { icon: 'box',     color: 'var(--c-hands)',  t: 'Settings', k: 'settings gear notification notify switch user sign out big screen manual emergency', p: 'The gear. Big screen mode, a notification when the block changes, switch who\'s signed in, this manual, <b>Log incident</b> (first aid, lost property, behaviour, equipment — timestamped for the organisers), and the red <b>Emergency</b> button with who to call.' },
+    { icon: 'sparkle', color: 'var(--tan)',      t: 'Spicy', k: 'spicy ask question help bot chat ai assistant who do i talk to where is', p: 'Settings → <b>Spicy</b>. Ask anything — what your duty involves, who\'s on what right now, how a part of the app works. It answers from the roster and this manual, points you to a person when there is one, and says so when it doesn\'t know. Every answer has a <b>Message Sandes</b> button.' },
+    { icon: 'box',     color: 'var(--c-hands)',  t: 'Settings', k: 'settings gear notification notify switch user sign out big screen manual emergency spicy', p: 'The gear. Big screen mode, a notification when the block changes, switch who\'s signed in, <b>Spicy</b> (ask it anything), this manual, <b>Log incident</b> (first aid, lost property, behaviour, equipment — timestamped for the organisers), and the red <b>Emergency</b> button with who to call.' },
     { icon: 'heart',   color: '#B23A2E',         t: 'Emergency', k: 'emergency call phone number urgent 000 organiser help', p: 'Settings → <b>Emergency</b>. Tap a name for a Call button. Anything medical or dangerous: <b>000 first</b>.' },
   ];
   function renderManual(q) {
@@ -2243,21 +2298,21 @@
   // Each step points at a real thing: prep() gets it on screen (switch tab,
   // open the tray, open settings), then the spotlight cuts a hole around it.
   const TOUR = [
-    { icon: 'coffee', color: 'var(--c-free)', h: 'Welcome', p: 'A one-minute tour of where everything is. Close it any time with the × — it won\'t come back. It\'s also under Settings → Manual if you want it again.', prep: () => { closeSheets(); showView('now'); } },
+    { icon: 'coffee', color: 'var(--c-free)', h: 'Welcome', me: true, p: 'A one-minute tour of where everything is. Close it any time with the × — it won\'t come back. It\'s also under Settings → Manual if you want it again.', prep: () => { closeSheets(); showView('now'); } },
     { icon: 'football', color: 'var(--c-sport)', h: 'Your duty, right now', target: '#now-card > .duty-card', prep: () => { showView('now'); tourDemoBlock(); }, p: 'The big card is what you\'re doing this block: <b>where to be</b>, <b>what it involves</b>, and <b>who you\'re with</b>. The dot pulses when the clock is live. <b>Tap the title</b> for the committee head and everyone else on it; tap a name to message them.' },
     { icon: 'crowd', color: 'var(--c-crowd)', h: 'Stuck? Two buttons.', target: '#now-card .ctl-row', prep: () => { showView('now'); tourDemoBlock(); }, p: '<b>Request more execs</b> pings every free exec — they tap "on my way". <b>Ask to swap</b> gives you three options: <b>Not fussed</b> (everyone is asked), <b>take a break</b> (free execs come and take over), or <b>pick another activity</b> (the execs on it are asked to swap places with you). In a sports competition it reads <b>Ask a teammate to sub in</b>.' },
     { icon: 'coffee', color: 'var(--c-free)', h: 'Next up and your day', target: '#now-next, #runsheet', prep: () => showView('now'), p: 'What\'s coming next, then your whole day — every block, who with, and moments like the team photo. The <b>‹ › LIVE</b> buttons underneath let you look ahead.' },
     { icon: 'mic', color: 'var(--c-stage)', h: 'The bell', target: '#tray', prep: () => { showView('now'); openTray(true); }, after: () => openTray(false), p: 'Everything that needs you: <b>swap requests</b> and <b>calls for help</b> you can answer, your <b>messages</b>, and <b>notices</b> from the organisers. The red number on the bell is what\'s new.' },
-    { icon: 'crowd', color: 'var(--c-club)', h: 'Team', target: '#t-filter, #t-free', prep: () => showView('team'), p: 'Who\'s <b>free right now</b> and who\'s <b>on duty</b>, this block. <b>Societies</b> hides clubs you don\'t need to see; <b>Advanced</b> picks individual people. The arrows at the top step through the day.' },
+    { icon: 'crowd', color: 'var(--c-club)', h: 'Team', target: '#t-filter, #t-free', prep: () => showView('team'), p: 'Who\'s <b>free right now</b> and who\'s <b>on duty</b>, this block. Tap a name to message them — you\'ll see their photo. <b>Societies</b> hides clubs you don\'t need to see; <b>Advanced</b> picks individual people. The arrows at the top step through the day.' },
     { icon: 'volleyball', color: 'var(--c-sport)', h: 'Scores', target: '#view-scores > div:nth-of-type(1), #view-scores > details:nth-of-type(1)', prep: () => showView('scores'), p: 'Referees: <b>the score you tap is the score.</b> Every + goes to the big screen and the public page within a second — nobody else keeps score, so if you don\'t tap, the crowd sees 0–0. <b>Start a match</b>, tap + and −, <b>End match</b>; the bracket fills in from that.' },
     { icon: 'tent', color: 'var(--c-club)', h: 'Map', target: '#mapz', prep: () => showView('map'), p: 'The ground. Drag to pan, pinch to zoom, double-tap to zoom in.' },
     { icon: 'sparkle', color: 'var(--c-ticket)', h: "What's On", target: '#exec-on > div:nth-of-type(1)', prep: () => showView('on'), p: 'Everything at the festival. Tap a <b>sport</b> for its match timetable, the <b>stage</b> for the running order, a <b>business</b> for what they do, a <b>club</b> for who\'s on the marquee.' },
     { icon: 'camera', color: 'var(--c-photo)', h: 'Festival photos', target: '[data-share="exec"]', prep: () => showView('on'), p: 'Send in a photo from here. An organiser approves it and it rolls across the <b>big screen</b>.' },
     { icon: 'box', color: 'var(--c-hands)', h: 'Settings', target: '#set-sheet', prep: () => { showView('now'); openSettings(true); }, after: () => openSettings(false), p: 'The gear at the top. Turn on a <b>notification</b> when the block changes, <b>switch</b> who\'s signed in, open the <b>manual</b>, <b>log an incident</b> (first aid, lost property, behaviour) so the organisers have a record, and the red <b>Emergency</b> button has who to call.' },
-    { icon: 'heart', color: '#B23A2E', h: 'Questions?', prep: () => { closeSheets(); showView('now'); }, p: 'If you forget any of this, the <b>manual</b> under Settings has every section and a search bar. Still stuck?', last: true },
+    { icon: 'heart', color: '#B23A2E', h: 'Questions?', prep: () => { closeSheets(); showView('now'); }, p: 'If you forget any of this, the <b>manual</b> under Settings has every section and a search bar. Still stuck? <b>Ask Spicy</b> — it knows the app and the day, and who\'s where right now. Or message Sandes.', last: true },
   ];
   let tourIdx = 0, tourOn = false, tourSaved = null;
-  function closeSheets() { openTray(false); openSettings(false); }
+  function closeSheets() { openTray(false); openSettings(false); if ($('spicy-sheet')) openSpicy(false); }
   // the Now steps need a block where you actually have a duty with buttons on it
   function tourDemoBlock() {
     if (!me) return;
@@ -2292,11 +2347,13 @@
   }
   function renderTour() {
     const t = TOUR[tourIdx];
-    $('onb-slide').innerHTML = `${iconHtml(t.icon, t.color)}<h2>${t.h}</h2><p>${t.p}</p>${t.last ? `<div class="btns" style="margin-top:6px"><button class="btn-small" id="onb-msg" type="button">Message Sandes</button><button class="btn-small ghost" id="onb-man" type="button">Open the manual</button></div>` : ''}`;
+    const hi = t.me && me; // the welcome slide greets you with your own picture
+    $('onb-slide').innerHTML = `${hi ? pfp(me.first, 72) : iconHtml(t.icon, t.color)}<h2>${hi ? 'Hi ' + esc(me.first) : t.h}</h2><p>${t.p}</p>${t.last ? `<div class="btns" style="margin-top:6px"><button class="btn-small" id="onb-spicy" type="button">Ask Spicy</button><button class="btn-small ghost" id="onb-msg" type="button">Message Sandes</button><button class="btn-small ghost" id="onb-man" type="button">Open the manual</button></div>` : ''}`;
     $('onb-dots').innerHTML = TOUR.map((_, i) => `<i class="${i === tourIdx ? 'on' : ''}"></i>`).join('');
     $('onb-prev').hidden = tourIdx === 0; $('onb-next').textContent = tourIdx === TOUR.length - 1 ? 'Done' : 'Next';
     const msg = $('onb-msg'); if (msg) msg.addEventListener('click', () => { endTour(); if (me && me.first !== 'Sandes') openDm('Sandes'); });
     const man = $('onb-man'); if (man) man.addEventListener('click', () => { endTour(); openManual(true); });
+    const sp = $('onb-spicy'); if (sp) sp.addEventListener('click', () => { endTour(); openSpicy(true); });
     if (t.prep) t.prep();
     requestAnimationFrame(() => requestAnimationFrame(placeTour));
   }
@@ -2311,6 +2368,105 @@
   $('onb-next').addEventListener('click', () => { if (tourIdx >= TOUR.length - 1) endTour(); else stepTour(1); });
   $('onb-prev').addEventListener('click', () => { if (tourIdx > 0) stepTour(-1); });
   window.addEventListener('resize', placeTour); window.addEventListener('scroll', placeTour, true);
+
+  // ---------- Spicy ----------
+  // A helper that answers from what the app already knows. Every question
+  // goes to spice-road/spicy with a snapshot of the notes below; a Cloud
+  // Function asks Gemini and writes the answer onto the row. The notes are
+  // built here at the moment of asking, so "who's on volleyball" is right
+  // this block and after every swap without anyone maintaining a document.
+  const FEST_NOTES = `# Spice Road Experience — notes for Spicy
+The Spice Road Experience is a one-day cultural festival at the University of Queensland run by student societies: UQISC (Indian Students' Club) and its partner society UQSLA (Sri Lankan Association), with eleven clubs running marquees. It's outdoors on a sports ground from mid-afternoon into the evening: club stalls, food and fundraising stalls, volleyball, football and cricket competitions, and a performance stage. The people using this app are execs — student volunteers rostered onto duties in 30-minute blocks.
+Organisers: Archita, Sanuka (UQSLA president), Prabhas and Thinanthanan. Sandes built the app and handles anything technical. Questions the notes don't answer should go to Sandes (there's a Message Sandes button under every answer).
+Escalation: anything medical or dangerous — call 000 first, then tell an organiser. Emergency contacts are in the app under Settings → Emergency (never repeat phone numbers; point people there). Lost property, first aid, behaviour and equipment problems get logged under Settings → Log incident.`;
+  const strip = (html) => { const d = document.createElement('div'); d.innerHTML = html; return d.textContent; };
+  function spicyNotes() {
+    const L = [FEST_NOTES];
+    L.push('\n## The day, in blocks (30 minutes each)\nSetup 2:00 – 3:00 pm. ' + Array.from({ length: BLOCKS }, (_, i) => `Block ${i + 1}: ${range(i)}`).join('. ') + '. Pack-up 9:00 – 10:00 pm.');
+    L.push('\n## Duties (what each one is, where, and who heads it)');
+    Object.entries(DUTIES).forEach(([id, d]) => { if (d.cat === 'free') return; const lead = leadFor(id); L.push(`- ${d.name} [${CATS[d.cat].label}] — where: ${d.where || '—'}. ${d.do || ''}${d.tasks && d.tasks.length ? ' Tasks: ' + d.tasks.join(', ') + '.' : ''}${lead ? ' Committee head: ' + lead + '.' : ''}`); });
+    L.push('\n## Stage running order\n' + STAGE_TIMES.map(x => `${tm(x.t)} — ${x.who}: ${x.what}`).join('\n'));
+    L.push('\n## Moments\n' + MOMENTS.map(m => `${m.at} (block ${m.block + 1}) — ${m.name} at ${m.where}. ${m.note} Who: ${m.who === 'all' ? 'everyone' : m.who.join(', ')}.`).join('\n'));
+    L.push('\n## Emergency contacts (numbers are in the app under Settings → Emergency — never give a number)\n' + EMERGENCY.map(c => `${c.n} — ${c.role}`).join('\n'));
+    L.push('\n## How the app works\n' + MANUAL.map(m => `- ${m.t}: ${strip(m.p)}`).join('\n') + '\n' + TOUR.map(t => `- ${t.h}: ${strip(t.p)}`).join('\n'));
+    // the live part: what time it is, who's where now and next
+    const lb = liveBlock(); const cur = lb !== null ? lb : block;
+    L.push(`\n## Right now\nThe clock says ${fmt(nowMin())}. ${lb === null ? 'The festival day is not running (before setup or after pack-up).' : `Block ${lb + 1} (${range(lb)}) is live.`}`);
+    [cur, cur + 1].forEach(k => {
+      if (k < 0 || k >= BLOCKS) return;
+      const rows = rowsFor(k); const busy = new Set(rows.flatMap(r => r[1]));
+      const grouped = {}; rows.forEach(([id, ppl]) => { (grouped[id] ||= []).push(...ppl); });
+      L.push(`### Block ${k + 1} (${range(k)})${k === cur ? ' — now' : ' — next'}: who's where`);
+      Object.entries(grouped).forEach(([id, ppl]) => { const d = DUTIES[id]; L.push(`${d.name} (${d.where || '—'}): ${ppl.join(', ')}`); });
+      const free = PEOPLE.map(p => p.first).filter(f => !busy.has(f));
+      L.push(`Free this block: ${free.length ? free.join(', ') : 'nobody'}`);
+    });
+    if (me) {
+      L.push(`\n## The person asking\n${me.n} (${me.s.join(' / ')}${me.role ? ', ' + me.role : ''}). Their day:`);
+      for (let i = 0; i < BLOCKS; i++) { const a = assignmentFor(me.first, i); const d = DUTIES[a.id]; L.push(`Block ${i + 1} ${range(i)}: ${d.name}${a.id === 'free' ? '' : ' at ' + d.where}${a.people.length ? ' with ' + a.people.join(', ') : ''}${a.id !== baseAssignment(me.first, i) ? ' (after a swap)' : ''}`); }
+      const mySwaps = Object.values(swaps).filter(sw => sw.from === me.first && sw.status === 'open');
+      const myHelps = Object.values(helps).filter(h => h.from === me.first && h.status === 'open');
+      if (mySwaps.length) L.push(`They have an open swap request for block ${mySwaps.map(sw => sw.block + 1).join(', ')}.`);
+      if (myHelps.length) L.push('They have an open call for more execs.');
+    }
+    return L.join('\n');
+  }
+  // same normalisation as the function, so "Where's the ball bag?" and
+  // "where is the ball bag" share a cached answer
+  const spicyKey = (q) => { const t = q.toLowerCase().replace(/[’']/g, '').replace(/\bwheres\b/g, 'where is').replace(/\bwhats\b/g, 'what is').replace(/\bwhos\b/g, 'who is').replace(/[^a-z0-9 ]+/g, ' ').replace(/\s+/g, ' ').trim(); let h = 5381; for (const ch of t) h = ((h * 33) ^ ch.charCodeAt(0)) >>> 0; return h.toString(16); };
+  const SPICY_CHIPS = ['What do I do at my duty?', 'How do I swap out?', "Who's on with me next block?"];
+  let spicyThread = [], spicyRows = {}, spicyListening = false;
+  function openSpicy(open) {
+    $('spicy-sheet').hidden = !open; $('spicy-backdrop').hidden = !open;
+    if (!open) return;
+    if (!me) { spicyThread = [{ q: '', a: 'Sign in as an exec first — Spicy answers from your roster.', sure: false, err: true }]; }
+    renderSpicy(); $('spicy-text').focus();
+  }
+  function renderSpicy() {
+    const el = $('spicy-thread');
+    if (!spicyThread.length) { el.innerHTML = '<p class="fine">Try one of these, or type your own.</p>'; }
+    else el.innerHTML = spicyThread.map((x, i) => {
+      const q = x.q ? `<div class="msg me">${esc(x.q)}</div>` : '';
+      if (x.pending) return q + `<div class="msg spicy"><span class="spicy-wait">Spicy is thinking</span></div>`;
+      const acts = !x.err && me && me.first !== 'Sandes'
+        ? `<div class="spicy-acts">${x.sure === false ? '<span class="fine">Spicy isn\'t sure about this one.</span>' : ''}<button type="button" class="btn-small ghost" data-spicy-msg="${i}">Message Sandes</button></div>`
+        : (x.err && me && me.first !== 'Sandes' ? `<div class="spicy-acts"><button type="button" class="btn-small ghost" data-spicy-msg="${i}">Message Sandes</button></div>` : '');
+      return q + `<div class="msg spicy ${x.sure === false ? 'unsure' : ''}">${esc(x.a)}${x.cached ? '<span class="t">Asked before — same answer.</span>' : ''}</div>` + acts;
+    }).join('');
+    el.querySelectorAll('[data-spicy-msg]').forEach(b => b.addEventListener('click', () => {
+      const x = spicyThread[Number(b.dataset.spicyMsg)]; openSpicy(false); openDm('Sandes');
+      if (x && x.q && $('dm-text')) $('dm-text').value = ('Q: ' + x.q).slice(0, 200);
+    }));
+    $('spicy-chips').innerHTML = spicyThread.length ? '' : SPICY_CHIPS.map(t => `<button type="button" data-chip="${esc(t)}">${esc(t)}</button>`).join('');
+    $('spicy-chips').querySelectorAll('button').forEach(b => b.addEventListener('click', () => askSpicy(b.dataset.chip)));
+    el.scrollTop = el.scrollHeight;
+  }
+  async function askSpicy(q) {
+    q = (q || '').trim().slice(0, 300); if (!q || !me) return;
+    const item = { q, pending: true }; spicyThread.push(item); renderSpicy();
+    const done = (patch) => { Object.assign(item, { pending: false }, patch); renderSpicy(); };
+    if (!db) { done({ a: 'No connection right now — message Sandes instead.', sure: false, err: true }); return; }
+    // asked before by anyone this block, and not personal? same answer, no
+    // round trip. Keyed by block so "who's on volleyball" never goes stale.
+    const lb = liveBlock(); const blk = lb !== null ? lb : block;
+    try { const c = (await ref(`spicy-cache/${spicyKey(q)}-${blk}`).get()).val(); if (c && c.a && Date.now() - (c.t || 0) < 86400000) { done({ a: c.a, sure: true, cached: true }); return; } } catch {}
+    const hist = spicyThread.filter(x => x !== item && x.a && !x.err && !x.pending).slice(-3).map(x => `Q: ${x.q}\nA: ${x.a}`).join('\n').slice(0, 4000);
+    const row = ref('spicy').push();
+    const timer = setTimeout(() => { if (item.pending) { row.off(); done({ a: 'Spicy\'s not answering right now — message Sandes.', sure: false, err: true }); } }, 40000);
+    row.on('value', snap => { const v = snap.val(); if (v && v.a) { clearTimeout(timer); row.off(); done({ a: v.a, sure: v.sure !== false }); } });
+    try { await row.set({ q, by: me.first, soc: me.s[0], blk, notes: spicyNotes().slice(0, 40000), hist, t: now() }); }
+    catch (e) { clearTimeout(timer); row.off(); done({ a: 'Couldn\'t send that one.', sure: false, err: true }); }
+  }
+  $('spicy-form').addEventListener('submit', (e) => { e.preventDefault(); const q = $('spicy-text').value; $('spicy-text').value = ''; askSpicy(q); });
+  $('set-spicy').addEventListener('click', () => { openSettings(false); openSpicy(true); });
+  $('spicy-close').addEventListener('click', () => openSpicy(false)); $('spicy-backdrop').addEventListener('click', () => openSpicy(false));
+  // organisers see what's being asked (and what Spicy couldn't answer)
+  function renderSpicyDesk() {
+    const el = $('d-spicy'); if (!el) return;
+    if (db && isAdmin() && !spicyListening) { spicyListening = true; ref('spicy').limitToLast(50).on('value', snap => { spicyRows = snap.val() || {}; renderSpicyDesk(); }, () => {}); }
+    const ids = Object.keys(spicyRows).sort((a, b) => (spicyRows[b].t || 0) - (spicyRows[a].t || 0));
+    el.innerHTML = ids.length ? ids.map(i => { const x = spicyRows[i]; const bad = x.a && x.sure === false; return `<div class="check" style="--c:${bad ? '#B23A2E' : 'var(--tan)'}"><b>${esc(x.by || '?')} <span class="fine">· ${x.t ? clock(x.t) : ''}</span></b><div>${esc(x.q)}</div><div class="fine">${x.a ? esc(x.a) : 'Waiting for an answer…'}</div></div>`; }).join('') : '<p class="fine">Nothing asked yet.</p>';
+  }
 
   function openSettings(open) {
     $('set-sheet').hidden = !open; $('set-backdrop').hidden = !open;
@@ -2657,7 +2813,7 @@
     const openHelp = Object.entries(helps).filter(([, h]) => h.status === 'open');
     const openSwaps = Object.entries(swaps).filter(([, sw]) => sw.status === 'open');
     $('d-help-n').textContent = openHelp.length; $('d-swap-n').textContent = openSwaps.length;
-    renderIncidents(); renderTicks();
+    renderIncidents(); renderTicks(); renderSpicyDesk();
     $('d-help').innerHTML = openHelp.length ? openHelp.map(x => helpCard(x, 'mine')).join('') : '<p class="fine">None open.</p>';
     bindHelpButtons($('d-help'));
     $('d-swaps').innerHTML = openSwaps.length ? openSwaps.map(([id, sw]) => { const d = DUTIES[sw.duty] || {}; return `<div class="swap" style="--c:${CATS[d.cat] ? CATS[d.cat].color : 'var(--line)'}">${dutyIcon(d, 'sm')}<span class="who-txt"><b>${esc(sw.from)}</b> wants out of <b>${esc(d.name)}</b></span><span class="when">${range(sw.block)} · waiting</span></div>`; }).join('') : '<p class="fine">None open.</p>';
@@ -2686,6 +2842,8 @@
     Object.values(incidents).sort((a, b) => (a.t || 0) - (b.t || 0)).forEach(x => L.push(row(x.type, x.by, x.block + 1, x.text, when(x.t))));
     L.push(''); L.push(row('SHOUT-OUTS')); L.push(row('by', 'text', 'sent at'));
     Object.values(ticks).sort((a, b) => (a.t || 0) - (b.t || 0)).forEach(x => L.push(row(x.by, x.text, when(x.t))));
+    L.push(''); L.push(row('SPICY')); L.push(row('by', 'question', 'answer', 'sure', 'asked at'));
+    Object.values(spicyRows).sort((a, b) => (a.t || 0) - (b.t || 0)).forEach(x => L.push(row(x.by, x.q, x.a, x.a ? (x.sure === false ? 'no' : 'yes') : '', when(x.t))));
     L.push(''); L.push(row('BRACKETS')); L.push(row('sport', 'round', 'team a', 'team b', 'winner'));
     Object.entries(brackets).forEach(([sp, br]) => (br.rounds || []).forEach((r, k) => r.forEach(m => L.push(row(SPORTS[sp] || sp, rname(k, roundsTotal(br.rounds[0].length)), m.a, m.b, m.w)))));
     const blob = new Blob(['\ufeff' + L.join('\n')], { type: 'text/csv;charset=utf-8' });

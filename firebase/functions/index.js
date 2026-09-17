@@ -1,6 +1,6 @@
-// Spice Road Experience — AI photo review.
+// Spice Road Experience — Gemini helpers.
 //
-// Watches spice-road/photos. When a public upload lands as "pending", the
+// reviewPhoto: watches spice-road/photos. When a public upload lands as "pending", the
 // photo goes to Gemini with a short brief and comes back approve / reject /
 // unsure. Approved → on the big screen within seconds. Rejected → kept (not
 // deleted) so an organiser can overrule from the Desk. Unsure, or any error →
@@ -9,6 +9,12 @@
 //
 // A kill switch lives at spice-road/config/aiReview (true/false), toggled
 // from the Desk. The Gemini key is a Functions secret, never in the repo.
+//
+// askSpicy: watches spice-road/spicy. The app pushes a question with a
+// snapshot of everything it knows (duties, who's where this block, the
+// asker's own day, the manual) and Spicy answers from that and nothing else.
+// The answer lands on the same row; the notes are dropped once answered so
+// the row stays small. Generic answers are cached by question for a day.
 
 import { onValueCreated } from 'firebase-functions/v2/database';
 import { defineSecret } from 'firebase-functions/params';
@@ -36,6 +42,35 @@ UNSURE if you genuinely cannot tell — for example an abstract close-up, or a g
 
 Answer with JSON only, no prose: {"verdict":"approve"|"reject"|"unsure","reason":"one short sentence a human can act on"}`;
 
+// One call to Gemini: parts in, parsed JSON out. Gemini 3 thinks before it
+// answers and those tokens count against the output cap, so the cap is
+// generous and thinking is turned down as far as the model allows
+// (minimal → low → none). The schema forces the JSON shape. Models are tried
+// in order and the first one this key can use is remembered.
+async function generate(parts, schema, opts = {}) {
+  const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY.value() });
+  const ask = async (model) => {
+    const base = { model, contents: [{ role: 'user', parts }] };
+    const cfg = { responseMimeType: 'application/json', responseSchema: schema, temperature: opts.temperature ?? 0.1, maxOutputTokens: opts.maxOutputTokens ?? 2048 };
+    if (opts.system) cfg.systemInstruction = opts.system;
+    for (const level of ['minimal', 'low', null]) {
+      try { return await ai.models.generateContent({ ...base, config: level ? { ...cfg, thinkingConfig: { thinkingLevel: level } } : cfg }); }
+      catch (e) { const msg = String(e && e.message || e); if (!/thinking/i.test(msg)) throw e; }
+    }
+    return ai.models.generateContent({ ...base, config: cfg });
+  };
+  let res, lastErr;
+  for (const model of [MODEL, ...MODELS.filter(x => x !== MODEL)]) {
+    try { res = await ask(model); MODEL = model; break; }
+    catch (e) { lastErr = e; const msg = String(e && e.message || e); if (!/not found|not available|not supported|404|NOT_FOUND|no longer/i.test(msg)) throw e; }
+  }
+  if (!res) throw lastErr || new Error('No usable Gemini model');
+  const raw = (res && res.text) || '';
+  let out = {};
+  try { out = JSON.parse(raw); } catch { const mm = /\{[\s\S]*\}/.exec(raw); if (mm) { try { out = JSON.parse(mm[0]); } catch {} } }
+  return { res, out, raw };
+}
+
 export const reviewPhoto = onValueCreated(
   { ref: '/spice-road/photos/{id}', region: 'asia-southeast1', secrets: [GEMINI_API_KEY], memory: '512MiB', timeoutSeconds: 60 },
   async (event) => {
@@ -52,30 +87,8 @@ export const reviewPhoto = onValueCreated(
     if (!m) { await ref.child('ai').set({ verdict: 'unsure', reason: 'Not a JPEG data URL', model: MODEL, t: Date.now() }); return; }
 
     try {
-      const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY.value() });
-      // Gemini 3 thinks before it answers and those tokens count against the
-      // output cap, so the cap is generous and thinking is turned down. The
-      // schema forces the JSON shape.
       const schema = { type: 'OBJECT', properties: { verdict: { type: 'STRING', enum: ['approve', 'reject', 'unsure'] }, reason: { type: 'STRING' } }, required: ['verdict', 'reason'] };
-      const ask = async (model) => {
-        const base = { model, contents: [{ role: 'user', parts: [{ inlineData: { mimeType: 'image/jpeg', data: m[1] } }, { text: BRIEF }] }] };
-        const cfg = { responseMimeType: 'application/json', responseSchema: schema, temperature: 0.1, maxOutputTokens: 2048 };
-        // as little thinking as the model allows: minimal → low → none
-        for (const level of ['minimal', 'low', null]) {
-          try { return await ai.models.generateContent({ ...base, config: level ? { ...cfg, thinkingConfig: { thinkingLevel: level } } : cfg }); }
-          catch (e) { const msg = String(e && e.message || e); if (!/thinking/i.test(msg)) throw e; }
-        }
-        return ai.models.generateContent({ ...base, config: cfg });
-      };
-      let res, lastErr;
-      for (const model of [MODEL, ...MODELS.filter(x => x !== MODEL)]) {
-        try { res = await ask(model); MODEL = model; break; }
-        catch (e) { lastErr = e; const msg = String(e && e.message || e); if (!/not found|not available|not supported|404|NOT_FOUND|no longer/i.test(msg)) throw e; }
-      }
-      if (!res) throw lastErr || new Error('No usable Gemini model');
-      const raw = (res && res.text) || '';
-      let out = {};
-      try { out = JSON.parse(raw); } catch { const mm = /\{[\s\S]*\}/.exec(raw); if (mm) { try { out = JSON.parse(mm[0]); } catch {} } }
+      const { res, out, raw } = await generate([{ inlineData: { mimeType: 'image/jpeg', data: m[1] } }, { text: BRIEF }], schema);
       const verdict = ['approve', 'reject', 'unsure'].includes(out.verdict) ? out.verdict : 'unsure';
       const finish = res && res.candidates && res.candidates[0] && res.candidates[0].finishReason;
       const reason = (String(out.reason || '').slice(0, 200)) || ('Could not read the reply' + (finish ? ` (${finish})` : '') + (raw ? ': ' + raw.slice(0, 120) : ': empty'));
@@ -86,6 +99,50 @@ export const reviewPhoto = onValueCreated(
     } catch (e) {
       // never fail open: leave it pending, say why
       await ref.child('ai').set({ verdict: 'unsure', reason: 'Review failed: ' + String(e && e.message || e).slice(0, 120), model: MODEL, t: Date.now() });
+    }
+  }
+);
+
+// ---------- Spicy ----------
+const SPICY_SYSTEM = `You are Spicy, the in-app helper for execs (student volunteers) running the Spice Road Experience festival. Answer using ONLY the notes you are given. Be short, warm and concrete: two or three sentences of plain text, no markdown, no headings, no bullet points. Use first names for other people, but don't greet the asker or use their name — go straight to the answer.
+When a question is about a duty, a piece of equipment, or who to talk to, name a specific person to go to and say where they are: the committee head if the notes name one, otherwise whoever is on that duty right now from the "who's where" section (e.g. "Ask Dhyan — he's on Football at the main oval this block"). Never guess a name, time, place or number that isn't in the notes.
+If the notes don't really answer the question, say so plainly in one sentence and suggest messaging Sandes; set "sure" to false. Never give phone numbers — say they're under Settings → Emergency. For anything medical or dangerous, say to call 000 first. If the question isn't about the festival or the app, say in one line that you only do festival things.
+"personal" is true when the answer depends on who is asking — it mentions their own duties, partners, swaps, where they are or what they're doing — and false when any exec would get exactly the same answer (how a feature works, what a duty involves, who a committee head is, who's on a duty this block).`;
+const SPICY_DAILY_CAP = 800;
+const spicyKey = (q) => { const t = q.toLowerCase().replace(/[’']/g, '').replace(/\bwheres\b/g, 'where is').replace(/\bwhats\b/g, 'what is').replace(/\bwhos\b/g, 'who is').replace(/[^a-z0-9 ]+/g, ' ').replace(/\s+/g, ' ').trim(); let h = 5381; for (const ch of t) h = ((h * 33) ^ ch.charCodeAt(0)) >>> 0; return h.toString(16); };
+
+export const askSpicy = onValueCreated(
+  { ref: '/spice-road/spicy/{id}', region: 'asia-southeast1', secrets: [GEMINI_API_KEY], memory: '512MiB', timeoutSeconds: 60 },
+  async (event) => {
+    const row = event.data.val();
+    if (!row || row.a || typeof row.q !== 'string' || !row.q.trim()) return;
+    const db = getDatabase();
+    const ref = db.ref(`spice-road/spicy/${event.params.id}`);
+    const reply = (a, sure, extra = {}) => ref.update({ a: String(a).slice(0, 1200), sure: !!sure, model: MODEL, at: Date.now(), notes: null, hist: null, ...extra });
+    const q = row.q.trim().slice(0, 300);
+    const notes = typeof row.notes === 'string' ? row.notes.slice(0, 40000) : '';
+    const hist = typeof row.hist === 'string' ? row.hist.slice(0, 4000) : '';
+    if (!notes) { await reply("Spicy didn't get the notes with that one — try again.", false); return; }
+
+    // a day's budget, so a runaway phone can't run up the bill
+    const day = new Date().toISOString().slice(0, 10);
+    const used = (await db.ref(`spice-road/spicy-usage/${day}`).transaction(n => (n || 0) + 1)).snapshot.val();
+    if (used > SPICY_DAILY_CAP) { await reply("Spicy's had a big day and is resting — message Sandes.", false); return; }
+
+    try {
+      const schema = { type: 'OBJECT', properties: { answer: { type: 'STRING' }, sure: { type: 'BOOLEAN' }, personal: { type: 'BOOLEAN' } }, required: ['answer', 'sure', 'personal'] };
+      const parts = [{ text: `NOTES\n${notes}` }];
+      if (hist) parts.push({ text: `EARLIER IN THIS CONVERSATION\n${hist}` });
+      parts.push({ text: `QUESTION from ${String(row.by || 'an exec').slice(0, 40)}: ${q}` });
+      const { out, raw, res } = await generate(parts, schema, { system: SPICY_SYSTEM, temperature: 0.3, maxOutputTokens: 2048 });
+      const answer = String(out.answer || '').trim();
+      if (!answer) { const finish = res && res.candidates && res.candidates[0] && res.candidates[0].finishReason; await reply('Spicy lost its words' + (finish ? ` (${finish})` : '') + ' — try asking another way, or message Sandes.', false); return; }
+      const sure = out.sure !== false;
+      await reply(answer, sure);
+      const blk = Number.isInteger(row.blk) ? row.blk : 'x';
+      if (sure && out.personal === false) await db.ref(`spice-road/spicy-cache/${spicyKey(q)}-${blk}`).set({ q, a: answer.slice(0, 1200), t: Date.now() });
+    } catch (e) {
+      await reply('Spicy hit a snag: ' + String(e && e.message || e).slice(0, 120) + ' — message Sandes.', false);
     }
   }
 );

@@ -304,7 +304,24 @@
         "$other": {
           ".validate": false
         }
-      }
+      },
+      "spicy": {
+        ".read": true,
+        "$id": {
+          ".write": "!data.exists()",
+          ".validate": "newData.hasChildren(['q', 'by', 'soc', 'notes', 't'])",
+          "q":     { ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 300" },
+          "by":    { ".validate": "newData.isString() && newData.val().length <= 40" },
+          "soc":   { ".validate": "newData.isString() && newData.val().length <= 12" },
+          "blk":   { ".validate": "newData.isNumber()" },
+          "notes": { ".validate": "newData.isString() && newData.val().length <= 40000" },
+          "hist":  { ".validate": "newData.isString() && newData.val().length <= 4000" },
+          "t":     { ".validate": "newData.isNumber()" },
+          "$other": { ".validate": false }
+        }
+      },
+      "spicy-cache": { ".read": true },
+      "spicy-usage": { ".read": true }
     }
   }
 }
