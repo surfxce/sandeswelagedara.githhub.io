@@ -107,6 +107,7 @@ export const reviewPhoto = onValueCreated(
 const SPICY_SYSTEM = `You are Spicy, the in-app helper for execs (student volunteers) running the Spice Road Experience festival. Answer using ONLY the notes you are given. Be short, warm and concrete: two or three sentences of plain text, no markdown, no headings, no bullet points. Use first names for other people, but don't greet the asker or use their name — go straight to the answer.
 When a question is about a duty, a piece of equipment, or who to talk to, name a specific person to go to and say where they are: the committee head if the notes name one, otherwise whoever is on that duty right now from the "who's where" section (e.g. "Ask Dhyan — he's on Football at the main oval this block"). Never guess a name, time, place or number that isn't in the notes.
 If the notes don't really answer the question, say so plainly in one sentence and suggest messaging Sandes; set "sure" to false. Never give phone numbers — say they're under Settings → Emergency. For anything medical or dangerous, say to call 000 first. If the question isn't about the festival or the app, say in one line that you only do festival things.
+"show": when the answer involves tapping or finding something in the app that appears in the notes under "Things Spicy can point at", put that one id (the single most useful one) in "show" and the app will spotlight it on screen; otherwise an empty string. Don't describe where the thing is in long detail when you're pointing at it — say what to do with it.
 "personal" is true when the answer depends on who is asking — it mentions their own duties, partners, swaps, where they are or what they're doing — and false when any exec would get exactly the same answer (how a feature works, what a duty involves, who a committee head is, who's on a duty this block).`;
 const SPICY_DAILY_CAP = 800;
 const spicyKey = (q) => { const t = q.toLowerCase().replace(/[’']/g, '').replace(/\bwheres\b/g, 'where is').replace(/\bwhats\b/g, 'what is').replace(/\bwhos\b/g, 'who is').replace(/[^a-z0-9 ]+/g, ' ').replace(/\s+/g, ' ').trim(); let h = 5381; for (const ch of t) h = ((h * 33) ^ ch.charCodeAt(0)) >>> 0; return h.toString(16); };
@@ -130,7 +131,7 @@ export const askSpicy = onValueCreated(
     if (used > SPICY_DAILY_CAP) { await reply("Spicy's had a big day and is resting — message Sandes.", false); return; }
 
     try {
-      const schema = { type: 'OBJECT', properties: { answer: { type: 'STRING' }, sure: { type: 'BOOLEAN' }, personal: { type: 'BOOLEAN' } }, required: ['answer', 'sure', 'personal'] };
+      const schema = { type: 'OBJECT', properties: { answer: { type: 'STRING' }, sure: { type: 'BOOLEAN' }, personal: { type: 'BOOLEAN' }, show: { type: 'STRING' } }, required: ['answer', 'sure', 'personal', 'show'] };
       const parts = [{ text: `NOTES\n${notes}` }];
       if (hist) parts.push({ text: `EARLIER IN THIS CONVERSATION\n${hist}` });
       parts.push({ text: `QUESTION from ${String(row.by || 'an exec').slice(0, 40)}: ${q}` });
@@ -138,9 +139,10 @@ export const askSpicy = onValueCreated(
       const answer = String(out.answer || '').trim();
       if (!answer) { const finish = res && res.candidates && res.candidates[0] && res.candidates[0].finishReason; await reply('Spicy lost its words' + (finish ? ` (${finish})` : '') + ' — try asking another way, or message Sandes.', false); return; }
       const sure = out.sure !== false;
-      await reply(answer, sure);
+      const show = /^[a-z-]{1,40}$/.test(String(out.show || '')) ? out.show : '';
+      await reply(answer, sure, { show });
       const blk = Number.isInteger(row.blk) ? row.blk : 'x';
-      if (sure && out.personal === false) await db.ref(`spice-road/spicy-cache/${spicyKey(q)}-${blk}`).set({ q, a: answer.slice(0, 1200), t: Date.now() });
+      if (sure && out.personal === false) await db.ref(`spice-road/spicy-cache/${spicyKey(q)}-${blk}`).set({ q, a: answer.slice(0, 1200), show, t: Date.now() });
     } catch (e) {
       await reply('Spicy hit a snag: ' + String(e && e.message || e).slice(0, 120) + ' — message Sandes.', false);
     }
