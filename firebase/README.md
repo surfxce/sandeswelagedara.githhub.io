@@ -16,3 +16,15 @@ Database rules live in `database.rules.json` here. Publish them with:
 
     firebase deploy --only database
 
+
+## Spicy
+
+`askSpicy` answers execs' questions inside the app (Settings → Spicy). The app
+sends each question with a snapshot of what it already knows — every duty, who's
+on what this block and next, the asker's own day, the manual — so there's no
+document to keep up to date. Gemini answers from those notes only, names a
+person to go to when there is one, and says when it doesn't know (the app then
+pushes "Message Sandes"). Phone numbers never leave the phone. Generic answers
+are cached for a day under `spicy-cache`; `spicy-usage/<date>` counts calls and
+the function stops answering after 800 in a day (`SPICY_DAILY_CAP`). Organisers
+see every question on the Desk.
