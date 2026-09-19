@@ -304,6 +304,10 @@
   .pfp.s32 { width: 32px; height: 32px; font-size: 12px; }
   .pfp.s44 { width: 44px; height: 44px; font-size: 16px; }
   .pfp.s72 { width: 72px; height: 72px; font-size: 26px; }
+  .crop-box { position: relative; width: min(280px, 78vw); aspect-ratio: 1; margin: 6px auto; overflow: hidden; border-radius: 50%; background: #111; touch-action: none; box-shadow: 0 0 0 3px var(--tan); }
+  .crop-box img { position: absolute; top: 0; left: 0; transform-origin: 0 0; max-width: none; pointer-events: none; user-select: none; -webkit-user-select: none; }
+  .crop-zoom { display: flex; align-items: center; gap: 10px; margin: 10px 0 6px; font-size: 13px; color: var(--ink-3); }
+  .crop-zoom input { flex: 1; accent-color: var(--maroon); }
   .pfp-pick { display: flex; align-items: center; gap: 12px; margin: 2px 0 4px; }
   .pfp-pick .fine { margin: 0; }
   .who #who-pfp { cursor: pointer; }
@@ -820,6 +824,15 @@
   }
   .mapz:active { cursor: grabbing; }
   .mapz img { position: absolute; top: 0; left: 0; transform-origin: 0 0; will-change: transform; max-width: none; pointer-events: none; }
+  .mapz .pins { position: absolute; top: 0; left: 0; transform-origin: 0 0; will-change: transform; pointer-events: none; }
+  .pin { position: absolute; pointer-events: auto; transform: translate(-50%, -100%) scale(var(--inv, 1)); transform-origin: 50% 100%; display: grid; justify-items: center; gap: 2px; pointer-events: none; }
+  .pin .dot { pointer-events: auto; width: 30px; height: 30px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); background: var(--c); border: 2.5px solid #fff; box-shadow: 0 2px 6px rgba(0,0,0,.35); display: grid; place-items: center; }
+  .pin .dot svg { width: 15px; height: 15px; transform: rotate(45deg); stroke: #fff; fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+  .pins:not(.zoomed) .pin .lbl { display: none; }
+  .pins:not(.zoomed) .pin .dot { width: 22px; height: 22px; border-width: 2px; }
+  .pins:not(.zoomed) .pin .dot svg { width: 11px; height: 11px; }
+  .pin .lbl { font-size: 11px; font-weight: 800; line-height: 1.1; padding: 2px 6px; border-radius: 6px; background: rgba(255,255,255,.92); color: var(--ink); white-space: nowrap; box-shadow: 0 1px 3px rgba(0,0,0,.25); }
+  .pin.dim { opacity: .45; }
   .mapz-ctl { position: absolute; right: 10px; bottom: 10px; display: grid; gap: 6px; }
   .mapz-ctl button { width: 44px; height: 44px; border-radius: 8px; border: 1.5px solid var(--line); background: var(--paper); color: var(--maroon); font-size: 22px; font-weight: 800; box-shadow: 0 2px 6px rgba(74,22,14,.12); }
 
@@ -1174,13 +1187,14 @@
     <section class="view" id="view-map" role="tabpanel" hidden>
       <div class="mapz" id="mapz" aria-label="Festival map — drag to pan, pinch or scroll to zoom">
         <img id="mapz-img" src="map.jpg" alt="UQ Sport Athletics Centre vendor map" draggable="false">
+        <div class="pins" id="mapz-pins"></div>
         <div class="mapz-ctl">
           <button type="button" data-z="1.4" aria-label="Zoom in">+</button>
           <button type="button" data-z="0.7" aria-label="Zoom out">−</button>
           <button type="button" data-z="0" aria-label="Reset">⟲</button>
         </div>
       </div>
-      <p class="fine">UQ Sport Athletics Centre. Drag to pan, pinch or scroll to zoom, double-tap to zoom in. Pins for our stalls are coming.</p>
+      <p class="fine">UQ Sport Athletics Centre. Drag to pan, pinch or scroll to zoom, double-tap to zoom in. Tap a pin for what's there.</p>
     </section>
 
     <!-- WHAT'S ON -->
@@ -1223,10 +1237,7 @@
         <div class="txt"><b>Manual</b><span>Every part of the app, searchable. Also replays the welcome tour.</span></div>
         <button class="btn-small ghost" id="set-manual" type="button">Open</button>
       </div>
-      <div class="set-row" id="set-photo-row">
-        <div class="txt"><b>Your photo</b><span>Shown next to your name so people can find you.</span></div>
-        <button class="btn-small ghost" id="set-photo" type="button">Add</button>
-      </div>
+      <div class="set-row" id="set-photo-row" style="align-items:center"></div>
       <div class="set-row">
         <div class="txt"><b>Signed in as <span id="set-who">—</span></b><span>Saved on this phone.</span></div>
         <button class="btn-small ghost" id="set-switch" type="button">Switch</button>
@@ -1301,6 +1312,14 @@
 
     <!-- Onboarding tour (first login) -->
     <input type="file" id="pfp-file" accept="image/*" hidden>
+    <div class="dm-backdrop" id="crop-backdrop" hidden></div>
+    <section class="dm-sheet" id="crop-sheet" hidden aria-label="Adjust your photo">
+      <div class="dm-head"><span class="nm">Adjust your photo</span><button class="linkbtn" id="crop-cancel" type="button">Cancel</button></div>
+      <p class="fine">Drag to move it. Pinch, or use the slider, to zoom in.</p>
+      <div class="crop-box" id="crop-box"><img id="crop-img" alt="" draggable="false"></div>
+      <div class="crop-zoom"><span>−</span><input type="range" id="crop-zoom" min="1" max="3.5" step="0.01" value="1" aria-label="Zoom"><span>+</span></div>
+      <button class="btn-primary dark" id="crop-save" type="button">Use this photo</button>
+    </section>
     <div class="onb" id="onb" hidden>
       <div class="onb-block"></div>
       <div class="onb-spot" id="onb-spot"></div>
@@ -1390,11 +1409,11 @@
 
   const DUTIES = {
     // tasks: the sub-jobs inside each job — shown as small tags on the duty card
-    vb: { cat:'sport', icon:'volleyball', name:'Volleyball', where:'Volleyball court', do:'Keep games moving on the court. Call scores, rotate teams every 15 minutes, and keep the ball bag with you.',
+    vb: { cat:'sport', icon:'volleyball', name:'Volleyball', where:'Netball courts (top of the ground)', do:'Keep games moving on the court. Call scores, rotate teams every 15 minutes, and keep the ball bag with you.',
           tasks:['Scorekeeping', 'Rotating teams', 'Ball bag'] },
-    fb: { cat:'sport', name:'Football', where:'Main oval', do:'Referee and keep the sideline clear. Games run 20 minutes — blow up when the stage calls time and swap teams.',
+    fb: { cat:'sport', name:'Football', where:'Field 7 (the main oval)', do:'Referee and keep the sideline clear. Games run 20 minutes — blow up when the stage calls time and swap teams.',
           tasks:['Refereeing', 'Sideline clear', 'Team swaps'] },
-    ck: { cat:'sport', icon:'cricket', name:'Cricket', where:'Cricket pitch', do:'Umpire the pitch and keep spectators behind the cones. Rotate batting sides every 6 overs.',
+    ck: { cat:'sport', icon:'cricket', name:'Cricket', where:'Field 7, after the football', do:'Umpire the pitch and keep spectators behind the cones. Rotate batting sides every 6 overs.',
           tasks:['Umpiring', 'Getting people off the field', 'Spectators behind cones'] },
     tk: { cat:'ticket', name:'Ticketing', where:'Main entry gate', do:'Check tickets and stamp wrists. Hold the line at the barrier — never leave the table unattended.',
           tasks:['Checking tickets', 'Wristbands', 'Holding the barrier', 'Questions & directions'] },
@@ -1404,24 +1423,24 @@
           tasks:['Walkways clear', 'Lost visitors', 'Cords & generators'] },
     'cr-lawn': { cat:'crowd', name:'Crowd & support', where:'Stage lawn', do:'Walk the zone. Keep walkways clear, help anyone lost, and glance at cords and generators as you pass.',
           tasks:['Walkways clear', 'Lost visitors', 'Cords & generators'] },
-    'cr-food': { cat:'crowd', name:'Crowd & support', where:'Food row', do:'Walk the zone. Keep the queues orderly, watch for spills, and glance at cords and generators as you pass.',
+    'cr-food': { cat:'crowd', name:'Crowd & support', where:'Field 6 food row', do:'Walk the zone. Keep the queues orderly, watch for spills, and glance at cords and generators as you pass.',
           tasks:['Queues orderly', 'Spills', 'Cords & generators'] },
     'cr-gen':  { cat:'crowd', name:'Crowd & support', where:'Generators & cords sweep', do:'Do a full loop of every generator and cable run. Tape down anything loose, then rejoin the stage lawn.',
           tasks:['Full loop', 'Tape loose cords', 'Generator check'] },
-    'fund-pp':   { cat:'fund', icon:'bowl', name:'Pani Puri Stall', where:'Food row, stall 1', do:'Help the charity volunteers serve and take payment. Keep the queue moving.',
+    'fund-pp':   { cat:'fund', icon:'bowl', name:'Pani Puri Stall', where:'Field 6 food row, stall 1', do:'Help the charity volunteers serve and take payment. Keep the queue moving.',
           tasks:['Serving', 'Payments', 'Queue'] },
-    'fund-bake': { cat:'fund', name:'Manali Project Bake Sale', where:'Food row, stall 2', do:'Help the charity volunteers serve and take payment. Keep the queue moving.',
+    'fund-bake': { cat:'fund', name:'Manali Project Bake Sale', where:'Field 6 food row, stall 2', do:'Help the charity volunteers serve and take payment. Keep the queue moving.',
           tasks:['Serving', 'Payments', 'Queue'] },
-    'fund-hope': { cat:'fund', name:'Hope by Hands', where:'Food row, stall 3', do:'Help the charity volunteers serve and take payment. Keep the queue moving.',
+    'fund-hope': { cat:'fund', name:'Hope by Hands', where:'Field 6 food row, stall 3', do:'Help the charity volunteers serve and take payment. Keep the queue moving.',
           tasks:['Serving', 'Payments', 'Queue'] },
     // Photo schedule — a duty like any other, so it shows up in the run sheet and Team.
     // Playing, as distinct from running a sport: you're on the field for your
     // society, not refereeing. Green so it never reads as a duty.
-    'play-vb': { cat:'play', icon:'volleyball', name:'Playing volleyball', where:'Volleyball court', do:'You\'re on the court for your society this block. Be there five minutes early, then hand back to whoever\'s refereeing.',
+    'play-vb': { cat:'play', icon:'volleyball', name:'Playing volleyball', where:'Netball courts (top of the ground)', do:'You\'re on the court for your society this block. Be there five minutes early, then hand back to whoever\'s refereeing.',
           tasks:['Your society\'s team', '5 min early', 'Not refereeing'] },
-    'play-fb': { cat:'play', icon:'football', name:'Playing football', where:'Main oval', do:'You\'re on the oval for your society this block. Be there five minutes early, then hand back to whoever\'s refereeing.',
+    'play-fb': { cat:'play', icon:'football', name:'Playing football', where:'Field 7 (the main oval)', do:'You\'re on the oval for your society this block. Be there five minutes early, then hand back to whoever\'s refereeing.',
           tasks:['Your society\'s team', '5 min early', 'Not refereeing'] },
-    'play-ck': { cat:'play', icon:'cricket', name:'Playing cricket', where:'Cricket pitch', do:'You\'re on the pitch for your society this block. Be there five minutes early, then hand back to whoever\'s umpiring.',
+    'play-ck': { cat:'play', icon:'cricket', name:'Playing cricket', where:'Field 7, after the football', do:'You\'re on the pitch for your society this block. Be there five minutes early, then hand back to whoever\'s umpiring.',
           tasks:['Your society\'s team', '5 min early', 'Not umpiring'] },
     'photo-pres': { cat:'photo', name:'Presidents\' photo', where:'Performance stage', do:'All club presidents at the stage steps for the group photo. Be there two minutes early — the photographer has a five-minute window before the next act.',
           tasks:['Presidents only', 'Stage steps', '2 min early'] },
@@ -1431,7 +1450,7 @@
     packup: { cat:'hands', name:'Pack-up', where:'All hands · 9:00 – 10:00 pm', do:'Everyone on deck. Strike marquees, bag rubbish, return sports gear, and sweep your last zone before you go.',
           tasks:['Strike marquees', 'Rubbish', 'Return gear', 'Sweep your zone'] },
   };
-  CLUBS.forEach(c => { DUTIES['stall-' + c] = { cat:'club', name: c + ' stall', where: c + ' marquee', club: c, do: 'Staff your club\'s marquee. Talk to visitors, run sign-ups, keep the table tidy.',
+  CLUBS.forEach(c => { DUTIES['stall-' + c] = { cat:'club', name: c + ' stall', where: c + ' marquee, Field 6', club: c, do: 'Staff your club\'s marquee. Talk to visitors, run sign-ups, keep the table tidy.',
           tasks:['Talking to visitors', 'Sign-ups', 'Table tidy'] }; });
 
   // Roster — not in this file. It ships encrypted as roster.enc and is
@@ -1586,6 +1605,7 @@
     }
     return html + `<p class="fine">Times are a guide — about ${sc.len} minutes a match, back to back. ????? fills in as teams win through.</p>`;
   }
+  function openInfoRaw(title, body) { $('info-title').textContent = title; $('info-body').innerHTML = body; $('info-sheet').hidden = false; $('info-backdrop').hidden = false; }
   function infoHtml(key) {
     const [kind, arg] = key.split(':');
     if (kind === 'sport') return { title: SPORTS[arg] + ' — match timetable', body: timetableHtml(arg) };
@@ -1907,20 +1927,56 @@
 
   // ---------- Map: pan + zoom ----------
   // Pointer events for drag, two pointers for pinch, wheel for desktop,
+  // Pins: where things are, as fractions of the map image. `blocks` (from, to)
+  // is optional — a pin with it only shows during those blocks, once the
+  // programme has real times. `info` opens the same sheet as a duty title.
+  const PINS = [
+    { id: 'fb',       label: 'Football',        sub: 'Field 7',                  x: 0.467, y: 0.400, cat: 'sport',  icon: 'football',   info: 'duty:fb' },
+    { id: 'ck',       label: 'Cricket',         sub: 'Field 7 · after football', x: 0.467, y: 0.462, cat: 'sport',  icon: 'cricket',    info: 'duty:ck' },
+    { id: 'vb',       label: 'Volleyball',      sub: 'Netball courts',           x: 0.509, y: 0.212, cat: 'sport',  icon: 'volleyball', info: 'duty:vb' },
+    { id: 'stalls',   label: 'Food trucks & stalls', sub: 'Field 6',             x: 0.792, y: 0.470, cat: 'club',   icon: 'tent' },
+    { id: 'stand',    label: 'Grandstand',      sub: 'Event area',               x: 0.283, y: 0.415, cat: 'stage',  icon: 'mic' },
+    { id: 'entry',    label: 'Entry & tickets', sub: 'Main gate',                x: 0.340, y: 0.208, cat: 'ticket', icon: 'ticket',     info: 'duty:tk' },
+    { id: 'firstaid', label: 'First aid',       sub: 'Grandstand, room 19',      x: 0.297, y: 0.470, cat: 'emg',    icon: 'heart' },
+    { id: 'assembly', label: 'Assembly point',  sub: 'Emergency assembly',       x: 0.375, y: 0.486, cat: 'emg',    icon: 'crowd' },
+    { id: 'toilets',  label: 'Toilets',         sub: 'Next to the cafe',         x: 0.665, y: 0.312, cat: 'info',   icon: 'box' },
+    { id: 'toilets2', label: 'Toilets',         sub: 'Grandstand',               x: 0.248, y: 0.470, cat: 'info',   icon: 'box' },
+  ];
+  const PIN_COLORS = { sport: 'var(--c-sport)', club: 'var(--c-club)', stage: 'var(--c-stage)', ticket: 'var(--c-ticket)', emg: '#B23A2E', info: '#5B6B7A' };
+  const pinOn = (pin) => !pin.blocks || (block >= pin.blocks[0] && block <= pin.blocks[1]);
+  let mapFocus = null;   // set by initMap: centre the map on a pin
+  function renderPins() {
+    const el = $('mapz-pins'), img = $('mapz-img'); if (!el || !img || !img.naturalWidth) return;
+    el.style.width = img.naturalWidth + 'px'; el.style.height = img.naturalHeight + 'px';
+    el.innerHTML = PINS.map(pin => `<div class="pin ${pinOn(pin) ? '' : 'dim'}" data-pin="${pin.id}" style="--c:${PIN_COLORS[pin.cat]};left:${pin.x * img.naturalWidth}px;top:${pin.y * img.naturalHeight}px"><span class="dot"><svg viewBox="0 0 24 24">${ICONS[pin.icon] || ICONS.box}</svg></span><span class="lbl">${esc(pin.label)}</span></div>`).join('');
+  }
+  function pinInfo(id) {
+    const pin = PINS.find(p => p.id === id); if (!pin) return;
+    if (pin.info) { openInfo(pin.info); return; }
+    openInfoRaw(pin.label, `<p><b>${esc(pin.sub)}</b></p>${pin.id === 'stalls' ? '<p>Club marquees, food trucks and the fundraising stalls, all on Field 6. Open the whole day.</p>' : ''}${pin.id === 'stand' ? '<p>The grandstand is ours for the day — performances and the crowd\'s shade. First aid and toilets are underneath.</p>' : ''}`);
+  }
+
   // double-tap to zoom in. Scale is clamped so you can't lose the map.
   (function initMap() {
     const box = $('mapz'), img = $('mapz-img'); if (!box || !img) return;
     let s = 1, x = 0, y = 0, minS = 0.2, fitted = false;
     const ptrs = new Map(); let pinch = null, lastTap = 0, moved = 0, pinched = false;
-    const apply = () => { img.style.transform = `translate(${x}px, ${y}px) scale(${s})`; };
+    const pins = $('mapz-pins');
+    const apply = () => { const t = `translate(${x}px, ${y}px) scale(${s})`; img.style.transform = t; pins.style.transform = t; pins.style.setProperty('--inv', 1 / s); pins.classList.toggle('zoomed', s > fitS * 1.5); };
+    let fitS = 1;
     const clamp = () => {
       const bw = box.clientWidth, bh = box.clientHeight, iw = img.naturalWidth * s, ih = img.naturalHeight * s;
       x = iw <= bw ? (bw - iw) / 2 : Math.min(0, Math.max(bw - iw, x));
       y = ih <= bh ? (bh - ih) / 2 : Math.min(0, Math.max(bh - ih, y));
     };
-    const fit = () => { if (!img.naturalWidth || !box.clientWidth) return; s = Math.min(box.clientWidth / img.naturalWidth, box.clientHeight / img.naturalHeight); minS = s * 0.8; clamp(); apply(); fitted = true; };
+    const fit = () => { if (!img.naturalWidth || !box.clientWidth) return; s = Math.min(box.clientWidth / img.naturalWidth, box.clientHeight / img.naturalHeight); fitS = s; minS = s * 0.8; clamp(); apply(); fitted = true; };
     const zoomAt = (f, cx, cy) => { const ns = Math.min(Math.max(s * f, minS), 6); const k = ns / s; x = cx - (cx - x) * k; y = cy - (cy - y) * k; s = ns; clamp(); apply(); };
-    img.addEventListener('load', fit); if (img.complete) fit();
+    img.addEventListener('load', () => { renderPins(); fit(); }); if (img.complete) { renderPins(); fit(); }
+    mapFocus = (id) => {   // zoom to a pin and put it in the middle
+      const pin = PINS.find(p => p.id === id); if (!pin || !img.naturalWidth) return;
+      if (!fitted) fit(); const fs = Math.min(box.clientWidth / img.naturalWidth, box.clientHeight / img.naturalHeight);
+      s = Math.max(s, fs * 2.4); x = box.clientWidth / 2 - pin.x * img.naturalWidth * s; y = box.clientHeight / 2 - pin.y * img.naturalHeight * s; clamp(); apply();
+    };
     window.addEventListener('resize', () => { if (fitted) { clamp(); apply(); } });
     box.addEventListener('pointerdown', e => { try { box.setPointerCapture(e.pointerId); } catch {} ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY }); if (ptrs.size === 1) { moved = 0; pinched = false; } if (ptrs.size === 2) { pinched = true; const [a, b] = [...ptrs.values()]; pinch = { d: Math.hypot(a.x - b.x, a.y - b.y), s }; } });
     box.addEventListener('pointermove', e => {
@@ -1937,6 +1993,8 @@
     box.addEventListener('pointerup', e => {
       up(e);
       if (pinched || moved > 8 || ptrs.size) return;   // a tap is one finger, down and up, no drag
+      const hit = document.elementFromPoint(e.clientX, e.clientY); const pinEl = hit && hit.closest('.pin');
+      if (pinEl) { lastTap = 0; pinInfo(pinEl.dataset.pin); return; }
       const t = Date.now(); if (t - lastTap < 300) { const r = box.getBoundingClientRect(); zoomAt(2, e.clientX - r.left, e.clientY - r.top); lastTap = 0; } else lastTap = t;
     });
     box.addEventListener('pointercancel', up);
@@ -2284,7 +2342,7 @@
     { icon: 'crowd',   color: 'var(--c-club)',   t: 'Messages', k: 'message dm chat text someone name tap', p: 'Tap any name anywhere in the app to message them. Four one-tap lines and a box. Your conversations live in the bell.' },
     { icon: 'crowd',   color: 'var(--c-sport)',  t: 'Team', k: 'team who is free on duty filter societies mute advanced', p: 'Who\'s free and who\'s on what, this block. <b>‹ ›</b> to look at other blocks. <b>Societies</b> hides clubs you don\'t need to see; <b>Advanced</b> picks individual people.' },
     { icon: 'football',color: 'var(--c-sport)',  t: 'Scores & brackets', k: 'scores bracket match referee start end plus minus timetable', p: 'Referees: <b>the score you tap is the score</b> — it goes to the big screen and the public page within a second, and nobody else keeps it. <b>Start a match</b>, tap <b>+</b>/<b>−</b>, <b>End match</b>. Brackets fill themselves in; <b>Play next</b> starts the next one.' },
-    { icon: 'tent',    color: 'var(--c-club)',   t: 'Map', k: 'map where location pinch zoom', p: 'The ground. Drag to pan, pinch to zoom, double-tap to zoom in.' },
+    { icon: 'tent',    color: 'var(--c-club)',   t: 'Map', k: 'map where location pinch zoom pins field 7 field 6 first aid toilets', p: 'The ground, with pins for football and cricket (Field 7), volleyball (the netball courts), food trucks and stalls (Field 6), the grandstand, the entry, first aid, toilets and the assembly point. Tap a pin for what\'s there. Drag to pan, pinch to zoom, double-tap to zoom in.' },
     { icon: 'sparkle', color: 'var(--c-ticket)', t: "What's On", k: 'whats on stalls timetable stage performances businesses clubs photos upload', p: 'Everything at the festival. Tap a sport for the match timetable, the stage for the running order, a business for what they do, a club for who\'s on the marquee. Send festival photos from the bottom.' },
     { icon: 'camera',  color: 'var(--c-photo)',  t: 'Photos & big screen', k: 'photos upload approve big screen tv slideshow', p: 'Anyone can send a photo in; organisers approve them; approved photos roll across the big screen. <b>Big screen mode</b> is under Settings for whoever runs the TV.' },
     { icon: 'sparkle', color: 'var(--tan)',      t: 'Spicy', k: 'spicy ask question help bot chat ai assistant who do i talk to where is', p: 'Settings → <b>Spicy</b>. Ask anything — what your duty involves, who\'s on what right now, how a part of the app works. It answers from the roster and this manual, points you to a person when there is one, and says so when it doesn\'t know. When the answer is a button or a place in the app, tap <b>Show me</b> and Spicy spotlights it on screen. Every answer has a <b>Message Sandes</b> button.' },
@@ -2381,8 +2439,9 @@
   function startTour() { tourIdx = 0; tourOn = true; tourSaved = { live, block }; $('onb').hidden = false; renderTour(); }
   function endTour() {
     if (pointStep) {   // a Spicy pointer: put things back, but don't touch the tour's "seen" flag
-      if (pointStep.after) pointStep.after(); pointStep = null; tourOn = false; $('onb').hidden = true;
+      const back = pointStep.back; if (pointStep.after) pointStep.after(); pointStep = null; tourOn = false; $('onb').hidden = true;
       if (tourSaved) { live = tourSaved.live; block = tourSaved.block; tourSaved = null; if (!$('shell').hidden) render(); }
+      if (back) openSpicy(true);   // came from Spicy: back to the conversation
       return;
     }
     const cur = TOUR[tourIdx]; if (cur && cur.after) cur.after(); tourOn = false; $('onb').hidden = true; closeSheets();
@@ -2413,6 +2472,7 @@ Escalation: anything medical or dangerous — call 000 first, then tell an organ
     L.push('\n## Stage running order\n' + STAGE_TIMES.map(x => `${tm(x.t)} — ${x.who}: ${x.what}`).join('\n'));
     L.push('\n## Moments\n' + MOMENTS.map(m => `${m.at} (block ${m.block + 1}) — ${m.name} at ${m.where}. ${m.note} Who: ${m.who === 'all' ? 'everyone' : m.who.join(', ')}.`).join('\n'));
     L.push('\n## Emergency contacts (numbers are in the app under Settings → Emergency — never give a number)\n' + EMERGENCY.map(c => `${c.n} — ${c.role}`).join('\n'));
+    L.push('\n## Where things are (pins on the Map tab)\n' + PINS.map(pin => `${pin.label} — ${pin.sub}`).join('\n'));
     L.push('\n## Things Spicy can point at (put the id in "show" when the answer is about tapping or finding one of these)\n' + Object.entries(POINTS).map(([id, pt]) => `${id} — ${pt.what}`).join('\n'));
     L.push('\n## How the app works\n' + MANUAL.map(m => `- ${m.t}: ${strip(m.p)}`).join('\n') + '\n' + TOUR.map(t => `- ${t.h}: ${strip(t.p)}`).join('\n'));
     // the live part: what time it is, who's where now and next
@@ -2481,11 +2541,12 @@ Escalation: anything medical or dangerous — call 000 first, then tell an organ
     'settings-notify': { what: 'the block-change notification toggle, under Settings', target: '.set-row:has(#nudge)', ...inSettings },
     'desk':            { what: 'the Organiser desk button at the top (organisers only)', target: '#deskbtn', prep: () => { closeSheets(); showView('now'); } },
   };
+  PINS.forEach(pin => { POINTS['map-' + pin.id] = { what: `the ${pin.label} pin on the map (${pin.sub})`, target: `[data-pin="${pin.id}"] .dot`, prep: () => { closeSheets(); showView('map'); if (mapFocus) mapFocus(pin.id); } }; });
   let pointStep = null;
-  function startPoint(id, text) {
+  function startPoint(id, text, back) {
     const pt = POINTS[id]; if (!pt) return;
     tourSaved = { live, block }; tourOn = true;
-    pointStep = { target: pt.target, prep: pt.prep, after: pt.after, title: 'Right here', text };
+    pointStep = { target: pt.target, prep: pt.prep, after: pt.after, title: 'Right here', text, back };
     $('onb').hidden = false; renderTour();
   }
   const SPICY_CHIPS = ['What do I do at my duty?', 'How do I swap out?', "Who's on with me next block?"];
@@ -2502,12 +2563,12 @@ Escalation: anything medical or dangerous — call 000 first, then tell an organ
     else el.innerHTML = spicyThread.map((x, i) => {
       const q = x.q ? `<div class="msg me">${esc(x.q)}</div>` : '';
       if (x.pending) return q + `<div class="msg spicy"><span class="spicy-wait">Spicy is thinking</span></div>`;
-      const show = !x.err && x.show && POINTS[x.show] ? `<button type="button" class="btn-small" data-spicy-show="${i}">Show me</button>` : '';
+      const show = !x.err && x.show && POINTS[x.show] ? `<button type="button" class="btn-small ghost" data-spicy-show="${i}">Show me again</button>` : '';
       const msg = me && me.first !== 'Sandes' ? `<button type="button" class="btn-small ghost" data-spicy-msg="${i}">Message Sandes</button>` : '';
       const acts = show || msg ? `<div class="spicy-acts">${!x.err && x.sure === false ? '<span class="fine">Spicy isn\'t sure about this one.</span>' : ''}${show}${msg}</div>` : '';
       return q + `<div class="msg spicy ${x.sure === false ? 'unsure' : ''}">${esc(x.a)}${x.cached ? '<span class="t">Asked before — same answer.</span>' : ''}</div>` + acts;
     }).join('');
-    el.querySelectorAll('[data-spicy-show]').forEach(b => b.addEventListener('click', () => { const x = spicyThread[Number(b.dataset.spicyShow)]; openSpicy(false); startPoint(x.show, x.a); }));
+    el.querySelectorAll('[data-spicy-show]').forEach(b => b.addEventListener('click', () => { const x = spicyThread[Number(b.dataset.spicyShow)]; openSpicy(false); startPoint(x.show, x.a, true); }));
     el.querySelectorAll('[data-spicy-msg]').forEach(b => b.addEventListener('click', () => {
       const x = spicyThread[Number(b.dataset.spicyMsg)]; openSpicy(false); openDm('Sandes');
       if (x && x.q && $('dm-text')) $('dm-text').value = ('Q: ' + x.q).slice(0, 200);
@@ -2519,7 +2580,10 @@ Escalation: anything medical or dangerous — call 000 first, then tell an organ
   async function askSpicy(q) {
     q = (q || '').trim().slice(0, 300); if (!q || !me) return;
     const item = { q, pending: true }; spicyThread.push(item); renderSpicy();
-    const done = (patch) => { Object.assign(item, { pending: false }, patch); renderSpicy(); };
+    const done = (patch) => {
+      Object.assign(item, { pending: false }, patch); renderSpicy();
+      if (item.show && POINTS[item.show] && !$('spicy-sheet').hidden) { openSpicy(false); startPoint(item.show, item.a, true); }
+    };
     if (!db) { done({ a: 'No connection right now — message Sandes instead.', sure: false, err: true }); return; }
     // asked before by anyone this block, and not personal? same answer, no
     // round trip. Keyed by block so "who's on volleyball" never goes stale.
@@ -2547,32 +2611,73 @@ Escalation: anything medical or dangerous — call 000 first, then tell an organ
   // the database so every exec sees it next to your name within a second.
   let photoMsgId = null;
   function pickPhoto(msgId) { if (!me) return; photoMsgId = msgId; $('pfp-file').value = ''; $('pfp-file').click(); }
-  async function squarePhoto(file, size) {
+  // The photo is decoded once (EXIF orientation applied, shrunk to ≤1024 so
+  // the preview is quick), then you drag and zoom it inside a circle. Saving
+  // draws exactly what's in the circle to a 128 px square.
+  async function decodePhoto(file) {
     let img;
     try { img = await createImageBitmap(file, { imageOrientation: 'from-image' }); }
     catch { img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = URL.createObjectURL(file); }); }
-    const w = img.width, h = img.height, k = Math.min(w, h);
-    const c = document.createElement('canvas'); c.width = size; c.height = size;
-    c.getContext('2d').drawImage(img, (w - k) / 2, (h - k) / 2, k, k, 0, 0, size, size);
-    return c.toDataURL('image/jpeg', 0.72);
+    const k = Math.min(1, 1024 / Math.max(img.width, img.height));
+    const c = document.createElement('canvas'); c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+    c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+    return c;
   }
+  const crop = { src: null, base: 1, z: 1, x: 0, y: 0 };
+  const cropBox = $('crop-box'), cropImg = $('crop-img'), cropZoom = $('crop-zoom');
+  const cropScale = () => crop.base * crop.z;
+  function cropClamp() { const b = cropBox.clientWidth, sc = cropScale(); crop.x = Math.min(0, Math.max(b - crop.src.width * sc, crop.x)); crop.y = Math.min(0, Math.max(b - crop.src.height * sc, crop.y)); }
+  function cropApply() { cropClamp(); cropImg.style.transform = `translate(${crop.x}px, ${crop.y}px) scale(${cropScale()})`; cropZoom.value = crop.z; }
+  function cropZoomAt(z, cx, cy) { z = Math.min(3.5, Math.max(1, z)); const k = (crop.base * z) / cropScale(); crop.x = cx - (cx - crop.x) * k; crop.y = cy - (cy - crop.y) * k; crop.z = z; cropApply(); }
+  function openCrop(canvas) {
+    crop.src = canvas; cropImg.src = canvas.toDataURL('image/jpeg', 0.9);
+    $('crop-sheet').hidden = false; $('crop-backdrop').hidden = false;
+    requestAnimationFrame(() => { const b = cropBox.clientWidth; crop.base = b / Math.min(canvas.width, canvas.height); crop.z = 1; crop.x = (b - canvas.width * crop.base) / 2; crop.y = (b - canvas.height * crop.base) / 2; cropApply(); });
+  }
+  function closeCrop() { $('crop-sheet').hidden = true; $('crop-backdrop').hidden = true; crop.src = null; }
+  (function initCrop() {
+    const ptrs = new Map(); let pinch = null;
+    cropBox.addEventListener('pointerdown', e => { try { cropBox.setPointerCapture(e.pointerId); } catch {} ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY }); if (ptrs.size === 2) { const [a, b] = [...ptrs.values()]; pinch = { d: Math.hypot(a.x - b.x, a.y - b.y), z: crop.z }; } });
+    cropBox.addEventListener('pointermove', e => {
+      if (!ptrs.has(e.pointerId) || !crop.src) return;
+      const prev = ptrs.get(e.pointerId); ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      const r = cropBox.getBoundingClientRect();
+      if (ptrs.size === 2 && pinch) { const [a, b] = [...ptrs.values()]; const d = Math.hypot(a.x - b.x, a.y - b.y); cropZoomAt(pinch.z * d / pinch.d, (a.x + b.x) / 2 - r.left, (a.y + b.y) / 2 - r.top); }
+      else if (ptrs.size === 1) { crop.x += e.clientX - prev.x; crop.y += e.clientY - prev.y; cropApply(); }
+    });
+    const up = e => { ptrs.delete(e.pointerId); if (ptrs.size < 2) pinch = null; };
+    cropBox.addEventListener('pointerup', up); cropBox.addEventListener('pointercancel', up);
+    cropBox.addEventListener('wheel', e => { e.preventDefault(); const r = cropBox.getBoundingClientRect(); cropZoomAt(crop.z * (e.deltaY < 0 ? 1.1 : 0.9), e.clientX - r.left, e.clientY - r.top); }, { passive: false });
+    cropZoom.addEventListener('input', () => { const b = cropBox.clientWidth / 2; cropZoomAt(Number(cropZoom.value), b, b); });
+  })();
+  $('crop-cancel').addEventListener('click', closeCrop); $('crop-backdrop').addEventListener('click', closeCrop);
   $('pfp-file').addEventListener('change', async () => {
     const f = $('pfp-file').files[0]; if (!f || !me) return;
     const say = (t) => { const el = photoMsgId && $(photoMsgId); if (el) el.textContent = t; };
-    say('Saving…');
-    try {
-      const data = await squarePhoto(f, 128);
-      if (!db) throw new Error('offline');
-      await ref('pfp/' + me.first.toLowerCase()).set(data);
-      say('Saved — everyone sees it next to your name.');
-    } catch (e) { say('That one didn\'t work — try another photo.'); }
+    try { openCrop(await decodePhoto(f)); } catch { say('That one didn\'t work — try another photo.'); }
   });
-  $('set-photo').addEventListener('click', () => pickPhoto('set-photo-msg'));
+  $('crop-save').addEventListener('click', async () => {
+    if (!crop.src || !me) return;
+    const say = (t) => { const el = photoMsgId && $(photoMsgId); if (el) el.textContent = t; };
+    const b = cropBox.clientWidth, sc = cropScale();
+    const c = document.createElement('canvas'); c.width = 128; c.height = 128;
+    c.getContext('2d').drawImage(crop.src, -crop.x / sc, -crop.y / sc, b / sc, b / sc, 0, 0, 128, 128);
+    const data = c.toDataURL('image/jpeg', 0.72);
+    closeCrop(); say('Saving…');
+    try { if (!db) throw new Error('offline'); await ref('pfp/' + me.first.toLowerCase()).set(data); say('Saved — everyone sees it next to your name.'); }
+    catch (e) { say('Couldn\'t save it — check your connection and try again.'); }
+  });
+  function renderPhotoRow(msg) {
+    const row = $('set-photo-row'); row.hidden = !me; if (!me) return;
+    const has = !!pfps[me.first.toLowerCase()];
+    row.innerHTML = `${pfp(me.first, 44)}<div class="txt"><b>Your photo</b><span id="set-photo-msg">${esc(msg || (has ? 'Shown next to your name.' : 'Shown next to your name so people can find you.'))}</span></div><button class="btn-small ${has ? 'ghost' : ''}" id="set-photo" type="button">${has ? 'Change' : 'Add'}</button>`;
+    $('set-photo').addEventListener('click', () => pickPhoto('set-photo-msg'));
+  }
   $('who-pfp').addEventListener('click', () => { renderSim(); openSettings(true); });
 
   function openSettings(open) {
     $('set-sheet').hidden = !open; $('set-backdrop').hidden = !open;
-    if (open) { $('set-who').textContent = me ? full(me.first) : (ident ? ident.name : '—'); const row = $('set-photo-row'); row.hidden = !me; if (me) { const has = !!pfps[me.first.toLowerCase()]; $('set-photo').textContent = has ? 'Change' : 'Add'; row.querySelector('.txt').innerHTML = `<b>Your photo</b><span id="set-photo-msg">${has ? 'Shown next to your name.' : 'Shown next to your name so people can find you.'}</span>`; row.querySelector('.txt').insertAdjacentHTML('afterbegin', pfp(me.first, 44)); row.style.alignItems = 'center'; } }
+    if (open) { $('set-who').textContent = me ? full(me.first) : (ident ? ident.name : '—'); renderPhotoRow(); }
   }
   $('gear').addEventListener('click', () => { renderSim(); openSettings(true); });
   $('set-close').addEventListener('click', () => openSettings(false)); $('set-backdrop').addEventListener('click', () => openSettings(false));
@@ -3158,7 +3263,7 @@ Escalation: anything medical or dangerous — call 000 first, then tell an organ
     ref('config/aiReview').on('value', snap => { aiOn = snap.val() !== false; renderPhotoMod(); }, () => {});
     ref('ticker').limitToLast(40).on('value', snap => { ticks = snap.val() || {}; if (scrOn) renderTicker(); if (!$('view-desk').hidden) renderTicks(); }, () => {});
     ref('incidents').limitToLast(100).on('value', snap => { incidents = snap.val() || {}; renderIncidents(); }, () => {});
-    ref('pfp').on('value', snap => { pfps = snap.val() || {}; if (!$('shell').hidden) { render(); $('who-pfp').innerHTML = me ? pfp(me.first, 32) : ''; if (tourOn) renderTour(); } }, () => {});
+    ref('pfp').on('value', snap => { pfps = snap.val() || {}; if (!$('shell').hidden) { render(); $('who-pfp').innerHTML = me ? pfp(me.first, 32) : ''; if (tourOn) renderTour(); if (!$('set-sheet').hidden) renderPhotoRow($('set-photo-msg') ? $('set-photo-msg').textContent : ''); } }, () => {});
     ref('sim').on('value', snap => { sim = snap.val(); if (!$('shell').hidden) { const lb = liveBlock(); live = lb !== null; if (live) block = lb; else if (block < 0 || block >= BLOCKS) block = 0; render(); renderSim(); } renderStageNow(); }, () => {});
     ref('help').limitToLast(60).on('value', snap => { helps = snap.val() || {}; if (!$('shell').hidden) { render(); renderHelps(); renderBell(); } }, () => { unavailable($('help-list'), 'help calls'); });
   }
