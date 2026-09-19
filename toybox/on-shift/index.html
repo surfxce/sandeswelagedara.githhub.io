@@ -824,6 +824,15 @@
   }
   .mapz:active { cursor: grabbing; }
   .mapz img { position: absolute; top: 0; left: 0; transform-origin: 0 0; will-change: transform; max-width: none; pointer-events: none; }
+  .map-mode { display: flex; gap: 6px; margin-bottom: 8px; }
+  .map-mode button { min-height: 34px; padding: 0 14px; border-radius: 17px; border: 1.5px solid var(--line); background: #fff; color: var(--maroon); font-weight: 700; font-size: 14px; }
+  .map-mode button[aria-pressed="true"] { background: var(--maroon); color: var(--cream); border-color: var(--maroon); }
+  .mapsat { height: 70vh; border-radius: 8px; overflow: hidden; background: #1d2a1f; box-shadow: 0 1px 0 var(--line); }
+  .mapsat .pin { position: static; transform: none; width: 30px; }
+  .mapsat .pin .lbl { position: absolute; top: 32px; left: 50%; transform: translateX(-50%); }
+  .mapsat .leaflet-div-icon { background: none; border: 0; overflow: visible; }
+  .mapsat .leaflet-control-attribution { font-size: 9px; }
+  .mapsat .leaflet-control-zoom a { width: 40px; height: 40px; line-height: 40px; font-size: 22px; color: var(--maroon); }
   .mapz .pins { position: absolute; top: 0; left: 0; transform-origin: 0 0; will-change: transform; pointer-events: none; }
   .pin { position: absolute; pointer-events: auto; transform: translate(-50%, -100%) scale(var(--inv, 1)); transform-origin: 50% 100%; display: grid; justify-items: center; gap: 2px; pointer-events: none; }
   .pin .dot { pointer-events: auto; width: 30px; height: 30px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); background: var(--c); border: 2.5px solid #fff; box-shadow: 0 2px 6px rgba(0,0,0,.35); display: grid; place-items: center; }
@@ -934,6 +943,7 @@
       <div><h2>Shout-outs</h2>
         <div class="share shout" data-shout="pub"></div>
       </div>
+      <div><h2>Map</h2><div class="map-mount" id="map-pub"></div></div>
       <div id="photos"><h2>Festival photos</h2>
         <div class="share" data-share="pub"></div>
       </div>
@@ -1185,16 +1195,7 @@
 
     <!-- MAP (placeholder — to be drawn) -->
     <section class="view" id="view-map" role="tabpanel" hidden>
-      <div class="mapz" id="mapz" aria-label="Festival map — drag to pan, pinch or scroll to zoom">
-        <img id="mapz-img" src="map.jpg" alt="UQ Sport Athletics Centre vendor map" draggable="false">
-        <div class="pins" id="mapz-pins"></div>
-        <div class="mapz-ctl">
-          <button type="button" data-z="1.4" aria-label="Zoom in">+</button>
-          <button type="button" data-z="0.7" aria-label="Zoom out">−</button>
-          <button type="button" data-z="0" aria-label="Reset">⟲</button>
-        </div>
-      </div>
-      <p class="fine">UQ Sport Athletics Centre. Drag to pan, pinch or scroll to zoom, double-tap to zoom in. Tap a pin for what's there.</p>
+      <div class="map-mount" id="map-exec"></div>
     </section>
 
     <!-- WHAT'S ON -->
@@ -1409,7 +1410,7 @@
 
   const DUTIES = {
     // tasks: the sub-jobs inside each job — shown as small tags on the duty card
-    vb: { cat:'sport', icon:'volleyball', name:'Volleyball', where:'Netball courts (top of the ground)', do:'Keep games moving on the court. Call scores, rotate teams every 15 minutes, and keep the ball bag with you.',
+    vb: { cat:'sport', icon:'volleyball', name:'Volleyball', where:'Beach volleyball courts (bottom of the ground)', do:'Keep games moving on the court. Call scores, rotate teams every 15 minutes, and keep the ball bag with you.',
           tasks:['Scorekeeping', 'Rotating teams', 'Ball bag'] },
     fb: { cat:'sport', name:'Football', where:'Field 7 (the main oval)', do:'Referee and keep the sideline clear. Games run 20 minutes — blow up when the stage calls time and swap teams.',
           tasks:['Refereeing', 'Sideline clear', 'Team swaps'] },
@@ -1436,7 +1437,7 @@
     // Photo schedule — a duty like any other, so it shows up in the run sheet and Team.
     // Playing, as distinct from running a sport: you're on the field for your
     // society, not refereeing. Green so it never reads as a duty.
-    'play-vb': { cat:'play', icon:'volleyball', name:'Playing volleyball', where:'Netball courts (top of the ground)', do:'You\'re on the court for your society this block. Be there five minutes early, then hand back to whoever\'s refereeing.',
+    'play-vb': { cat:'play', icon:'volleyball', name:'Playing volleyball', where:'Beach volleyball courts (bottom of the ground)', do:'You\'re on the court for your society this block. Be there five minutes early, then hand back to whoever\'s refereeing.',
           tasks:['Your society\'s team', '5 min early', 'Not refereeing'] },
     'play-fb': { cat:'play', icon:'football', name:'Playing football', where:'Field 7 (the main oval)', do:'You\'re on the oval for your society this block. Be there five minutes early, then hand back to whoever\'s refereeing.',
           tasks:['Your society\'s team', '5 min early', 'Not refereeing'] },
@@ -1927,43 +1928,69 @@
 
   // ---------- Map: pan + zoom ----------
   // Pointer events for drag, two pointers for pinch, wheel for desktop,
-  // Pins: where things are, as fractions of the map image. `blocks` (from, to)
+  // Pins: where things are — as fractions of the drawing (x, y) and as real
+  // GPS (ll) for the satellite view, measured off the imagery. `blocks` (from, to)
   // is optional — a pin with it only shows during those blocks, once the
   // programme has real times. `info` opens the same sheet as a duty title.
   const PINS = [
-    { id: 'fb',       label: 'Football',        sub: 'Field 7',                  x: 0.467, y: 0.400, cat: 'sport',  icon: 'football',   info: 'duty:fb' },
-    { id: 'ck',       label: 'Cricket',         sub: 'Field 7 · after football', x: 0.467, y: 0.462, cat: 'sport',  icon: 'cricket',    info: 'duty:ck' },
-    { id: 'vb',       label: 'Volleyball',      sub: 'Netball courts',           x: 0.509, y: 0.212, cat: 'sport',  icon: 'volleyball', info: 'duty:vb' },
-    { id: 'stalls',   label: 'Food trucks & stalls', sub: 'Field 6',             x: 0.792, y: 0.470, cat: 'club',   icon: 'tent' },
-    { id: 'stand',    label: 'Grandstand',      sub: 'Event area',               x: 0.283, y: 0.415, cat: 'stage',  icon: 'mic' },
-    { id: 'entry',    label: 'Entry & tickets', sub: 'Main gate',                x: 0.340, y: 0.208, cat: 'ticket', icon: 'ticket',     info: 'duty:tk' },
-    { id: 'firstaid', label: 'First aid',       sub: 'Grandstand, room 19',      x: 0.297, y: 0.470, cat: 'emg',    icon: 'heart' },
-    { id: 'assembly', label: 'Assembly point',  sub: 'Emergency assembly',       x: 0.375, y: 0.486, cat: 'emg',    icon: 'crowd' },
-    { id: 'toilets',  label: 'Toilets',         sub: 'Next to the cafe',         x: 0.665, y: 0.312, cat: 'info',   icon: 'box' },
-    { id: 'toilets2', label: 'Toilets',         sub: 'Grandstand',               x: 0.248, y: 0.470, cat: 'info',   icon: 'box' },
+    { id: 'fb',       label: 'Football',        sub: 'Field 7',                  x: 0.467, y: 0.400, ll: [-27.49325, 153.01296],  cat: 'sport',  icon: 'football',   info: 'duty:fb', sport: 'fb' },
+    { id: 'ck',       label: 'Cricket',         sub: 'Field 7 · after football', x: 0.467, y: 0.462, ll: [-27.49360, 153.01296],  cat: 'sport',  icon: 'cricket',    info: 'duty:ck', sport: 'ck' },
+    { id: 'vb',       label: 'Volleyball',      sub: 'Beach volleyball courts',  x: 0.647, y: 0.590, ll: [-27.494139, 153.01353], cat: 'sport',  icon: 'volleyball', info: 'duty:vb', sport: 'vb' },
+    { id: 'stalls',   label: 'Food trucks & stalls', sub: 'Field 6',             x: 0.792, y: 0.470, ll: [-27.49353, 153.014025], cat: 'club',   icon: 'tent' },
+    { id: 'stand',    label: 'Grandstand',      sub: 'Event area',               x: 0.283, y: 0.415, ll: [-27.493409, 153.012239], cat: 'stage', icon: 'mic' },
+    { id: 'entry',    label: 'Entry & tickets', sub: 'Main gate',                x: 0.340, y: 0.208, ll: [-27.492556, 153.012445], cat: 'ticket', icon: 'ticket', info: 'duty:tk' },
+    { id: 'firstaid', label: 'First aid',       sub: 'Grandstand, room 19',      x: 0.297, y: 0.470, ll: [-27.493651, 153.012268], cat: 'emg',  icon: 'heart' },
+    { id: 'assembly', label: 'Assembly point',  sub: 'Emergency assembly',       x: 0.375, y: 0.486, ll: [-27.493715, 153.012564], cat: 'emg',  icon: 'crowd' },
+    { id: 'toilets',  label: 'Toilets',         sub: 'Next to the cafe',         x: 0.665, y: 0.312, ll: [-27.492906, 153.013732], cat: 'info', icon: 'box' },
+    { id: 'toilets2', label: 'Toilets',         sub: 'Grandstand',               x: 0.248, y: 0.470, ll: [-27.493656, 153.012079], cat: 'info', icon: 'box' },
   ];
   const PIN_COLORS = { sport: 'var(--c-sport)', club: 'var(--c-club)', stage: 'var(--c-stage)', ticket: 'var(--c-ticket)', emg: '#B23A2E', info: '#5B6B7A' };
   const pinOn = (pin) => !pin.blocks || (block >= pin.blocks[0] && block <= pin.blocks[1]);
-  let mapFocus = null;   // set by initMap: centre the map on a pin
-  function renderPins() {
-    const el = $('mapz-pins'), img = $('mapz-img'); if (!el || !img || !img.naturalWidth) return;
-    el.style.width = img.naturalWidth + 'px'; el.style.height = img.naturalHeight + 'px';
-    el.innerHTML = PINS.map(pin => `<div class="pin ${pinOn(pin) ? '' : 'dim'}" data-pin="${pin.id}" style="--c:${PIN_COLORS[pin.cat]};left:${pin.x * img.naturalWidth}px;top:${pin.y * img.naturalHeight}px"><span class="dot"><svg viewBox="0 0 24 24">${ICONS[pin.icon] || ICONS.box}</svg></span><span class="lbl">${esc(pin.label)}</span></div>`).join('');
-  }
+  const pinHtml = (pin, extra) => `<div class="pin ${extra || ''} ${pinOn(pin) ? '' : 'dim'}" data-pin="${pin.id}" style="--c:${PIN_COLORS[pin.cat]}"><span class="dot"><svg viewBox="0 0 24 24">${ICONS[pin.icon] || ICONS.box}</svg></span><span class="lbl">${esc(pin.label)}</span></div>`;
   function pinInfo(id) {
     const pin = PINS.find(p => p.id === id); if (!pin) return;
-    if (pin.info) { openInfo(pin.info); return; }
-    openInfoRaw(pin.label, `<p><b>${esc(pin.sub)}</b></p>${pin.id === 'stalls' ? '<p>Club marquees, food trucks and the fundraising stalls, all on Field 6. Open the whole day.</p>' : ''}${pin.id === 'stand' ? '<p>The grandstand is ours for the day — performances and the crowd\'s shade. First aid and toilets are underneath.</p>' : ''}`);
+    // execs get the duty sheet (who's on it); the public gets the timetable
+    if (pin.info && me) { openInfo(pin.info); return; }
+    if (pin.sport) { openInfo('sport:' + pin.sport); return; }
+    openInfoRaw(pin.label, `<p><b>${esc(pin.sub)}</b></p>${pin.id === 'stalls' ? '<p>Club marquees, food trucks and the fundraising stalls, all on Field 6. Open the whole day.</p>' : ''}${pin.id === 'stand' ? '<p>The grandstand is ours for the day — performances and the crowd\'s shade. First aid and toilets are underneath.</p>' : ''}${pin.id === 'entry' ? '<p>Tickets are checked here. Bring your ticket on your phone.</p>' : ''}`);
   }
 
-  // double-tap to zoom in. Scale is clamped so you can't lose the map.
-  (function initMap() {
-    const box = $('mapz'), img = $('mapz-img'); if (!box || !img) return;
-    let s = 1, x = 0, y = 0, minS = 0.2, fitted = false;
+  // The map, mounted on the exec tab and on the public page. Two modes:
+  // "simple" is the vendor drawing (drag, pinch, double-tap) and "satellite"
+  // is Esri World Imagery through Leaflet, loaded the first time it's asked
+  // for. Pins sit on both — by fraction of the drawing, and by real GPS.
+  const LEAFLET = { css: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css', js: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js' };
+  const ESRI = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
+  const VENUE = [-27.49335, 153.01296];   // the track
+  let leafletLoading = null;
+  function loadLeaflet() {
+    if (window.L) return Promise.resolve();
+    if (leafletLoading) return leafletLoading;
+    leafletLoading = new Promise((res, rej) => {
+      const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = LEAFLET.css; document.head.appendChild(l);
+      const sc = document.createElement('script'); sc.src = LEAFLET.js; sc.onload = res; sc.onerror = () => { leafletLoading = null; rej(new Error('leaflet')); }; document.head.appendChild(sc);
+    });
+    return leafletLoading;
+  }
+  const maps = [];   // every mounted map, so a pin focus can find the visible one
+  function mountMap(root, pre) {
+    root.innerHTML = `
+      <div class="map-mode" role="group" aria-label="Map style"><button type="button" data-mode="simple" aria-pressed="true">Simple</button><button type="button" data-mode="satellite" aria-pressed="false">Satellite</button></div>
+      <div class="mapz" id="${pre}-mapz" aria-label="Festival map — drag to pan, pinch or scroll to zoom">
+        <img id="${pre}-img" src="map.jpg" alt="UQ Sport Athletics Centre vendor map" draggable="false">
+        <div class="pins" id="${pre}-pins"></div>
+        <div class="mapz-ctl"><button type="button" data-z="1.4" aria-label="Zoom in">+</button><button type="button" data-z="0.7" aria-label="Zoom out">−</button><button type="button" data-z="0" aria-label="Reset">⟲</button></div>
+      </div>
+      <div class="mapsat" id="${pre}-sat" hidden></div>
+      <p class="fine" id="${pre}-note">UQ Sport Athletics Centre. Drag to pan, pinch or scroll to zoom, double-tap to zoom in. Tap a pin for what's there.</p>`;
+    const box = $(pre + '-mapz'), img = $(pre + '-img'), pins = $(pre + '-pins'), satEl = $(pre + '-sat');
+    const m = { root, mode: 'simple', sat: null, markers: {}, focus: null, show: null };
+    maps.push(m);
+
+    // ---- simple: the drawing ----
+    let s = 1, x = 0, y = 0, minS = 0.2, fitS = 1, fitted = false;
     const ptrs = new Map(); let pinch = null, lastTap = 0, moved = 0, pinched = false;
-    const pins = $('mapz-pins');
     const apply = () => { const t = `translate(${x}px, ${y}px) scale(${s})`; img.style.transform = t; pins.style.transform = t; pins.style.setProperty('--inv', 1 / s); pins.classList.toggle('zoomed', s > fitS * 1.5); };
-    let fitS = 1;
     const clamp = () => {
       const bw = box.clientWidth, bh = box.clientHeight, iw = img.naturalWidth * s, ih = img.naturalHeight * s;
       x = iw <= bw ? (bw - iw) / 2 : Math.min(0, Math.max(bw - iw, x));
@@ -1971,12 +1998,8 @@
     };
     const fit = () => { if (!img.naturalWidth || !box.clientWidth) return; s = Math.min(box.clientWidth / img.naturalWidth, box.clientHeight / img.naturalHeight); fitS = s; minS = s * 0.8; clamp(); apply(); fitted = true; };
     const zoomAt = (f, cx, cy) => { const ns = Math.min(Math.max(s * f, minS), 6); const k = ns / s; x = cx - (cx - x) * k; y = cy - (cy - y) * k; s = ns; clamp(); apply(); };
-    img.addEventListener('load', () => { renderPins(); fit(); }); if (img.complete) { renderPins(); fit(); }
-    mapFocus = (id) => {   // zoom to a pin and put it in the middle
-      const pin = PINS.find(p => p.id === id); if (!pin || !img.naturalWidth) return;
-      if (!fitted) fit(); const fs = Math.min(box.clientWidth / img.naturalWidth, box.clientHeight / img.naturalHeight);
-      s = Math.max(s, fs * 2.4); x = box.clientWidth / 2 - pin.x * img.naturalWidth * s; y = box.clientHeight / 2 - pin.y * img.naturalHeight * s; clamp(); apply();
-    };
+    const drawPins = () => { if (!img.naturalWidth) return; pins.style.width = img.naturalWidth + 'px'; pins.style.height = img.naturalHeight + 'px'; pins.innerHTML = PINS.map(pin => pinHtml(pin).replace('style="', `style="left:${pin.x * img.naturalWidth}px;top:${pin.y * img.naturalHeight}px;`)).join(''); };
+    img.addEventListener('load', () => { drawPins(); fit(); }); if (img.complete) { drawPins(); fit(); }
     window.addEventListener('resize', () => { if (fitted) { clamp(); apply(); } });
     box.addEventListener('pointerdown', e => { try { box.setPointerCapture(e.pointerId); } catch {} ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY }); if (ptrs.size === 1) { moved = 0; pinched = false; } if (ptrs.size === 2) { pinched = true; const [a, b] = [...ptrs.values()]; pinch = { d: Math.hypot(a.x - b.x, a.y - b.y), s }; } });
     box.addEventListener('pointermove', e => {
@@ -1985,8 +2008,7 @@
       const r = box.getBoundingClientRect();
       if (ptrs.size === 2 && pinch) {
         const [a, b] = [...ptrs.values()]; const d = Math.hypot(a.x - b.x, a.y - b.y);
-        const cx = (a.x + b.x) / 2 - r.left, cy = (a.y + b.y) / 2 - r.top;
-        zoomAt((pinch.s * d / pinch.d) / s, cx, cy);
+        zoomAt((pinch.s * d / pinch.d) / s, (a.x + b.x) / 2 - r.left, (a.y + b.y) / 2 - r.top);
       } else if (ptrs.size === 1) { moved += Math.hypot(e.clientX - prev.x, e.clientY - prev.y); x += e.clientX - prev.x; y += e.clientY - prev.y; clamp(); apply(); }
     });
     const up = e => { ptrs.delete(e.pointerId); if (ptrs.size < 2) pinch = null; };
@@ -2000,9 +2022,46 @@
     box.addEventListener('pointercancel', up);
     box.addEventListener('wheel', e => { e.preventDefault(); const r = box.getBoundingClientRect(); zoomAt(e.deltaY < 0 ? 1.15 : 0.87, e.clientX - r.left, e.clientY - r.top); }, { passive: false });
     box.querySelectorAll('.mapz-ctl button').forEach(b => b.addEventListener('click', () => { const z = Number(b.dataset.z); if (!z) fit(); else zoomAt(z, box.clientWidth / 2, box.clientHeight / 2); }));
-    // re-fit the first time the tab is shown (it was display:none at load)
-    const orig = showView; showView = function (v) { orig(v); if (v === 'map' && !fitted) requestAnimationFrame(fit); };
-  })();
+
+    // ---- satellite ----
+    async function ensureSat() {
+      if (m.sat) return true;
+      try { await loadLeaflet(); } catch { $(pre + '-note').textContent = 'Satellite view needs a connection — the drawing still works.'; return false; }
+      m.sat = L.map(satEl, { maxZoom: 21, zoomControl: true, attributionControl: true }).setView(VENUE, 18);
+      L.tileLayer(ESRI, { maxNativeZoom: 19, maxZoom: 21, attribution: 'Imagery © Esri, Maxar, Earthstar Geographics' }).addTo(m.sat);
+      PINS.forEach(pin => {
+        if (!pin.ll) return;
+        const mk = L.marker(pin.ll, { icon: L.divIcon({ className: '', html: pinHtml(pin, 'sat'), iconSize: [30, 30], iconAnchor: [15, 30] }), keyboard: false }).addTo(m.sat);
+        mk.on('click', () => pinInfo(pin.id)); m.markers[pin.id] = mk;
+      });
+      return true;
+    }
+    m.show = () => { if (m.mode === 'simple') { if (!fitted) requestAnimationFrame(fit); } else if (m.sat) requestAnimationFrame(() => m.sat.invalidateSize()); };
+    async function setMode(mode) {
+      if (mode === 'satellite' && !(await ensureSat())) mode = 'simple';
+      m.mode = mode; box.hidden = mode !== 'simple'; satEl.hidden = mode !== 'satellite';
+      root.querySelectorAll('.map-mode button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.mode === mode)));
+      $(pre + '-note').textContent = mode === 'satellite' ? 'Satellite imagery (Esri). Pinch or scroll to zoom. Tap a pin for what\'s there.' : 'UQ Sport Athletics Centre. Drag to pan, pinch or scroll to zoom, double-tap to zoom in. Tap a pin for what\'s there.';
+      try { localStorage.setItem('onshift.mapMode', mode); } catch {}
+      m.show();
+    }
+    root.querySelectorAll('.map-mode button').forEach(b => b.addEventListener('click', () => setMode(b.dataset.mode)));
+    let saved = 'simple'; try { saved = localStorage.getItem('onshift.mapMode') || 'simple'; } catch {}
+    if (saved === 'satellite') setMode('satellite');
+
+    m.focus = (id) => {   // zoom to a pin and put it in the middle, whichever mode is on
+      const pin = PINS.find(p => p.id === id); if (!pin) return;
+      if (m.mode === 'satellite' && m.sat) { m.sat.invalidateSize(); m.sat.setView(pin.ll, 19, { animate: false }); return; }
+      if (!img.naturalWidth) return; if (!fitted) fit();
+      s = Math.max(s, fitS * 2.4); x = box.clientWidth / 2 - pin.x * img.naturalWidth * s; y = box.clientHeight / 2 - pin.y * img.naturalHeight * s; clamp(); apply();
+    };
+    return m;
+  }
+  const mapExec = mountMap($('map-exec'), 'mx');
+  const mapPub = $('map-pub') ? mountMap($('map-pub'), 'mp') : null;
+  const mapFocus = (id) => mapExec.focus(id);
+  // re-fit the first time the tab is shown (it was display:none at load)
+  { const orig = showView; showView = function (v) { orig(v); if (v === 'map') mapExec.show(); }; }
 
   // ---------- Preview stepper ----------
   $('pv-prev').addEventListener('click', () => { live = false; block = Math.max(-1, block - 1); render(); });
@@ -2342,7 +2401,7 @@
     { icon: 'crowd',   color: 'var(--c-club)',   t: 'Messages', k: 'message dm chat text someone name tap', p: 'Tap any name anywhere in the app to message them. Four one-tap lines and a box. Your conversations live in the bell.' },
     { icon: 'crowd',   color: 'var(--c-sport)',  t: 'Team', k: 'team who is free on duty filter societies mute advanced', p: 'Who\'s free and who\'s on what, this block. <b>‹ ›</b> to look at other blocks. <b>Societies</b> hides clubs you don\'t need to see; <b>Advanced</b> picks individual people.' },
     { icon: 'football',color: 'var(--c-sport)',  t: 'Scores & brackets', k: 'scores bracket match referee start end plus minus timetable', p: 'Referees: <b>the score you tap is the score</b> — it goes to the big screen and the public page within a second, and nobody else keeps it. <b>Start a match</b>, tap <b>+</b>/<b>−</b>, <b>End match</b>. Brackets fill themselves in; <b>Play next</b> starts the next one.' },
-    { icon: 'tent',    color: 'var(--c-club)',   t: 'Map', k: 'map where location pinch zoom pins field 7 field 6 first aid toilets', p: 'The ground, with pins for football and cricket (Field 7), volleyball (the netball courts), food trucks and stalls (Field 6), the grandstand, the entry, first aid, toilets and the assembly point. Tap a pin for what\'s there. Drag to pan, pinch to zoom, double-tap to zoom in.' },
+    { icon: 'tent',    color: 'var(--c-club)',   t: 'Map', k: 'map where location pinch zoom pins field 7 field 6 first aid toilets', p: '<b>Simple</b> is the ground plan, <b>Satellite</b> is real imagery — both have pins for football and cricket (Field 7), volleyball (the beach courts), food trucks and stalls (Field 6), the grandstand, the entry, first aid, toilets and the assembly point. Tap a pin for what\'s there. Drag to pan, pinch to zoom, double-tap to zoom in.' },
     { icon: 'sparkle', color: 'var(--c-ticket)', t: "What's On", k: 'whats on stalls timetable stage performances businesses clubs photos upload', p: 'Everything at the festival. Tap a sport for the match timetable, the stage for the running order, a business for what they do, a club for who\'s on the marquee. Send festival photos from the bottom.' },
     { icon: 'camera',  color: 'var(--c-photo)',  t: 'Photos & big screen', k: 'photos upload approve big screen tv slideshow', p: 'Anyone can send a photo in; organisers approve them; approved photos roll across the big screen. <b>Big screen mode</b> is under Settings for whoever runs the TV.' },
     { icon: 'sparkle', color: 'var(--tan)',      t: 'Spicy', k: 'spicy ask question help bot chat ai assistant who do i talk to where is', p: 'Settings → <b>Spicy</b>. Ask anything — what your duty involves, who\'s on what right now, how a part of the app works. It answers from the roster and this manual, points you to a person when there is one, and says so when it doesn\'t know. When the answer is a button or a place in the app, tap <b>Show me</b> and Spicy spotlights it on screen. Every answer has a <b>Message Sandes</b> button.' },
@@ -2373,7 +2432,7 @@
     { icon: 'mic', color: 'var(--c-stage)', h: 'The bell', target: '#tray', prep: () => { showView('now'); openTray(true); }, after: () => openTray(false), p: 'Everything that needs you: <b>swap requests</b> and <b>calls for help</b> you can answer, your <b>messages</b>, and <b>notices</b> from the organisers. The red number on the bell is what\'s new.' },
     { icon: 'crowd', color: 'var(--c-club)', h: 'Team', target: '#t-filter, #t-free', prep: () => showView('team'), p: 'Who\'s <b>free right now</b> and who\'s <b>on duty</b>, this block. Tap a name to message them — you\'ll see their photo. <b>Societies</b> hides clubs you don\'t need to see; <b>Advanced</b> picks individual people. The arrows at the top step through the day.' },
     { icon: 'volleyball', color: 'var(--c-sport)', h: 'Scores', target: '#view-scores > div:nth-of-type(1), #view-scores > details:nth-of-type(1)', prep: () => showView('scores'), p: 'Referees: <b>the score you tap is the score.</b> Every + goes to the big screen and the public page within a second — nobody else keeps score, so if you don\'t tap, the crowd sees 0–0. <b>Start a match</b>, tap + and −, <b>End match</b>; the bracket fills in from that.' },
-    { icon: 'tent', color: 'var(--c-club)', h: 'Map', target: '#mapz', prep: () => showView('map'), p: 'The ground. Drag to pan, pinch to zoom, double-tap to zoom in.' },
+    { icon: 'tent', color: 'var(--c-club)', h: 'Map', target: '#map-exec', prep: () => showView('map'), p: 'The ground, with a pin on everything. <b>Simple</b> is the plan, <b>Satellite</b> is the real thing. Drag to pan, pinch to zoom, tap a pin.' },
     { icon: 'sparkle', color: 'var(--c-ticket)', h: "What's On", target: '#exec-on > div:nth-of-type(1)', prep: () => showView('on'), p: 'Everything at the festival. Tap a <b>sport</b> for its match timetable, the <b>stage</b> for the running order, a <b>business</b> for what they do, a <b>club</b> for who\'s on the marquee.' },
     { icon: 'camera', color: 'var(--c-photo)', h: 'Festival photos', target: '[data-share="exec"]', prep: () => showView('on'), p: 'Send in a photo from here. An organiser approves it and it rolls across the <b>big screen</b>.' },
     { icon: 'box', color: 'var(--c-hands)', h: 'Settings', target: '#set-sheet', prep: () => { showView('now'); openSettings(true); }, after: () => openSettings(false), p: 'The gear at the top. Turn on a <b>notification</b> when the block changes, <b>switch</b> who\'s signed in, open the <b>manual</b>, <b>log an incident</b> (first aid, lost property, behaviour) so the organisers have a record, and the red <b>Emergency</b> button has who to call.' },
@@ -2526,7 +2585,8 @@ Escalation: anything medical or dangerous — call 000 first, then tell an organ
     'brackets':        { what: 'the brackets on the Scores tab', target: '#brackets', prep: () => { closeSheets(); showView('scores'); } },
     'new-bracket':     { what: 'the New bracket form on the Scores tab', target: '#bracket-form', prep: () => { closeSheets(); showView('scores'); $('bracket-form').closest('details').open = true; } },
     'map-tab':         { what: 'the Map tab', target: '[data-view="map"]', prep: () => { closeSheets(); showView('now'); } },
-    'map':             { what: 'the festival map — drag to pan, pinch to zoom', target: '#mapz', prep: () => { closeSheets(); showView('map'); } },
+    'map':             { what: 'the festival map — drag to pan, pinch to zoom', target: '#map-exec', prep: () => { closeSheets(); showView('map'); } },
+    'map-satellite':   { what: 'the Simple / Satellite switch above the map', target: '#map-exec .map-mode', prep: () => { closeSheets(); showView('map'); } },
     'whats-on-tab':    { what: "the What's On tab", target: '[data-view="on"]', prep: () => { closeSheets(); showView('now'); } },
     'whats-on':        { what: "the What's On cards — sports timetables, the stage, businesses, clubs", target: '#exec-on', prep: () => { closeSheets(); showView('on'); } },
     'photo-upload':    { what: "where to send in festival photos, at the bottom of What's On", target: '[data-share="exec"]', prep: () => { closeSheets(); showView('on'); } },
@@ -2541,7 +2601,7 @@ Escalation: anything medical or dangerous — call 000 first, then tell an organ
     'settings-notify': { what: 'the block-change notification toggle, under Settings', target: '.set-row:has(#nudge)', ...inSettings },
     'desk':            { what: 'the Organiser desk button at the top (organisers only)', target: '#deskbtn', prep: () => { closeSheets(); showView('now'); } },
   };
-  PINS.forEach(pin => { POINTS['map-' + pin.id] = { what: `the ${pin.label} pin on the map (${pin.sub})`, target: `[data-pin="${pin.id}"] .dot`, prep: () => { closeSheets(); showView('map'); if (mapFocus) mapFocus(pin.id); } }; });
+  PINS.forEach(pin => { POINTS['map-' + pin.id] = { what: `the ${pin.label} pin on the map (${pin.sub})`, target: `#map-exec [data-pin="${pin.id}"] .dot`, prep: () => { closeSheets(); showView('map'); mapFocus(pin.id); } }; });
   let pointStep = null;
   function startPoint(id, text, back) {
     const pt = POINTS[id]; if (!pt) return;
