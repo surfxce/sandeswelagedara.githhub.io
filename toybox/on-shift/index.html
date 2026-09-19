@@ -824,10 +824,19 @@
   }
   .mapz:active { cursor: grabbing; }
   .mapz img { position: absolute; top: 0; left: 0; transform-origin: 0 0; will-change: transform; max-width: none; pointer-events: none; }
+  .map-mount { position: relative; isolation: isolate; z-index: 0; }
   .map-mode { display: flex; gap: 6px; margin-bottom: 8px; }
   .map-mode button { min-height: 34px; padding: 0 14px; border-radius: 17px; border: 1.5px solid var(--line); background: #fff; color: var(--maroon); font-weight: 700; font-size: 14px; }
   .map-mode button[aria-pressed="true"] { background: var(--maroon); color: var(--cream); border-color: var(--maroon); }
-  .mapsat { height: 70vh; border-radius: 8px; overflow: hidden; background: #1d2a1f; box-shadow: 0 1px 0 var(--line); }
+  .mapsat { position: relative; height: 70vh; border-radius: 8px; overflow: hidden; background: #1d2a1f; box-shadow: 0 1px 0 var(--line); isolation: isolate; z-index: 0; }
+  /* you are here */
+  .locate { position: absolute; right: 10px; bottom: 28px; z-index: 1001; width: 44px; height: 44px; border-radius: 8px; border: 1.5px solid var(--line); background: var(--paper); color: var(--maroon); box-shadow: 0 2px 6px rgba(0,0,0,.25); display: grid; place-items: center; }
+  .locate svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; }
+  .locate.on { background: #2A7BF6; border-color: #2A7BF6; color: #fff; }
+  .locate.wait svg { animation: spin 1s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .you { display: block; width: 18px; height: 18px; border-radius: 50%; background: #2A7BF6; border: 3px solid #fff; box-shadow: 0 0 0 2px rgba(42,123,246,.5), 0 2px 6px rgba(0,0,0,.4); position: relative; }
+  .you::after { content: ""; position: absolute; inset: -3px; border-radius: 50%; border: 2px solid #2A7BF6; animation: live-ping 1.7s ease-out infinite; --c: #2A7BF6; }
   .mapsat .pin { position: static; transform: none; width: 30px; }
   .mapsat .pin .lbl { position: absolute; top: 32px; left: 50%; transform: translateX(-50%); }
   .mapsat .leaflet-div-icon { background: none; border: 0; overflow: visible; }
@@ -1982,6 +1991,7 @@
         <div class="mapz-ctl"><button type="button" data-z="1.4" aria-label="Zoom in">+</button><button type="button" data-z="0.7" aria-label="Zoom out">−</button><button type="button" data-z="0" aria-label="Reset">⟲</button></div>
       </div>
       <div class="mapsat" id="${pre}-sat" hidden></div>
+      <button class="locate" id="${pre}-loc" type="button" hidden aria-pressed="false" aria-label="Show where I am" title="Where am I?"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2" fill="currentColor"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></button>
       <p class="fine" id="${pre}-note">UQ Sport Athletics Centre. Drag to pan, pinch or scroll to zoom, double-tap to zoom in. Tap a pin for what's there.</p>`;
     const box = $(pre + '-mapz'), img = $(pre + '-img'), pins = $(pre + '-pins'), satEl = $(pre + '-sat');
     const m = { root, mode: 'simple', sat: null, markers: {}, focus: null, show: null };
@@ -2036,10 +2046,39 @@
       });
       return true;
     }
+    // ---- you are here: a blue dot from the phone's GPS, only while it's on ----
+    const locBtn = $(pre + '-loc'); let watchId = null, youDot = null, youRing = null;
+    const note = (t) => { $(pre + '-note').textContent = t; };
+    function stopLocate() {
+      if (watchId !== null) navigator.geolocation.clearWatch(watchId); watchId = null;
+      if (youDot) { youDot.remove(); youDot = null; } if (youRing) { youRing.remove(); youRing = null; }
+      locBtn.classList.remove('on', 'wait'); locBtn.setAttribute('aria-pressed', 'false');
+    }
+    function startLocate() {
+      if (!navigator.geolocation) { note('This phone can\'t share its location.'); return; }
+      locBtn.classList.add('wait'); note('Finding you…'); let first = true;
+      watchId = navigator.geolocation.watchPosition(pos => {
+        const ll = [pos.coords.latitude, pos.coords.longitude], acc = pos.coords.accuracy || 0;
+        if (!youDot) {
+          youRing = L.circle(ll, { radius: acc, color: '#2A7BF6', weight: 1, fillColor: '#2A7BF6', fillOpacity: 0.12, interactive: false }).addTo(m.sat);
+          youDot = L.marker(ll, { icon: L.divIcon({ className: '', html: '<span class="you"></span>', iconSize: [18, 18], iconAnchor: [9, 9] }), interactive: false, zIndexOffset: 1000 }).addTo(m.sat);
+        } else { youDot.setLatLng(ll); youRing.setLatLng(ll).setRadius(acc); }
+        locBtn.classList.remove('wait'); locBtn.classList.add('on'); locBtn.setAttribute('aria-pressed', 'true');
+        if (first) { first = false; m.sat.setView(ll, Math.max(m.sat.getZoom(), 18)); }
+        const far = m.sat.distance(ll, VENUE) > 1500;
+        note(far ? `That's you — about ${(m.sat.distance(ll, VENUE) / 1000).toFixed(1)} km from the ground.` : `That's you (within about ${Math.round(acc)} m). Tap the target again to stop.`);
+      }, err => {
+        stopLocate();
+        note(err.code === 1 ? 'Location is blocked for this site — allow it in your phone\'s browser settings and try again.' : 'Couldn\'t get a fix — try again outside.');
+      }, { enableHighAccuracy: true, maximumAge: 5000, timeout: 20000 });
+    }
+    locBtn.addEventListener('click', () => { if (watchId !== null) { stopLocate(); note('Satellite imagery (Esri). Pinch or scroll to zoom. Tap a pin for what\'s there.'); } else startLocate(); });
+    document.addEventListener('visibilitychange', () => { if (document.hidden && watchId !== null) stopLocate(); });
+
     m.show = () => { if (m.mode === 'simple') { if (!fitted) requestAnimationFrame(fit); } else if (m.sat) requestAnimationFrame(() => m.sat.invalidateSize()); };
     async function setMode(mode) {
       if (mode === 'satellite' && !(await ensureSat())) mode = 'simple';
-      m.mode = mode; box.hidden = mode !== 'simple'; satEl.hidden = mode !== 'satellite';
+      m.mode = mode; box.hidden = mode !== 'simple'; satEl.hidden = mode !== 'satellite'; locBtn.hidden = mode !== 'satellite'; if (mode !== 'satellite') stopLocate();
       root.querySelectorAll('.map-mode button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.mode === mode)));
       $(pre + '-note').textContent = mode === 'satellite' ? 'Satellite imagery (Esri). Pinch or scroll to zoom. Tap a pin for what\'s there.' : 'UQ Sport Athletics Centre. Drag to pan, pinch or scroll to zoom, double-tap to zoom in. Tap a pin for what\'s there.';
       try { localStorage.setItem('onshift.mapMode', mode); } catch {}
@@ -2049,6 +2088,7 @@
     let saved = 'simple'; try { saved = localStorage.getItem('onshift.mapMode') || 'simple'; } catch {}
     if (saved === 'satellite') setMode('satellite');
 
+    m.setMode = setMode;
     m.focus = (id) => {   // zoom to a pin and put it in the middle, whichever mode is on
       const pin = PINS.find(p => p.id === id); if (!pin) return;
       if (m.mode === 'satellite' && m.sat) { m.sat.invalidateSize(); m.sat.setView(pin.ll, 19, { animate: false }); return; }
@@ -2401,7 +2441,7 @@
     { icon: 'crowd',   color: 'var(--c-club)',   t: 'Messages', k: 'message dm chat text someone name tap', p: 'Tap any name anywhere in the app to message them. Four one-tap lines and a box. Your conversations live in the bell.' },
     { icon: 'crowd',   color: 'var(--c-sport)',  t: 'Team', k: 'team who is free on duty filter societies mute advanced', p: 'Who\'s free and who\'s on what, this block. <b>‹ ›</b> to look at other blocks. <b>Societies</b> hides clubs you don\'t need to see; <b>Advanced</b> picks individual people.' },
     { icon: 'football',color: 'var(--c-sport)',  t: 'Scores & brackets', k: 'scores bracket match referee start end plus minus timetable', p: 'Referees: <b>the score you tap is the score</b> — it goes to the big screen and the public page within a second, and nobody else keeps it. <b>Start a match</b>, tap <b>+</b>/<b>−</b>, <b>End match</b>. Brackets fill themselves in; <b>Play next</b> starts the next one.' },
-    { icon: 'tent',    color: 'var(--c-club)',   t: 'Map', k: 'map where location pinch zoom pins field 7 field 6 first aid toilets', p: '<b>Simple</b> is the ground plan, <b>Satellite</b> is real imagery — both have pins for football and cricket (Field 7), volleyball (the beach courts), food trucks and stalls (Field 6), the grandstand, the entry, first aid, toilets and the assembly point. Tap a pin for what\'s there. Drag to pan, pinch to zoom, double-tap to zoom in.' },
+    { icon: 'tent',    color: 'var(--c-club)',   t: 'Map', k: 'map where location pinch zoom pins field 7 field 6 first aid toilets satellite where am i blue dot gps', p: '<b>Simple</b> is the ground plan, <b>Satellite</b> is real imagery — both have pins for football and cricket (Field 7), volleyball (the beach courts), food trucks and stalls (Field 6), the grandstand, the entry, first aid, toilets and the assembly point. Tap a pin for what\'s there. On Satellite, the <b>target</b> button shows where you are as a blue dot (your phone will ask once). Drag to pan, pinch to zoom, double-tap to zoom in.' },
     { icon: 'sparkle', color: 'var(--c-ticket)', t: "What's On", k: 'whats on stalls timetable stage performances businesses clubs photos upload', p: 'Everything at the festival. Tap a sport for the match timetable, the stage for the running order, a business for what they do, a club for who\'s on the marquee. Send festival photos from the bottom.' },
     { icon: 'camera',  color: 'var(--c-photo)',  t: 'Photos & big screen', k: 'photos upload approve big screen tv slideshow', p: 'Anyone can send a photo in; organisers approve them; approved photos roll across the big screen. <b>Big screen mode</b> is under Settings for whoever runs the TV.' },
     { icon: 'sparkle', color: 'var(--tan)',      t: 'Spicy', k: 'spicy ask question help bot chat ai assistant who do i talk to where is', p: 'Settings → <b>Spicy</b>. Ask anything — what your duty involves, who\'s on what right now, how a part of the app works. It answers from the roster and this manual, points you to a person when there is one, and says so when it doesn\'t know. When the answer is a button or a place in the app, tap <b>Show me</b> and Spicy spotlights it on screen. Every answer has a <b>Message Sandes</b> button.' },
@@ -2587,6 +2627,7 @@ Escalation: anything medical or dangerous — call 000 first, then tell an organ
     'map-tab':         { what: 'the Map tab', target: '[data-view="map"]', prep: () => { closeSheets(); showView('now'); } },
     'map':             { what: 'the festival map — drag to pan, pinch to zoom', target: '#map-exec', prep: () => { closeSheets(); showView('map'); } },
     'map-satellite':   { what: 'the Simple / Satellite switch above the map', target: '#map-exec .map-mode', prep: () => { closeSheets(); showView('map'); } },
+    'map-locate':      { what: 'the target button on the satellite map that shows where you are (a blue dot)', target: '#mx-loc', prep: () => { closeSheets(); showView('map'); mapExec.setMode('satellite'); } },
     'whats-on-tab':    { what: "the What's On tab", target: '[data-view="on"]', prep: () => { closeSheets(); showView('now'); } },
     'whats-on':        { what: "the What's On cards — sports timetables, the stage, businesses, clubs", target: '#exec-on', prep: () => { closeSheets(); showView('on'); } },
     'photo-upload':    { what: "where to send in festival photos, at the bottom of What's On", target: '[data-share="exec"]', prep: () => { closeSheets(); showView('on'); } },
