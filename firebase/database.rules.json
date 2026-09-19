@@ -43,7 +43,7 @@
       "broadcasts": {
         ".read": true,
         "$post": {
-          ".write": "!data.exists()",
+          ".write": "!data.exists() || !newData.exists()",
           ".validate": "newData.hasChildren(['text', 'by', 't'])",
           "text": {
             ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 280"
