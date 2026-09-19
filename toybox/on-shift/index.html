@@ -151,7 +151,9 @@
   .scroll-cue svg { width: 18px; height: 18px; }
 
   /* ---------- Public page below the hero ---------- */
-  .public { background: var(--paper); }
+  .public { background: var(--paper); padding-bottom: calc(var(--tab-h) + env(safe-area-inset-bottom)); }
+  .tabs.pub { grid-template-columns: repeat(4, 1fr); }
+  .entry.tucked { display: none; }
   .public .whatson-body { padding-top: 22px; padding-bottom: 36px; }
 
   /* ---------- Exec login screen ---------- */
@@ -337,13 +339,13 @@
   /* emergency */
   .btn-small.emg { background: #B23A2E; color: #fff; height: 34px; padding: 0 12px; }
   .emg-sheet { border-top-color: #B23A2E; }
-  .emg-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  .emg { background: #fff; border: 1.5px solid var(--line); border-left: 6px solid #B23A2E; padding: 12px; display: grid; gap: 4px; cursor: pointer; }
+  .emg-000 { display: flex; align-items: center; justify-content: center; gap: 10px; height: 56px; border-radius: 10px; background: #B23A2E; color: #fff; font-weight: 800; font-size: 20px; text-decoration: none; margin: 4px 0 12px; }
+  .emg-000 svg { width: 22px; height: 22px; }
+  .emg-grid { display: grid; gap: 10px; }
+  .emg { background: #fff; border: 1.5px solid var(--line); border-left: 6px solid #B23A2E; padding: 10px 12px; display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 10px; }
   .emg .nm { font-weight: 800; font-size: 16px; line-height: 1.15; }
   .emg .role { font-size: 13px; color: var(--ink-2); }
-  .emg .call { display: none; margin-top: 6px; height: 44px; border-radius: 6px; background: #B23A2E; color: #fff; font-weight: 800; font-size: 15px; align-items: center; justify-content: center; gap: 8px; text-decoration: none; }
-  .emg.open { grid-column: 1 / -1; }
-  .emg.open .call { display: flex; }
+  .emg .call { display: flex; height: 44px; padding: 0 14px; border-radius: 8px; background: #B23A2E; color: #fff; font-weight: 800; font-size: 15px; align-items: center; justify-content: center; gap: 8px; text-decoration: none; white-space: nowrap; }
   .emg .call svg { width: 18px; height: 18px; }
   /* manual */
   .man-sheet { max-height: 88vh; }
@@ -471,6 +473,8 @@
   .inc-form .field label { color: var(--ink-2); }
   .inc-form .field select { border-color: var(--line); background-color: #fff; }
   .bb-left { font-weight: 500; color: var(--ink-3); margin-left: 6px; }
+  .sim-ctl { justify-content: center; gap: 12px; }
+  .sim-ctl .sim-lbl { font-weight: 800; font-size: 15px; min-width: 12ch; text-align: center; }
   .bb-sim { display: inline-block; margin-left: 8px; padding: 2px 6px; border-radius: 4px; background: #B23A2E; color: #fff; font-size: 10px; font-weight: 800; letter-spacing: .1em; vertical-align: middle; }
   .screen-exit { position: absolute; top: 20px; right: 20px; height: 48px; padding: 0 18px; border-radius: 24px; border: 0; background: rgba(245,239,227,.9); color: var(--maroon-deep); font-weight: 800; font-size: 16px; cursor: pointer; }
   .duty-row.tap, .soc-row.tap { cursor: pointer; }
@@ -934,7 +938,7 @@
       </div>
 
       <div class="hero-actions">
-        <a class="scroll-cue" href="#public-on" aria-label="See what's on">
+        <a class="scroll-cue" href="#public-on" id="scroll-cue" aria-label="See what's on">
           <span>What's on</span>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 10l6 6 6-6"/></svg>
         </a>
@@ -948,21 +952,31 @@
     </div>
   </section>
 
-  <!-- ======== PUBLIC: what's on ======== -->
+  <!-- ======== PUBLIC: tabs, like the execs have ======== -->
   <section class="public" id="public">
-    <div class="whatson-body" style="padding-bottom:0">
+    <div class="whatson-body pview" data-pview="home" style="padding-bottom:0">
       <div class="stage-now" id="stage-now" hidden></div>
       <div><h2>Live scores</h2><div class="match-list" id="public-scores"></div></div>
       <div><h2>Brackets</h2><div class="bracket-list" id="public-brackets"></div></div>
-      <div><h2>Shout-outs</h2>
-        <div class="share shout" data-shout="pub"></div>
-      </div>
+    </div>
+    <div class="whatson-body pview" id="public-on" data-pview="on" hidden></div>
+    <div class="whatson-body pview" data-pview="map" hidden>
       <div><h2>Map</h2><div class="map-mount" id="map-pub"></div></div>
+    </div>
+    <div class="whatson-body pview" data-pview="photos" hidden>
       <div id="photos"><h2>Festival photos</h2>
         <div class="share" data-share="pub"></div>
       </div>
+      <div><h2>Shout-outs</h2>
+        <div class="share shout" data-shout="pub"></div>
+      </div>
     </div>
-    <div class="whatson-body" id="public-on"></div>
+    <nav class="tabs pub" id="pub-tabs" role="tablist" aria-label="Sections">
+      <button class="tab" role="tab" data-pview="home" aria-selected="true" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>Home</button>
+      <button class="tab" role="tab" data-pview="on" aria-selected="false" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>What's On</button>
+      <button class="tab" role="tab" data-pview="map" aria-selected="false" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4l6 2 6-2v14l-6 2-6-2-6 2V6zM9 4v14M15 6v14"/></svg>Map</button>
+      <button class="tab" role="tab" data-pview="photos" aria-selected="false" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>Photos</button>
+    </nav>
   </section>
 
   <!-- Info sheet: tap a What's On card -->
@@ -1262,12 +1276,17 @@
         <button class="btn-small ghost" id="set-inc" type="button">Log</button>
       </div>
       <div class="set-row" id="set-sim-row" hidden>
-        <div class="txt"><b>Rehearsal clock</b><span id="sim-state">Runs the day at a block a minute, on every phone. Off = real time.</span></div>
-        <button class="toggle" id="sim-toggle" type="button" role="switch" aria-checked="false" aria-label="Rehearsal clock"></button>
+        <div class="txt"><b>Master clock</b><span id="sim-state">Move every exec's app to a block, at your pace. Off = real time.</span></div>
+        <button class="toggle" id="sim-toggle" type="button" role="switch" aria-checked="false" aria-label="Master clock"></button>
+      </div>
+      <div class="set-row sim-ctl" id="set-sim-ctl" hidden>
+        <button class="step" id="sim-prev" type="button" aria-label="Previous block">‹</button>
+        <span class="sim-lbl" id="sim-lbl">Block 1 · 3:00 – 3:30 pm</span>
+        <button class="step" id="sim-next" type="button" aria-label="Next block">›</button>
       </div>
       <div class="set-row emg-row">
-        <div class="txt"><b>Emergency</b><span>Who to call when something's wrong.</span></div>
-        <button class="btn-small emg" id="set-emg" type="button">Emergency</button>
+        <div class="txt"><b>Emergency</b><span>000, then the organisers — one tap each.</span></div>
+        <button class="btn-small emg" id="set-emg" type="button">Open</button>
       </div>
     </section>
 
@@ -1312,7 +1331,8 @@
     <div class="dm-backdrop" id="emg-backdrop" hidden></div>
     <section class="dm-sheet emg-sheet" id="emg-sheet" hidden aria-label="Emergency contacts">
       <div class="dm-head"><span class="nm">Emergency</span><button class="linkbtn" id="emg-close" type="button">Close</button></div>
-      <p class="fine">Tap a name for the number. For anything medical or dangerous, call 000 first.</p>
+      <a class="emg-000" href="tel:000"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg>Call 000</a>
+      <p class="fine">Anything medical or dangerous: 000 first, then an organiser.</p>
       <div class="emg-grid" id="emg-grid"></div>
     </section>
 
@@ -1485,11 +1505,11 @@
   const BLOCKS = 12;
   const fmt = (m) => { let h = Math.floor(m / 60), mm = m % 60; const ap = h >= 12 ? 'pm' : 'am'; h = h % 12 || 12; return h + ':' + String(mm).padStart(2, '0') + (ap === 'pm' ? '' : ' am'); };
   const range = (i) => { const a = DAY_START + i * 30; return fmt(a) + ' – ' + fmt(a + 30) + ' pm'; };
-  // Rehearsal clock: when sim.on, every phone runs the day from 2:45 pm at
-  // `speed` sim-minutes per real minute (30 = a block a minute).
+  // Master clock: when sim.on, every phone sits on sim.block (-1 = setup,
+  // BLOCKS = pack-up) until Sandes moves it. Off = the real clock.
   let sim = null;
   const nowMin = () => {
-    if (sim && sim.on && sim.start) return sim.startMin + (Date.now() - sim.start) / 60000 * sim.speed;
+    if (sim && sim.on && Number.isInteger(sim.block)) return sim.block < 0 ? 14 * 60 + 30 : sim.block >= BLOCKS ? DAY_START + BLOCKS * 30 + 30 : DAY_START + sim.block * 30 + 5;
     const d = new Date(); return d.getHours() * 60 + d.getMinutes() + d.getSeconds() / 60;
   };
   const liveBlock = () => {
@@ -1530,11 +1550,12 @@
   // Profile picture: the roster photo if there is one, otherwise initials.
   // Takes a first name or a full name (emergency contacts aren't all execs).
   let pfps = {};   // spice-road/pfp — photos execs added from their phones
+  let myPic = null; try { myPic = localStorage.getItem('onshift.pfp'); } catch {}   // your own, kept on this phone too
   const PFP_COLORS = ['#7A2E22', '#B8623A', '#3E6B5A', '#4B5A8A', '#8A5A2E', '#5B3B6E'];
   function pfp(name, size) {
     name = name || ''; const first = name.split(' ')[0].toLowerCase(); const p = byFirst[first];
     const cls = 'pfp' + (size ? ' s' + size : '');
-    const pic = pfps[first] || (p && p.pic);
+    const pic = pfps[first] || (me && first === me.first.toLowerCase() ? myPic : null) || (p && p.pic);
     if (pic && typeof pic === 'string' && pic.startsWith('data:image/')) return `<span class="${cls}"><img src="${pic}" alt=""></span>`;
     const nm = p ? p.n : name;
     const ini = nm.split(' ').map(w => w[0]).filter(Boolean).slice(0, 2).join('').toUpperCase();
@@ -1760,7 +1781,7 @@
     // Block bar
     if (block < 0) { $('bb-label').textContent = 'Before block 1'; $('bb-time').textContent = 'Setup · 2:00 – 3:00 pm'; }
     else if (block >= BLOCKS) { $('bb-label').textContent = 'After block 12'; $('bb-time').textContent = 'Pack-up · 9:00 – 10:00 pm'; }
-    else { const left = live ? Math.max(0, Math.ceil(DAY_START + (block + 1) * 30 - nowMin())) : null; $('bb-label').innerHTML = `Block ${block + 1} of ${BLOCKS}${left !== null ? `<span class="bb-left">· ${left} min left</span>` : ''}${sim && sim.on ? '<span class="bb-sim">REHEARSAL</span>' : ''}`; $('bb-time').textContent = range(block); }
+    else { const left = live ? Math.max(0, Math.ceil(DAY_START + (block + 1) * 30 - nowMin())) : null; $('bb-label').innerHTML = `Block ${block + 1} of ${BLOCKS}${left !== null && !(sim && sim.on) ? `<span class="bb-left">· ${left} min left</span>` : ''}${sim && sim.on ? '<span class="bb-sim">MASTER CLOCK</span>' : ''}`; $('bb-time').textContent = range(block); }
     $('bb-seg').innerHTML = Array.from({ length: BLOCKS }, (_, i) => `<span class="${i < block ? 'done' : i === block ? 'now' : ''}"></span>`).join('');
 
     renderNow();
@@ -2073,24 +2094,35 @@
         const far = m.sat.distance(ll, VENUE) > 1500;
         note(far ? `That's you — about ${(m.sat.distance(ll, VENUE) / 1000).toFixed(1)} km from the ground.` : `That's you (within about ${Math.round(acc)} m). Tap the target again to stop.`);
       }, err => {
-        stopLocate();
+        stopLocate(); if (err.code === 1) { locWanted = false; }
         note(err.code === 1 ? 'Location is blocked for this site — allow it in your phone\'s browser settings and try again.' : 'Couldn\'t get a fix — try again outside.');
       }, { enableHighAccuracy: true, maximumAge: 5000, timeout: 20000 });
     }
-    locBtn.addEventListener('click', () => { if (watchId !== null) { stopLocate(); note('Satellite imagery (Esri). Pinch or scroll to zoom. Tap a pin for what\'s there.'); } else startLocate(); });
+    locBtn.addEventListener('click', () => {
+      if (watchId !== null) { stopLocate(); locWanted = false; try { localStorage.setItem('onshift.locOff', '1'); } catch {} note('Satellite imagery (Esri). Pinch or scroll to zoom. Tap the target to show where you are.'); }
+      else { locWanted = true; try { localStorage.removeItem('onshift.locOff'); } catch {} startLocate(); }
+    });
     document.addEventListener('visibilitychange', () => { if (document.hidden && watchId !== null) stopLocate(); });
 
-    m.show = () => { if (m.mode === 'simple') { if (!fitted) requestAnimationFrame(fit); } else if (m.sat) requestAnimationFrame(() => m.sat.invalidateSize()); };
+    // the dot comes on by itself when the satellite map is looked at, unless
+    // this phone said no (blocked it, or tapped the target off)
+    let locWanted = true; try { locWanted = localStorage.getItem('onshift.locOff') !== '1'; } catch {}
+    async function autoLocate() {
+      if (!locWanted || watchId !== null || !m.sat || satEl.hidden || !navigator.geolocation) return;
+      try { const st = await navigator.permissions.query({ name: 'geolocation' }); if (st.state === 'denied') return; } catch {}
+      startLocate();
+    }
+    m.show = () => { if (m.mode === 'simple') { if (!fitted) requestAnimationFrame(fit); } else if (m.sat) { requestAnimationFrame(() => m.sat.invalidateSize()); autoLocate(); } };
     async function setMode(mode) {
       if (mode === 'satellite' && !(await ensureSat())) mode = 'simple';
-      m.mode = mode; box.hidden = mode !== 'simple'; satEl.hidden = mode !== 'satellite'; locBtn.hidden = mode !== 'satellite'; if (mode !== 'satellite') stopLocate();
+      m.mode = mode; box.hidden = mode !== 'simple'; satEl.hidden = mode !== 'satellite'; locBtn.hidden = mode !== 'satellite'; if (mode !== 'satellite' && watchId !== null) { stopLocate(); }
       root.querySelectorAll('.map-mode button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.mode === mode)));
       $(pre + '-note').textContent = mode === 'satellite' ? 'Satellite imagery (Esri). Pinch or scroll to zoom. Tap a pin for what\'s there.' : 'UQ Sport Athletics Centre. Drag to pan, pinch or scroll to zoom, double-tap to zoom in. Tap a pin for what\'s there.';
       try { localStorage.setItem('onshift.mapMode', mode); } catch {}
       m.show();
     }
     root.querySelectorAll('.map-mode button').forEach(b => b.addEventListener('click', () => setMode(b.dataset.mode)));
-    let saved = 'simple'; try { saved = localStorage.getItem('onshift.mapMode') || 'simple'; } catch {}
+    let saved = 'satellite'; try { saved = localStorage.getItem('onshift.mapMode') || 'satellite'; } catch {}
     if (saved === 'satellite') setMode('satellite');
 
     m.setMode = setMode;
@@ -2454,8 +2486,7 @@
   const PHONE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg>';
   function openEmg(open) {
     $('emg-sheet').hidden = !open; $('emg-backdrop').hidden = !open; if (!open) return;
-    $('emg-grid').innerHTML = EMERGENCY.map((c, i) => `<div class="emg" data-i="${i}" role="button" tabindex="0"><div class="emg-top">${pfp(c.n, 44)}<div><span class="nm">${esc(c.n)}</span><span class="role">${esc(c.role)}</span></div></div><a class="call" href="tel:${c.tel.replace(/\s/g, '')}">${PHONE} Call ${esc(c.tel)}</a></div>`).join('');
-    $('emg-grid').querySelectorAll('.emg').forEach(el => el.addEventListener('click', e => { if (e.target.closest('.call')) return; $('emg-grid').querySelectorAll('.emg').forEach(o => { if (o !== el) o.classList.remove('open'); }); el.classList.toggle('open'); }));
+    $('emg-grid').innerHTML = EMERGENCY.map((c) => `<div class="emg"><div class="emg-top">${pfp(c.n, 44)}<div><span class="nm">${esc(c.n)}</span><span class="role">${esc(c.role)}</span></div></div><a class="call" href="tel:${c.tel.replace(/\s/g, '')}" aria-label="Call ${esc(c.n)}">${PHONE} Call</a></div>`).join('');
   }
   $('set-emg').addEventListener('click', () => { openSettings(false); openEmg(true); });
   $('emg-close').addEventListener('click', () => openEmg(false)); $('emg-backdrop').addEventListener('click', () => openEmg(false));
@@ -2473,7 +2504,7 @@
     { icon: 'camera',  color: 'var(--c-photo)',  t: 'Photos & big screen', k: 'photos upload approve big screen tv slideshow', p: 'Anyone can send a photo in; organisers approve them; approved photos roll across the big screen. <b>Big screen mode</b> is under Settings for whoever runs the TV.' },
     { icon: 'sparkle', color: 'var(--tan)',      t: 'Spicy', k: 'spicy ask question help bot chat ai assistant who do i talk to where is', p: 'Settings → <b>Spicy</b>. Ask anything — what your duty involves, who\'s on what right now, how a part of the app works. It answers from the roster and this manual, points you to a person when there is one, and says so when it doesn\'t know. When the answer is a button or a place in the app, tap <b>Show me</b> and Spicy spotlights it on screen. Every answer has a <b>Message Sandes</b> button.' },
     { icon: 'box',     color: 'var(--c-hands)',  t: 'Settings', k: 'settings gear notification notify switch user sign out big screen manual emergency spicy', p: 'The gear. Big screen mode, a notification when the block changes, switch who\'s signed in, <b>Spicy</b> (ask it anything), this manual, <b>Log incident</b> (first aid, lost property, behaviour, equipment — timestamped for the organisers), and the red <b>Emergency</b> button with who to call.' },
-    { icon: 'heart',   color: '#B23A2E',         t: 'Emergency', k: 'emergency call phone number urgent 000 organiser help', p: 'Settings → <b>Emergency</b>. Tap a name for a Call button. Anything medical or dangerous: <b>000 first</b>.' },
+    { icon: 'heart',   color: '#B23A2E',         t: 'Emergency', k: 'emergency call phone number urgent 000 organiser help', p: 'Settings → <b>Emergency</b>. A big <b>Call 000</b> button, then every organiser with a Call button next to their name. Anything medical or dangerous: <b>000 first</b>.' },
   ];
   function renderManual(q) {
     q = (q || '').trim().toLowerCase();
@@ -2800,6 +2831,8 @@ Escalation: anything medical or dangerous — call 000 first, then tell an organ
     c.getContext('2d').drawImage(crop.src, -crop.x / sc, -crop.y / sc, b / sc, b / sc, 0, 0, 128, 128);
     const data = c.toDataURL('image/jpeg', 0.72);
     closeCrop(); say('Saving…');
+    myPic = data; try { localStorage.setItem('onshift.pfp', data); } catch {}
+    $('who-pfp').innerHTML = pfp(me.first, 32);
     try { if (!db) throw new Error('offline'); await ref('pfp/' + me.first.toLowerCase()).set(data); say('Saved — everyone sees it next to your name.'); }
     catch (e) { say('Couldn\'t save it — check your connection and try again.'); }
   });
@@ -2810,6 +2843,20 @@ Escalation: anything medical or dangerous — call 000 first, then tell an organ
     $('set-photo').addEventListener('click', () => pickPhoto('set-photo-msg'));
   }
   $('who-pfp').addEventListener('click', () => { renderSim(); openSettings(true); });
+
+  // ---------- public tabs ----------
+  // Home keeps the hero; the other tabs tuck it away so they start at the top.
+  let pubView = 'home';
+  function showPublicView(v) {
+    pubView = v;
+    document.querySelectorAll('#public .pview').forEach(el => { el.hidden = el.dataset.pview !== v; });
+    document.querySelectorAll('#pub-tabs .tab').forEach(t => t.setAttribute('aria-selected', String(t.dataset.pview === v)));
+    $('entry').classList.toggle('tucked', v !== 'home');
+    window.scrollTo({ top: 0 });
+    if (v === 'map' && mapPub) mapPub.show();
+  }
+  document.querySelectorAll('#pub-tabs .tab').forEach(t => t.addEventListener('click', () => showPublicView(t.dataset.pview)));
+  $('scroll-cue').addEventListener('click', e => { e.preventDefault(); showPublicView('on'); });
 
   function openSettings(open) {
     $('set-sheet').hidden = !open; $('set-backdrop').hidden = !open;
@@ -3114,19 +3161,24 @@ Escalation: anything medical or dangerous — call 000 first, then tell an organ
     el.innerHTML = ids.length ? ids.map(i => { const x = incidents[i]; return `<div class="check" style="--c:#B23A2E"><b>${esc(x.type)} · ${x.t ? clock(x.t) : ''} · ${esc(x.by || '')}</b>${esc(x.text)}</div>`; }).join('') : '<p class="fine">None logged.</p>';
   }
 
-  // --- rehearsal clock (Sandes / UQISC only) ---
+  // --- master clock (Sandes / UQISC only) ---
   const canSim = () => me && me.first === 'Sandes' && me.s.includes('UQISC');
+  const simLabel = (b) => b < 0 ? 'Setup · 2:00 – 3:00 pm' : b >= BLOCKS ? 'Pack-up · 9:00 – 10:00 pm' : `Block ${b + 1} · ${range(b)}`;
   function renderSim() {
-    $('set-sim-row').hidden = !canSim();
+    const ok = canSim(); $('set-sim-row').hidden = !ok;
     const on = !!(sim && sim.on); $('sim-toggle').setAttribute('aria-checked', String(on));
-    $('sim-state').textContent = on ? `On — it's ${tm(Math.floor(nowMin()))} in the rehearsal. Every phone follows this.` : 'Runs the day at a block a minute, on every phone. Off = real time.';
+    $('set-sim-ctl').hidden = !(ok && on);
+    if (on) $('sim-lbl').textContent = simLabel(sim.block);
+    $('sim-state').textContent = on ? 'On — every phone is on this block until you move it or turn this off.' : 'Move every exec\'s app to a block, at your pace. Off = real time.';
   }
   $('sim-toggle').addEventListener('click', () => {
     if (!db || !canSim()) return;
     const on = !(sim && sim.on);
-    if (on && !confirm('Start the rehearsal clock? Every phone will jump to 2:45 pm and run a block a minute until you turn it off.')) return;
-    ref('sim').set({ on, start: now(), startMin: 14 * 60 + 45, speed: 30 });
+    if (on && !confirm('Turn on the master clock? Every phone jumps to block 1 and stays wherever you put it until you turn this off.')) return;
+    ref('sim').set({ on, block: on ? 0 : (sim && Number.isInteger(sim.block) ? sim.block : 0), t: now() });
   });
+  const simStep = (d) => { if (!db || !canSim() || !(sim && sim.on)) return; ref('sim').set({ on: true, block: Math.max(-1, Math.min(BLOCKS, sim.block + d)), t: now() }); };
+  $('sim-prev').addEventListener('click', () => simStep(-1)); $('sim-next').addEventListener('click', () => simStep(1));
 
   // --- all photos as one zip, for marketing ---
   $('d-zip').addEventListener('click', async () => {
@@ -3399,7 +3451,7 @@ Escalation: anything medical or dangerous — call 000 first, then tell an organ
     ref('config/aiReview').on('value', snap => { aiOn = snap.val() !== false; renderPhotoMod(); }, () => {});
     ref('ticker').limitToLast(40).on('value', snap => { ticks = snap.val() || {}; if (scrOn) renderTicker(); if (!$('view-desk').hidden) renderTicks(); }, () => {});
     ref('incidents').limitToLast(100).on('value', snap => { incidents = snap.val() || {}; renderIncidents(); }, () => {});
-    ref('pfp').on('value', snap => { pfps = snap.val() || {}; if (!$('shell').hidden) { render(); $('who-pfp').innerHTML = me ? pfp(me.first, 32) : ''; if (tourOn) renderTour(); if (!$('set-sheet').hidden) renderPhotoRow($('set-photo-msg') ? $('set-photo-msg').textContent : ''); } }, () => {});
+    ref('pfp').on('value', snap => { pfps = snap.val() || {}; if (me && myPic && !pfps[me.first.toLowerCase()]) ref('pfp/' + me.first.toLowerCase()).set(myPic).catch(() => {}); if (!$('shell').hidden) { render(); $('who-pfp').innerHTML = me ? pfp(me.first, 32) : ''; if (tourOn) renderTour(); if (!$('set-sheet').hidden) renderPhotoRow($('set-photo-msg') ? $('set-photo-msg').textContent : ''); } }, () => {});
     ref('sim').on('value', snap => { sim = snap.val(); if (!$('shell').hidden) { const lb = liveBlock(); live = lb !== null; if (live) block = lb; else if (block < 0 || block >= BLOCKS) block = 0; render(); renderSim(); } renderStageNow(); }, () => {});
     ref('help').limitToLast(60).on('value', snap => { helps = snap.val() || {}; if (!$('shell').hidden) { render(); renderHelps(); renderBell(); } }, () => { unavailable($('help-list'), 'help calls'); });
   }
@@ -3438,6 +3490,6 @@ Escalation: anything medical or dangerous — call 000 first, then tell an organ
     if (ok && (onRoster(ident.name, ident.society) || isAdminLogin(ident.name, ident.society))) enter();
     else { ident = null; try { localStorage.removeItem('onshift.identity'); } catch {} redraw(); }
   });
-  else { redraw(); if (wantsPhotos) setTimeout(() => { const el = $('photos'); if (el) el.scrollIntoView({ block: 'start' }); }, 300); }
+  else { redraw(); if (wantsPhotos) setTimeout(() => showPublicView('photos'), 50); }
 })();
 </script>

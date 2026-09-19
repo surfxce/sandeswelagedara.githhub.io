@@ -278,18 +278,15 @@
       "sim": {
         ".read": true,
         ".write": true,
-        ".validate": "newData.hasChildren(['on', 'start', 'startMin', 'speed'])",
+        ".validate": "newData.hasChildren(['on', 'block'])",
         "on": {
           ".validate": "newData.isBoolean()"
         },
-        "start": {
-          ".validate": "newData.isNumber()"
+        "block": {
+          ".validate": "newData.isNumber() && newData.val() >= -1 && newData.val() <= 12"
         },
-        "startMin": {
+        "t": {
           ".validate": "newData.isNumber()"
-        },
-        "speed": {
-          ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 120"
         },
         "$other": {
           ".validate": false
