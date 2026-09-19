@@ -2602,13 +2602,20 @@ Escalation: anything medical or dangerous — call 000 first, then tell an organ
     L.push('\n## Things Spicy can point at (put the id in "show" when the answer is about tapping or finding one of these)\n' + Object.entries(POINTS).map(([id, pt]) => `${id} — ${pt.what}`).join('\n'));
     L.push('\n## How the app works\n' + MANUAL.map(m => `- ${m.t}: ${strip(m.p)}`).join('\n') + '\n' + TOUR.map(t => `- ${t.h}: ${strip(t.p)}`).join('\n'));
     // the live part: what time it is, who's where now and next
-    const lb = liveBlock(); const cur = lb !== null ? lb : block;
-    L.push(`\n## Right now\nThe clock says ${fmt(nowMin())}. ${lb === null ? 'The festival day is not running (before setup or after pack-up).' : `Block ${lb + 1} (${range(lb)}) is live.`}`);
+    // setup and pack-up are real states, not blocks: say so, and say what to
+    // answer if someone asks where a person is
+    const lb = liveBlock(); let cur, head;
+    if (lb === null) { cur = Math.min(Math.max(block, 0), BLOCKS - 1); head = `The festival day is not running right now (it runs 2 pm – 10 pm). The exec is looking at block ${cur + 1} in preview; treat that as "now" for their questions.`; }
+    else if (lb === -1) { cur = 0; head = 'It\'s setup time (2:00 – 3:00 pm), before block 1. Everyone is setting up — if asked where anyone is right now, say they\'re setting up. Block 1 starts at 3:00 pm; below is who\'s where then.'; }
+    else if (lb === BLOCKS) { cur = BLOCKS - 1; head = 'The day is over — it\'s pack-up (9:00 – 10:00 pm). Everyone is packing up — if asked where anyone is right now, say they\'re packing up. Below is the last block, already finished.'; }
+    else { cur = lb; head = `Block ${lb + 1} (${range(lb)}) is live.`; }
+    L.push(`\n## Right now\nThe clock says ${fmt(nowMin())}. ${head}`);
     [cur, cur + 1].forEach(k => {
-      if (k < 0 || k >= BLOCKS) return;
+      if (k < 0 || k >= BLOCKS || (lb === BLOCKS && k !== cur)) return;
       const rows = rowsFor(k); const busy = new Set(rows.flatMap(r => r[1]));
       const grouped = {}; rows.forEach(([id, ppl]) => { (grouped[id] ||= []).push(...ppl); });
-      L.push(`### Block ${k + 1} (${range(k)})${k === cur ? ' — now' : ' — next'}: who's where`);
+      const tag = k !== cur ? ' — next' : lb === -1 ? ' — first block, from 3:00 pm' : lb === BLOCKS ? ' — last block (finished)' : ' — now';
+      L.push(`### Block ${k + 1} (${range(k)})${tag}: who's where`);
       Object.entries(grouped).forEach(([id, ppl]) => { const d = DUTIES[id]; L.push(`${d.name} (${d.where || '—'}): ${ppl.join(', ')}`); });
       const free = PEOPLE.map(p => p.first).filter(f => !busy.has(f));
       L.push(`Free this block: ${free.length ? free.join(', ') : 'nobody'}`);
@@ -2674,6 +2681,7 @@ Escalation: anything medical or dangerous — call 000 first, then tell an organ
   function startPoint(id, text, back) {
     const pt = POINTS[id]; if (!pt) return;
     tourSaved = { live, block }; tourOn = true;
+    const lb = liveBlock(); if (lb !== null && lb !== block) { live = true; block = lb; render(); }
     pointStep = { target: pt.target, prep: pt.prep, after: pt.after, title: 'Right here', text, back };
     $('onb').hidden = false; renderTour();
   }
