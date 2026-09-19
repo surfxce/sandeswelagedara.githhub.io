@@ -281,9 +281,9 @@
   .dm-convos { display: grid; gap: 6px; }
   .dm-convo { display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; align-items: center; background: #fff; padding: 10px 12px; border-left: 8px solid var(--line); box-shadow: 0 1px 0 var(--line); cursor: pointer; }
   .dm-convo.unread { border-left-color: var(--maroon); }
-  .dm-convo .nm { font-weight: 800; font-size: 15px; }
+  .dm-convo .nm { grid-column: 1; font-weight: 800; font-size: 15px; }
   .dm-convo .last { grid-column: 1; font-size: 14px; color: var(--ink-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .dm-convo .n { grid-row: 1 / span 2; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 11px; background: #C0392B; color: #fff; font-size: 12px; font-weight: 800; display: grid; place-items: center; }
+  .dm-convo .n { grid-column: 2; grid-row: 1 / span 2; justify-self: end; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 11px; background: #C0392B; color: #fff; font-size: 12px; font-weight: 800; display: grid; place-items: center; }
   .dm-backdrop { position: fixed; inset: 0; background: rgba(43,26,20,.35); z-index: 20; touch-action: none; }
   .dm-sheet {
     position: fixed; left: 50%; bottom: 0; transform: translateX(-50%); width: 100%; max-width: var(--maxw); z-index: 21;
@@ -759,6 +759,11 @@
   .bcast-item.fresh { border-left-color: var(--maroon); }
   .bcast-item .txt { font-weight: 600; font-size: 16px; }
   .bcast-item .meta { font-size: 13px; color: var(--ink-3); }
+  .bcast-item { position: relative; }
+  .bcast-item.mine { padding-right: 44px; }
+  .bcast-item .x { position: absolute; top: 6px; right: 6px; width: 32px; height: 32px; border-radius: 50%; border: 0; background: transparent; color: var(--ink-3); font-size: 22px; line-height: 1; display: grid; place-items: center; }
+  .bcast-item .x:active { background: var(--line); }
+  .bcast-limit { margin: -2px 0 8px; }
   .bcast-form { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
   .bcast-form input { height: 44px; padding: 0 12px; border-radius: 6px; border: 1.5px solid var(--line); background: #fff; }
 
@@ -2252,9 +2257,31 @@
   }
   function renderBcasts() {
     const ids = Object.keys(bcasts).sort((a, b) => (bcasts[b].t || 0) - (bcasts[a].t || 0)).slice(0, 20);
-    $('bcast-list').innerHTML = ids.length ? ids.map(i => { const b = bcasts[i]; const org = ADMINS.includes(b.by); return `<div class="bcast-item ${org ? 'org' : ''} ${(b.t || 0) > seen ? 'fresh' : ''}"><span class="txt">${org ? '<span class="tag">Organisers</span>' : ''}${esc(b.text || '')}</span><span class="meta">${esc(b.by || 'Exec')} · ${b.t ? clock(b.t) : ''}</span></div>`; }).join('')
+    $('bcast-list').innerHTML = ids.length ? ids.map(i => { const b = bcasts[i]; const org = ADMINS.includes(b.by); const canX = isAdmin(); return `<div class="bcast-item ${org ? 'org' : ''} ${(b.t || 0) > seen ? 'fresh' : ''} ${canX ? 'mine' : ''}">${canX ? `<button type="button" class="x" data-delbcast="${i}" aria-label="Delete this notice">×</button>` : ''}<span class="txt">${org ? '<span class="tag">Organisers</span>' : ''}${esc(b.text || '')}</span><span class="meta">${esc(b.by || 'Exec')} · ${b.t ? clock(b.t) : ''}</span></div>`; }).join('')
       : '<p class="fine">Nothing posted yet.</p>';
+    $('bcast-list').querySelectorAll('[data-delbcast]').forEach(b => b.addEventListener('click', () => { if (confirm('Delete this notice for everyone?')) ref('broadcasts/' + b.dataset.delbcast).remove(); }));
+    renderNoticeLimit();
     renderBell();
+  }
+  // 3. Notices go to every phone, so: two per person per two hours. Checked
+  // here against what's already posted (the rules can't count per person
+  // without sign-in), and the form says when the next one opens.
+  const NOTICE_MAX = 2, NOTICE_WINDOW = 2 * 60 * 60 * 1000;
+  function noticeGate() {
+    const who = me ? me.first : (ident ? ident.name : 'Exec');
+    const mine = Object.values(bcasts).filter(b => b.by === who && (b.t || 0) > Date.now() - NOTICE_WINDOW).sort((a, b) => a.t - b.t);
+    if (mine.length < NOTICE_MAX) return null;
+    return mine[mine.length - NOTICE_MAX].t + NOTICE_WINDOW;   // when the oldest of the last two drops out
+  }
+  function renderNoticeLimit() {
+    const until = noticeGate();
+    [['bcast-form', 'bcast-limit'], ['desk-notice', 'desk-limit']].forEach(([formId, msgId]) => {
+      const form = $(formId); if (!form) return;
+      let msg = $(msgId); if (!msg) { msg = document.createElement('p'); msg.id = msgId; msg.className = 'fine bcast-limit'; form.insertAdjacentElement('afterend', msg); }
+      form.querySelector('button').disabled = !!until; form.querySelector('input').disabled = !!until;
+      msg.textContent = until ? `You've posted ${NOTICE_MAX} notices in the last two hours — the next one opens at ${clock(until)}.` : '';
+      msg.hidden = !until;
+    });
   }
   function openTray(open) {
     $('tray').hidden = !open; $('bell').setAttribute('aria-expanded', String(open));
@@ -2264,7 +2291,7 @@
   $('tray-close').addEventListener('click', () => openTray(false));
   $('bcast-form').addEventListener('submit', (e) => {
     e.preventDefault(); if (!db) return;
-    const text = $('bcast-text').value.trim(); if (!text) return;
+    const text = $('bcast-text').value.trim(); if (!text || noticeGate()) return;
     ref('broadcasts').push({ text, by: me ? me.first : (ident ? ident.name : 'Exec'), t: now() });
     $('bcast-text').value = '';
   });
@@ -3121,7 +3148,7 @@ Escalation: anything medical or dangerous — call 000 first, then tell an organ
     const openHelp = Object.entries(helps).filter(([, h]) => h.status === 'open');
     const openSwaps = Object.entries(swaps).filter(([, sw]) => sw.status === 'open');
     $('d-help-n').textContent = openHelp.length; $('d-swap-n').textContent = openSwaps.length;
-    renderIncidents(); renderTicks(); renderSpicyDesk();
+    renderIncidents(); renderTicks(); renderSpicyDesk(); renderNoticeLimit();
     $('d-help').innerHTML = openHelp.length ? openHelp.map(x => helpCard(x, 'mine')).join('') : '<p class="fine">None open.</p>';
     bindHelpButtons($('d-help'));
     $('d-swaps').innerHTML = openSwaps.length ? openSwaps.map(([id, sw]) => { const d = DUTIES[sw.duty] || {}; return `<div class="swap" style="--c:${CATS[d.cat] ? CATS[d.cat].color : 'var(--line)'}">${dutyIcon(d, 'sm')}<span class="who-txt"><b>${esc(sw.from)}</b> wants out of <b>${esc(d.name)}</b></span><span class="when">${range(sw.block)} · waiting</span></div>`; }).join('') : '<p class="fine">None open.</p>';
@@ -3161,7 +3188,7 @@ Escalation: anything medical or dangerous — call 000 first, then tell an organ
   $('ai-toggle').addEventListener('click', () => { if (!db) return; ref('config/aiReview').set(!aiOn); });
   $('desk-notice').addEventListener('submit', (e) => {
     e.preventDefault(); if (!db) return;
-    const text = $('desk-text').value.trim(); if (!text) return;
+    const text = $('desk-text').value.trim(); if (!text || noticeGate()) return;
     ref('broadcasts').push({ text, by: me.first, t: now() }); $('desk-text').value = '';
   });
   function bindSwapControl() {
