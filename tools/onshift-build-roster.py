@@ -128,7 +128,7 @@ def needs(i):
     for s in socs_present: n['stall-' + s] = (1, 2 if s in ('UQSLA', 'UQISC') else 1)
     if i <= 5:  n['fb'] = (3, 5)                 # six pitches; three refs is the floor
     if i <= 3:  n['vb'] = (1, 2)
-    if 7 <= i <= 10: n['ck'] = (2, 2)
+    if 7 <= i <= 11: n['ck'] = (4, 4)   # umpire, leg umpire, scorer + spare, per the cricket committee
     n['tk'] = (2, 2) if i <= 3 else (1, 2)
     n['st'] = (2, 2) if (i <= 3 or i in (6, 7)) else (1, 1)
     n['cr-gate'] = (1, 1); n['cr-food'] = (1, 2)
@@ -168,7 +168,10 @@ for i in range(BLOCKS):
             ok = [f for f in elig if sameRun[f].get(duty, 0) < 2 and run[f] < 3]
             if not ok: ok = [f for f in elig if run[f] < 3]
             if not ok: ok = elig
-            ok.sort(key=lambda f: (PREF.get(f) != duty, doneDuty[f].get(duty, 0), counts[f], run[f], f))
+            # finish your hour before moving: someone one block into this duty
+            # is the first pick to stay on it
+            ok.sort(key=lambda f: (sameRun[f].get(duty, 0) != 1, PREF.get(f) != duty,
+                                   doneDuty[f].get(duty, 0), counts[f], run[f], f))
             f = ok[0]; pool.remove(f); slots[duty].append(f); placed.add(f)
     onduty = {x for xs in slots.values() for x in xs}
     for x in onduty: counts[x] += 1; run[x] += 1
