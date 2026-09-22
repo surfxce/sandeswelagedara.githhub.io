@@ -1507,7 +1507,7 @@
   let ROSTER = [];
   const byFirst = {};
   function setRoster(data) {
-    PEOPLE = data.people; ROSTER = data.roster;
+    PEOPLE = data.people; ROSTER = data.roster; rosterVersion++;
     for (const k in byFirst) delete byFirst[k];
     PEOPLE.forEach(p => { p.first = p.n.split(' ')[0]; byFirst[p.first.toLowerCase()] = p; });
   }
@@ -1552,23 +1552,67 @@
     if (last.length === 1 && last[0].w) return true;   // the final's been played: everyone's done
     return br.rounds.some(r => r.some(m => m.w && (mine.has(teamKey(m.a)) || mine.has(teamKey(m.b))) && !mine.has(teamKey(m.w))));
   }
+  // Which block each round is played in, counted back from the final. The
+  // roster file only ever holds a player for the FIRST round (that block is
+  // written down). Every later round is decided here, live, from the bracket:
+  // win and you're held for the next round's block and someone free covers
+  // your duty; lose and nothing changes — your normal roster carries on.
+  const ROUND_BLOCKS = { vb: [3, 2, 1, 1], fb: [5, 3, 2, 1, 0], ck: [10, 8, 7, 7] };
+  const roundBlock = (sport, k, total) => { const arr = ROUND_BLOCKS[sport] || ROUND_BLOCKS.vb; return arr[Math.min(total - 1 - k, arr.length - 1)]; };
+  const isPlayer = (first, sport) => ROSTER.some(b => b.some(([id, ppl]) => id === 'play-' + sport && ppl.includes(first)));
+  const COVERABLE = (id) => !['free', 'logi', 'setup', 'packup'].includes(id) && !id.startsWith('play-') && (DUTIES[id] || {}).cat !== 'hands' && (DUTIES[id] || {}).cat !== 'photo';
+  let rosterVersion = 0; const rowsCache = new Map();
   function rowsFor(i) {
-    const taken = Object.values(swaps).filter(sw => sw.status === 'taken' && sw.block === i && sw.to);
-    const base = ROSTER[i].map(([id, ppl]) => id.startsWith('play-') ? [id, ppl.filter(p => !teamOut(id.slice(5), p))] : [id, ppl]).filter(([, ppl]) => ppl.length);
-    if (!taken.length) return base;
-    return base.map(([id, ppl]) => {
-      let out = ppl.slice();
-      taken.forEach(sw => {
-        if (sw.duty === id && out.includes(sw.from)) { out = out.filter(p => p !== sw.from && p !== sw.to); out.push(sw.to); }
-        else if (out.includes(sw.to)) { out = out.filter(p => p !== sw.to); if (id !== 'logi' && !out.includes(sw.from)) out.push(sw.from); }   // the requester takes the taker's old duty — unless the taker was logistics, then they're just free
+    const hit = rowsCache.get(i); if (hit && hit.v === rosterVersion) return hit.rows;
+    const rows = ROSTER[i].map(([id, ppl]) => [id, id.startsWith('play-') ? ppl.filter(p => !teamOut(id.slice(5), p)) : ppl.slice()]);
+    const cover = {};
+    // ---- winners: held for the next round, duty vacated ----
+    const vacancies = [];
+    const addTo = (id, f) => { const r = rows.find(x => x[0] === id); if (r) { if (!r[1].includes(f)) r[1].push(f); } else rows.push([id, [f]]); };
+    Object.entries(brackets || {}).forEach(([sport, br]) => {
+      if (!br || !br.rounds || !br.rounds[0]) return;
+      const total = roundsTotal(br.rounds[0].length);
+      for (let k = 1; k < br.rounds.length; k++) {
+        if (roundBlock(sport, k, total) !== i) continue;
+        const teams = new Set(br.rounds[k].flatMap(m => [m.a, m.b]).filter(Boolean).map(teamKey));
+        PEOPLE.forEach(p => {
+          if (!p.s.some(sc => teams.has(teamKey(sc))) || !isPlayer(p.first, sport)) return;
+          rows.forEach(([id, ppl]) => { const j = ppl.indexOf(p.first); if (j >= 0 && id !== 'play-' + sport) { ppl.splice(j, 1); if (COVERABLE(id)) vacancies.push({ id, by: p.first, sport }); } });
+          addTo('play-' + sport, p.first);
+        });
+      }
+    });
+    // ---- cover: free execs step into the vacated duties, same result on every phone ----
+    if (vacancies.length) {
+      const busy = new Set(rows.flatMap(r => r[1]));
+      const pool = PEOPLE.map(p => p.first).filter(f => !busy.has(f)).sort();
+      vacancies.forEach(v => {
+        const club = (DUTIES[v.id] || {}).club;
+        const j = pool.findIndex(f => !club || byFirst[f.toLowerCase()].s.includes(club));
+        if (j < 0) return;
+        const f = pool.splice(j, 1)[0]; addTo(v.id, f); cover[f] = { for: v.by, sport: v.sport };
       });
-      return [id, out];
-    }).filter(([, ppl]) => ppl.length);
+    }
+    // ---- swaps, as exchanges ----
+    const taken = Object.values(swaps).filter(sw => sw.status === 'taken' && sw.block === i && sw.to);
+    let out = rows;
+    if (taken.length) out = rows.map(([id, ppl]) => {
+      let o = ppl.slice();
+      taken.forEach(sw => {
+        if (sw.duty === id && o.includes(sw.from)) { o = o.filter(p => p !== sw.from && p !== sw.to); o.push(sw.to); }
+        else if (o.includes(sw.to)) { o = o.filter(p => p !== sw.to); if (id !== 'logi' && !o.includes(sw.from)) o.push(sw.from); }   // the requester takes the taker's old duty — unless the taker was logistics, then they're just free
+      });
+      return [id, o];
+    });
+    out = out.filter(([, ppl]) => ppl.length); out.cover = cover;
+    rowsCache.set(i, { v: rosterVersion, rows: out });
+    return out;
   }
   function assignmentFor(first, i) {
     if (i < 0) return { id:'setup', people:[] };
     if (i >= BLOCKS) return { id:'packup', people:[] };
-    for (const [id, ppl] of rowsFor(i)) if (ppl.includes(first)) return { id, people: ppl.filter(p => p !== first) };
+    const rows = rowsFor(i);
+    for (const [id, ppl] of rows) if (ppl.includes(first)) return { id, people: ppl.filter(p => p !== first), cover: (rows.cover || {})[first] || null };
     return { id:'free', people:[] };
   }
   const isFree = (first, i) => i >= 0 && i < BLOCKS && assignmentFor(first, i).id === 'free';
@@ -1834,8 +1878,16 @@
   document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => showView(t.dataset.view)));
 
   // ---------- Render ----------
+  let lastShown = null;   // "block:duty" last drawn on the Now card, to notice a live reshuffle
   function render() {
     mapsTick();
+    if (me && live && block >= 0 && block < BLOCKS) {
+      const a = assignmentFor(me.first, block); const key = block + ':' + a.id;
+      if (lastShown && lastShown.split(':')[0] === String(block) && lastShown !== key && 'Notification' in window && Notification.permission === 'granted') {
+        const d = DUTIES[a.id]; try { new Notification('Roster change — ' + d.name, { body: a.cover ? `Covering for ${a.cover.for}, who's playing ${(SPORTS[a.cover.sport] || '').toLowerCase()}. ${d.where}` : d.where }); navigator.vibrate && navigator.vibrate([200, 100, 200]); } catch {}
+      }
+      lastShown = key;
+    }
     if (adminMode) { renderAdmin(); return; }
     // Block bar
     if (block < 0) { $('bb-label').textContent = 'Before block 1'; $('bb-time').textContent = 'Setup · 2:00 – 3:00 pm'; }
@@ -1866,10 +1918,11 @@
     // only follows when it says something the heading doesn't
     const status = live ? 'Live' : 'Preview';
     const catLine = `<div class="cat-label ${live ? 'live' : ''}">${status}${cat.label === d.name ? '' : ' · ' + cat.label}</div>`;
+    const coverLine = a.cover ? `<p class="duty-do" style="color:var(--maroon);font-weight:700">Covering for ${esc(full(a.cover.for))}, who\'s playing ${esc(SPORTS[a.cover.sport] || a.cover.sport).toLowerCase()} for their society.</p>` : '';
     return `<article class="duty-card ${extraClass || ''}" style="--c:${cat.color}">
       ${catLine}
       <div class="duty-head tap" data-info="duty:${a.id}" role="button" tabindex="0">${dutyIcon(d, 'lg')}<div><h1 class="duty-name">${esc(d.name)}<span class="chev">›</span></h1><div class="duty-where">${esc(d.where)}</div></div></div>
-      <p class="duty-do">${esc(d.do)}</p>
+      ${coverLine}<p class="duty-do">${esc(d.do)}</p>
       ${tasksHtml(d)}
       ${partners}
     </article>`;
@@ -2642,7 +2695,7 @@
     { icon: 'tent',    color: 'var(--c-club)',   t: 'Map', k: 'map where location pinch zoom pins field 7 field 6 first aid toilets satellite where am i blue dot gps', p: '<b>Simple</b> is the ground plan, <b>Satellite</b> is real imagery — both have pins for football and cricket (Field 7), volleyball (the beach courts), food trucks and stalls (Field 6), the grandstand, the entry, first aid, toilets and the assembly point. Tap a pin for what\'s there. On Satellite, the <b>target</b> button shows where you are as a blue dot (your phone will ask once). Drag to pan, pinch to zoom, double-tap to zoom in.' },
     { icon: 'sparkle', color: 'var(--c-ticket)', t: "What's On", k: 'whats on stalls timetable stage performances businesses clubs photos upload', p: 'Everything at the festival. Tap a sport for the match timetable, the stage for the running order, a business for what they do, a club for who\'s on the marquee. Send festival photos from the bottom.' },
     { icon: 'camera',  color: 'var(--c-photo)',  t: 'Photos & big screen', k: 'photos upload approve big screen tv slideshow', p: 'Anyone can send a photo in; organisers approve them; approved photos roll across the big screen. <b>Big screen mode</b> is under Settings for whoever runs the TV.' },
-    { icon: 'volleyball', color: 'var(--c-sport)', t: 'Playing for your society', k: 'playing team bracket knocked out eliminated free volleyball football cricket', p: 'If you\'re on a society team, your roster says <b>Playing</b> for the whole tournament window — nobody can be rostered elsewhere while their team might still be in. The moment your team is knocked out (the ref taps the result), that block turns <b>free</b> on your phone and you\'re back in the pool for help calls.' },
+    { icon: 'volleyball', color: 'var(--c-sport)', t: 'Playing for your society', k: 'playing team bracket knocked out eliminated free volleyball football cricket', p: 'If you\'re on a society team, your roster says <b>Playing</b> only for your first game. <b>Win</b>, and the app holds you for the next round\'s block too — whatever you were meant to do then goes to a free exec, who sees it pop up with "Covering for …". <b>Lose</b>, and your normal roster just carries on. All of it happens the moment the ref taps the result.' },
     { icon: 'box',     color: 'var(--c-hands)',  t: 'Logistics', k: 'logistics floating organisers help everything ping notification', p: 'The floating team (Nandos, Prabhas, Archita, Sanuli, Devashri, Tanisha). Not rostered on any one thing — they back up whichever team is short. Every <b>swap request</b> and <b>call for help</b> lands in their bell, and with pings turned on, on their phone too.' },
     { icon: 'sparkle', color: 'var(--tan)',      t: 'Spicy', k: 'spicy ask question help bot chat ai assistant who do i talk to where is', p: 'Settings → <b>Spicy</b>. Ask anything — what your duty involves, who\'s on what right now, how a part of the app works. It answers from the roster and this manual, points you to a person when there is one, and says so when it doesn\'t know. When the answer is a button or a place in the app, tap <b>Show me</b> and Spicy spotlights it on screen. Every answer has a <b>Message Sandes</b> button.' },
     { icon: 'box',     color: 'var(--c-hands)',  t: 'Settings', k: 'settings gear notification notify switch user sign out big screen manual emergency spicy', p: 'The gear. Big screen mode, a notification when the block changes, switch who\'s signed in, <b>Spicy</b> (ask it anything), this manual, <b>Log incident</b> (first aid, lost property, behaviour, equipment — timestamped for the organisers), and the red <b>Emergency</b> button with who to call.' },
@@ -3619,9 +3672,9 @@ Escalation: anything medical or dangerous — call 000 first, then tell an organ
     const pub = $('public-scores');
     [$('scores-live'), $('bcast-list'), pub].forEach(el => { if (el) el.innerHTML = '<p class="fine">Connecting…</p>'; });
     ref('scores').limitToLast(60).on('value', snap => { matches = snap.val() || {}; renderScores(); settleBrackets(); renderBrackets(); renderDesk(); if (scrOn) scrScores(); }, () => { unavailable($('scores-live'), 'scores'); if (pub) unavailable(pub, 'scores'); });
-    ref('brackets').on('value', snap => { brackets = snap.val() || {}; renderBrackets(); if (!$('shell').hidden) { render(); renderHelps(); renderBell(); } }, () => { unavailable($('brackets'), 'brackets'); const pb = $('public-brackets'); if (pb) unavailable(pb, 'brackets'); });
+    ref('brackets').on('value', snap => { brackets = snap.val() || {}; rosterVersion++; renderBrackets(); if (!$('shell').hidden) { render(); renderHelps(); renderBell(); } }, () => { unavailable($('brackets'), 'brackets'); const pb = $('public-brackets'); if (pb) unavailable(pb, 'brackets'); });
     ref('broadcasts').limitToLast(30).on('value', snap => { bcasts = snap.val() || {}; renderBcasts(); }, () => { unavailable($('bcast-list'), 'updates'); });
-    ref('swaps').limitToLast(60).on('value', snap => { swaps = snap.val() || {}; if (!$('shell').hidden) { render(); renderSwaps(); renderBell(); pingLogi(); } }, () => { unavailable($('swap-list'), 'swaps'); });
+    ref('swaps').limitToLast(60).on('value', snap => { swaps = snap.val() || {}; rosterVersion++; if (!$('shell').hidden) { render(); renderSwaps(); renderBell(); pingLogi(); } }, () => { unavailable($('swap-list'), 'swaps'); });
     ref('dm').on('value', snap => { dms = snap.val() || {}; if (dmOpen) renderDmThread(); renderDmConvos(); renderBell(); }, () => {});
     ref('photos').orderByChild('status').equalTo('approved').on('value', snap => { phApproved = snap.val() || {}; renderPublicPhotos(); renderPhotoMod(); if (scrOn) bandSync(); }, () => {});
     ref('photos').orderByChild('status').equalTo('pending').on('value', snap => { phPending = snap.val() || {}; renderPhotoMod(); }, () => {});
