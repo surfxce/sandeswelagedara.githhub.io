@@ -1652,11 +1652,16 @@
     rowsCache.set(i, { v: rosterVersion, rows: out });
     return out;
   }
+  const sameSociety = (a, b) => { const pa = byFirst[a.toLowerCase()], pb = byFirst[b.toLowerCase()]; return !!(pa && pb && pa.s.some(c => pb.s.includes(c))); };
   function assignmentFor(first, i) {
     if (i < 0) return { id:'setup', people:[] };
     if (i >= BLOCKS) return { id:'packup', people:[] };
     const rows = rowsFor(i);
-    for (const [id, ppl] of rows) if (ppl.includes(first)) return { id, people: ppl.filter(p => p !== first), cover: (rows.cover || {})[first] || null };
+    for (const [id, ppl] of rows) if (ppl.includes(first)) {
+      // on a Playing block the others on court are opponents, not teammates
+      const mates = id.startsWith('play-') ? ppl.filter(p => p !== first && sameSociety(p, first)) : ppl.filter(p => p !== first);
+      return { id, people: mates, cover: (rows.cover || {})[first] || null };
+    }
     return { id:'free', people:[] };
   }
   const isFree = (first, i) => i >= 0 && i < BLOCKS && assignmentFor(first, i).id === 'free';
@@ -1810,7 +1815,7 @@
         <h4 class="sec-sm">Committee head</h4><p class="fine">${lead ? esc(lead) : 'Not applicable for this one'}</p>
         ${guide}
         ${partners.length ? `<h4 class="sec-sm">With you</h4><div class="round">${partners.map(person).join('')}</div>` : ''}
-        <h4 class="sec-sm">${partners.length ? 'Also on ' + esc(d.name) : 'On ' + esc(d.name)} this block</h4>${others.length ? `<div class="round">${others.map(person).join('')}</div>` : '<p class="fine">Nobody else.</p>'}` };
+        <h4 class="sec-sm">${d.cat === 'play' ? 'Other teams on now' : partners.length ? 'Also on ' + esc(d.name) : 'On ' + esc(d.name) + ' this block'}</h4>${others.length ? `<div class="round">${others.map(person).join('')}</div>` : '<p class="fine">Nobody else.</p>'}` };
     }
     if (kind === 'person') { const f = arg; const p = byFirst[f.toLowerCase()]; return { title: p ? p.n : f, body: `<div class="round">${Array.from({ length: BLOCKS }, (_, i) => { const a = tentative(assignmentFor(f, i), i); const d = DUTIES[a.id]; const swp = a.id !== 'soon' && a.id !== baseAssignment(f, i); return `<div class="tt"><span class="t">${fmt(DAY_START + i * 30)}</span><span class="tm ${a.id === 'free' ? 'tbd' : 'won'}" style="grid-column:2/-1;text-align:left"><span class="cell ${a.id === 'free' ? 'free' : ''} ${swp ? 'sw' : ''}" style="--c:${CATS[d.cat].color};margin-right:8px">${SHORT(a.id)}</span>${esc(d.name)}${swp ? ' <small style="display:inline">(swap)</small>' : ''}<small>${esc(a.id === 'free' ? 'Enjoy the festival' : d.where + (a.people.length ? ' · with ' + names(a.people) : ''))}</small></span></div>`; }).join('')}</div>` }; }
     if (kind === 'club') { const c = CLUB_INFO[arg]; return { title: arg, body: `<p><b>${esc(c.full)}</b></p><p>${esc(c.about)}</p><h4 class="sec-sm">Execs on the marquee</h4><p class="fine">${c.execs.length ? c.execs.map(esc).join(', ') : '—'}</p>` }; }
@@ -2674,7 +2679,6 @@
   const TICK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>';
   const CROSS = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
   const mySwapFor = (i) => Object.entries(swaps).find(([, sw]) => me && sw.from === me.first && sw.block === i && sw.status !== 'withdrawn');
-  const sameSociety = (a, b) => { const pa = byFirst[a.toLowerCase()], pb = byFirst[b.toLowerCase()]; return !!(pa && pb && pa.s.some(c => pb.s.includes(c))); };
   // Under the duty card: two buttons side by side. Each turns into its status once used.
   function swapControl(a) {
     if (!db || !me || block < 0 || block >= BLOCKS || ['free', 'hands', 'photo', 'logi'].includes(DUTIES[a.id].cat)) return '';
