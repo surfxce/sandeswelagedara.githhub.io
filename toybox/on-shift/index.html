@@ -866,7 +866,7 @@
   .pins:not(.zoomed) .pin .dot { width: 22px; height: 22px; border-width: 2px; }
   .pins:not(.zoomed) .pin .dot svg { width: 11px; height: 11px; }
   .pin .lbl { font-size: 11px; font-weight: 800; line-height: 1.1; padding: 2px 6px; border-radius: 6px; background: rgba(255,255,255,.92); color: var(--ink); white-space: nowrap; box-shadow: 0 1px 3px rgba(0,0,0,.25); }
-  .pin.dim { opacity: .45; }
+  .pin.dim { display: none; }
   .mapz-ctl { position: absolute; right: 10px; bottom: 10px; display: grid; gap: 6px; }
   .mapz-ctl button { width: 44px; height: 44px; border-radius: 8px; border: 1.5px solid var(--line); background: var(--paper); color: var(--maroon); font-size: 22px; font-weight: 800; box-shadow: 0 2px 6px rgba(74,22,14,.12); }
 
@@ -1460,8 +1460,8 @@
           tasks:['Refereeing', 'Sideline clear', 'Team swaps'] },
     ck: { cat:'sport', icon:'cricket', name:'Cricket', where:'Field 7, after the football', do:'Umpire the pitch and keep spectators behind the cones. T6 with a tennis ball: six overs a side, about two minutes an over. Games at 6:40, 7:20 and 8:00; scores to the committee by 8:30.',
           tasks:['Umpiring', 'Getting people off the field', 'Spectators behind cones'] },
-    tk: { cat:'ticket', name:'Ticketing', where:'Main entry gate', do:'Check tickets and stamp wrists. Hold the line at the barrier — never leave the table unattended.',
-          tasks:['Checking tickets', 'Wristbands', 'Holding the barrier', 'Questions & directions'] },
+    tk: { cat:'ticket', name:'Ticketing', where:'Main entry gate', do:'Scan Humanitix QR codes off phones and stamp wrists. Hold the line at the barrier — never leave the table unattended. Busiest 3:00 – 4:00; the gate drops to two people later.',
+          tasks:['Scanning QR tickets', 'Wristbands', 'Holding the barrier', 'Questions & directions'] },
     st: { cat:'stage', name:'Stage', where:'Performance stage', do:'Cue performers and make all announcements, including sports call-outs. Keep the mic within reach.',
           tasks:['Cueing performers', 'Announcements', 'Sports call-outs'] },
     'cr-gate': { cat:'crowd', name:'Crowd & support', where:'Entry gate zone', do:'Walk the zone. Keep walkways clear, help anyone lost, and glance at cords and generators as you pass.',
@@ -1600,7 +1600,7 @@
     ]},
     { h: 'Stage & entry', items: [
       { cat: 'stage',  info: 'stage', name: 'Performance stage', where: 'Stage', blurb: 'Bollywood, hip-hop, kuthu, folk, garba, bhangra and fusion — tap for the running order. Winners and the raffle are announced from here.', tags: ['Tap for times'] },
-      { cat: 'ticket', name: 'Ticketing',         where: 'Main entry gate', blurb: 'Show your ticket at the gate and get a wrist stamp.', tags: ['Wrist stamp'] },
+      { cat: 'ticket', name: 'Ticketing',         where: 'Main entry gate', blurb: 'Have your Humanitix QR code ready on your phone — scan at the gate, get a wrist stamp.', tags: ['Humanitix QR', 'Wrist stamp'] },
     ]},
     { h: 'Fundraising', items: [
       { cat: 'fund', icon: 'sparkle', name: 'Nepal Floods fundraiser', where: 'Charity marquee, Field 6', blurb: 'Raffle tickets all day and a pay-to-play spin-the-wheel — win raffle tickets, Fright Night drink vouchers, soft drinks and lollies. Every dollar goes to Nepal\'s flood relief fund. Raffle drawn at 8:40 pm.', tags: ['Raffle', 'Spin the wheel'] },
@@ -1818,6 +1818,7 @@
 
   // ---------- Render ----------
   function render() {
+    mapsTick();
     if (adminMode) { renderAdmin(); return; }
     // Block bar
     if (block < 0) { $('bb-label').textContent = 'Before block 1'; $('bb-time').textContent = 'Setup · 2:00 – 3:00 pm'; }
@@ -2009,9 +2010,9 @@
   // is optional — a pin with it only shows during those blocks, once the
   // programme has real times. `info` opens the same sheet as a duty title.
   const BASE_PINS = [
-    { id: 'fb',       label: 'Football',        sub: 'Field 7 · six pitches',   x: 0.467, y: 0.400, ll: [-27.493386, 153.012958], cat: 'sport',  icon: 'football',   info: 'duty:fb', sport: 'fb', split: 'field' },
-    { id: 'ck',       label: 'Cricket',         sub: 'Field 7 · after football', x: 0.467, y: 0.462, ll: [-27.49360, 153.01296],   cat: 'sport',  icon: 'cricket',    info: 'duty:ck', sport: 'ck' },
-    { id: 'vb',       label: 'Volleyball',      sub: 'Beach volleyball courts',  x: 0.647, y: 0.590, ll: [-27.494107, 153.013545], cat: 'sport',  icon: 'volleyball', info: 'duty:vb', sport: 'vb' },
+    { id: 'fb',       label: 'Football',        sub: 'Field 7 · six pitches',   x: 0.467, y: 0.400, ll: [-27.493386, 153.012958], cat: 'sport',  icon: 'football',   info: 'duty:fb', sport: 'fb', split: 'field', blocks: [0, 5] },
+    { id: 'ck',       label: 'Cricket',         sub: 'Field 7 · after football', x: 0.467, y: 0.462, ll: [-27.49360, 153.01296],   cat: 'sport',  icon: 'cricket',    info: 'duty:ck', sport: 'ck', blocks: [6, 11] },
+    { id: 'vb',       label: 'Volleyball',      sub: 'Beach volleyball courts',  x: 0.647, y: 0.590, ll: [-27.494107, 153.013545], cat: 'sport',  icon: 'volleyball', info: 'duty:vb', sport: 'vb', blocks: [0, 3] },
     { id: 'stand',    label: 'Grandstand',      sub: 'Event area',               x: 0.283, y: 0.415, ll: [-27.493409, 153.012239], cat: 'stage',  icon: 'mic' },
     { id: 'entry',    label: 'Entry & tickets', sub: 'Main gate',                x: 0.340, y: 0.208, ll: [-27.492556, 153.012445], cat: 'ticket', icon: 'ticket', info: 'duty:tk' },
     { id: 'firstaid', label: 'First aid',       sub: 'First Aid marquee',        x: 0.297, y: 0.470, ll: [-27.493651, 153.012268], cat: 'emg',    icon: 'heart' },
@@ -2028,7 +2029,7 @@
     { id: 'field4', label: 'Field 4', x: 0.520, y: 0.428, ll: [-27.493386, 153.013134] },
     { id: 'field5', label: 'Field 5', x: 0.410, y: 0.479, ll: [-27.493587, 153.012785] },
     { id: 'field6', label: 'Field 6', x: 0.520, y: 0.479, ll: [-27.493587, 153.013134] },
-  ].map(f => ({ ...f, sub: 'Football pitch', cat: 'sport', icon: 'football', part: 'field', info: 'duty:fb', sport: 'fb' }));
+  ].map(f => ({ ...f, sub: 'Football pitch', cat: 'sport', icon: 'football', part: 'field', info: 'duty:fb', sport: 'fb', blocks: [0, 5] }));
   // Two floor plans. Sandes picks on his phone (Settings → Map plan) until
   // one is chosen; everyone else sees LAYOUT_DEFAULT.
   const LAYOUTS = {
@@ -2052,7 +2053,7 @@
   const allPins = () => [...BASE_PINS, ...FIELD_PINS, ...LAYOUTS[layoutId].pins];
   const PINS = { find: (fn) => allPins().find(fn), map: (fn) => allPins().filter(p => !p.part).map(fn), forEach: (fn) => allPins().forEach(fn) };
   const PIN_COLORS = { sport: 'var(--c-sport)', club: 'var(--c-club)', stage: 'var(--c-stage)', ticket: 'var(--c-ticket)', emg: '#B23A2E', info: '#5B6B7A' };
-  const pinOn = (pin) => !pin.blocks || (block >= pin.blocks[0] && block <= pin.blocks[1]);
+  const pinOn = (pin) => !pin.blocks || block < 0 || block >= BLOCKS || (block >= pin.blocks[0] && block <= pin.blocks[1]);
   const pinHtml = (pin, extra) => `<div class="pin ${extra || ''} ${pin.part ? 'part' : pin.split ? 'whole' : ''} ${pinOn(pin) ? '' : 'dim'}" data-pin="${pin.id}" style="--c:${PIN_COLORS[pin.cat]}"><span class="dot"><svg viewBox="0 0 24 24">${ICONS[pin.icon] || ICONS.box}</svg></span><span class="lbl">${esc(pin.label)}</span></div>`;
   function pinInfo(id) {
     const pin = PINS.find(p => p.id === id); if (!pin) return;
@@ -2150,7 +2151,7 @@
       const deep = m.sat.getZoom() >= 19; const want = new Set();
       allPins().forEach(pin => {
         if (!pin.ll) return;
-        if (pin.part && !deep) return; if (pin.split && deep) return;
+        if (pin.part && !deep) return; if (pin.split && deep) return; if (!pinOn(pin)) return;
         want.add(pin.id);
         if (!m.markers[pin.id]) {
           const mk = L.marker(pin.ll, { icon: L.divIcon({ className: '', html: pinHtml(pin, 'sat'), iconSize: [30, 30], iconAnchor: [15, 30] }), keyboard: false }).addTo(m.sat);
@@ -2160,6 +2161,8 @@
       Object.keys(m.markers).forEach(id => { if (!want.has(id)) { m.markers[id].remove(); delete m.markers[id]; } });
     }
     m.replan = () => { drawPins(); if (m.sat) { Object.values(m.markers).forEach(mk => mk.remove()); m.markers = {}; syncSat(); } };
+    let pinKey = '';
+    m.tick = () => { const k = layoutId + ':' + allPins().filter(pinOn).map(p => p.id).join(','); if (k !== pinKey) { pinKey = k; m.replan(); } };
     // ---- you are here: a blue dot from the phone's GPS, only while it's on ----
     const locBtn = $(pre + '-loc'); let watchId = null, youDot = null, youRing = null;
     const note = (t) => { $(pre + '-note').textContent = t; };
@@ -2231,6 +2234,7 @@
   const mapExec = mountMap($('map-exec'), 'mx');
   const mapPub = $('map-pub') ? mountMap($('map-pub'), 'mp') : null;
   const mapFocus = (id) => mapExec.focus(id);
+  const mapsTick = () => maps.forEach(x => x.tick && x.tick());
   // re-fit the first time the tab is shown (it was display:none at load)
   { const orig = showView; showView = function (v) { orig(v); if (v === 'map') mapExec.show(); }; }
 
@@ -2739,7 +2743,7 @@
   const FEST_NOTES = `# Spice Road Experience — notes for Spicy
 The Spice Road Experience is a one-day cultural festival at the University of Queensland run by student societies: UQISC (Indian Students' Club) and its partner society UQSLA (Sri Lankan Association), with eleven clubs running marquees. It's outdoors on a sports ground from mid-afternoon into the evening: club stalls, food and fundraising stalls, volleyball, football and cricket competitions, and a performance stage. The people using this app are execs — student volunteers rostered onto duties in 30-minute blocks.
 Organisers: Archita, Sanuka (UQSLA president), Prabhas and Thinanthanan. Sandes built the app and handles anything technical. Questions the notes don't answer should go to Sandes (there's a Message Sandes button under every answer).
-Programme: bump-in from 1:00 pm (food trucks 1:00 – 1:40, business stalls 1:50 – 2:20, club stalls 2:00), MJ's speech 2:50, doors 3:00. Football 3:00 – 6:00 on Field 7 (16 teams, groups then semis 4:50 and final 5:30). Volleyball 3:00 – 5:00 on the beach volleyball courts (one competitive court, two social). Performances on the stage 3:15 – 4:40 and 6:00 – 6:40. Cricket (T6, tennis ball) 6:40 – 8:40 on Field 7, winner announced 8:50. Raffle drawn 8:40. Bump-out 8:50 – 9:40. Food trucks (7) and business stalls (6) are on Field 6 all day, club marquees too (numbered 1 – 12). First aid: the UQIC venue manager at the First Aid marquee on Field 6. Security: Tru Security.
+Programme: bump-in from 1:00 pm (food trucks 1:00 – 1:40, business stalls 1:50 – 2:20, club stalls 2:00), MJ's speech 2:50, doors 3:00. Football 3:00 – 6:00 on Field 7, six small pitches (16 teams, groups then semis 4:50 and final 5:30); referees are execs. Tickets are Humanitix QR codes scanned at the gate. Volleyball 3:00 – 5:00 on the beach volleyball courts (one competitive court, two social). Performances on the stage 3:15 – 4:40 and 6:00 – 6:40. Cricket (T6, tennis ball) 6:40 – 8:40 on Field 7, winner announced 8:50. Raffle drawn 8:40. Bump-out 8:50 – 9:40. Food trucks (7) and business stalls (6) are on Field 6 all day, club marquees too (numbered 1 – 12). First aid: the UQIC venue manager at the First Aid marquee on Field 6. Security: Tru Security.
 Escalation: anything medical or dangerous — call 000 first, then tell an organiser. Emergency contacts are in the app under Settings → Emergency (never repeat phone numbers; point people there). Lost property, first aid, behaviour and equipment problems get logged under Settings → Log incident.`;
   const strip = (html) => { const d = document.createElement('div'); d.innerHTML = html; return d.textContent; };
   function spicyNotes() {
@@ -3608,7 +3612,7 @@ Escalation: anything medical or dangerous — call 000 first, then tell an organ
     ref('ticker').limitToLast(40).on('value', snap => { ticks = snap.val() || {}; if (scrOn) renderTicker(); if (!$('view-desk').hidden) renderTicks(); }, () => {});
     ref('incidents').limitToLast(100).on('value', snap => { incidents = snap.val() || {}; renderIncidents(); }, () => {});
     ref('pfp').on('value', snap => { pfps = snap.val() || {}; if (me && myPic && !pfps[me.first.toLowerCase()]) ref('pfp/' + me.first.toLowerCase()).set(myPic).catch(() => {}); if (!$('shell').hidden) { render(); $('who-pfp').innerHTML = me ? pfp(me.first, 32) : ''; if (tourOn) renderTour(); if (!$('set-sheet').hidden) renderPhotoRow($('set-photo-msg') ? $('set-photo-msg').textContent : ''); } }, () => {});
-    ref('sim').on('value', snap => { sim = snap.val(); if (!$('shell').hidden) { const lb = liveBlock(); live = lb !== null; if (live) block = lb; else if (block < 0 || block >= BLOCKS) block = 0; render(); renderSim(); } renderStageNow(); }, () => {});
+    ref('sim').on('value', snap => { sim = snap.val(); mapsTick(); if (!$('shell').hidden) { const lb = liveBlock(); live = lb !== null; if (live) block = lb; else if (block < 0 || block >= BLOCKS) block = 0; render(); renderSim(); } renderStageNow(); }, () => {});
     ref('help').limitToLast(60).on('value', snap => { helps = snap.val() || {}; if (!$('shell').hidden) { render(); renderHelps(); renderBell(); pingLogi(); } }, () => { unavailable($('help-list'), 'help calls'); });
   }
   startLive();
