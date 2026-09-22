@@ -3017,18 +3017,21 @@ Escalation: anything medical or dangerous — call 000 first, then tell an organ
     }
   }
   let bandSeen = null;   // ids the band has already had; null until the first sync
+  const bandShown = new Set();   // ids that have actually been on screen at least once
   function bandSync() {
     // called when the approved set changes: drop retired photos not on screen, then top up
     const band = $('screen-band'); const ids = scrIds(); const keep = new Set(ids);
     [...band.children].forEach(f => { const r = f.getBoundingClientRect(); if (!keep.has(f.dataset.id) && (r.right < 0 || r.left > innerWidth)) f.remove(); });
     $('screen-idle').hidden = keep.size > 0; if (!keep.size) { band.innerHTML = ''; bandX = 0; bandSeen = new Set(); return; }
-    // brand-new photos cut the queue: they go in right after what's on screen now
+    // brand-new photos skip the repeats but not the queue: they go in ahead of
+    // the first queued photo that has already had its turn, behind anything
+    // still waiting for a first showing
     if (bandSeen) {
-      const fresh = ids.filter(i => !bandSeen.has(i)).sort((a, b) => (phApproved[b].t || 0) - (phApproved[a].t || 0));
+      const fresh = ids.filter(i => !bandSeen.has(i)).sort((a, b) => (phApproved[a].t || 0) - (phApproved[b].t || 0));
       fresh.forEach(id => {
         if ([...band.children].some(f => f.dataset.id === id)) return;
-        const offscreen = [...band.children].find(f => f.getBoundingClientRect().left >= innerWidth);
-        band.insertBefore(figure(id), offscreen || null);
+        const repeat = [...band.children].find(f => f.getBoundingClientRect().left >= innerWidth && bandShown.has(f.dataset.id));
+        band.insertBefore(figure(id), repeat || null);
       });
     }
     bandSeen = new Set(ids);
@@ -3040,6 +3043,7 @@ Escalation: anything medical or dangerous — call 000 first, then tell an organ
     const band = $('screen-band'); const first = band.firstElementChild;
     if (first) {
       bandX -= innerWidth * SCR_SPEED * dt;
+      for (const f of band.children) { if (f.getBoundingClientRect().left >= innerWidth) break; bandShown.add(f.dataset.id); }
       const w = first.getBoundingClientRect().width;
       if (-bandX >= w) {   // leading photo is fully off: recycle or retire it
         bandX += w; const keep = new Set(scrIds());
