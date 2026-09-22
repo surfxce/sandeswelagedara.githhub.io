@@ -1165,7 +1165,7 @@
         <details class="more" style="margin-top:8px"><summary>Auto-rejected — review</summary><div class="photo-mod" id="d-rejected"></div></details>
         <details class="more" style="margin-top:8px"><summary>On the screen — take one down</summary><div class="photo-mod" id="d-approved"></div></details>
       </div>
-      <div><h2 class="sec">Shout-outs <span class="fine">— remove anything that slipped through</span></h2><div class="swap-list" id="d-ticks"></div></div>
+      <div><h2 class="sec">Shout-outs <span class="fine">— word list, then Gemini; remove anything that slipped through</span></h2><div class="swap-list" id="d-ticks"></div></div>
       <div><h2 class="sec">Spicy questions <span class="fine">— what execs are asking; red = it couldn't answer</span></h2><div class="swap-list" id="d-spicy"></div></div>
       <div><h2 class="sec">Incidents</h2><div class="swap-list" id="d-inc"></div></div>
       <div><h2 class="sec">Post a notice</h2>
@@ -3145,7 +3145,18 @@ Escalation: anything medical or dangerous — call 000 first, then tell an organ
       if (notAllowed(text) || notAllowed(by)) { msg.textContent = 'Sorry, this language is not allowed.'; return; }
       if (!db) { msg.textContent = 'No connection right now.'; return; }
       $(pre + '-send').disabled = true;
-      try { await ref('ticker').push({ text, by, t: now() }); msg.textContent = 'Sent — watch the big screen.'; $(pre + '-text').value = ''; }
+      try {
+        const pushed = await ref('ticker').push({ text, by, t: now() }); msg.textContent = 'Sent — checking it…'; $(pre + '-text').value = '';
+        const watch = ref('ticker/' + pushed.key); const t0 = Date.now();
+        const onv = (snap) => {
+          const x = snap.val();
+          if (!x) { msg.textContent = 'That one was taken down.'; watch.off('value', onv); return; }
+          if (x.ok === true) { msg.textContent = 'It\'s on the big screen.'; watch.off('value', onv); }
+          else if (x.ok === false) { msg.textContent = 'Sorry, this language is not allowed' + (x.ai && x.ai.reason && x.ai.verdict === 'block' ? ' — ' + esc(x.ai.reason).replace(/[.!]+$/, '') : '') + '.'; watch.off('value', onv); }
+          else if (Date.now() - t0 > 20000) { msg.textContent = 'Still checking — it\'ll show once it\'s through.'; watch.off('value', onv); }
+        };
+        watch.on('value', onv);
+      }
       catch (e) { msg.textContent = 'Sorry, this language is not allowed.'; }   // the rules said no
       $(pre + '-send').disabled = false;
     });
@@ -3155,7 +3166,7 @@ Escalation: anything medical or dangerous — call 000 first, then tell an organ
   let tickerHidden = false; try { tickerHidden = localStorage.getItem(TICK_LS) === '1'; } catch {}
   function renderTicker() {
     const bar = $('screen-ticker'); if (!bar) return;
-    const ids = Object.keys(ticks).sort((a, b) => (ticks[b].t || 0) - (ticks[a].t || 0)).slice(0, 25);
+    const ids = Object.keys(ticks).filter(i => ticks[i].ok === true).sort((a, b) => (ticks[b].t || 0) - (ticks[a].t || 0)).slice(0, 25);
     bar.hidden = tickerHidden || !ids.length; if (bar.hidden) return;
     const html = ids.map(i => `<span>“${esc(ticks[i].text)}”${ticks[i].by ? `<span class="by">— ${esc(ticks[i].by)}</span>` : ''}</span>`).join('');
     const track = $('ticker-track'); track.classList.remove('marquee'); track.innerHTML = html;
@@ -3176,7 +3187,7 @@ Escalation: anything medical or dangerous — call 000 first, then tell an organ
   function renderTicks() {
     const el = $('d-ticks'); if (!el) return;
     const ids = Object.keys(ticks).sort((a, b) => (ticks[b].t || 0) - (ticks[a].t || 0));
-    el.innerHTML = ids.length ? ids.map(i => { const x = ticks[i]; return `<div class="check" style="--c:var(--tan)"><b>“${esc(x.text)}” <span class="fine">— ${esc(x.by || 'anon')} · ${x.t ? clock(x.t) : ''}</span></b><button type="button" class="btn-small ghost" data-deltick="${i}" style="margin-top:6px">Remove</button></div>`; }).join('') : '<p class="fine">None yet.</p>';
+    el.innerHTML = ids.length ? ids.map(i => { const x = ticks[i]; const st = x.ok === true ? '' : x.ok === false ? `<div class="fine" style="color:#B23A2E">Blocked${x.ai && x.ai.reason ? ' — ' + esc(x.ai.reason) : ''}</div>` : '<div class="fine">Checking…</div>'; return `<div class="check" style="--c:${x.ok === false ? '#B23A2E' : x.ok === true ? 'var(--tan)' : 'var(--line)'}"><b>“${esc(x.text)}” <span class="fine">— ${esc(x.by || 'anon')} · ${x.t ? clock(x.t) : ''}</span></b>${st}<button type="button" class="btn-small ghost" data-deltick="${i}" style="margin-top:6px">Remove</button></div>`; }).join('') : '<p class="fine">None yet.</p>';
     el.querySelectorAll('[data-deltick]').forEach(b => b.addEventListener('click', () => { if (confirm('Remove this shout-out from the screen?')) ref('ticker/' + b.dataset.deltick).remove(); }));
   }
   function renderIncidents() {
