@@ -795,6 +795,11 @@
   .team-list .players span { padding: 4px 10px; border-radius: 14px; background: var(--paper); border: 1px solid var(--line); font-size: 13px; font-weight: 600; }
   .team-list .players span.exec { border-color: var(--maroon); color: var(--maroon); }
   .bm.startable { cursor: pointer; }
+  table.robin { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; }
+  table.robin th { text-align: left; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); padding: 4px 6px; }
+  table.robin td { padding: 6px; border-top: 1px solid var(--line); }
+  table.robin td:not(:first-child), table.robin th:not(:first-child) { text-align: center; width: 12%; }
+  table.robin tr.top td { background: #FFF8EE; font-weight: 700; }
   .match .gear { margin-left: auto; width: 30px; height: 30px; border-radius: 50%; border: 0; background: transparent; color: var(--ink-3); display: grid; place-items: center; }
   .match .gear svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
   .match .rename { display: grid; grid-template-columns: 1fr 1fr auto; gap: 6px; margin-top: 8px; }
@@ -1496,7 +1501,7 @@
           tasks:['Scorekeeping', 'Rotating teams', 'Ball bag'] },
     fb: { cat:'sport', name:'Football', where:'Field 7 (the main oval)', do:'Six pitches on the infield (Field 1 – 6), a referee on each and a scorer where we can spare one — 6 to 12 execs. 16 teams: group games 3:00 – 4:40, semis 4:50, final 5:30. Blow up on time — the bracket depends on it.',
           tasks:['Refereeing', 'Sideline clear', 'Team swaps'] },
-    ck: { cat:'sport', icon:'cricket', name:'Cricket', where:'Field 7, after the football', do:'Umpire the pitch and keep spectators behind the cones. T6 with a tennis ball: six overs a side, about two minutes an over. Games at 6:40, 7:20 and 8:00; scores to the committee by 8:30.',
+    ck: { cat:'sport', icon:'cricket', name:'Cricket', where:'Field 7, after the football', do:'Two pitches side by side on Field 7 — an umpire on each. T6 with a tennis ball, six overs a side. Two games at once at 6:40 and 7:20, then the final at 8:00 between the top two. Winner announced 8:50.',
           tasks:['Umpiring', 'Getting people off the field', 'Spectators behind cones'] },
     tk: { cat:'ticket', name:'Ticketing', where:'Main entry gate', do:'Scan Humanitix QR codes off phones and stamp wrists. Hold the line at the barrier — never leave the table unattended. Busiest 3:00 – 4:00; the gate drops to two people later.',
           tasks:['Scanning QR tickets', 'Wristbands', 'Holding the barrier', 'Questions & directions'] },
@@ -1700,7 +1705,7 @@
     { h: 'Sports', items: [
       { cat: 'sport', info: 'sport:fb', name: 'Football',   where: 'Field 7',                 blurb: '16 teams in four groups on six pitches, then semi-finals and a final. 3:00 – 6:00 pm.', tags: ['Six pitches', 'Groups 3:00 – 4:40', 'Semis 4:50', 'Final 5:30'] },
       { cat: 'sport', icon: 'volleyball', info: 'sport:vb', name: 'Volleyball', where: 'Beach volleyball courts', blurb: 'Knockout bracket on one court, social play on the other two — anyone can jump in. 3:00 – 5:00 pm.', tags: ['Bracket from 3:35', 'Social all afternoon'] },
-      { cat: 'sport', icon: 'cricket', info: 'sport:ck', name: 'Cricket',    where: 'Field 7',                 blurb: 'T6 — six overs a side with a tennis ball. 6:40 – 8:40 pm, winner announced at 8:50.', tags: ['Games 6:40 · 7:20 · 8:00'] },
+      { cat: 'sport', icon: 'cricket', info: 'sport:ck', name: 'Cricket',    where: 'Field 7',                 blurb: 'Four teams — UQISC, UQGS, UQSLA and a Mixed Team — round robin then a final. T6: six overs a side with a tennis ball. 6:20 brief, games 6:40 and 7:20, final 8:00.', tags: ['Two pitches', 'Final 8:00', 'Winner 8:50'] },
     ]},
     { h: 'Stage & entry', items: [
       { cat: 'stage',  info: 'stage', name: 'Performance stage', where: 'Stage', blurb: 'Bollywood, hip-hop, kuthu, folk, garba, bhangra and fusion — tap for the running order. Winners and the raffle are announced from here.', tags: ['Tap for times'] },
@@ -1769,6 +1774,7 @@
   const tm = (m) => fmt(m) + (m >= 720 ? ' pm' : '');
   // Approximate timetable from the bracket: matches run back to back per sport, byes take no slot.
   function timetableHtml(sport) {
+    if (ROBIN[sport]) { const cfg = ROBIN[sport]; return `<div class="round">${cfg.rounds.map((pairs, k) => pairs.map(([a, b]) => `<div class="tt"><span class="t">${esc(cfg.times[k])}</span><span class="tm won" style="grid-column:2/-1;text-align:left">${esc(a)} v ${esc(b)}</span></div>`).join('')).join('')}<div class="tt"><span class="t">${esc(cfg.finalTime)}</span><span class="tm won" style="grid-column:2/-1;text-align:left">Final — top two on the table</span></div></div><p class="fine">Two games at a time, two pitches on Field 7. Win 2, tie 1; top two play the final. Winner announced 8:50.</p>`; }
     const br = bracketFor(sport);
     if (!br || !br.rounds || !br.rounds[0]) return '<p class="fine">No bracket set up for this yet — check back closer to the time.</p>';
     const total = roundsTotal(br.rounds[0].length); const sc = SCHED[sport] || SCHED.vb; let slot = 0;
@@ -2503,8 +2509,20 @@
       { name: 'Solos',        players: ['Uday', 'Jai Bhatia', 'Sam Klaassen', 'Priyansh', 'Tanveer Salaria', 'Sajal Gururani'] },
     ],
     fb: [],
-    ck: [],
+    // Four teams, two pitches side by side on Field 7. Players to come from
+    // the cricket committee.
+    ck: [
+      { name: 'UQISC',      soc: 'UQISC', players: [] },
+      { name: 'UQGS',       soc: 'UQGS',  players: [] },
+      { name: 'UQSLA',      soc: 'UQSLA', players: [] },
+      { name: 'Mixed Team', players: [] },
+    ],
   };
+  // Cricket isn't a knockout: four fixtures over two rounds (two games at a
+  // time), then the top two on the table play the final. Points 2/1/0, and
+  // runs difference separates teams level on points until NRR is worked out
+  // by hand.
+  const ROBIN = { ck: { rounds: [[['UQISC', 'UQGS'], ['UQSLA', 'Mixed Team']], [['UQISC', 'UQSLA'], ['UQGS', 'Mixed Team']]], times: ['6:40 pm', '7:20 pm'], finalTime: '8:00 pm' } };
   // One selected sport, shared by the Teams and Brackets sections on both pages.
   let sportSel = 'vb'; try { sportSel = localStorage.getItem('onshift.sport') || 'vb'; } catch {}
   if (!SPORTS[sportSel]) sportSel = 'vb';
@@ -2945,7 +2963,7 @@
   const FEST_NOTES = `# Spice Road Experience — notes for Spicy
 The Spice Road Experience is a one-day cultural festival at the University of Queensland run by student societies: UQISC (Indian Students' Club) and its partner society UQSLA (Sri Lankan Association), with eleven clubs running marquees. It's outdoors on a sports ground from mid-afternoon into the evening: club stalls, food and fundraising stalls, volleyball, football and cricket competitions, and a performance stage. The people using this app are execs — student volunteers rostered onto duties in 30-minute blocks.
 Organisers: Archita, Sanuka (UQSLA president), Prabhas and Thinanthanan. Sandes built the app and handles anything technical. Questions the notes don't answer should go to Sandes (there's a Message Sandes button under every answer).
-Programme: bump-in from 1:00 pm (food trucks 1:00 – 1:40, business stalls 1:50 – 2:20, club stalls 2:00), MJ's speech 2:50, doors 3:00. Football 3:00 – 6:00 on Field 7, six small pitches (16 teams, groups then semis 4:50 and final 5:30); referees are execs. Tickets are Humanitix QR codes scanned at the gate. Volleyball 3:00 – 5:00 on the beach volleyball courts (one competitive court, two social). Performances on the stage 3:15 – 4:40 and 6:00 – 6:40. Cricket (T6, tennis ball) 6:40 – 8:40 on Field 7, winner announced 8:50. Raffle drawn 8:40. Bump-out 8:50 – 9:40. Food trucks (7) and business stalls (6) are on Field 6 all day, club marquees too (numbered 1 – 12). First aid: the UQIC venue manager at the First Aid marquee on Field 6. Security: Tru Security.
+Programme: bump-in from 1:00 pm (food trucks 1:00 – 1:40, business stalls 1:50 – 2:20, club stalls 2:00), MJ's speech 2:50, doors 3:00. Football 3:00 – 6:00 on Field 7, six small pitches (16 teams, groups then semis 4:50 and final 5:30); referees are execs. Tickets are Humanitix QR codes scanned at the gate. Volleyball 3:00 – 5:00 on the beach volleyball courts (one competitive court, two social). Performances on the stage 3:15 – 4:40 and 6:00 – 6:40. Cricket (T6, tennis ball) on Field 7, which it takes over once football finishes: four teams (UQISC, UQGS, UQSLA, Mixed Team), brief 6:20, two games at a time on two pitches at 6:40 and 7:20, final 8:00 between the top two on the table, winner announced 8:50. Raffle drawn 8:40. Bump-out 8:50 – 9:40. Food trucks (7) and business stalls (6) are on Field 6 all day, club marquees too (numbered 1 – 12). First aid: the UQIC venue manager at the First Aid marquee on Field 6. Security: Tru Security.
 Escalation: anything medical or dangerous — call 000 first, then tell an organiser. Emergency contacts are in the app under Settings → Emergency (never repeat phone numbers; point people there). Lost property, first aid, behaviour and equipment problems get logged under Settings → Log incident.`;
   const strip = (html) => { const d = document.createElement('div'); d.innerHTML = html; return d.textContent; };
   function spicyNotes() {
@@ -3759,16 +3777,63 @@ Escalation: anything medical or dangerous — call 000 first, then tell an organ
   // so it's on every phone and the public page with nothing set up.
   const presetBracket = (sport) => (TEAMS[sport] || []).length >= 2 ? buildBracket(TEAMS[sport].map(t => t.name)) : null;
   const bracketFor = (sport) => brackets[sport] || presetBracket(sport);
+  // Standings from whatever's been played: W/L/points, runs for and against.
+  function robinTable(sport) {
+    const cfg = ROBIN[sport]; const br = brackets[sport] || {};
+    const rows = Object.fromEntries((TEAMS[sport] || []).map(t => [t.name, { p: 0, w: 0, l: 0, t: 0, rf: 0, ra: 0 }]));
+    (br.rounds || []).slice(0, cfg.rounds.length).forEach(r => r.forEach(m => {
+      const sc = m.m && matches[m.m]; if (!sc || sc.status === 'live' || !rows[m.a] || !rows[m.b]) return;
+      rows[m.a].p++; rows[m.b].p++;
+      rows[m.a].rf += sc.sa; rows[m.a].ra += sc.sb; rows[m.b].rf += sc.sb; rows[m.b].ra += sc.sa;
+      if (sc.sa === sc.sb) { rows[m.a].t++; rows[m.b].t++; }
+      else { const wn = sc.sa > sc.sb ? m.a : m.b, ln = sc.sa > sc.sb ? m.b : m.a; rows[wn].w++; rows[ln].l++; }
+    }));
+    return Object.entries(rows).map(([name, x]) => ({ name, ...x, pts: x.w * 2 + x.t, diff: x.rf - x.ra }))
+      .sort((a, b) => b.pts - a.pts || b.diff - a.diff || a.name.localeCompare(b.name));
+  }
+  function robinCard(sport, editable) {
+    const cfg = ROBIN[sport]; const br = brackets[sport] || { rounds: [] }; const color = CATS.sport.color; const d = DUTIES[sport] || {};
+    const table = robinTable(sport); const played = table.reduce((n, r) => n + r.p, 0) / 2;
+    const fin = (br.rounds || [])[cfg.rounds.length] || [{ a: null, b: null, w: null, m: null }];
+    const top2 = played >= cfg.rounds.length * cfg.rounds[0].length ? table.slice(0, 2).map(r => r.name) : [null, null];
+    const game = (m, k, i, when) => {
+      const sc = m.m && matches[m.m]; const live = sc && sc.status === 'live';
+      const score = sc ? `<span class="sc">${sc.sa}–${sc.sb}</span>` : '';
+      const btn = editable && m.a && m.b && !sc ? `<button type="button" data-start="${sport}|${k}|${i}" data-names="${esc(m.a)} v ${esc(m.b)}" data-jump="1">Start</button>` : '';
+      return `<div class="bm ${btn ? 'startable' : ''}"><span class="tm r ${sc && !live && sc.sa > sc.sb ? 'won' : sc && !live && sc.sa < sc.sb ? 'lost' : !m.a ? 'tbd' : ''}">${m.a ? esc(m.a) : 'TBD'}</span><span class="mid">${live ? '<span class="live-tag">Live</span>' : ''}${score || btn || `<span class="fine">${esc(when)}</span>`}</span><span class="tm ${sc && !live && sc.sb > sc.sa ? 'won' : sc && !live && sc.sb < sc.sa ? 'lost' : !m.b ? 'tbd' : ''}">${m.b ? esc(m.b) : 'TBD'}</span></div>`;
+    };
+    const roundsHtml = cfg.rounds.map((pairs, k) => {
+      const saved = (br.rounds || [])[k] || [];
+      return `<div class="round"><h4>${esc(cfg.times[k])} — two games at once</h4>${pairs.map(([a, b], i) => game(saved[i] || { a, b, w: null, m: null }, k, i, cfg.times[k])).join('')}</div>`;
+    }).join('');
+    const finalHtml = `<div class="round"><h4>${esc(cfg.finalTime)} — Final</h4>${game({ a: fin[0].a || top2[0], b: fin[0].b || top2[1], w: fin[0].w, m: fin[0].m }, cfg.rounds.length, 0, cfg.finalTime)}</div>`;
+    const standings = `<table class="rgrid robin"><tr><th>Team</th><th>P</th><th>W</th><th>L</th><th>Pts</th><th>+/−</th></tr>${table.map((r, i) => `<tr class="${i < 2 && played ? 'top' : ''}"><td>${esc(r.name)}</td><td>${r.p}</td><td>${r.w}</td><td>${r.l}</td><td><b>${r.pts}</b></td><td>${r.diff > 0 ? '+' : ''}${r.diff}</td></tr>`).join('')}</table>`;
+    return `<div class="bbox" style="--c:${color}"><div class="head">${iconHtml(d.icon || 'cricket', color, 'sm')}<span class="lbl">${esc(SPORTS[sport])} — round robin + final</span></div>${roundsHtml}${finalHtml}${standings}<p class="fine">Win 2, tie 1, loss 0. Level on points: runs difference here, then net run rate by hand. Top two play the final.</p></div>`;
+  }
   function renderBrackets() {
     const k0 = sportSel; const br0 = bracketFor(k0);
     const none = `<p class="fine">No ${SPORTS[k0]} bracket yet.</p>`;
     const pub = $('public-brackets'); if (pub) { pub.innerHTML = br0 ? bracketDraw(k0, br0) : none; requestAnimationFrame(() => drawBracketLines(pub)); }
     const el = $('brackets');
-    el.innerHTML = br0 ? bracketCard(k0, br0, true) + (!brackets[k0] ? '<p class="fine">The draw as registered. Tap a match to start it.</p>' : '') : none;
+    if (ROBIN[k0]) { if (pub) { pub.innerHTML = robinCard(k0, false); } el.innerHTML = robinCard(k0, true); }
+    else el.innerHTML = br0 ? bracketCard(k0, br0, true) + (!brackets[k0] ? '<p class="fine">The draw as registered. Tap a match to start it.</p>' : '') : none;
     // tapping the match itself starts it (same as the Start button)
     el.querySelectorAll('.bm').forEach(row => { const st = row.querySelector('[data-start]'); if (st) { row.classList.add('startable'); row.addEventListener('click', e => { if (e.target.closest('button')) return; if (confirm(`Start ${st.dataset.names || 'this match'}? Scoring opens under Live matches.`)) st.click(); }); } });
     el.querySelectorAll('[data-start]').forEach(b => b.addEventListener('click', async () => {
-      const [sport, k, i] = b.dataset.start.split('|'); const br = bracketFor(sport); const m = br.rounds[k][i];
+      const [sport, kS, iS] = b.dataset.start.split('|'); const k = +kS, i = +iS;
+      if (ROBIN[sport]) {
+        const cfg = ROBIN[sport]; const br = brackets[sport] || { teams: (TEAMS[sport] || []).map(t => t.name), rounds: [], t: Date.now() };
+        br.rounds = br.rounds || [];
+        cfg.rounds.forEach((pairs, kk) => { br.rounds[kk] = br.rounds[kk] || pairs.map(([a, bb]) => ({ a, b: bb, w: null, m: null })); });
+        const tb = robinTable(sport); br.rounds[cfg.rounds.length] = br.rounds[cfg.rounds.length] || [{ a: null, b: null, w: null, m: null }];
+        if (k === cfg.rounds.length) { br.rounds[k][0].a = br.rounds[k][0].a || tb[0].name; br.rounds[k][0].b = br.rounds[k][0].b || tb[1].name; }
+        const mm = br.rounds[k][i];
+        const pushed = await ref('scores').push({ sport, a: mm.a, b: mm.b, sa: 0, sb: 0, status: 'live', t: now(), by: me ? me.first : '' });
+        br.rounds[k][i].m = pushed.key; br.t = Date.now(); await ref('brackets/' + sport).set(br);
+        if (b.dataset.jump) setTimeout(() => { const c = $('scores-live'); if (c) c.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 300);
+        return;
+      }
+      const br = bracketFor(sport); const m = br.rounds[k][i];
       const pushed = await ref('scores').push({ sport, a: m.a, b: m.b, sa: 0, sb: 0, status: 'live', t: now(), by: me ? me.first : '' });
       br.rounds[k][i].m = pushed.key; await saveBracket(sport, br);
       if (b.dataset.jump) setTimeout(() => { const c = $('scores-live'); if (c) c.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 300);
