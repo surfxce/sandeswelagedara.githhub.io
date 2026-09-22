@@ -103,6 +103,42 @@ export const reviewPhoto = onValueCreated(
   }
 );
 
+// ---------- Shout-outs ----------
+// Every shout-out that gets past the word list is read by Gemini before it
+// scrolls across the big screen. ok:true → shown; ok:false → kept for the
+// Desk, never shown. If the AI is switched off (config/aiReview) it's the
+// word list alone, as before.
+const SHOUT_BRIEF = `You moderate short "shout-outs" that scroll across a big screen at a university cultural festival run by student societies. The whole crowd, including families and children, reads them. A basic swear-word filter has already run; you catch what it can't.
+
+ALLOW only if the message is clearly fine for that screen: cheering on a team or society, thanking someone, a friendly joke, a compliment, excitement about the food or the stage.
+
+BLOCK if it contains or hints at ANY of: swearing or slurs in any language or spelling (including leetspeak, spaced-out letters, or made-up words that sound like them); anything sexual or about body parts; toilet or bodily-function humour (farts, poo, wee, vomit and the like); hate, stereotypes or "jokes" about any religion, ethnicity, nationality, caste, gender or sexuality — even ones phrased as praise or love ("I love X people" about a group is out); insults or mockery aimed at a person or a group; anything political or about a war or conflict; drugs, alcohol, or drunkenness; threats, violence, or self-harm; phone numbers, handles, links or advertising; anything you can't understand well enough to be sure of.
+
+When in doubt, BLOCK — a missed shout-out costs nothing, a bad one is on a 6-metre screen.
+
+Answer with JSON only: {"allow": true|false, "reason": "one short sentence"}`;
+
+export const reviewShout = onValueCreated(
+  { ref: '/spice-road/ticker/{id}', region: 'asia-southeast1', secrets: [GEMINI_API_KEY], memory: '256MiB', timeoutSeconds: 30 },
+  async (event) => {
+    const row = event.data.val();
+    if (!row || row.ok !== undefined || typeof row.text !== 'string') return;
+    const db = getDatabase();
+    const ref = db.ref(`spice-road/ticker/${event.params.id}`);
+    const cfg = (await db.ref('spice-road/config/aiReview').get()).val();
+    if (cfg === false) { await ref.update({ ok: true, ai: { verdict: 'skipped', reason: 'AI review is off', t: Date.now() } }); return; }
+    try {
+      const schema = { type: 'OBJECT', properties: { allow: { type: 'BOOLEAN' }, reason: { type: 'STRING' } }, required: ['allow', 'reason'] };
+      const { out, raw } = await generate([{ text: SHOUT_BRIEF }, { text: `SHOUT-OUT: ${row.text.slice(0, 120)}\nSIGNED: ${String(row.by || '').slice(0, 24) || '(no name)'}` }], schema, { maxOutputTokens: 1024 });
+      const allow = out.allow === true;
+      await ref.update({ ok: allow, ai: { verdict: allow ? 'allow' : 'block', reason: String(out.reason || raw || '').slice(0, 200), model: MODEL, t: Date.now() } });
+    } catch (e) {
+      // never fail open onto the screen
+      await ref.update({ ok: false, ai: { verdict: 'error', reason: 'Review failed: ' + String(e && e.message || e).slice(0, 120), model: MODEL, t: Date.now() } });
+    }
+  }
+);
+
 // ---------- Spicy ----------
 const SPICY_SYSTEM = `You are Spicy, the in-app helper for execs (student volunteers) running the Spice Road Experience festival. Answer using ONLY the notes you are given. Be short, warm and concrete: two or three sentences of plain text, no markdown, no headings, no bullet points. Use first names for other people, but don't greet the asker or use their name — go straight to the answer.
 When a question is about a duty, a piece of equipment, or who to talk to, name a specific person to go to and say where they are: the committee head if the notes name one, otherwise whoever is on that duty right now from the "who's where" section (e.g. "Ask Dhyan — he's on Football at the main oval this block"). Never guess a name, time, place or number that isn't in the notes.
