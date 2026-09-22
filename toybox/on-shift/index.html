@@ -475,6 +475,7 @@
   .bb-left { font-weight: 500; color: var(--ink-3); margin-left: 6px; }
   .sim-ctl { justify-content: center; gap: 12px; }
   .sim-ctl .sim-lbl { font-weight: 800; font-size: 15px; min-width: 12ch; text-align: center; }
+  .logi-nudge { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 0 0 12px; padding: 10px 12px; border-radius: 8px; background: #FFF8EE; border: 1.5px solid var(--tan); font-size: 14px; }
   .bb-sim { display: inline-block; margin-left: 8px; padding: 2px 6px; border-radius: 4px; background: #B23A2E; color: #fff; font-size: 10px; font-weight: 800; letter-spacing: .1em; vertical-align: middle; }
   .screen-exit { position: absolute; top: 20px; right: 20px; height: 48px; padding: 0 18px; border-radius: 24px; border: 0; background: rgba(245,239,227,.9); color: var(--maroon-deep); font-weight: 800; font-size: 16px; cursor: pointer; }
   .duty-row.tap, .soc-row.tap { cursor: pointer; }
@@ -1062,6 +1063,7 @@
 
     <!-- NOW -->
     <section class="view" id="view-now" role="tabpanel">
+      <div class="logi-nudge" id="logi-nudge" hidden><span>You're on <b>logistics</b> — turn on pings so every call for help reaches this phone.</span><button class="btn-small" id="logi-nudge-btn" type="button">Turn on</button></div>
       <div id="now-card"></div>
       <div id="now-moment"></div>
       <div id="now-next"></div>
@@ -1438,6 +1440,7 @@
     fund:   { label: 'Fundraising stall', color: 'var(--c-fund)',   icon: 'heart' },
     free:   { label: 'Free',              color: 'var(--c-free)',   icon: 'coffee' },
     hands:  { label: 'All hands',         color: 'var(--c-hands)',  icon: 'box' },
+    logi:   { label: 'Logistics',         color: 'var(--c-hands)',  icon: 'box' },
     photo:  { label: 'Photo',             color: 'var(--c-photo)',  icon: 'camera' },
     play:   { label: 'Playing',           color: 'var(--c-play)',   icon: 'football' },
   };
@@ -1480,14 +1483,16 @@
           tasks:['Your society\'s team', '5 min early', 'Not umpiring'] },
     'photo-pres': { cat:'photo', name:'Presidents\' photo', where:'Performance stage', do:'All club presidents at the stage steps for the group photo. Be there two minutes early — the photographer has a five-minute window before the next act.',
           tasks:['Presidents only', 'Stage steps', '2 min early'] },
+    logi: { cat:'logi', name:'Logistics', where:'Everywhere', do:'Floating. Fix what\'s broken, move gear, back up whichever team is short. Every swap request and call for help lands in your bell — take the ones nobody else has.',
+          tasks:['Equipment', 'Backing up teams', 'Answering the bell'] },
     free: { cat:'free', name:'Free', where:'Enjoy the festival', do:'You\'re off this block. Grab food, catch the stage — and be back a few minutes before your next duty.' },
     setup: { cat:'hands', name:'Setup', where:'All hands · 2:00 – 3:00 pm', do:'Everyone on deck. Marquees, tables, signage, sports gear — check in with your club lead for what to carry.',
           tasks:['Marquees', 'Tables & signage', 'Sports gear'] },
     packup: { cat:'hands', name:'Pack-up', where:'All hands · 9:00 – 10:00 pm', do:'Everyone on deck. Strike marquees, bag rubbish, return sports gear, and sweep your last zone before you go.',
           tasks:['Strike marquees', 'Rubbish', 'Return gear', 'Sweep your zone'] },
   };
-  CLUBS.forEach(c => { DUTIES['stall-' + c] = { cat:'club', name: c + ' stall', where: c + ' marquee, Field 6', club: c, do: 'Staff your club\'s marquee. Talk to visitors, run sign-ups, keep the table tidy.',
-          tasks:['Talking to visitors', 'Sign-ups', 'Table tidy'] }; });
+  CLUBS.forEach(c => { DUTIES['stall-' + c] = { cat:'club', name: c + ' stall', where: c + ' marquee, Field 6', club: c, do: 'Four of you: two on the stall — talk to visitors, run sign-ups, keep the table tidy — and two on content. Use this time to shoot photos and video for Spice Road and your society\'s socials; send the best ones in from What\'s On.',
+          tasks:['Stall: visitors & sign-ups', 'Stall: table tidy', 'Content: photos & video'] }; });
 
   // Roster — not in this file. It ships encrypted as roster.enc and is
   // decrypted in the browser with the key from the link execs were sent
@@ -1532,7 +1537,7 @@
       let out = ppl.slice();
       taken.forEach(sw => {
         if (sw.duty === id && out.includes(sw.from)) { out = out.filter(p => p !== sw.from && p !== sw.to); out.push(sw.to); }
-        else if (out.includes(sw.to)) { out = out.filter(p => p !== sw.to); if (!out.includes(sw.from)) out.push(sw.from); }   // the requester takes the taker's old duty
+        else if (out.includes(sw.to)) { out = out.filter(p => p !== sw.to); if (id !== 'logi' && !out.includes(sw.from)) out.push(sw.from); }   // the requester takes the taker's old duty — unless the taker was logistics, then they're just free
       });
       return [id, out];
     }).filter(([, ppl]) => ppl.length);
@@ -1544,6 +1549,7 @@
     return { id:'free', people:[] };
   }
   const isFree = (first, i) => i >= 0 && i < BLOCKS && assignmentFor(first, i).id === 'free';
+  const isLogi = (first, i) => i >= 0 && i < BLOCKS && assignmentFor(first, i).id === 'logi';
   const soc = (first) => { const p = byFirst[first.toLowerCase()]; return p.s.join(' · ') + (p.role ? ' · ' + p.role : ''); };
   const full = (first) => byFirst[first.toLowerCase()].n;
   const esc = (s) => s.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -1830,7 +1836,7 @@
     const d = DUTIES[a.id]; const cat = CATS[d.cat];
     const partners = a.people.length
       ? `<div class="with"><span class="eyebrow">${d.cat === 'play' ? 'Teammates' : 'With'}</span><div class="partner-list">${a.people.map(p => `<div class="partner"><span data-dm="${esc(p)}">${pfp(p)}${esc(full(p))}</span><span class="soc">${esc(soc(p))}</span></div>`).join('')}</div></div>`
-      : (['free', 'hands', 'photo', 'play'].includes(d.cat) ? '' : `<div class="with"><span class="eyebrow">With</span><div class="partner">Solo this block</div></div>`);
+      : (['free', 'hands', 'photo', 'play', 'logi'].includes(d.cat) ? '' : `<div class="with"><span class="eyebrow">With</span><div class="partner">Solo this block</div></div>`);
     // status line: the pulsing dot says "this block is on now"; the category
     // only follows when it says something the heading doesn't
     const status = live ? 'Live' : 'Preview';
@@ -2187,6 +2193,12 @@
     renderStageNow();
   }, 10000);
 
+  $('logi-nudge-btn').addEventListener('click', async () => {
+    let perm = Notification.permission;
+    if (perm === 'default') { try { perm = await Notification.requestPermission(); } catch { perm = 'denied'; } }
+    if (perm === 'granted') { nudge = true; $('nudge').setAttribute('aria-checked', 'true'); pingLogi(); }
+    renderLogiNudge();
+  });
   // ---------- Nudge toggle (best effort) ----------
   $('nudge').addEventListener('click', async () => {
     const btn = $('nudge'); const st = $('nudge-state');
@@ -2311,7 +2323,26 @@
   const SEEN_LS = 'onshift.seen';
   let seen = 0; try { seen = Number(localStorage.getItem(SEEN_LS)) || 0; } catch {}
   function unreadCount() { return Object.values(bcasts).filter(b => (b.t || 0) > seen).length + swapsForMe().length + helpsForMe().length + dmUnread(); }
+  // Logistics gets a real notification for every new swap request and call
+  // for help (on top of the bell), because they're the ones meant to answer.
+  const pinged = new Set(); let pingArmed = false;
+  function pingLogi() {
+    if (!me || !('Notification' in window) || Notification.permission !== 'granted') return;
+    const lb = liveBlock(); const cur = lb !== null ? lb : block; if (!isLogi(me.first, cur)) return;
+    const fresh = [];
+    helpsForMe().forEach(([id, h]) => { if (!pinged.has('h' + id)) { pinged.add('h' + id); fresh.push({ title: 'Needs more execs — ' + ((DUTIES[h.duty] || {}).name || ''), body: `${h.from} · ${(DUTIES[h.duty] || {}).where || ''}` }); } });
+    swapsForMe().forEach(([id, sw]) => { if (!pinged.has('s' + id)) { pinged.add('s' + id); fresh.push({ title: 'Swap request — ' + ((DUTIES[sw.duty] || {}).name || ''), body: `${sw.from} wants out · ${range(sw.block)}` }); } });
+    if (!pingArmed) { pingArmed = true; return; }   // the first pass just learns what's already there
+    fresh.forEach(n => { try { new Notification(n.title, { body: n.body, tag: n.title }); } catch {} });
+    if (fresh.length) { try { navigator.vibrate && navigator.vibrate([200, 100, 200]); } catch {} }
+  }
+  function renderLogiNudge() {
+    const el = $('logi-nudge'); if (!el) return;
+    const on = me && Array.from({ length: BLOCKS }, (_, i) => i).some(i => isLogi(me.first, i)) && 'Notification' in window && Notification.permission === 'default';
+    el.hidden = !on;
+  }
   function renderBell() {
+    renderLogiNudge();
     const n = unreadCount(); const el = $('bell-n');
     el.hidden = !n; el.textContent = n > 9 ? '9+' : n;
   }
@@ -2365,7 +2396,7 @@
   const sameSociety = (a, b) => { const pa = byFirst[a.toLowerCase()], pb = byFirst[b.toLowerCase()]; return !!(pa && pb && pa.s.some(c => pb.s.includes(c))); };
   // Under the duty card: two buttons side by side. Each turns into its status once used.
   function swapControl(a) {
-    if (!db || !me || block < 0 || block >= BLOCKS || ['free', 'hands', 'photo'].includes(DUTIES[a.id].cat)) return '';
+    if (!db || !me || block < 0 || block >= BLOCKS || ['free', 'hands', 'photo', 'logi'].includes(DUTIES[a.id].cat)) return '';
     const mine = mySwapFor(block); const playing = DUTIES[a.id].cat === 'play';
     if (mine) {
       const [id, sw] = mine;
@@ -2415,7 +2446,7 @@
   let helps = {};
   const myHelpFor = (i) => Object.entries(helps).find(([, h]) => me && h.from === me.first && h.block === i && h.status === 'open');
   function helpControl(a) {
-    if (!db || !me || block < 0 || block >= BLOCKS || ['free', 'hands', 'photo', 'play'].includes(DUTIES[a.id].cat)) return '';
+    if (!db || !me || block < 0 || block >= BLOCKS || ['free', 'hands', 'photo', 'play', 'logi'].includes(DUTIES[a.id].cat)) return '';
     const mine = myHelpFor(block);
     if (mine) {
       const [id, h] = mine; const coming = Object.keys(h.responders || {});
@@ -2432,7 +2463,7 @@
     });
     document.querySelectorAll('[data-closehelp]').forEach(b => b.addEventListener('click', () => ref('help/' + b.dataset.closehelp).update({ status: 'closed', tt: Date.now() })));
   }
-  const helpsForMe = () => Object.entries(helps).filter(([, h]) => me && h.status === 'open' && h.from !== me.first && !(h.declines || {})[me.first] && !(h.responders || {})[me.first] && isFree(me.first, h.block));
+  const helpsForMe = () => Object.entries(helps).filter(([, h]) => me && h.status === 'open' && h.from !== me.first && !(h.declines || {})[me.first] && !(h.responders || {})[me.first] && (isFree(me.first, h.block) || isLogi(me.first, h.block)));
   function helpCard([id, h], role) {
     const d = DUTIES[h.duty] || {}; const color = CATS[d.cat] ? CATS[d.cat].color : 'var(--line)';
     const coming = Object.keys(h.responders || {});
@@ -2530,6 +2561,7 @@
     { icon: 'tent',    color: 'var(--c-club)',   t: 'Map', k: 'map where location pinch zoom pins field 7 field 6 first aid toilets satellite where am i blue dot gps', p: '<b>Simple</b> is the ground plan, <b>Satellite</b> is real imagery — both have pins for football and cricket (Field 7), volleyball (the beach courts), food trucks and stalls (Field 6), the grandstand, the entry, first aid, toilets and the assembly point. Tap a pin for what\'s there. On Satellite, the <b>target</b> button shows where you are as a blue dot (your phone will ask once). Drag to pan, pinch to zoom, double-tap to zoom in.' },
     { icon: 'sparkle', color: 'var(--c-ticket)', t: "What's On", k: 'whats on stalls timetable stage performances businesses clubs photos upload', p: 'Everything at the festival. Tap a sport for the match timetable, the stage for the running order, a business for what they do, a club for who\'s on the marquee. Send festival photos from the bottom.' },
     { icon: 'camera',  color: 'var(--c-photo)',  t: 'Photos & big screen', k: 'photos upload approve big screen tv slideshow', p: 'Anyone can send a photo in; organisers approve them; approved photos roll across the big screen. <b>Big screen mode</b> is under Settings for whoever runs the TV.' },
+    { icon: 'box',     color: 'var(--c-hands)',  t: 'Logistics', k: 'logistics floating organisers help everything ping notification', p: 'The floating team (Nandos, Prabhas, Archita, Sanuli, Devashri, Tanisha). Not rostered on any one thing — they back up whichever team is short. Every <b>swap request</b> and <b>call for help</b> lands in their bell, and with pings turned on, on their phone too.' },
     { icon: 'sparkle', color: 'var(--tan)',      t: 'Spicy', k: 'spicy ask question help bot chat ai assistant who do i talk to where is', p: 'Settings → <b>Spicy</b>. Ask anything — what your duty involves, who\'s on what right now, how a part of the app works. It answers from the roster and this manual, points you to a person when there is one, and says so when it doesn\'t know. When the answer is a button or a place in the app, tap <b>Show me</b> and Spicy spotlights it on screen. Every answer has a <b>Message Sandes</b> button.' },
     { icon: 'box',     color: 'var(--c-hands)',  t: 'Settings', k: 'settings gear notification notify switch user sign out big screen manual emergency spicy', p: 'The gear. Big screen mode, a notification when the block changes, switch who\'s signed in, <b>Spicy</b> (ask it anything), this manual, <b>Log incident</b> (first aid, lost property, behaviour, equipment — timestamped for the organisers), and the red <b>Emergency</b> button with who to call.' },
     { icon: 'heart',   color: '#B23A2E',         t: 'Emergency', k: 'emergency call phone number urgent 000 organiser help', p: 'Settings → <b>Emergency</b>. A big <b>Call 000</b> button, then every organiser with a Call button next to their name. Anything medical or dangerous: <b>000 first</b>.' },
@@ -2569,7 +2601,7 @@
   // the Now steps need a block where you actually have a duty with buttons on it
   function tourDemoBlock() {
     if (!me) return;
-    const ok = (i) => !['free', 'hands', 'photo', 'play'].includes(DUTIES[assignmentFor(me.first, i).id].cat);
+    const ok = (i) => !['free', 'hands', 'photo', 'play', 'logi'].includes(DUTIES[assignmentFor(me.first, i).id].cat);
     if (block >= 0 && block < BLOCKS && ok(block)) return;
     for (let i = 0; i < BLOCKS; i++) if (ok(i)) { live = false; block = i; render(); return; }
   }
@@ -3327,6 +3359,7 @@ Escalation: anything medical or dangerous — call 000 first, then tell an organ
   const swapMode = (sw) => sw.mode || ((DUTIES[sw.duty] || {}).cat === 'play' ? 'team' : 'free');
   const swapsForMe = () => Object.entries(swaps).filter(([, sw]) => {
     if (!me || sw.status !== 'open' || sw.from === me.first || (sw.declines || {})[me.first]) return false;
+    if (isLogi(me.first, sw.block)) return true;   // logistics can take anything, anywhere
     const mode = swapMode(sw); const myId = assignmentFor(me.first, sw.block).id; const myCat = (DUTIES[myId] || {}).cat;
     // stalls belong to a society: the taker must be in the requester's stall's society, and
     // the requester must be in the taker's stall's society (they'd be swapping onto it)
@@ -3347,7 +3380,7 @@ Escalation: anything medical or dangerous — call 000 first, then tell an organ
       const play = d.cat === 'play'; const mode = swapMode(sw);
       const myA = me ? assignmentFor(me.first, sw.block) : null; const myD = myA ? DUTIES[myA.id] : null;
       const onDuty = myD && myD.cat !== 'free';
-      const trade = role === 'take' && onDuty ? `<span class="when">You'd ${play ? 'play' : 'take ' + esc(d.name)}; <b>${esc(sw.from)}</b> takes your <b>${esc(myD.name)}</b>.</span>` : '';
+      const trade = role === 'take' && onDuty ? `<span class="when">You'd ${play ? 'play' : 'take ' + esc(d.name)}; <b>${esc(sw.from)}</b> ${myD.cat === 'logi' ? 'gets a break' : `takes your <b>${esc(myD.name)}</b>`}.</span>` : '';
       const waitingFor = { team: 'a teammate', any: 'anyone', duty: 'execs on ' + wantNames(sw), free: 'a free exec' }[mode];
       const verb = mode === 'team' ? 'needs a sub for' : mode === 'duty' ? `would rather be on <b>${esc(wantNames(sw))}</b> than` : mode === 'any' ? 'wants a swap out of' : 'wants a break from';
       const acts = role === 'take'
@@ -3506,7 +3539,7 @@ Escalation: anything medical or dangerous — call 000 first, then tell an organ
     ref('scores').limitToLast(60).on('value', snap => { matches = snap.val() || {}; renderScores(); settleBrackets(); renderBrackets(); renderDesk(); if (scrOn) scrScores(); }, () => { unavailable($('scores-live'), 'scores'); if (pub) unavailable(pub, 'scores'); });
     ref('brackets').on('value', snap => { brackets = snap.val() || {}; renderBrackets(); }, () => { unavailable($('brackets'), 'brackets'); const pb = $('public-brackets'); if (pb) unavailable(pb, 'brackets'); });
     ref('broadcasts').limitToLast(30).on('value', snap => { bcasts = snap.val() || {}; renderBcasts(); }, () => { unavailable($('bcast-list'), 'updates'); });
-    ref('swaps').limitToLast(60).on('value', snap => { swaps = snap.val() || {}; if (!$('shell').hidden) { render(); renderSwaps(); renderBell(); } }, () => { unavailable($('swap-list'), 'swaps'); });
+    ref('swaps').limitToLast(60).on('value', snap => { swaps = snap.val() || {}; if (!$('shell').hidden) { render(); renderSwaps(); renderBell(); pingLogi(); } }, () => { unavailable($('swap-list'), 'swaps'); });
     ref('dm').on('value', snap => { dms = snap.val() || {}; if (dmOpen) renderDmThread(); renderDmConvos(); renderBell(); }, () => {});
     ref('photos').orderByChild('status').equalTo('approved').on('value', snap => { phApproved = snap.val() || {}; renderPublicPhotos(); renderPhotoMod(); if (scrOn) bandSync(); }, () => {});
     ref('photos').orderByChild('status').equalTo('pending').on('value', snap => { phPending = snap.val() || {}; renderPhotoMod(); }, () => {});
@@ -3516,7 +3549,7 @@ Escalation: anything medical or dangerous — call 000 first, then tell an organ
     ref('incidents').limitToLast(100).on('value', snap => { incidents = snap.val() || {}; renderIncidents(); }, () => {});
     ref('pfp').on('value', snap => { pfps = snap.val() || {}; if (me && myPic && !pfps[me.first.toLowerCase()]) ref('pfp/' + me.first.toLowerCase()).set(myPic).catch(() => {}); if (!$('shell').hidden) { render(); $('who-pfp').innerHTML = me ? pfp(me.first, 32) : ''; if (tourOn) renderTour(); if (!$('set-sheet').hidden) renderPhotoRow($('set-photo-msg') ? $('set-photo-msg').textContent : ''); } }, () => {});
     ref('sim').on('value', snap => { sim = snap.val(); if (!$('shell').hidden) { const lb = liveBlock(); live = lb !== null; if (live) block = lb; else if (block < 0 || block >= BLOCKS) block = 0; render(); renderSim(); } renderStageNow(); }, () => {});
-    ref('help').limitToLast(60).on('value', snap => { helps = snap.val() || {}; if (!$('shell').hidden) { render(); renderHelps(); renderBell(); } }, () => { unavailable($('help-list'), 'help calls'); });
+    ref('help').limitToLast(60).on('value', snap => { helps = snap.val() || {}; if (!$('shell').hidden) { render(); renderHelps(); renderBell(); pingLogi(); } }, () => { unavailable($('help-list'), 'help calls'); });
   }
   startLive();
 
