@@ -1593,15 +1593,21 @@
   // anyone touching the roster. Team names in the bracket match societies
   // with or without the UQ (UQSLA / SLA).
   const teamKey = (t) => String(t || '').toUpperCase().replace(/^UQ/, '').replace(/[^A-Z]/g, '');
-  function teamOut(sport, first) {
+  // Released from the block AFTER the one they lost in — the game they played
+  // still shows as played. Once the final's gone, everyone's released.
+  function teamOut(sport, first, i) {
     const br = brackets && brackets[sport]; if (!br || !br.rounds || !br.rounds[0]) return false;
     const p = byFirst[first.toLowerCase()]; if (!p) return false;
     const mine = new Set(p.s.map(teamKey));
-    const inBracket = br.rounds[0].some(m => mine.has(teamKey(m.a)) || mine.has(teamKey(m.b)));
-    if (!inBracket) return false;
+    if (!br.rounds[0].some(m => mine.has(teamKey(m.a)) || mine.has(teamKey(m.b)))) return false;
+    const total = roundsTotal(br.rounds[0].length);
     const last = br.rounds[br.rounds.length - 1];
-    if (last.length === 1 && last[0].w) return true;   // the final's been played: everyone's done
-    return br.rounds.some(r => r.some(m => m.w && (mine.has(teamKey(m.a)) || mine.has(teamKey(m.b))) && !mine.has(teamKey(m.w))));
+    if (last.length === 1 && last[0].w) return i > roundBlock(sport, br.rounds.length - 1, total);
+    for (let k = 0; k < br.rounds.length; k++) {
+      const lost = br.rounds[k].some(m => m.w && (mine.has(teamKey(m.a)) || mine.has(teamKey(m.b))) && !mine.has(teamKey(m.w)));
+      if (lost) return i > roundBlock(sport, k, total);
+    }
+    return false;
   }
   // Which block each round is played in, counted back from the final. The
   // roster file only ever holds a player for the FIRST round (that block is
@@ -1615,7 +1621,7 @@
   let rosterVersion = 0; const rowsCache = new Map();
   function rowsFor(i) {
     const hit = rowsCache.get(i); if (hit && hit.v === rosterVersion) return hit.rows;
-    const rows = ROSTER[i].map(([id, ppl]) => [id, id.startsWith('play-') ? ppl.filter(p => !teamOut(id.slice(5), p)) : ppl.slice()]);
+    const rows = ROSTER[i].map(([id, ppl]) => [id, id.startsWith('play-') ? ppl.filter(p => !teamOut(id.slice(5), p, i)) : ppl.slice()]);
     const cover = {};
     // ---- winners: held for the next round, duty vacated ----
     const vacancies = [];
