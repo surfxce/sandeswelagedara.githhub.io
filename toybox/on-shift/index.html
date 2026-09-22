@@ -627,6 +627,10 @@
   .next.soon .d, .next.soon .t { color: var(--ink-3); }
   .rs-row.soon .bar { background: transparent; border-left: 2px dashed var(--ink-3); border-radius: 0; }
   .rs-row.soon .d { color: var(--ink-3); }
+  .rs-row.away { opacity: .5; }
+  .rs-row.away .bar { background: transparent; border-left: 2px dotted var(--ink-3); border-radius: 0; }
+  .duty-card.away { background: #F6F3EC; box-shadow: none; }
+  .duty-card.away .duty-name, .duty-card.away .duty-where, .duty-card.away .duty-do { color: var(--ink-3); }
   .rs-row .bar { width: 8px; height: 100%; min-height: 36px; border-radius: 2px; background: var(--c); }
   .rs-row .d { font-weight: 700; font-size: 16px; line-height: 1.25; }
   .rs-row .d small { display: block; font-weight: 500; color: var(--ink-2); font-size: 14px; }
@@ -1499,6 +1503,7 @@
     fund:   { label: 'Fundraising stall', color: 'var(--c-fund)',   icon: 'heart' },
     free:   { label: 'Free',              color: 'var(--c-free)',   icon: 'coffee' },
     soon:   { label: 'Not yet rostered',  color: 'var(--ink-3)',    icon: 'coffee' },
+    away:   { label: 'Not on site',       color: 'var(--ink-3)',    icon: 'box' },
     hands:  { label: 'All hands',         color: 'var(--c-hands)',  icon: 'box' },
     logi:   { label: 'Logistics',         color: 'var(--c-hands)',  icon: 'box' },
     photo:  { label: 'Photo',             color: 'var(--c-photo)',  icon: 'camera' },
@@ -1546,6 +1551,7 @@
     logi: { cat:'logi', name:'Logistics', where:'Everywhere', do:'Floating. Fix what\'s broken, move gear, back up whichever team is short. Every swap request and call for help lands in your bell — take the ones nobody else has.',
           tasks:['Equipment', 'Backing up teams', 'Answering the bell'] },
     free: { cat:'free', name:'Free', where:'Enjoy the festival', do:'You\'re off this block. Grab food, catch the stage — and be back a few minutes before your next duty.' },
+    away: { cat:'away', name:'Not on site', where:'Off the ground', do:'You said you\'re not at the festival for this block, so nothing is rostered and nobody will call you for help. If that\'s changed, tell an organiser and they\'ll put you back in.' },
     soon: { cat:'soon', name:'Check back soon', where:'Nothing rostered yet', do:'Nothing\'s on you for this block so far, but that can change — if a team wins through or someone needs cover, a job can land here. Check back closer to the time. If it\'s still empty when the block starts, it\'s yours.' },
     setup: { cat:'hands', name:'Setup', where:'All hands · 2:00 – 3:00 pm', do:'Everyone on deck. Marquees, tables, signage, sports gear — check in with your club lead for what to carry.',
           tasks:['Marquees', 'Tables & signage', 'Sports gear'] },
@@ -1646,7 +1652,7 @@
     // ---- cover: free execs step into the vacated duties, same result on every phone ----
     if (vacancies.length) {
       const busy = new Set(rows.flatMap(r => r[1]));
-      const pool = PEOPLE.map(p => p.first).filter(f => !busy.has(f)).sort();
+      const pool = PEOPLE.map(p => p.first).filter(f => !busy.has(f) && onSite(f, i)).sort();
       vacancies.forEach(v => {
         const club = (DUTIES[v.id] || {}).club;
         const j = pool.findIndex(f => !club || byFirst[f.toLowerCase()].s.includes(club));
@@ -1670,9 +1676,12 @@
     return out;
   }
   const sameSociety = (a, b) => { const pa = byFirst[a.toLowerCase()], pb = byFirst[b.toLowerCase()]; return !!(pa && pb && pa.s.some(c => pb.s.includes(c))); };
+  // `a` is the blocks this exec said they'd be at the festival. Missing = all day.
+  const onSite = (first, i) => { const p = byFirst[first.toLowerCase()]; return !p || !p.a || p.a.includes(i); };
   function assignmentFor(first, i) {
     if (i < 0) return { id:'setup', people:[] };
     if (i >= BLOCKS) return { id:'packup', people:[] };
+    if (!onSite(first, i)) return { id:'away', people:[] };
     const rows = rowsFor(i);
     for (const [id, ppl] of rows) if (ppl.includes(first)) {
       // on a Playing block the others on court are opponents, not teammates
@@ -1685,7 +1694,8 @@
   // A free block is only promised once it's here: until the block is live (or
   // past), an empty slot shows as "Check back soon" so a last-minute job
   // never feels like something taken away.
-  const tentative = (a, i) => { if (a.id !== 'free') return a; const lb = liveBlock(); const locked = lb !== null && i <= lb; return locked ? a : { ...a, id: 'soon' }; };
+  const tentative = (a, i) => { if (a.id !== 'free') return a;
+    if (!(me && onSite(me.first, i))) return a; const lb = liveBlock(); const locked = lb !== null && i <= lb; return locked ? a : { ...a, id: 'soon' }; };
   const isLogi = (first, i) => i >= 0 && i < BLOCKS && assignmentFor(first, i).id === 'logi';
   const soc = (first) => { const p = byFirst[first.toLowerCase()]; return p.s.join(' · ') + (p.role ? ' · ' + p.role : ''); };
   const full = (first) => byFirst[first.toLowerCase()].n;
@@ -1985,7 +1995,7 @@
     const d = DUTIES[a.id]; const cat = CATS[d.cat];
     const partners = a.people.length
       ? `<div class="with"><span class="eyebrow">${d.cat === 'play' ? 'Teammates' : 'With'}</span><div class="partner-list">${a.people.map(p => `<div class="partner"><span data-dm="${esc(p)}">${pfp(p)}${esc(full(p))}</span><span class="soc">${esc(soc(p))}</span></div>`).join('')}</div></div>`
-      : (['free', 'soon', 'hands', 'photo', 'play', 'logi'].includes(d.cat) ? '' : `<div class="with"><span class="eyebrow">With</span><div class="partner">Solo this block</div></div>`);
+      : (['free', 'soon', 'away', 'hands', 'photo', 'play', 'logi'].includes(d.cat) ? '' : `<div class="with"><span class="eyebrow">With</span><div class="partner">Solo this block</div></div>`);
     // status line: the pulsing dot says "this block is on now"; the category
     // only follows when it says something the heading doesn't
     const status = live ? 'Live' : 'Preview';
@@ -2017,7 +2027,7 @@
     }
     $('runsheet').hidden = false;
     const a = assignmentFor(me.first, block);
-    $('now-card').innerHTML = dutyCard(tentative(a, block), tentative(a, block).id === 'soon' ? 'soon' : '') + controlsHtml(a);
+    $('now-card').innerHTML = dutyCard(tentative(a, block), { soon: 'soon', away: 'away' }[tentative(a, block).id] || '') + controlsHtml(a);
     $('now-moment').innerHTML = momentsFor(block).map(momentHtml).join('');
     bindHelpControl(); bindSwapControl();
 
@@ -2026,7 +2036,7 @@
     else {
       const nb = block + 1; const na = tentative(assignmentFor(me.first, nb), nb); const nd = DUTIES[na.id];
       const t = nb >= BLOCKS ? '9:00 pm' : fmt(DAY_START + nb * 30) + ' pm';
-      const withTxt = na.people.length ? 'with ' + names(na.people) : (nd.cat === 'free' ? 'nothing rostered' : nd.cat === 'soon' ? 'check back closer to the time' : nd.cat === 'hands' ? 'everyone' : nd.cat === 'photo' ? 'all presidents' : 'solo');
+      const withTxt = na.people.length ? 'with ' + names(na.people) : (nd.cat === 'free' ? 'nothing rostered' : nd.cat === 'away' ? 'you\'re not here this block' : nd.cat === 'soon' ? 'check back closer to the time' : nd.cat === 'hands' ? 'everyone' : nd.cat === 'photo' ? 'all presidents' : 'solo');
       $('now-next').innerHTML = `<div class="next ${nd.cat === 'soon' ? 'soon' : ''}" style="--c:${CATS[nd.cat].color}"><span class="eyebrow">Next up</span>${dutyIcon(nd, 'sm')}<span class="t">${t}</span><span class="d">${esc(nd.name)}${nd.club ? '' : ''}<small>${esc(nd.where)} · ${esc(withTxt)}</small></span></div>`;
     }
 
@@ -2035,9 +2045,9 @@
       const x = tentative(assignmentFor(me.first, i), i); const d = DUTIES[x.id];
       const w = x.people.length ? 'with ' + names(x.people) : (d.cat === 'free' || d.cat === 'soon' || d.cat === 'photo' ? '' : 'solo');
       const mo = momentsFor(i).map(m => `<div class="rs-row mo" style="--c:var(--c-photo)"><span class="t">${esc(m.at.replace(' pm', ''))}</span><span class="bar"></span>${iconHtml('camera', 'var(--c-photo)', 'sm')}<span class="d">${esc(m.name)}<small>${esc(m.where)} · everyone</small></span></div>`).join('');
-      return `<div class="rs-row ${i === block ? 'now' : ''} ${d.cat === 'soon' ? 'soon' : ''}" style="--c:${CATS[d.cat].color}">
+      return `<div class="rs-row ${i === block ? 'now' : ''} ${d.cat === 'soon' ? 'soon' : ''} ${d.cat === 'away' ? 'away' : ''}" style="--c:${CATS[d.cat].color}">
         <span class="t">${fmt(DAY_START + i * 30)}</span><span class="bar"></span>${dutyIcon(d, 'sm')}
-        <span class="d">${esc(d.name)}<small>${esc(d.cat === 'free' ? 'Enjoy the festival' : d.cat === 'soon' ? 'Check back closer to the time' : d.where + (w ? ' · ' + w : ''))}</small></span>
+        <span class="d">${esc(d.name)}<small>${esc(d.cat === 'free' ? 'Enjoy the festival' : d.cat === 'soon' ? 'Check back closer to the time' : d.cat === 'away' ? 'Not at the festival this block' : d.where + (w ? ' · ' + w : ''))}</small></span>
       </div>` + mo;
     }).join('');
   }
@@ -2698,7 +2708,7 @@
   const mySwapFor = (i) => Object.entries(swaps).find(([, sw]) => me && sw.from === me.first && sw.block === i && sw.status !== 'withdrawn');
   // Under the duty card: two buttons side by side. Each turns into its status once used.
   function swapControl(a) {
-    if (!db || !me || block < 0 || block >= BLOCKS || ['free', 'hands', 'photo', 'logi'].includes(DUTIES[a.id].cat)) return '';
+    if (!db || !me || block < 0 || block >= BLOCKS || ['free', 'away', 'hands', 'photo', 'logi'].includes(DUTIES[a.id].cat)) return '';
     const mine = mySwapFor(block); const playing = DUTIES[a.id].cat === 'play';
     if (mine) {
       const [id, sw] = mine;
@@ -2748,7 +2758,7 @@
   let helps = {};
   const myHelpFor = (i) => Object.entries(helps).find(([, h]) => me && h.from === me.first && h.block === i && h.status === 'open');
   function helpControl(a) {
-    if (!db || !me || block < 0 || block >= BLOCKS || ['free', 'hands', 'photo', 'play', 'logi'].includes(DUTIES[a.id].cat)) return '';
+    if (!db || !me || block < 0 || block >= BLOCKS || ['free', 'away', 'hands', 'photo', 'play', 'logi'].includes(DUTIES[a.id].cat)) return '';
     const mine = myHelpFor(block);
     if (mine) {
       const [id, h] = mine; const coming = Object.keys(h.responders || {});
@@ -2911,7 +2921,7 @@
   // the Now steps need a block where you actually have a duty with buttons on it
   function tourDemoBlock() {
     if (!me) return;
-    const ok = (i) => !['free', 'hands', 'photo', 'play', 'logi'].includes(DUTIES[assignmentFor(me.first, i).id].cat);
+    const ok = (i) => !['free', 'away', 'hands', 'photo', 'play', 'logi'].includes(DUTIES[assignmentFor(me.first, i).id].cat);
     if (block >= 0 && block < BLOCKS && ok(block)) return;
     for (let i = 0; i < BLOCKS; i++) if (ok(i)) { live = false; block = i; render(); return; }
   }
@@ -3029,8 +3039,10 @@ If someone asks how to score a match, walk them through these steps and set "sho
       const tag = k !== cur ? ' — next' : lb === -1 ? ' — first block, from 3:00 pm' : lb === BLOCKS ? ' — last block (finished)' : ' — now';
       L.push(`### Block ${k + 1} (${range(k)})${tag}: who's where`);
       Object.entries(grouped).forEach(([id, ppl]) => { const d = DUTIES[id]; L.push(`${d.name} (${d.where || '—'}): ${ppl.join(', ')}`); });
-      const free = PEOPLE.map(p => p.first).filter(f => !busy.has(f));
+      const free = PEOPLE.map(p => p.first).filter(f => !busy.has(f) && onSite(f, k));
+      const away = PEOPLE.map(p => p.first).filter(f => !onSite(f, k));
       L.push(`Free this block: ${free.length ? free.join(', ') : 'nobody'}`);
+      if (away.length) L.push(`Not at the festival this block (don't send anyone to them): ${away.join(', ')}`);
     });
     if (me) {
       L.push(`\n## The person asking\n${me.n} (${me.s.join(' / ')}${me.role ? ', ' + me.role : ''}). Their day:`);
