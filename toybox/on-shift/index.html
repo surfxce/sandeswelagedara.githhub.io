@@ -804,6 +804,13 @@
   .match .gear svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
   .match .rename { display: grid; grid-template-columns: 1fr 1fr auto; gap: 6px; margin-top: 8px; }
   .match .rename input { height: 38px; padding: 0 10px; border-radius: 6px; border: 1.5px solid var(--line); font-weight: 700; min-width: 0; }
+  .pgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin: 6px 0 2px; }
+  @media (max-width: 340px) { .pgrid { grid-template-columns: 1fr; } }
+  .pcard { display: flex; align-items: center; gap: 8px; min-width: 0; padding: 8px 10px; border: 1.5px solid var(--line); border-radius: 8px; background: #fff; cursor: pointer; }
+  .pcard .nm { display: grid; min-width: 0; font-weight: 700; font-size: 14px; line-height: 1.15; }
+  .pcard .nm b, .pcard .nm small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: inherit; }
+  .pcard .nm small { font-size: 11px; font-weight: 600; color: var(--ink-3); letter-spacing: .03em; }
+  .pcard:active { background: var(--paper); }
   .guide { display: grid; gap: 8px; margin: 10px 0; }
   .guide .g { display: grid; gap: 2px; padding: 8px 10px; border-left: 4px solid var(--c-sport); background: #fff; border-radius: 4px; box-shadow: 0 1px 0 var(--line); }
   .guide .g b { font-size: 15px; } .guide .g span { font-size: 14px; color: var(--ink-2); }
@@ -1809,13 +1816,13 @@
       const everyone = rows.flatMap(([, ppl]) => ppl); const mine = me ? assignmentFor(me.first, i) : null;
       const partners = mine && mine.id === arg ? mine.people : [];
       const others = everyone.filter(p => !partners.includes(p) && !(me && p === me.first));
-      const person = (p) => `<div class="tt"><span class="t"></span><span class="tm won" style="grid-column:2/-1;text-align:left;display:flex;align-items:center"><span class="pfp-wrap">${pfp(p, 32)}</span><span data-dm="${esc(p)}">${esc(full(p))}<small>${esc(soc(p))}</small></span></span></div>`;
+      const person = (p) => `<div class="pcard" data-dm="${esc(p)}" role="button" tabindex="0">${pfp(p, 32)}<span class="nm"><b>${esc(full(p))}</b><small>${esc(soc(p))}</small></span></div>`;
       const lead = leadFor(arg);
       return { title: d.name, body: `<p><b>${esc(d.where)}</b> · ${range(i)}</p><p>${esc(d.do)}</p>
         <h4 class="sec-sm">Committee head</h4><p class="fine">${lead ? esc(lead) : 'Not applicable for this one'}</p>
         ${guide}
-        ${partners.length ? `<h4 class="sec-sm">With you</h4><div class="round">${partners.map(person).join('')}</div>` : ''}
-        <h4 class="sec-sm">${d.cat === 'play' ? 'Other teams on now' : partners.length ? 'Also on ' + esc(d.name) : 'On ' + esc(d.name) + ' this block'}</h4>${others.length ? `<div class="round">${others.map(person).join('')}</div>` : '<p class="fine">Nobody else.</p>'}` };
+        ${partners.length ? `<h4 class="sec-sm">With you</h4><div class="pgrid">${partners.map(person).join('')}</div>` : ''}
+        <h4 class="sec-sm">${d.cat === 'play' ? 'Other teams on now' : partners.length ? 'Also on ' + esc(d.name) : 'On ' + esc(d.name) + ' this block'}</h4>${others.length ? `<div class="pgrid">${others.map(person).join('')}</div>` : '<p class="fine">Nobody else.</p>'}` };
     }
     if (kind === 'person') { const f = arg; const p = byFirst[f.toLowerCase()]; return { title: p ? p.n : f, body: `<div class="round">${Array.from({ length: BLOCKS }, (_, i) => { const a = tentative(assignmentFor(f, i), i); const d = DUTIES[a.id]; const swp = a.id !== 'soon' && a.id !== baseAssignment(f, i); return `<div class="tt"><span class="t">${fmt(DAY_START + i * 30)}</span><span class="tm ${a.id === 'free' ? 'tbd' : 'won'}" style="grid-column:2/-1;text-align:left"><span class="cell ${a.id === 'free' ? 'free' : ''} ${swp ? 'sw' : ''}" style="--c:${CATS[d.cat].color};margin-right:8px">${SHORT(a.id)}</span>${esc(d.name)}${swp ? ' <small style="display:inline">(swap)</small>' : ''}<small>${esc(a.id === 'free' ? 'Enjoy the festival' : d.where + (a.people.length ? ' · with ' + names(a.people) : ''))}</small></span></div>`; }).join('')}</div>` }; }
     if (kind === 'club') { const c = CLUB_INFO[arg]; return { title: arg, body: `<p><b>${esc(c.full)}</b></p><p>${esc(c.about)}</p><h4 class="sec-sm">Execs on the marquee</h4><p class="fine">${c.execs.length ? c.execs.map(esc).join(', ') : '—'}</p>` }; }
