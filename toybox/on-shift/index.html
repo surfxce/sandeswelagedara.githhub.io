@@ -799,6 +799,10 @@
   .match .gear svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
   .match .rename { display: grid; grid-template-columns: 1fr 1fr auto; gap: 6px; margin-top: 8px; }
   .match .rename input { height: 38px; padding: 0 10px; border-radius: 6px; border: 1.5px solid var(--line); font-weight: 700; min-width: 0; }
+  .guide { display: grid; gap: 8px; margin: 10px 0; }
+  .guide .g { display: grid; gap: 2px; padding: 8px 10px; border-left: 4px solid var(--c-sport); background: #fff; border-radius: 4px; box-shadow: 0 1px 0 var(--line); }
+  .guide .g b { font-size: 15px; } .guide .g span { font-size: 14px; color: var(--ink-2); }
+  .guide-link { display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; font-weight: 700; color: var(--maroon); background: none; border: 0; padding: 0; text-decoration: underline; text-underline-offset: 3px; }
   .bracket-list { display: grid; gap: 12px; }
   .bracket { background: #fff; border-left: 8px solid var(--c); box-shadow: 0 1px 0 var(--line); padding: 12px 14px; display: grid; gap: 10px; }
   .bracket .head { display: flex; align-items: center; gap: 10px; }
@@ -1789,6 +1793,7 @@
     if (kind === 'biz') return { title: arg, body: `<p>${esc(BIZ[arg] || 'Business stall on Field 6.')}</p>` };
     if (kind === 'duty') {
       const d = DUTIES[arg]; if (!d) return { title: '', body: '' };
+      const guide = GUIDES[arg] ? `<h4 class="sec-sm">How to score</h4><p>${esc(GUIDES[arg].lead)}</p><button type="button" class="btn-small" data-guide="${arg}">Open the ${esc(SPORTS[arg].toLowerCase())} guide</button>` : '';
       const i = block; const rows = i >= 0 && i < BLOCKS ? rowsFor(i).filter(([id]) => id === arg) : [];
       const everyone = rows.flatMap(([, ppl]) => ppl); const mine = me ? assignmentFor(me.first, i) : null;
       const partners = mine && mine.id === arg ? mine.people : [];
@@ -1797,6 +1802,7 @@
       const lead = leadFor(arg);
       return { title: d.name, body: `<p><b>${esc(d.where)}</b> · ${range(i)}</p><p>${esc(d.do)}</p>
         <h4 class="sec-sm">Committee head</h4><p class="fine">${lead ? esc(lead) : 'Not applicable for this one'}</p>
+        ${guide}
         ${partners.length ? `<h4 class="sec-sm">With you</h4><div class="round">${partners.map(person).join('')}</div>` : ''}
         <h4 class="sec-sm">${partners.length ? 'Also on ' + esc(d.name) : 'On ' + esc(d.name)} this block</h4>${others.length ? `<div class="round">${others.map(person).join('')}</div>` : '<p class="fine">Nobody else.</p>'}` };
     }
@@ -2447,6 +2453,39 @@
   };
   const ADMINS = ['Sandes', 'Archita', 'Sanuka'];   // organisers — their posts get a tag (UI only)
   const SPORTS = { vb: 'Volleyball', fb: 'Football', ck: 'Cricket' };
+  // How to score each sport, for a ref who's never done it. Standard rules,
+  // trimmed to what you need at the +/− buttons; the committee's house
+  // rules win if they say otherwise.
+  const GUIDES = {
+    vb: { title: 'Scoring volleyball', lead: 'Every rally scores a point — whoever wins it, whether or not they served. Tap + for that team.', points: [
+      ['The ball hits the floor', 'Point to the other team — wherever it lands inside the lines. On the line is in.'],
+      ['Out', 'Ball lands outside the lines, or hits the pole, antenna, ceiling or anything off the court: point to the team that didn\'t touch it last.'],
+      ['Four touches', 'A team gets three touches to send it back (a block doesn\'t count). A fourth touch: point to the other team.'],
+      ['Double hit / carry', 'One player hits it twice in a row, or holds, lifts or throws it: point to the other team.'],
+      ['Net touch', 'A player touches the net while playing the ball: point to the other team. Ball hitting the net is fine — play on.'],
+      ['Serve', 'Whoever wins the point serves next. Serve goes under the net or lands out: point to the receivers.'],
+      ['Set', 'First to 15, or whoever\'s ahead when the 5-minute whistle goes. Level at the whistle: next point wins. Best of three sets in a 20-minute game.'],
+    ]},
+    fb: { title: 'Scoring football', lead: 'One goal, one tap of +. That\'s the whole score; everything else is a whistle, not a point.', points: [
+      ['Goal', 'The whole ball crosses the whole line between the posts. Over the line by half a ball is no goal. Tap + for the scoring team.'],
+      ['Ball out over the side', 'Kick-in for the team that didn\'t touch it last (no throw-ins on the small pitches).'],
+      ['Ball out over the end', 'Off the defenders: corner. Off the attackers: goal kick / keeper roll.'],
+      ['Foul', 'Trip, push, hold, slide tackle, deliberate handball: free kick where it happened. Inside the box: penalty.'],
+      ['No offside', 'Small-sided — offside isn\'t called.'],
+      ['Time', '20 minutes, one half. Whistle on the clock — the bracket depends on you finishing on time. Group games can end in a draw; semis and the final go to penalties (three each, then sudden death).'],
+    ]},
+    ck: { title: 'Scoring cricket (T6)', lead: 'You add runs to the batting team. Tap + once per run. Six overs each side, tennis ball.', points: [
+      ['Run', 'Both batters cross and reach the other end: +1. Two crossings: +2, and so on.'],
+      ['Boundary', 'Ball reaches the boundary cones along the ground: +4. Over the cones without bouncing: +6. Tap + that many times.'],
+      ['Wide', 'Ball too wide to hit: +1 to the batting team and the ball is bowled again.'],
+      ['No ball', 'Bowler oversteps the line, or the ball is over waist height on the full: +1 to the batting team, bowled again, and the batter can\'t be out bowled or caught off it.'],
+      ['Out', 'Bowled (ball hits the stumps), caught (on the full), run out (stumps broken before the batter makes their ground), stumped, hit wicket. No runs for that ball unless they\'d already crossed. Next batter in.'],
+      ['Over', 'Six legal balls, then swap ends and bowler. Wides and no balls don\'t count towards the six. A bowler can bowl at most two overs.'],
+      ['Innings', 'Ends after 6 overs or when the batting team is all out. Higher total wins; ties go to fewer wickets lost.'],
+    ]},
+  };
+  const guideHtml = (sport) => { const g = GUIDES[sport]; return `<p><b>${esc(g.lead)}</b></p><div class="guide">${g.points.map(([h, t]) => `<div class="g"><b>${esc(h)}</b><span>${esc(t)}</span></div>`).join('')}</div><p class="fine">Standard rules trimmed to the basics. If the ${esc(SPORTS[sport].toLowerCase())} committee says different on the day, they win.</p>`; };
+  const openGuide = (sport) => { if (GUIDES[sport]) openInfoRaw(GUIDES[sport].title, guideHtml(sport)); };
   // Registered teams. `soc` marks a society's exec team (its players are
   // execs on the roster); everyone else is a general team. Football and
   // cricket lists to come from their committees.
@@ -2504,7 +2543,7 @@
       <div class="head">${iconHtml(d.icon || 'football', color, 'sm')}<span class="lbl">${esc(SPORTS[m.sport] || m.sport)}</span>${m.status === 'live' ? '<span class="live-tag">Live</span>' : `<span class="fine">Final</span>`}${editable && m.status === 'live' ? `<button type="button" class="gear" data-rename="${id}" aria-label="Edit team names" title="Edit team names"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>` : ''}</div>
       <div class="teams">${team('sa', m.a, m.sa)}<span class="vs">VS</span>${team('sb', m.b, m.sb)}</div>
       ${editable && m.status === 'live' && renaming === id ? `<form class="rename" data-renameform="${id}"><input type="text" maxlength="24" value="${esc(m.a)}" aria-label="Team A" required><input type="text" maxlength="24" value="${esc(m.b)}" aria-label="Team B" required><button class="btn-small" type="submit">Save</button></form>` : ''}
-      ${editable && m.status === 'live' ? `<div class="foot"><span>Started ${m.t ? clock(m.t) : ''}</span><button type="button" class="btn-small ghost" data-end="${id}">End match</button></div>` : ''}
+      ${editable && m.status === 'live' ? `<div class="foot"><button type="button" class="guide-link" data-guide="${m.sport}">When do I tap +?</button><button type="button" class="btn-small ghost" data-end="${id}">End match</button></div>` : ''}
       ${editable && m.status !== 'live' ? `<div class="foot"><span>${m.ended ? 'Ended ' + clock(m.ended) : ''}</span><button type="button" class="btn-small ghost" data-del="${id}">Remove</button></div>` : ''}
     </div>`;
   }
@@ -2753,6 +2792,7 @@
     el.querySelectorAll('[data-open-dm]').forEach(d => d.addEventListener('click', () => { openTray(false); openDm(d.dataset.openDm); }));
   }
   document.addEventListener('click', e => { const n = e.target.closest('[data-dm]'); if (n) openDm(n.dataset.dm); });
+  document.addEventListener('click', e => { const g = e.target.closest('[data-guide]'); if (g) openGuide(g.dataset.guide); });
   $('dm-close').addEventListener('click', closeDm); $('dm-backdrop').addEventListener('click', closeDm);
   $('dm-form').addEventListener('submit', e => { e.preventDefault(); sendDm($('dm-text').value); $('dm-text').value = ''; });
 
@@ -2785,6 +2825,7 @@
     { icon: 'tent',    color: 'var(--c-club)',   t: 'Map', k: 'map where location pinch zoom pins field 7 field 6 first aid toilets satellite where am i blue dot gps', p: '<b>Simple</b> is the ground plan, <b>Satellite</b> is real imagery — both have pins for football and cricket (Field 7), volleyball (the beach courts), food trucks and stalls (Field 6), the grandstand, the entry, first aid, toilets and the assembly point. Tap a pin for what\'s there. On Satellite, the <b>target</b> button shows where you are as a blue dot (your phone will ask once). Drag to pan, pinch to zoom, double-tap to zoom in.' },
     { icon: 'sparkle', color: 'var(--c-ticket)', t: "What's On", k: 'whats on stalls timetable stage performances businesses clubs photos upload', p: 'Everything at the festival. Tap a sport for the match timetable, the stage for the running order, a business for what they do, a club for who\'s on the marquee. Send festival photos from the bottom.' },
     { icon: 'camera',  color: 'var(--c-photo)',  t: 'Photos & big screen', k: 'photos upload approve big screen tv slideshow', p: 'Anyone can send a photo in; organisers approve them; approved photos roll across the big screen. <b>Big screen mode</b> is under Settings for whoever runs the TV.' },
+    { icon: 'cricket', color: 'var(--c-sport)', t: 'Refereeing — when to give a point', k: 'referee ref umpire scoring rules point goal run wide no ball out how to score guide', p: 'Never reffed it before? Tap your duty title, or <b>When do I tap +?</b> on a live match, for the short guide: what earns a point, what\'s out, what\'s a foul, how long a game is. Volleyball, football and cricket. Spicy can open it too.' },
     { icon: 'volleyball', color: 'var(--c-sport)', t: 'Playing for your society', k: 'playing team bracket knocked out eliminated free volleyball football cricket', p: 'If you\'re on a society team, your roster says <b>Playing</b> only for your first game. <b>Win</b>, and the app holds you for the next round\'s block too — whatever you were meant to do then goes to a free exec, who sees it pop up with "Covering for …". <b>Lose</b>, and your normal roster just carries on. All of it happens the moment the ref taps the result.' },
     { icon: 'box',     color: 'var(--c-hands)',  t: 'Logistics', k: 'logistics floating organisers help everything ping notification', p: 'The floating team (Nandos, Prabhas, Archita, Sanuli, Devashri, Tanisha). Not rostered on any one thing — they back up whichever team is short. Every <b>swap request</b> and <b>call for help</b> lands in their bell, and with pings turned on, on their phone too.' },
     { icon: 'sparkle', color: 'var(--tan)',      t: 'Spicy', k: 'spicy ask question help bot chat ai assistant who do i talk to where is', p: 'Settings → <b>Spicy</b>. Ask anything — what your duty involves, who\'s on what right now, how a part of the app works. It answers from the roster and this manual, points you to a person when there is one, and says so when it doesn\'t know. When the answer is a button or a place in the app, tap <b>Show me</b> and Spicy spotlights it on screen. Every answer has a <b>Message Sandes</b> button.' },
@@ -2917,6 +2958,7 @@ Escalation: anything medical or dangerous — call 000 first, then tell an organ
     L.push('\n## Emergency contacts (numbers are in the app under Settings → Emergency — never give a number)\n' + EMERGENCY.map(c => `${c.n} — ${c.role}`).join('\n'));
     L.push('\n## Where things are (pins on the Map tab)\n' + PINS.map(pin => `${pin.label} — ${pin.sub}`).join('\n') + '\nFootball is six small pitches on the Field 7 infield, numbered Field 1 to Field 6: two across, three down, left to right from the top (zoom right in on the map to see them).');
     L.push('\n## Things Spicy can point at (put the id in "show" when the answer is about tapping or finding one of these)\n' + Object.entries(POINTS).map(([id, pt]) => `${id} — ${pt.what}`).join('\n'));
+    L.push('\n## How to score each sport (for a referee who\'s new to it)\n' + Object.entries(GUIDES).map(([k, g]) => `### ${g.title}\n${g.lead}\n` + g.points.map(([h, t]) => `- ${h}: ${t}`).join('\n')).join('\n'));
     L.push('\n## How the app works\n' + MANUAL.map(m => `- ${m.t}: ${strip(m.p)}`).join('\n') + '\n' + TOUR.map(t => `- ${t.h}: ${strip(t.p)}`).join('\n'));
     // the live part: what time it is, who's where now and next
     // setup and pack-up are real states, not blocks: say so, and say what to
@@ -2992,6 +3034,9 @@ Escalation: anything medical or dangerous — call 000 first, then tell an organ
     'settings-screen': { what: 'Big screen mode, under Settings', target: '.set-row:has(#screen-start)', ...inSettings },
     'settings-notify': { what: 'the block-change notification toggle, under Settings', target: '.set-row:has(#nudge)', ...inSettings },
     'desk':            { what: 'the Organiser desk button at the top (organisers only)', target: '#deskbtn', prep: () => { closeSheets(); showView('now'); } },
+    'guide-vb':        { what: 'the volleyball scoring guide (when to give a point)', target: '#info-sheet', prep: () => { closeSheets(); openGuide('vb'); }, after: () => { $('info-sheet').hidden = true; $('info-backdrop').hidden = true; } },
+    'guide-fb':        { what: 'the football scoring guide (goals, kick-ins, fouls, time)', target: '#info-sheet', prep: () => { closeSheets(); openGuide('fb'); }, after: () => { $('info-sheet').hidden = true; $('info-backdrop').hidden = true; } },
+    'guide-ck':        { what: 'the cricket scoring guide (runs, boundaries, extras, outs)', target: '#info-sheet', prep: () => { closeSheets(); openGuide('ck'); }, after: () => { $('info-sheet').hidden = true; $('info-backdrop').hidden = true; } },
   };
   PINS.forEach(pin => { POINTS['map-' + pin.id] = { what: `the ${pin.label} pin on the map (${pin.sub})`, target: `#map-exec [data-pin="${pin.id}"] .dot`, prep: () => { closeSheets(); showView('map'); mapFocus(pin.id); } }; });
   let pointStep = null;
