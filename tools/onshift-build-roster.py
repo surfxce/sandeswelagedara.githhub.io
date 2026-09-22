@@ -182,6 +182,8 @@ for i in range(BLOCKS):
     last = {x: d for d, xs in slots.items() for x in xs}
     roster.append(sorted(([d, sorted(xs)] for d, xs in slots.items() if xs), key=lambda r: r[0]))
 
+for p in people:
+    p["a"] = sorted(avail[p["n"].split()[0]])
 out = {"people": people, "roster": roster}
 json.dump(out, open(sys.argv[1], 'w'), indent=2)
 
