@@ -86,6 +86,12 @@ def can(first, duty):
     if duty.startswith('stall-'): return duty[6:] in byfirst[first]["s"]
     return True
 
+# heads stay on their own thing
+PREF = {'Dhyan': 'fb', 'Aditya': 'ck', 'Hasara': 'fund-pp', 'Thanabammini': 'cr-food',
+        'Divita': 'stall-UQISC', 'Sandes': 'vb', 'Helly': 'st', 'Amal': 'st'}
+# a head is pinned to their own duty while it's running, before anything else
+PIN = {'Aditya': ('ck', (7, 8, 9)), 'Dhyan': ('fb', (4, 5)), 'Hasara': ('fund-pp', (6, 7, 10, 11))}
+
 # ---- fixed assignments -------------------------------------------------
 fixed = collections.defaultdict(dict)     # block -> {first: duty}
 for f in [k for k, t in tags.items() if 'logi' in t]:
@@ -102,13 +108,17 @@ for soc, squad in VB_TEAM.items():
     # four on court is the minimum team; the rest of the squad stays on duty
     for f in [x for x in squad if VB_BLOCK in avail.get(x, ()) and x not in fixed[VB_BLOCK]][:4]:
         fixed[VB_BLOCK][f] = 'play-vb'
-# football players are out for the whole tournament (no team list to split by round)
+# football players: the group stage only (3:00 – 4:40). Whoever wins through
+# to the semis and final is held by the app on the day, from the bracket.
 for f in FB_PLAYERS:
-    for i in range(0, 6):
+    for i in range(0, 4):
         if i in avail.get(f, ()) and f not in fixed[i]: fixed[i][f] = 'play-fb'
 for f in CK_PLAYERS:
-    for i in (7, 8, 9, 10):
+    for i in (7, 8):
         if i in avail.get(f, ()) and f not in fixed[i]: fixed[i][f] = 'play-ck'
+for f, (duty, blocks) in PIN.items():
+    for i in blocks:
+        if i in avail.get(f, ()) and f not in fixed[i] and can(f, duty): fixed[i][f] = duty
 
 # ---- what each block needs (min, want) ---------------------------------
 def needs(i):
@@ -127,14 +137,12 @@ def needs(i):
     if i >= 6: n['fund-bake'] = (1, 1); n['fund-hope'] = (1, 1)
     return n
 
-# heads stay near their thing when they can
-PREF = {'Dhyan': 'fb', 'Aditya': 'ck', 'Hasara': 'fund-pp', 'Thanabammini': 'cr-food',
-        'Divita': 'stall-UQISC', 'Mathisha': 'ck', 'Thihan': 'ck', 'Sandes': 'vb'}
-
 roster = []
 last = {}          # first -> duty last block, to keep runs of two
 counts = collections.Counter()
-run = collections.Counter()   # consecutive blocks on duty
+run = collections.Counter()                          # consecutive blocks on duty
+sameRun = collections.defaultdict(dict)              # consecutive blocks on the SAME duty
+doneDuty = collections.defaultdict(collections.Counter)   # times on each duty today
 for i in range(BLOCKS):
     slots = collections.defaultdict(list)
     for f, d in fixed[i].items(): slots[d].append(f)
@@ -143,21 +151,34 @@ for i in range(BLOCKS):
                   key=lambda f: (counts[f], f))
     n = needs(i)
     for level in (0, 1):                      # minimums first, then the nice-to-haves
-        for duty, (mn, wn) in n.items():
-            target = mn if level == 0 else wn
-            while len(slots[duty]) < target:
-                # same person as last block first, then a head, then anyone
-                cands = [f for f in pool if can(f, duty) and (level == 0 or run[f] < 4)]
-                if not cands: cands = [f for f in pool if can(f, duty)]
-                if not cands: break
-                # keep someone on the same thing for a second block, respect the
-                # heads' own areas, then whoever's done least and rested most
-                cands.sort(key=lambda f: (run[f] >= 4, last.get(f) != duty, PREF.get(f) != duty, counts[f], run[f], f))
-                f = cands[0]; pool.remove(f); slots[duty].append(f); placed.add(f)
+        while True:
+            # fill the hardest duty first — the one with fewest people who could
+            # do it — otherwise the stalls hoover up everyone the sports need
+            open_ = []
+            for duty, (mn, wn) in n.items():
+                target = mn if level == 0 else wn
+                if len(slots[duty]) >= target: continue
+                elig = [f for f in pool if can(f, duty)]
+                if elig: open_.append((len(elig), duty, elig))
+            if not open_: break
+            open_.sort()
+            _, duty, elig = open_[0]
+            # variety: two blocks on a thing is plenty, then something else;
+            # three blocks on the trot at all, then a break
+            ok = [f for f in elig if sameRun[f].get(duty, 0) < 2 and run[f] < 3]
+            if not ok: ok = [f for f in elig if run[f] < 3]
+            if not ok: ok = elig
+            ok.sort(key=lambda f: (PREF.get(f) != duty, doneDuty[f].get(duty, 0), counts[f], run[f], f))
+            f = ok[0]; pool.remove(f); slots[duty].append(f); placed.add(f)
     onduty = {x for xs in slots.values() for x in xs}
     for x in onduty: counts[x] += 1; run[x] += 1
     for f in avail:
         if f not in onduty: run[f] = 0
+    mine = {x: d for d, xs in slots.items() for x in xs}
+    for f in avail:
+        d = mine.get(f)
+        sameRun[f] = {d: sameRun[f].get(d, 0) + 1} if d else {}
+        if d: doneDuty[f][d] += 1
     last = {x: d for d, xs in slots.items() for x in xs}
     roster.append(sorted(([d, sorted(xs)] for d, xs in slots.items() if xs), key=lambda r: r[0]))
 
@@ -174,6 +195,21 @@ for i in range(BLOCKS):
     filled = {d: len(p) for d, p in roster[i]}
     short = [f"{d} {filled.get(d,0)}/{mn}" for d, (mn, _) in needs(i).items() if filled.get(d, 0) < mn]
     print(f"  {times[i]:>5}  on duty {on:2d}  free {free:2d}   {'SHORT: ' + ', '.join(short) if short else 'all minimums met'}")
+longest = {}
+for f in avail:
+    row = ['' ] * BLOCKS
+    for i, b in enumerate(roster):
+        for d, xs in b:
+            if f in xs: row[i] = d
+    best = cur = 0
+    for k, x in enumerate(row):
+        cur = cur + 1 if (x and k and x == row[k-1]) else (1 if x else 0)
+        best = max(best, cur)
+    longest[f] = best
+print("\nLONGEST STRETCH ON ONE DUTY (logistics excluded — they float all day)")
+for f, b in sorted(longest.items(), key=lambda kv: -kv[1])[:8]:
+    if 'logi' in tags[f]: continue
+    print(f"  {f:<14} {b} blocks in a row")
 print("\nPER PERSON (blocks on duty out of the ones they're here)")
 for f in sorted(avail):
     print(f"  {f:<14} {counts[f]:2d} on / {len(avail[f]):2d} here")
