@@ -1752,7 +1752,7 @@
   const tm = (m) => fmt(m) + (m >= 720 ? ' pm' : '');
   // Approximate timetable from the bracket: matches run back to back per sport, byes take no slot.
   function timetableHtml(sport) {
-    const br = brackets[sport];
+    const br = bracketFor(sport);
     if (!br || !br.rounds || !br.rounds[0]) return '<p class="fine">No bracket set up for this yet — check back closer to the time.</p>';
     const total = roundsTotal(br.rounds[0].length); const sc = SCHED[sport] || SCHED.vb; let slot = 0;
     let count = br.rounds[0].length, html = '';
@@ -2439,11 +2439,13 @@
   // cricket lists to come from their committees.
   const TEAMS = {
     vb: [
+      // listed in draw order: 1v2, 3v4, 5v6, 7v8 — the two society teams meet
+      // first so whichever loses has its execs back on duty by 3:50
       { name: 'UQSLA',        soc: 'UQSLA', players: ['Shavini Kariyawasam', 'Sanuli Ranatunga', 'Diya Chandy', 'Leron Hewapathiranage'] },
       { name: 'UQISC',        soc: 'UQISC', players: ['Ragesh Ramanalingam', 'Alex John', 'Shane Shaji', 'Mithila Balamurugan', 'Sandes Welagedara'] },
       { name: "Aum's team",   players: ['Aum', 'Harshil', 'Jaydeep', 'Maan', 'Nikhil', 'Kartik Karri'] },
-      { name: "Luhara's team", players: ['Luhara Weerawardhane', 'Gabriela Santamaria', 'Lindel Heron', 'Pranav Biju', 'Shannon Galegedara', 'Shanaya Galegedara', 'Sewni Jaburagoda', 'Isha Chawla', 'Vatsal Delivala'] },
       { name: "Sargun's team", players: ['Sargun', 'Kanav', 'Manan', 'Yashraj', 'Atharv', 'Mudit'] },
+      { name: "Luhara's team", players: ['Luhara Weerawardhane', 'Gabriela Santamaria', 'Lindel Heron', 'Pranav Biju', 'Shannon Galegedara', 'Shanaya Galegedara', 'Sewni Jaburagoda', 'Isha Chawla', 'Vatsal Delivala'] },
       { name: 'Team QUT',     players: ['Ashmical Maharaj', 'Samar', 'Lochlan', 'Tanveer', 'Tavneel', 'Hashim', 'Kenshin'] },
       { name: "Ameya's team", players: ['Ameya Eldhose', 'Elvin Binoy', 'Charan', 'Dhruvesh Vinaikumar', 'Devyn Ramos', 'Aravind KB'] },
       { name: 'Solos',        players: ['Uday', 'Jai Bhatia', 'Sam Klaassen', 'Priyansh', 'Tanveer Salaria', 'Sajal Gururani'] },
@@ -3695,18 +3697,20 @@ Escalation: anything medical or dangerous — call 000 first, then tell an organ
       svg.setAttribute('viewBox', `0 0 ${wrap.scrollWidth} ${wrap.scrollHeight}`); svg.innerHTML = d;
     });
   }
+  // The draw is the team list in order until the first result is saved —
+  // so it's on every phone and the public page with nothing set up.
+  const presetBracket = (sport) => (TEAMS[sport] || []).length >= 2 ? buildBracket(TEAMS[sport].map(t => t.name)) : null;
+  const bracketFor = (sport) => brackets[sport] || presetBracket(sport);
   function renderBrackets() {
-    const k0 = sportSel; const br0 = brackets[k0];
+    const k0 = sportSel; const br0 = bracketFor(k0);
     const none = `<p class="fine">No ${SPORTS[k0]} bracket yet.</p>`;
     const pub = $('public-brackets'); if (pub) { pub.innerHTML = br0 ? bracketDraw(k0, br0) : none; requestAnimationFrame(() => drawBracketLines(pub)); }
     const el = $('brackets');
-    const seed = (TEAMS[k0] || []).length >= 2 && !br0 && db && me ? `<button type="button" class="btn-small" id="b-seed">Build the ${esc(SPORTS[k0])} bracket from the ${TEAMS[k0].length} listed teams</button>` : '';
-    el.innerHTML = br0 ? bracketCard(k0, br0, true) : none + (seed ? `<div class="btns" style="margin-top:0">${seed}</div>` : '');
-    const seedBtn = $('b-seed'); if (seedBtn) seedBtn.addEventListener('click', () => { if (confirm(`Build the ${SPORTS[k0]} bracket in the listed order? You can rebuild it below any time.`)) saveBracket(k0, buildBracket(TEAMS[k0].map(t => t.name))); });
+    el.innerHTML = br0 ? bracketCard(k0, br0, true) + (!brackets[k0] ? '<p class="fine">The draw as registered. Tap a match to start it.</p>' : '') : none;
     // tapping the match itself starts it (same as the Start button)
     el.querySelectorAll('.bm').forEach(row => { const st = row.querySelector('[data-start]'); if (st) { row.classList.add('startable'); row.addEventListener('click', e => { if (e.target.closest('button')) return; if (confirm(`Start ${st.dataset.names || 'this match'}? Scoring opens under Live matches.`)) st.click(); }); } });
     el.querySelectorAll('[data-start]').forEach(b => b.addEventListener('click', async () => {
-      const [sport, k, i] = b.dataset.start.split('|'); const br = brackets[sport]; const m = br.rounds[k][i];
+      const [sport, k, i] = b.dataset.start.split('|'); const br = bracketFor(sport); const m = br.rounds[k][i];
       const pushed = await ref('scores').push({ sport, a: m.a, b: m.b, sa: 0, sb: 0, status: 'live', t: now(), by: me ? me.first : '' });
       br.rounds[k][i].m = pushed.key; await saveBracket(sport, br);
       if (b.dataset.jump) setTimeout(() => { const c = $('scores-live'); if (c) c.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 300);
@@ -3717,7 +3721,7 @@ Escalation: anything medical or dangerous — call 000 first, then tell an organ
       ref('brackets/' + sport).remove();
     }));
     el.querySelectorAll('[data-win]').forEach(b => b.addEventListener('click', () => {
-      const [sport, k, i, side] = b.dataset.win.split('|'); const br = brackets[sport]; const m = br.rounds[k][i];
+      const [sport, k, i, side] = b.dataset.win.split('|'); const br = bracketFor(sport); const m = br.rounds[k][i];
       const w = side === 'a' ? m.a : m.b;
       if (!confirm(`${w} through to the next round?`)) return;
       br.rounds[k][i].w = w; saveBracket(sport, br);
