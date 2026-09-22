@@ -1333,6 +1333,10 @@
         <div class="txt"><b>Log incident</b><span>First aid, lost property, behaviour, equipment. Timestamped, organisers see it.</span></div>
         <button class="btn-small ghost" id="set-inc" type="button">Log</button>
       </div>
+      <div class="set-row" id="set-demo-row" hidden>
+        <div class="txt"><b>Demo mode</b><span id="demo-state">Replays the welcome tour every time you sign in — for showing people the app. This phone only.</span></div>
+        <button class="toggle" id="demo-toggle" type="button" role="switch" aria-checked="false" aria-label="Demo mode"></button>
+      </div>
       <div class="set-row" id="set-sim-row" hidden>
         <div class="txt"><b>Master clock</b><span id="sim-state">Move every exec's app to a block, at your pace. Off = real time.</span></div>
         <button class="toggle" id="sim-toggle" type="button" role="switch" aria-checked="false" aria-label="Master clock"></button>
@@ -1922,7 +1926,7 @@
     live = lb !== null; block = live ? lb : 0;
     renderFilter();
     let onboarded = false; try { onboarded = localStorage.getItem(ONB_LS) === '1'; } catch {}
-    if (!onboarded && !adminMode) setTimeout(startTour, 400);
+    if ((!onboarded || demoMode) && !adminMode) setTimeout(startTour, 400);
     $('bcast-form').hidden = !(db && isAdmin()); $('deskbtn').hidden = !(db && isAdmin()); renderPhotoMod();
     const eb = $('ph-exec-by'); if (eb && !eb.value) eb.value = me ? me.first : ident.name;
     const tb = $('tk-exec-by'); if (tb && !tb.value) tb.value = me ? me.first : ident.name;
@@ -2862,6 +2866,7 @@
     { icon: 'camera',  color: 'var(--c-photo)',  t: 'Photos & big screen', k: 'photos upload approve big screen tv slideshow', p: 'Anyone can send a photo in; organisers approve them; approved photos roll across the big screen. <b>Big screen mode</b> is under Settings for whoever runs the TV.' },
     { icon: 'cricket', color: 'var(--c-sport)', t: 'Refereeing — when to give a point', k: 'referee ref umpire scoring rules point goal run wide no ball out how to score guide', p: 'Never reffed it before? Tap your duty title, or <b>When do I tap +?</b> on a live match, for the short guide: what earns a point, what\'s out, what\'s a foul, how long a game is. Volleyball, football and cricket. Spicy can open it too.' },
     { icon: 'volleyball', color: 'var(--c-sport)', t: 'Playing for your society', k: 'playing team bracket knocked out eliminated free volleyball football cricket', p: 'If you\'re on a society team, your roster says <b>Playing</b> only for your first game. <b>Win</b>, and the app holds you for the next round\'s block too — whatever you were meant to do then goes to a free exec, who sees it pop up with "Covering for …". <b>Lose</b>, and your normal roster just carries on. All of it happens the moment the ref taps the result.' },
+    { icon: 'sparkle', color: 'var(--tan)',      t: 'Demo mode', k: 'demo onboarding tour replay show walkthrough video', p: 'Settings → <b>Demo mode</b> (Sandes only). The welcome tour plays every time you sign in, so you can show the app to a room without resetting anyone. Turn it off afterwards.' },
     { icon: 'box',     color: 'var(--c-hands)',  t: 'Logistics', k: 'logistics floating organisers help everything ping notification', p: 'The floating team (Nandos, Prabhas, Archita, Sanuli, Devashri, Tanisha). Not rostered on any one thing — they back up whichever team is short. Every <b>swap request</b> and <b>call for help</b> lands in their bell, and with pings turned on, on their phone too.' },
     { icon: 'sparkle', color: 'var(--tan)',      t: 'Spicy', k: 'spicy ask question help bot chat ai assistant who do i talk to where is', p: 'Settings → <b>Spicy</b>. Ask anything — what your duty involves, who\'s on what right now, how a part of the app works. It answers from the roster and this manual, points you to a person when there is one, and says so when it doesn\'t know. When the answer is a button or a place in the app, tap <b>Show me</b> and Spicy spotlights it on screen. Every answer has a <b>Message Sandes</b> button.' },
     { icon: 'box',     color: 'var(--c-hands)',  t: 'Settings', k: 'settings gear notification notify switch user sign out big screen manual emergency spicy', p: 'The gear. Big screen mode, a notification when the block changes, switch who\'s signed in, <b>Spicy</b> (ask it anything), this manual, <b>Log incident</b> (first aid, lost property, behaviour, equipment — timestamped for the organisers), and the red <b>Emergency</b> button with who to call.' },
@@ -2881,6 +2886,10 @@
 
   // --- onboarding tour: once, on first login; remembered on this phone like your name ---
   const ONB_LS = 'onshift.onboarded';
+  // Demo mode: the tour plays every sign-in, so the app can be shown to a room
+  // without clearing anything. Sandes only, and only on his own phone.
+  const DEMO_LS = 'onshift.demo';
+  let demoMode = false; try { demoMode = localStorage.getItem(DEMO_LS) === '1'; } catch {}
   // Each step points at a real thing: prep() gets it on screen (switch tab,
   // open the tray, open settings), then the spotlight cuts a hole around it.
   const TOUR = [
@@ -2964,7 +2973,7 @@
     }
     const cur = TOUR[tourIdx]; if (cur && cur.after) cur.after(); tourOn = false; $('onb').hidden = true; closeSheets();
     if (tourSaved) { live = tourSaved.live; block = tourSaved.block; tourSaved = null; if (!$('shell').hidden) render(); }
-    showView(me ? 'now' : 'team'); try { localStorage.setItem(ONB_LS, '1'); } catch {}
+    showView(me ? 'now' : 'team'); if (!demoMode) { try { localStorage.setItem(ONB_LS, '1'); } catch {} }
   }
   $('onb-x').addEventListener('click', endTour);
   $('onb-next').addEventListener('click', () => { if (pointStep || tourIdx >= TOUR.length - 1) endTour(); else stepTour(1); });
@@ -3566,11 +3575,21 @@ Escalation: anything medical or dangerous — call 000 first, then tell an organ
   const simLabel = (b) => b < 0 ? 'Setup · 2:00 – 3:00 pm' : b >= BLOCKS ? 'Pack-up · 9:00 – 10:00 pm' : `Block ${b + 1} · ${range(b)}`;
   function renderSim() {
     const ok = canSim(); $('set-sim-row').hidden = !ok;
+    $('set-demo-row').hidden = !ok;
+    $('demo-toggle').setAttribute('aria-checked', String(demoMode));
+    $('demo-state').textContent = demoMode ? 'On — the tour plays every time you sign in. Off when you\'re done showing people.' : 'Replays the welcome tour every time you sign in — for showing people the app. This phone only.';
     const on = !!(sim && sim.on); $('sim-toggle').setAttribute('aria-checked', String(on));
     $('set-sim-ctl').hidden = !(ok && on);
     if (on) $('sim-lbl').textContent = simLabel(sim.block);
     $('sim-state').textContent = on ? 'On — every phone is on this block until you move it or turn this off.' : 'Move every exec\'s app to a block, at your pace. Off = real time.';
   }
+  $('demo-toggle').addEventListener('click', () => {
+    if (!canSim()) return;
+    demoMode = !demoMode;
+    try { demoMode ? localStorage.setItem(DEMO_LS, '1') : localStorage.removeItem(DEMO_LS); } catch {}
+    renderSim();
+    if (demoMode) startTour();
+  });
   $('sim-toggle').addEventListener('click', () => {
     if (!db || !canSim()) return;
     const on = !(sim && sim.on);
