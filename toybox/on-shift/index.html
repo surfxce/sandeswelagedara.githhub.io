@@ -965,6 +965,7 @@
     </div>
     <div class="whatson-body pview" data-pview="photos" hidden>
       <div id="photos"><h2>Festival photos</h2>
+        <div class="photo-strip" id="pub-photos"></div>
         <div class="share" data-share="pub"></div>
       </div>
       <div><h2>Shout-outs</h2>
@@ -2874,9 +2875,17 @@ Escalation: anything medical or dangerous — call 000 first, then tell an organ
   async function shrink(file) {
     const url = URL.createObjectURL(file);
     try {
-      const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = url; });
-      const k = Math.min(1, 1280 / Math.max(img.naturalWidth, img.naturalHeight));
-      const c = document.createElement('canvas'); c.width = Math.round(img.naturalWidth * k); c.height = Math.round(img.naturalHeight * k);
+      let img;
+      // createImageBitmap applies the phone's rotation and scales while decoding, so a
+      // 48-megapixel photo never becomes a 48-megapixel canvas (which iPhones refuse)
+      try { img = await createImageBitmap(file, { imageOrientation: 'from-image' }); }
+      catch {
+        img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = () => rej(new Error('decode')); i.src = url; });
+      }
+      const W = img.width || img.naturalWidth, H = img.height || img.naturalHeight;
+      if (!W || !H) throw new Error('decode');
+      const k = Math.min(1, 1280 / Math.max(W, H));
+      const c = document.createElement('canvas'); c.width = Math.round(W * k); c.height = Math.round(H * k);
       c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
       for (const q of [0.75, 0.6, 0.5, 0.4]) { const d = c.toDataURL('image/jpeg', q); if (d.length <= PH_MAX) return d; }
       // still too big: halve the size
@@ -2909,7 +2918,7 @@ Escalation: anything medical or dangerous — call 000 first, then tell an organ
         data = await shrink(f);
         $(pre + '-img').src = data; $(pre + '-preview').hidden = false; $(pre + '-size').textContent = Math.round(data.length * 0.75 / 1024) + ' KB';
         $(pre + '-pick-lbl').textContent = 'Choose a different photo'; $(pre + '-msg').textContent = ''; $(pre + '-send').disabled = !db;
-      } catch (e) { $(pre + '-msg').textContent = 'That one didn\'t work — try another photo.'; }
+      } catch (e) { $(pre + '-msg').textContent = /heic|heif/i.test(f.type || f.name) ? 'That\'s a HEIC file this browser can\'t open — try screenshotting it, or another photo.' : 'That one didn\'t work — try another photo.'; }
     });
     $(pre + '-send').addEventListener('click', async () => {
       if (!data || !db) return;
@@ -2933,7 +2942,7 @@ Escalation: anything medical or dangerous — call 000 first, then tell an organ
         watch.on('value', onv);
         setTimeout(() => { if ($(pre + '-msg').textContent.startsWith('Sent')) { $(pre + '-msg').textContent = 'Sent — an organiser will look at it.'; stop(); } }, 25000);
         data = null; $(pre + '-preview').hidden = true; $(pre + '-file').value = ''; $(pre + '-cap').value = ''; $(pre + '-pick-lbl').textContent = 'Choose another photo';
-      } catch (e) { $(pre + '-msg').textContent = 'Couldn\'t send — check your connection and try again.'; $(pre + '-send').disabled = false; }
+      } catch (e) { const why = /PERMISSION_DENIED/.test(String(e && e.message)) ? 'the photo was too big even after shrinking' : 'check your connection'; $(pre + '-msg').textContent = `Couldn\'t send — ${why} — and try again.`; $(pre + '-send').disabled = false; }
     });
   }
   document.querySelectorAll('[data-share]').forEach(el => mountShare(el, 'ph-' + el.dataset.share));
@@ -2941,7 +2950,7 @@ Escalation: anything medical or dangerous — call 000 first, then tell an organ
   function renderPublicPhotos() {
     const ids = Object.keys(phApproved).sort((a, b) => (phApproved[b].t || 0) - (phApproved[a].t || 0)).slice(0, 16);
     const imgs = ids.map(i => `<img src="${phApproved[i].data}" alt="${esc(phApproved[i].cap || 'Festival photo')}" loading="lazy">`).join('');
-    ['exec-photos'].forEach(id => {
+    ['exec-photos', 'pub-photos'].forEach(id => {
       const el = $(id); if (!el) return;
       if (!ids.length) { el.classList.remove('roll'); el.innerHTML = '<span class="fine">Nothing on the wall yet — be first.</span>'; return; }
       const roll = ids.length >= 4;
@@ -3007,11 +3016,22 @@ Escalation: anything medical or dangerous — call 000 first, then tell an organ
       band.appendChild(figure(next));
     }
   }
+  let bandSeen = null;   // ids the band has already had; null until the first sync
   function bandSync() {
     // called when the approved set changes: drop retired photos not on screen, then top up
-    const band = $('screen-band'); const keep = new Set(scrIds());
+    const band = $('screen-band'); const ids = scrIds(); const keep = new Set(ids);
     [...band.children].forEach(f => { const r = f.getBoundingClientRect(); if (!keep.has(f.dataset.id) && (r.right < 0 || r.left > innerWidth)) f.remove(); });
-    $('screen-idle').hidden = keep.size > 0; if (!keep.size) { band.innerHTML = ''; bandX = 0; return; }
+    $('screen-idle').hidden = keep.size > 0; if (!keep.size) { band.innerHTML = ''; bandX = 0; bandSeen = new Set(); return; }
+    // brand-new photos cut the queue: they go in right after what's on screen now
+    if (bandSeen) {
+      const fresh = ids.filter(i => !bandSeen.has(i)).sort((a, b) => (phApproved[b].t || 0) - (phApproved[a].t || 0));
+      fresh.forEach(id => {
+        if ([...band.children].some(f => f.dataset.id === id)) return;
+        const offscreen = [...band.children].find(f => f.getBoundingClientRect().left >= innerWidth);
+        band.insertBefore(figure(id), offscreen || null);
+      });
+    }
+    bandSeen = new Set(ids);
     bandFill();
   }
   function bandStep(ts) {
