@@ -773,6 +773,25 @@
   .bcast-form input { height: 44px; padding: 0 12px; border-radius: 6px; border: 1.5px solid var(--line); background: #fff; }
 
   /* ---------- Brackets ---------- */
+  .sport-tabs { display: flex; gap: 6px; margin: 0 0 10px; }
+  .sport-tabs button { flex: 1; min-height: 38px; border-radius: 19px; border: 1.5px solid var(--line); background: #fff; color: var(--maroon); font-weight: 700; font-size: 14px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+  .sport-tabs button svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+  .sport-tabs button[aria-pressed="true"] { background: var(--maroon); color: var(--cream); border-color: var(--maroon); }
+  .team-list { display: grid; gap: 8px; }
+  .team-list details { background: #fff; border: 1.5px solid var(--line); border-left: 6px solid var(--c-sport); border-radius: 6px; }
+  .team-list summary { list-style: none; cursor: pointer; padding: 10px 12px; display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 15px; }
+  .team-list summary::-webkit-details-marker { display: none; }
+  .team-list summary .n { margin-left: auto; font-size: 12px; font-weight: 700; color: var(--ink-3); }
+  .team-list summary .chev { color: var(--ink-3); transition: transform .15s; }
+  .team-list details[open] summary .chev { transform: rotate(90deg); }
+  .team-list .players { padding: 0 12px 10px; display: flex; flex-wrap: wrap; gap: 6px; }
+  .team-list .players span { padding: 4px 10px; border-radius: 14px; background: var(--paper); border: 1px solid var(--line); font-size: 13px; font-weight: 600; }
+  .team-list .players span.exec { border-color: var(--maroon); color: var(--maroon); }
+  .bm.startable { cursor: pointer; }
+  .match .gear { margin-left: auto; width: 30px; height: 30px; border-radius: 50%; border: 0; background: transparent; color: var(--ink-3); display: grid; place-items: center; }
+  .match .gear svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .match .rename { display: grid; grid-template-columns: 1fr 1fr auto; gap: 6px; margin-top: 8px; }
+  .match .rename input { height: 38px; padding: 0 10px; border-radius: 6px; border: 1.5px solid var(--line); font-weight: 700; min-width: 0; }
   .bracket-list { display: grid; gap: 12px; }
   .bracket { background: #fff; border-left: 8px solid var(--c); box-shadow: 0 1px 0 var(--line); padding: 12px 14px; display: grid; gap: 10px; }
   .bracket .head { display: flex; align-items: center; gap: 10px; }
@@ -964,7 +983,8 @@
     <div class="whatson-body pview" data-pview="home" style="padding-bottom:0">
       <div class="stage-now" id="stage-now" hidden></div>
       <div><h2>Live scores</h2><div class="match-list" id="public-scores"></div></div>
-      <div><h2>Brackets</h2><div class="bracket-list" id="public-brackets"></div></div>
+      <div><h2>Teams</h2><div class="sport-tabs" data-sporttabs="teams"></div><div class="team-list" id="teams-pub"></div></div>
+      <div><h2>Brackets</h2><div class="sport-tabs" data-sporttabs="brackets"></div><div class="bracket-list" id="public-brackets"></div></div>
     </div>
     <div class="whatson-body pview" id="public-on" data-pview="on" hidden></div>
     <div class="whatson-body pview" data-pview="map" hidden>
@@ -1191,7 +1211,13 @@
     <!-- SCORES (live, shared) -->
     <section class="view" id="view-scores" role="tabpanel" hidden>
       <div>
+        <h2 class="sec">Teams</h2>
+        <div class="sport-tabs" data-sporttabs="teams"></div>
+        <div class="team-list" id="teams-exec"></div>
+      </div>
+      <div>
         <h2 class="sec">Brackets</h2>
+        <div class="sport-tabs" data-sporttabs="brackets"></div>
         <div class="bracket-list" id="brackets"></div>
       </div>
       <details class="newmatch">
@@ -1507,7 +1533,7 @@
   let ROSTER = [];
   const byFirst = {};
   function setRoster(data) {
-    PEOPLE = data.people; ROSTER = data.roster; rosterVersion++;
+    PEOPLE = data.people; ROSTER = data.roster; rosterVersion++; renderTeams();
     for (const k in byFirst) delete byFirst[k];
     PEOPLE.forEach(p => { p.first = p.n.split(' ')[0]; byFirst[p.first.toLowerCase()] = p; });
   }
@@ -1792,7 +1818,6 @@
     </details></div>`;
     return sections + clubs + `<p class="fine">Setup 2–3pm and pack-up 9–10pm are all hands.</p>`;
   }
-  $('b-pick').innerHTML = CLUBS.map(c => `<label><input type="checkbox" value="${c}">${c}</label>`).join('');
   $('exec-on').innerHTML = whatsOnHtml();
   $('public-on').innerHTML = whatsOnHtml();
 
@@ -2409,6 +2434,44 @@
   };
   const ADMINS = ['Sandes', 'Archita', 'Sanuka'];   // organisers — their posts get a tag (UI only)
   const SPORTS = { vb: 'Volleyball', fb: 'Football', ck: 'Cricket' };
+  // Registered teams. `soc` marks a society's exec team (its players are
+  // execs on the roster); everyone else is a general team. Football and
+  // cricket lists to come from their committees.
+  const TEAMS = {
+    vb: [
+      { name: 'UQSLA',        soc: 'UQSLA', players: ['Shavini Kariyawasam', 'Sanuli Ranatunga', 'Diya Chandy', 'Leron Hewapathiranage'] },
+      { name: 'UQISC',        soc: 'UQISC', players: ['Ragesh Ramanalingam', 'Alex John', 'Shane Shaji', 'Mithila Balamurugan', 'Sandes Welagedara'] },
+      { name: "Aum's team",   players: ['Aum', 'Harshil', 'Jaydeep', 'Maan', 'Nikhil', 'Kartik Karri'] },
+      { name: "Luhara's team", players: ['Luhara Weerawardhane', 'Gabriela Santamaria', 'Lindel Heron', 'Pranav Biju', 'Shannon Galegedara', 'Shanaya Galegedara', 'Sewni Jaburagoda', 'Isha Chawla', 'Vatsal Delivala'] },
+      { name: "Sargun's team", players: ['Sargun', 'Kanav', 'Manan', 'Yashraj', 'Atharv', 'Mudit'] },
+      { name: 'Team QUT',     players: ['Ashmical Maharaj', 'Samar', 'Lochlan', 'Tanveer', 'Tavneel', 'Hashim', 'Kenshin'] },
+      { name: "Ameya's team", players: ['Ameya Eldhose', 'Elvin Binoy', 'Charan', 'Dhruvesh Vinaikumar', 'Devyn Ramos', 'Aravind KB'] },
+      { name: 'Solos',        players: ['Uday', 'Jai Bhatia', 'Sam Klaassen', 'Priyansh', 'Tanveer Salaria', 'Sajal Gururani'] },
+    ],
+    fb: [],
+    ck: [],
+  };
+  // One selected sport, shared by the Teams and Brackets sections on both pages.
+  let sportSel = 'vb'; try { sportSel = localStorage.getItem('onshift.sport') || 'vb'; } catch {}
+  if (!SPORTS[sportSel]) sportSel = 'vb';
+  const SPORT_ICON = { vb: 'volleyball', fb: 'football', ck: 'cricket' };
+  function renderSportTabs() {
+    document.querySelectorAll('[data-sporttabs]').forEach(el => {
+      el.innerHTML = Object.entries(SPORTS).map(([k, n]) => `<button type="button" data-sport="${k}" aria-pressed="${k === sportSel}"><svg viewBox="0 0 24 24">${ICONS[SPORT_ICON[k]]}</svg>${n}</button>`).join('');
+      el.querySelectorAll('[data-sport]').forEach(b => b.addEventListener('click', () => { sportSel = b.dataset.sport; try { localStorage.setItem('onshift.sport', sportSel); } catch {} renderSportTabs(); renderTeams(); renderBrackets(); }));
+    });
+  }
+  function renderTeams() {
+    const list = TEAMS[sportSel] || [];
+    const isExec = (nm) => !!byFirst[nm.split(' ')[0].toLowerCase()] && PEOPLE.some(p => p.n === nm || p.first === nm);
+    const html = list.length ? list.map(t => `<details><summary>${t.soc ? iconHtml('tent', CATS.club.color, 'sm') : iconHtml(SPORT_ICON[sportSel], CATS.sport.color, 'sm')}<span>${esc(t.name)}</span><span class="n">${t.players.length} player${t.players.length === 1 ? '' : 's'}</span><span class="chev">›</span></summary><div class="players">${t.players.map(nm => `<span class="${isExec(nm) ? 'exec' : ''}">${esc(nm)}</span>`).join('')}</div></details>`).join('')
+      : `<p class="fine">${SPORTS[sportSel]} teams haven't been listed yet — check back closer to the day.</p>`;
+    ['teams-exec', 'teams-pub'].forEach(id => { const el = $(id); if (el) el.innerHTML = html; });
+  }
+  renderSportTabs(); renderTeams();
+  // the bracket form's tick list: the listed teams for that sport (pre-ticked), then the clubs
+  const renderPick = () => { const sp = $('b-sport').value; const names = [...new Set([...(TEAMS[sp] || []).map(t => t.name), ...CLUBS])]; $('b-pick').innerHTML = names.map(c => `<label><input type="checkbox" value="${esc(c)}" ${(TEAMS[sp] || []).some(t => t.name === c) ? 'checked' : ''}>${esc(c)}</label>`).join(''); };
+  renderPick(); $('b-sport').addEventListener('change', renderPick);
   let db = null;
   try { firebase.initializeApp(FB); db = firebase.database(); } catch (e) { db = null; }
   const ref = (path) => db.ref('spice-road/' + path);
@@ -2418,12 +2481,14 @@
 
   // --- scores ---
   let matches = {};
+  let renaming = null;   // the live match whose names are being edited
   function matchCard(id, m, editable) {
     const d = DUTIES[m.sport] || {}; const color = CATS.sport.color;
     const team = (side, name, n) => `<div class="team"><span class="nm">${esc(name || '—')}</span><span class="n">${n || 0}</span>${editable && m.status === 'live' ? `<div class="pm"><button type="button" data-id="${id}" data-side="${side}" data-d="-1" aria-label="minus one ${esc(name)}">−</button><button type="button" data-id="${id}" data-side="${side}" data-d="1" aria-label="plus one ${esc(name)}">+</button></div>` : ''}</div>`;
     return `<div class="match" style="--c:${color}">
-      <div class="head">${iconHtml(d.icon || 'football', color, 'sm')}<span class="lbl">${esc(SPORTS[m.sport] || m.sport)}</span>${m.status === 'live' ? '<span class="live-tag">Live</span>' : `<span class="fine">Final</span>`}</div>
+      <div class="head">${iconHtml(d.icon || 'football', color, 'sm')}<span class="lbl">${esc(SPORTS[m.sport] || m.sport)}</span>${m.status === 'live' ? '<span class="live-tag">Live</span>' : `<span class="fine">Final</span>`}${editable && m.status === 'live' ? `<button type="button" class="gear" data-rename="${id}" aria-label="Edit team names" title="Edit team names"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>` : ''}</div>
       <div class="teams">${team('sa', m.a, m.sa)}<span class="vs">VS</span>${team('sb', m.b, m.sb)}</div>
+      ${editable && m.status === 'live' && renaming === id ? `<form class="rename" data-renameform="${id}"><input type="text" maxlength="24" value="${esc(m.a)}" aria-label="Team A" required><input type="text" maxlength="24" value="${esc(m.b)}" aria-label="Team B" required><button class="btn-small" type="submit">Save</button></form>` : ''}
       ${editable && m.status === 'live' ? `<div class="foot"><span>Started ${m.t ? clock(m.t) : ''}</span><button type="button" class="btn-small ghost" data-end="${id}">End match</button></div>` : ''}
       ${editable && m.status !== 'live' ? `<div class="foot"><span>${m.ended ? 'Ended ' + clock(m.ended) : ''}</span><button type="button" class="btn-small ghost" data-del="${id}">Remove</button></div>` : ''}
     </div>`;
@@ -2441,6 +2506,16 @@
     }));
     $('scores-live').querySelectorAll('.pm button').forEach(b => b.addEventListener('click', () => {
       ref(`scores/${b.dataset.id}/${b.dataset.side}`).transaction(v => Math.max(0, (v || 0) + Number(b.dataset.d)));
+    }));
+    $('scores-live').querySelectorAll('[data-rename]').forEach(b => b.addEventListener('click', () => { renaming = renaming === b.dataset.rename ? null : b.dataset.rename; renderScores(); }));
+    $('scores-live').querySelectorAll('[data-renameform]').forEach(f => f.addEventListener('submit', async (e) => {
+      e.preventDefault(); const id = f.dataset.renameform; const [a, b] = [...f.querySelectorAll('input')].map(i => i.value.trim().slice(0, 24));
+      if (!a || !b) return;
+      const m = matches[id]; const oldA = m.a, oldB = m.b; renaming = null;
+      await ref('scores/' + id).update({ a, b });
+      // the bracket that points at this match follows the new names
+      Object.entries(brackets).forEach(([sport, br]) => { let ch = false; (br.rounds || []).forEach(r => r.forEach(x => { if (x.m === id) { if (x.a === oldA) { x.a = a; ch = true; } if (x.b === oldB) { x.b = b; ch = true; } } })); if (ch) saveBracket(sport, br); });
+      renaming = null;
     }));
     $('scores-live').querySelectorAll('[data-end]').forEach(b => b.addEventListener('click', () => {
       if (confirm('End this match? The score stays up as a final.')) ref(`scores/${b.dataset.end}`).update({ status: 'done', ended: now() });
@@ -2691,7 +2766,7 @@
     { icon: 'mic',     color: 'var(--c-stage)',  t: 'Bell', k: 'bell notifications broadcasts notices messages tray unread', p: 'The bell at the top. Swap requests and calls for help you can answer, messages, and notices from the organisers. The red number is what you haven\'t seen.' },
     { icon: 'crowd',   color: 'var(--c-club)',   t: 'Messages', k: 'message dm chat text someone name tap', p: 'Tap any name anywhere in the app to message them. Four one-tap lines and a box. Your conversations live in the bell.' },
     { icon: 'crowd',   color: 'var(--c-sport)',  t: 'Team', k: 'team who is free on duty filter societies mute advanced', p: 'Who\'s free and who\'s on what, this block. <b>‹ ›</b> to look at other blocks. <b>Societies</b> hides clubs you don\'t need to see; <b>Advanced</b> picks individual people.' },
-    { icon: 'football',color: 'var(--c-sport)',  t: 'Scores & brackets', k: 'scores bracket match referee start end plus minus timetable', p: 'Referees: <b>the score you tap is the score</b> — it goes to the big screen and the public page within a second, and nobody else keeps it. <b>Start a match</b>, tap <b>+</b>/<b>−</b>, <b>End match</b>. Brackets fill themselves in; <b>Play next</b> starts the next one.' },
+    { icon: 'football',color: 'var(--c-sport)',  t: 'Scores & brackets', k: 'scores bracket match referee start end plus minus timetable teams who is in', p: 'Pick the sport at the top. <b>Teams</b> shows who\'s in each team (execs in maroon). In the <b>bracket</b>, tap a match to start it — scoring opens under Live matches. Referees: <b>the score you tap is the score</b> — it goes to the big screen and the public page within a second. The gear on a live match edits the team names. <b>End match</b> fills the bracket in.' },
     { icon: 'tent',    color: 'var(--c-club)',   t: 'Map', k: 'map where location pinch zoom pins field 7 field 6 first aid toilets satellite where am i blue dot gps', p: '<b>Simple</b> is the ground plan, <b>Satellite</b> is real imagery — both have pins for football and cricket (Field 7), volleyball (the beach courts), food trucks and stalls (Field 6), the grandstand, the entry, first aid, toilets and the assembly point. Tap a pin for what\'s there. On Satellite, the <b>target</b> button shows where you are as a blue dot (your phone will ask once). Drag to pan, pinch to zoom, double-tap to zoom in.' },
     { icon: 'sparkle', color: 'var(--c-ticket)', t: "What's On", k: 'whats on stalls timetable stage performances businesses clubs photos upload', p: 'Everything at the festival. Tap a sport for the match timetable, the stage for the running order, a business for what they do, a club for who\'s on the marquee. Send festival photos from the bottom.' },
     { icon: 'camera',  color: 'var(--c-photo)',  t: 'Photos & big screen', k: 'photos upload approve big screen tv slideshow', p: 'Anyone can send a photo in; organisers approve them; approved photos roll across the big screen. <b>Big screen mode</b> is under Settings for whoever runs the TV.' },
@@ -3584,7 +3659,7 @@ Escalation: anything medical or dangerous — call 000 first, then tell an organ
       if (sc && sc.status === 'live') return `<span class="mid"><span class="live-tag">Live</span><span class="sc">${sc.sa}–${sc.sb}</span></span>`;
       if (!editable) return `<span class="mid">${sc ? `<span class="sc">${sc.sa}–${sc.sb}</span>` : 'VS'}</span>`;
       if (sc && sc.status === 'done') return `<span class="mid"><span class="sc">${sc.sa}–${sc.sb}</span><span class="pick"><button type="button" data-win="${sport}|${k}|${i}|a">${esc(m.a)}</button><button type="button" data-win="${sport}|${k}|${i}|b">${esc(m.b)}</button></span></span>`;
-      return `<span class="mid"><button type="button" data-start="${sport}|${k}|${i}">Start</button><span class="pick"><button type="button" data-win="${sport}|${k}|${i}|a" title="Forfeit / walkover">${esc(m.a)} ✓</button><button type="button" data-win="${sport}|${k}|${i}|b" title="Forfeit / walkover">${esc(m.b)} ✓</button></span></span>`;
+      return `<span class="mid"><button type="button" data-start="${sport}|${k}|${i}" data-names="${esc(m.a)} v ${esc(m.b)}" data-jump="1">Start</button><span class="pick"><button type="button" data-win="${sport}|${k}|${i}|a" title="Forfeit / walkover">${esc(m.a)} ✓</button><button type="button" data-win="${sport}|${k}|${i}|b" title="Forfeit / walkover">${esc(m.b)} ✓</button></span></span>`;
     };
     const totalR = roundsTotal((rounds[0] || []).length);
     const roundsHtml = rounds.map((r, k) => `<div class="round"><h4>${rname(k, totalR)}</h4>${r.map((m, i) => `<div class="bm">${team(m.a, m, 'r')}${mid(m, k, i)}${team(m.b, m, '')}</div>`).join('')}</div>`).join('');
@@ -3621,10 +3696,15 @@ Escalation: anything medical or dangerous — call 000 first, then tell an organ
     });
   }
   function renderBrackets() {
-    const ids = ['vb', 'fb', 'ck'].filter(k => brackets[k]);
-    const html = (editable) => ids.length ? ids.map(k => bracketCard(k, brackets[k], editable)).join('') : '<p class="fine">No brackets yet.</p>';
-    const pub = $('public-brackets'); if (pub) { pub.innerHTML = ids.length ? ids.map(k => bracketDraw(k, brackets[k])).join('') : '<p class="fine">No brackets yet.</p>'; requestAnimationFrame(() => drawBracketLines(pub)); }
-    const el = $('brackets'); el.innerHTML = html(true);
+    const k0 = sportSel; const br0 = brackets[k0];
+    const none = `<p class="fine">No ${SPORTS[k0]} bracket yet.</p>`;
+    const pub = $('public-brackets'); if (pub) { pub.innerHTML = br0 ? bracketDraw(k0, br0) : none; requestAnimationFrame(() => drawBracketLines(pub)); }
+    const el = $('brackets');
+    const seed = (TEAMS[k0] || []).length >= 2 && !br0 && db && me ? `<button type="button" class="btn-small" id="b-seed">Build the ${esc(SPORTS[k0])} bracket from the ${TEAMS[k0].length} listed teams</button>` : '';
+    el.innerHTML = br0 ? bracketCard(k0, br0, true) : none + (seed ? `<div class="btns" style="margin-top:0">${seed}</div>` : '');
+    const seedBtn = $('b-seed'); if (seedBtn) seedBtn.addEventListener('click', () => { if (confirm(`Build the ${SPORTS[k0]} bracket in the listed order? You can rebuild it below any time.`)) saveBracket(k0, buildBracket(TEAMS[k0].map(t => t.name))); });
+    // tapping the match itself starts it (same as the Start button)
+    el.querySelectorAll('.bm').forEach(row => { const st = row.querySelector('[data-start]'); if (st) { row.classList.add('startable'); row.addEventListener('click', e => { if (e.target.closest('button')) return; if (confirm(`Start ${st.dataset.names || 'this match'}? Scoring opens under Live matches.`)) st.click(); }); } });
     el.querySelectorAll('[data-start]').forEach(b => b.addEventListener('click', async () => {
       const [sport, k, i] = b.dataset.start.split('|'); const br = brackets[sport]; const m = br.rounds[k][i];
       const pushed = await ref('scores').push({ sport, a: m.a, b: m.b, sa: 0, sb: 0, status: 'live', t: now(), by: me ? me.first : '' });
