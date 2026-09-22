@@ -1481,11 +1481,11 @@
     // Photo schedule — a duty like any other, so it shows up in the run sheet and Team.
     // Playing, as distinct from running a sport: you're on the field for your
     // society, not refereeing. Green so it never reads as a duty.
-    'play-vb': { cat:'play', icon:'volleyball', name:'Playing volleyball', where:'Beach volleyball courts (bottom of the ground)', do:'You\'re on the court for your society this block. Be there five minutes early, then hand back to whoever\'s refereeing.',
+    'play-vb': { cat:'play', icon:'volleyball', name:'Playing volleyball', where:'Beach volleyball courts (bottom of the ground)', do:'You\'re on the court for your society while your team is in the bracket. The moment you\'re knocked out this turns free and you\'re back in the pool. Be there five minutes early, then hand back to whoever\'s refereeing.',
           tasks:['Your society\'s team', '5 min early', 'Not refereeing'] },
-    'play-fb': { cat:'play', icon:'football', name:'Playing football', where:'Field 7 (the main oval)', do:'You\'re on the oval for your society this block. Be there five minutes early, then hand back to whoever\'s refereeing.',
+    'play-fb': { cat:'play', icon:'football', name:'Playing football', where:'Field 7 (the main oval)', do:'You\'re on the oval for your society while your team is in the tournament. Knocked out, and this turns free. Be there five minutes early, then hand back to whoever\'s refereeing.',
           tasks:['Your society\'s team', '5 min early', 'Not refereeing'] },
-    'play-ck': { cat:'play', icon:'cricket', name:'Playing cricket', where:'Field 7, after the football', do:'You\'re on the pitch for your society this block. Be there five minutes early, then hand back to whoever\'s umpiring.',
+    'play-ck': { cat:'play', icon:'cricket', name:'Playing cricket', where:'Field 7, after the football', do:'You\'re on the pitch for your society while your team is still playing. Once you\'re done this turns free. Be there five minutes early, then hand back to whoever\'s umpiring.',
           tasks:['Your society\'s team', '5 min early', 'Not umpiring'] },
     'photo-pres': { cat:'photo', name:'Presidents\' photo', where:'Performance stage', do:'All club presidents at the stage steps for the group photo. Be there two minutes early — the photographer has a five-minute window before the next act.',
           tasks:['Presidents only', 'Stage steps', '2 min early'] },
@@ -1536,10 +1536,27 @@
   // The roster as it stands after accepted swaps: the taker steps into the
   // requester's slot, same duty, same partners.
   let swaps = {};
+  // A "Playing X" block is held while your society's team is still in that
+  // bracket. Lose (or the bracket finishes) and the block turns free on the
+  // spot — on your phone, on the Team tab, and for help calls — without
+  // anyone touching the roster. Team names in the bracket match societies
+  // with or without the UQ (UQSLA / SLA).
+  const teamKey = (t) => String(t || '').toUpperCase().replace(/^UQ/, '').replace(/[^A-Z]/g, '');
+  function teamOut(sport, first) {
+    const br = brackets && brackets[sport]; if (!br || !br.rounds || !br.rounds[0]) return false;
+    const p = byFirst[first.toLowerCase()]; if (!p) return false;
+    const mine = new Set(p.s.map(teamKey));
+    const inBracket = br.rounds[0].some(m => mine.has(teamKey(m.a)) || mine.has(teamKey(m.b)));
+    if (!inBracket) return false;
+    const last = br.rounds[br.rounds.length - 1];
+    if (last.length === 1 && last[0].w) return true;   // the final's been played: everyone's done
+    return br.rounds.some(r => r.some(m => m.w && (mine.has(teamKey(m.a)) || mine.has(teamKey(m.b))) && !mine.has(teamKey(m.w))));
+  }
   function rowsFor(i) {
     const taken = Object.values(swaps).filter(sw => sw.status === 'taken' && sw.block === i && sw.to);
-    if (!taken.length) return ROSTER[i];
-    return ROSTER[i].map(([id, ppl]) => {
+    const base = ROSTER[i].map(([id, ppl]) => id.startsWith('play-') ? [id, ppl.filter(p => !teamOut(id.slice(5), p))] : [id, ppl]).filter(([, ppl]) => ppl.length);
+    if (!taken.length) return base;
+    return base.map(([id, ppl]) => {
       let out = ppl.slice();
       taken.forEach(sw => {
         if (sw.duty === id && out.includes(sw.from)) { out = out.filter(p => p !== sw.from && p !== sw.to); out.push(sw.to); }
@@ -2625,6 +2642,7 @@
     { icon: 'tent',    color: 'var(--c-club)',   t: 'Map', k: 'map where location pinch zoom pins field 7 field 6 first aid toilets satellite where am i blue dot gps', p: '<b>Simple</b> is the ground plan, <b>Satellite</b> is real imagery — both have pins for football and cricket (Field 7), volleyball (the beach courts), food trucks and stalls (Field 6), the grandstand, the entry, first aid, toilets and the assembly point. Tap a pin for what\'s there. On Satellite, the <b>target</b> button shows where you are as a blue dot (your phone will ask once). Drag to pan, pinch to zoom, double-tap to zoom in.' },
     { icon: 'sparkle', color: 'var(--c-ticket)', t: "What's On", k: 'whats on stalls timetable stage performances businesses clubs photos upload', p: 'Everything at the festival. Tap a sport for the match timetable, the stage for the running order, a business for what they do, a club for who\'s on the marquee. Send festival photos from the bottom.' },
     { icon: 'camera',  color: 'var(--c-photo)',  t: 'Photos & big screen', k: 'photos upload approve big screen tv slideshow', p: 'Anyone can send a photo in; organisers approve them; approved photos roll across the big screen. <b>Big screen mode</b> is under Settings for whoever runs the TV.' },
+    { icon: 'volleyball', color: 'var(--c-sport)', t: 'Playing for your society', k: 'playing team bracket knocked out eliminated free volleyball football cricket', p: 'If you\'re on a society team, your roster says <b>Playing</b> for the whole tournament window — nobody can be rostered elsewhere while their team might still be in. The moment your team is knocked out (the ref taps the result), that block turns <b>free</b> on your phone and you\'re back in the pool for help calls.' },
     { icon: 'box',     color: 'var(--c-hands)',  t: 'Logistics', k: 'logistics floating organisers help everything ping notification', p: 'The floating team (Nandos, Prabhas, Archita, Sanuli, Devashri, Tanisha). Not rostered on any one thing — they back up whichever team is short. Every <b>swap request</b> and <b>call for help</b> lands in their bell, and with pings turned on, on their phone too.' },
     { icon: 'sparkle', color: 'var(--tan)',      t: 'Spicy', k: 'spicy ask question help bot chat ai assistant who do i talk to where is', p: 'Settings → <b>Spicy</b>. Ask anything — what your duty involves, who\'s on what right now, how a part of the app works. It answers from the roster and this manual, points you to a person when there is one, and says so when it doesn\'t know. When the answer is a button or a place in the app, tap <b>Show me</b> and Spicy spotlights it on screen. Every answer has a <b>Message Sandes</b> button.' },
     { icon: 'box',     color: 'var(--c-hands)',  t: 'Settings', k: 'settings gear notification notify switch user sign out big screen manual emergency spicy', p: 'The gear. Big screen mode, a notification when the block changes, switch who\'s signed in, <b>Spicy</b> (ask it anything), this manual, <b>Log incident</b> (first aid, lost property, behaviour, equipment — timestamped for the organisers), and the red <b>Emergency</b> button with who to call.' },
@@ -3601,7 +3619,7 @@ Escalation: anything medical or dangerous — call 000 first, then tell an organ
     const pub = $('public-scores');
     [$('scores-live'), $('bcast-list'), pub].forEach(el => { if (el) el.innerHTML = '<p class="fine">Connecting…</p>'; });
     ref('scores').limitToLast(60).on('value', snap => { matches = snap.val() || {}; renderScores(); settleBrackets(); renderBrackets(); renderDesk(); if (scrOn) scrScores(); }, () => { unavailable($('scores-live'), 'scores'); if (pub) unavailable(pub, 'scores'); });
-    ref('brackets').on('value', snap => { brackets = snap.val() || {}; renderBrackets(); }, () => { unavailable($('brackets'), 'brackets'); const pb = $('public-brackets'); if (pb) unavailable(pb, 'brackets'); });
+    ref('brackets').on('value', snap => { brackets = snap.val() || {}; renderBrackets(); if (!$('shell').hidden) { render(); renderHelps(); renderBell(); } }, () => { unavailable($('brackets'), 'brackets'); const pb = $('public-brackets'); if (pb) unavailable(pb, 'brackets'); });
     ref('broadcasts').limitToLast(30).on('value', snap => { bcasts = snap.val() || {}; renderBcasts(); }, () => { unavailable($('bcast-list'), 'updates'); });
     ref('swaps').limitToLast(60).on('value', snap => { swaps = snap.val() || {}; if (!$('shell').hidden) { render(); renderSwaps(); renderBell(); pingLogi(); } }, () => { unavailable($('swap-list'), 'swaps'); });
     ref('dm').on('value', snap => { dms = snap.val() || {}; if (dmOpen) renderDmThread(); renderDmConvos(); renderBell(); }, () => {});
