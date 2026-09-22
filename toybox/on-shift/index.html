@@ -1445,11 +1445,11 @@
 
   const DUTIES = {
     // tasks: the sub-jobs inside each job — shown as small tags on the duty card
-    vb: { cat:'sport', icon:'volleyball', name:'Volleyball', where:'Beach volleyball courts (bottom of the ground)', do:'Keep games moving on the court. Call scores, rotate teams every 15 minutes, and keep the ball bag with you.',
+    vb: { cat:'sport', icon:'volleyball', name:'Volleyball', where:'Beach volleyball courts (bottom of the ground)', do:'One court is the knockout bracket, two are social. Referee the bracket court, keep social games rotating so nobody hogs a court, and keep the ball bag with you. Bracket 3:35 – 4:50, winner at 5:00.',
           tasks:['Scorekeeping', 'Rotating teams', 'Ball bag'] },
-    fb: { cat:'sport', name:'Football', where:'Field 7 (the main oval)', do:'Referee and keep the sideline clear. Games run 20 minutes — blow up when the stage calls time and swap teams.',
+    fb: { cat:'sport', name:'Football', where:'Field 7 (the main oval)', do:'Referee your pitch and keep the sideline clear. 16 teams: group games 3:00 – 4:40, semis 4:50, final 5:30. Blow up on time — the bracket depends on it.',
           tasks:['Refereeing', 'Sideline clear', 'Team swaps'] },
-    ck: { cat:'sport', icon:'cricket', name:'Cricket', where:'Field 7, after the football', do:'Umpire the pitch and keep spectators behind the cones. Rotate batting sides every 6 overs.',
+    ck: { cat:'sport', icon:'cricket', name:'Cricket', where:'Field 7, after the football', do:'Umpire the pitch and keep spectators behind the cones. T6 with a tennis ball: six overs a side, about two minutes an over. Games at 6:40, 7:20 and 8:00; scores to the committee by 8:30.',
           tasks:['Umpiring', 'Getting people off the field', 'Spectators behind cones'] },
     tk: { cat:'ticket', name:'Ticketing', where:'Main entry gate', do:'Check tickets and stamp wrists. Hold the line at the barrier — never leave the table unattended.',
           tasks:['Checking tickets', 'Wristbands', 'Holding the barrier', 'Questions & directions'] },
@@ -1463,11 +1463,11 @@
           tasks:['Queues orderly', 'Spills', 'Cords & generators'] },
     'cr-gen':  { cat:'crowd', name:'Crowd & support', where:'Generators & cords sweep', do:'Do a full loop of every generator and cable run. Tape down anything loose, then rejoin the stage lawn.',
           tasks:['Full loop', 'Tape loose cords', 'Generator check'] },
-    'fund-pp':   { cat:'fund', icon:'bowl', name:'Pani Puri Stall', where:'Field 6 food row, stall 1', do:'Help the charity volunteers serve and take payment. Keep the queue moving.',
+    'fund-pp':   { cat:'fund', icon:'sparkle', name:'Nepal Floods fundraiser', where:'Charity marquee, Field 6', do:'Sell raffle tickets and run spin-the-wheel. Prizes are raffle tickets, Fright Night drink vouchers, soft drinks and lollies. Count the float; every dollar goes to Nepal\'s flood relief fund.',
+          tasks:['Raffle tickets', 'Spin the wheel', 'Payments'] },
+    'fund-bake': { cat:'fund', name:'UQ Manali Medical Project', where:'Charity marquee, Field 6', do:'Help the Manali volunteers serve and take payment. Keep the queue moving.',
           tasks:['Serving', 'Payments', 'Queue'] },
-    'fund-bake': { cat:'fund', name:'Manali Project Bake Sale', where:'Field 6 food row, stall 2', do:'Help the charity volunteers serve and take payment. Keep the queue moving.',
-          tasks:['Serving', 'Payments', 'Queue'] },
-    'fund-hope': { cat:'fund', name:'Hope by Hands', where:'Field 6 food row, stall 3', do:'Help the charity volunteers serve and take payment. Keep the queue moving.',
+    'fund-hope': { cat:'fund', name:'Hope by Hands', where:'Charity marquee, Field 6', do:'Help the Hope by Hands volunteers serve and take payment. Keep the queue moving.',
           tasks:['Serving', 'Payments', 'Queue'] },
     // Photo schedule — a duty like any other, so it shows up in the run sheet and Team.
     // Playing, as distinct from running a sport: you're on the field for your
@@ -1582,43 +1582,70 @@
   // Same cards as Team → On duty, minus the people. tags are visitor-facing.
   const WHATS_ON = [
     { h: 'Sports', items: [
-      { cat: 'sport', icon: 'volleyball', info: 'sport:vb', name: 'Volleyball', where: 'Volleyball court', blurb: 'Pick-up games all afternoon — jump in when a team rotates.', tags: ['Teams rotate every 15 min'] },
-      { cat: 'sport', info: 'sport:fb', name: 'Football',   where: 'Main oval',        blurb: 'Short games, fresh teams each time the stage calls it.', tags: ['20-minute games'] },
-      { cat: 'sport', icon: 'cricket', info: 'sport:ck', name: 'Cricket',    where: 'Cricket pitch',    blurb: 'Bat, bowl, or watch from behind the cones.', tags: ['6 overs a side'] },
+      { cat: 'sport', info: 'sport:fb', name: 'Football',   where: 'Field 7',                 blurb: '16 teams in four groups, then semi-finals and a final. 3:00 – 6:00 pm.', tags: ['Groups 3:00 – 4:40', 'Semis 4:50', 'Final 5:30'] },
+      { cat: 'sport', icon: 'volleyball', info: 'sport:vb', name: 'Volleyball', where: 'Beach volleyball courts', blurb: 'Knockout bracket on one court, social play on the other two — anyone can jump in. 3:00 – 5:00 pm.', tags: ['Bracket from 3:35', 'Social all afternoon'] },
+      { cat: 'sport', icon: 'cricket', info: 'sport:ck', name: 'Cricket',    where: 'Field 7',                 blurb: 'T6 — six overs a side with a tennis ball. 6:40 – 8:40 pm, winner announced at 8:50.', tags: ['Games 6:40 · 7:20 · 8:00'] },
     ]},
     { h: 'Stage & entry', items: [
-      { cat: 'stage',  info: 'stage', name: 'Performance stage', where: 'Stage lawn',      blurb: 'Performances through the evening. Announcements and sports call-outs come from here.', tags: ['Listen for call-outs'] },
+      { cat: 'stage',  info: 'stage', name: 'Performance stage', where: 'Stage', blurb: 'Bollywood, hip-hop, kuthu, folk, garba, bhangra and fusion — tap for the running order. Winners and the raffle are announced from here.', tags: ['Tap for times'] },
       { cat: 'ticket', name: 'Ticketing',         where: 'Main entry gate', blurb: 'Show your ticket at the gate and get a wrist stamp.', tags: ['Wrist stamp'] },
     ]},
-    { h: 'Fundraising & food', items: [
-      { cat: 'fund', icon: 'bowl', name: 'Pani Puri Stall',              where: 'Food row, stall 1', blurb: 'Run by charity volunteers.' },
-      { cat: 'fund', name: 'UQ Manali Project Bake Sale',  where: 'Food row, stall 2', blurb: 'Run by charity volunteers.' },
-      { cat: 'fund', name: 'Hope by Hands',                where: 'Food row, stall 3', blurb: 'Run by charity volunteers.' },
+    { h: 'Fundraising', items: [
+      { cat: 'fund', icon: 'sparkle', name: 'Nepal Floods fundraiser', where: 'Charity marquee, Field 6', blurb: 'Raffle tickets all day and a pay-to-play spin-the-wheel — win raffle tickets, Fright Night drink vouchers, soft drinks and lollies. Every dollar goes to Nepal\'s flood relief fund. Raffle drawn at 8:40 pm.', tags: ['Raffle', 'Spin the wheel'] },
+      { cat: 'fund', name: 'UQ Manali Medical Project', where: 'Charity marquee, Field 6', blurb: 'Fundraising for the Manali Medical Project.' },
+      { cat: 'fund', name: 'Hope by Hands',            where: 'Charity marquee, Field 6', blurb: 'Fundraising for Hope by Hands.' },
+    ]},
+    { h: 'Food trucks', items: [
+      { cat: 'fund', icon: 'bowl', label: 'Food truck', name: 'Meraki with Love',   where: 'Field 6' },
+      { cat: 'fund', icon: 'bowl', label: 'Food truck', name: 'Little Mamak',       where: 'Field 6', blurb: 'Malaysian.' },
+      { cat: 'fund', icon: 'bowl', label: 'Food truck', name: 'Wok Master',         where: 'Field 6' },
+      { cat: 'fund', icon: 'bowl', label: 'Food truck', name: 'Hawker Eats',        where: 'Field 6' },
+      { cat: 'fund', icon: 'bowl', label: 'Food truck', name: '5911 Pind on Wheels', where: 'Field 6' },
+      { cat: 'fund', icon: 'bowl', label: 'Food truck', name: 'Istanbul on Wheels', where: 'Field 6' },
+      { cat: 'fund', icon: 'bowl', label: 'Food truck', name: 'Yomigo',             where: 'Field 6' },
     ]},
     { h: 'Business stalls', items: [
-      { cat: 'ticket', icon: 'sparkle', label: 'Stall', info: 'biz:Inaara', name: 'Inaara' },
-      { cat: 'ticket', icon: 'sparkle', label: 'Stall', info: 'biz:Dia Effect', name: 'Dia Effect' },
+      { cat: 'ticket', icon: 'sparkle', label: 'Stall', info: 'biz:Inara Collections', name: 'Inara Collections' },
+      { cat: 'ticket', icon: 'sparkle', label: 'Stall', info: 'biz:Meheks Mehndi',     name: 'Meheks Mehndi' },
+      { cat: 'ticket', icon: 'sparkle', label: 'Stall', info: 'biz:Sajaraa',           name: 'Sajaraa' },
+      { cat: 'ticket', icon: 'sparkle', label: 'Stall', info: 'biz:The Dia Effect',    name: 'The Dia Effect' },
+      { cat: 'ticket', icon: 'sparkle', label: 'Stall', info: 'biz:Indi Pride',        name: 'Indi Pride' },
+      { cat: 'ticket', icon: 'sparkle', label: 'Stall', info: 'biz:Solar Prime',       name: 'Solar Prime' },
+    ]},
+    { h: 'Help & safety', items: [
+      { cat: 'crowd', icon: 'heart', name: 'First aid',  where: 'First Aid marquee, Field 6', blurb: 'UQIC venue manager and first aid. For anything serious, call 000 first.', tags: ['Marquee 14'] },
+      { cat: 'crowd', name: 'Security', where: 'Around the ground', blurb: 'Tru Security are on site all evening. Find any exec if you need them.' },
     ]},
   ];
-  // Dummy copy for the tap-through sheets — Sandes will replace the words.
+  // The running order from the performance committee. Announcements are in
+  // here too so the public page's "on stage now" covers the whole night.
   const STAGE_TIMES = [
-    { t: 15 * 60 + 30, who: 'Welcome & opening', what: 'Presidents on stage' },
-    { t: 16 * 60,      who: 'UQGIDDHA',          what: 'Giddha' },
-    { t: 16 * 60 + 40, who: 'UQNAATAK',          what: 'Short play' },
-    { t: 17 * 60 + 20, who: 'UQTAS',             what: 'Dance' },
-    { t: 18 * 60,      who: 'Presidents\' photo', what: 'Stage steps' },
-    { t: 18 * 60 + 30, who: 'UQISC × UQSLA',     what: 'Fusion set' },
-    { t: 19 * 60 + 30, who: 'Open mic',          what: 'Sign up at the stage' },
-    { t: 20 * 60 + 30, who: 'Finals & prizes',   what: 'Sports winners announced' },
+    { t: 14 * 60 + 50, who: 'Opening',                       what: 'Speech from MJ' },
+    { t: 15 * 60 + 15, who: 'Kanishq Chandwani',             what: 'Solo Bollywood hip-hop' },
+    { t: 15 * 60 + 25, who: 'Echo & Ember',                  what: 'Jennifa & partner — freestyle, contemporary, kuthu' },
+    { t: 15 * 60 + 40, who: 'UQTAS Dance Wing',              what: 'Folk & kuthu' },
+    { t: 16 * 60,      who: 'Karpagalaxmy Sivasivakari',     what: 'Bollywood mix' },
+    { t: 16 * 60 + 30, who: 'UQ Gujarati Society',           what: 'Garba' },
+    { t: 18 * 60,      who: 'UQPA Bhangra',                  what: 'Jasmine Hanzra & team' },
+    { t: 18 * 60 + 10, who: 'Football winners',              what: 'Announced on stage' },
+    { t: 18 * 60 + 15, who: 'Dil x Kwab',                    what: 'Shreya & group — north-to-south fusion' },
+    { t: 18 * 60 + 30, who: 'UQNAATAK',                      what: 'Bharatanatyam & Bollywood hip-hop' },
+    { t: 20 * 60 + 40, who: 'Raffle draw',                   what: 'Nepal Floods fundraiser winners' },
+    { t: 20 * 60 + 50, who: 'Cricket winners',               what: 'Announced on stage' },
   ];
   const BIZ = {
-    'Inaara':     'Dummy text — a line or two about Inaara: what they make, where they\'re from, what to look for at the stall.',
-    'Dia Effect': 'Dummy text — a line or two about Dia Effect: what they make, where they\'re from, what to look for at the stall.',
+    'Inara Collections': 'Business stall on Field 6 — come and have a look.',
+    'Meheks Mehndi':     'Mehndi (henna) on Field 6.',
+    'Sajaraa':           'Business stall on Field 6 — come and have a look.',
+    'The Dia Effect':    'Business stall on Field 6 — come and have a look.',
+    'Indi Pride':        'Business stall on Field 6 — come and have a look.',
+    'Solar Prime':       'Solar energy — a sponsor stall on Field 6.',
   };
   // Committee head per duty. Null = not applicable (ticketing, crowd…). Fill in from the committee list.
   const LEADS = { vb: 'Sports head — TBC', fb: 'Sports head — TBC', ck: 'Sports head — TBC', st: 'Stage head — TBC', 'fund-pp': 'Fundraising head — TBC', 'fund-bake': 'Fundraising head — TBC', 'fund-hope': 'Fundraising head — TBC' };
   const leadFor = (id) => LEADS[id] || (id.startsWith('stall-') ? `${DUTIES[id].club} president — TBC` : null);
-  const CLUB_INFO = Object.fromEntries(CLUBS.map(c => [c, { full: c + ' — full name to come', about: 'Dummy text — a sentence about the society and what\'s at their marquee.', execs: [] }]));
+  const MARQUEE = { UQISC: 1, UQSLA: 2, UQTELS: 3, UQISS: 4, UQPA: 6, UQPSA: 7, UQNC: 8, UQGS: 9, UQNAATAK: 10, UQGIDDHA: 11, UQTAS: 12 };
+  const CLUB_INFO = Object.fromEntries(CLUBS.map(c => [c, { full: c, about: `Marquee ${MARQUEE[c] || '—'} on Field 6.`, execs: [] }]));
   // Round names the way Sandes wants them: the last two are Semi-finals and Final, the rest are Round 1, 2…
   const roundsTotal = (n) => { let t = 1; while (n > 1) { n = Math.ceil(n / 2); t++; } return t; };
   const rname = (k, total) => k === total - 1 ? 'Final' : k === total - 2 ? 'Semi-finals' : `Round ${k + 1}`;
@@ -1646,8 +1673,8 @@
   function infoHtml(key) {
     const [kind, arg] = key.split(':');
     if (kind === 'sport') return { title: SPORTS[arg] + ' — match timetable', body: timetableHtml(arg) };
-    if (kind === 'stage') return { title: 'Performance stage', body: `<div class="round">${STAGE_TIMES.map(x => `<div class="tt"><span class="t">${tm(x.t)}</span><span class="tm won" style="grid-column:2/-1;text-align:left">${esc(x.who)}<small>${esc(x.what)}</small></span></div>`).join('')}</div><p class="fine">Dummy schedule — the real running order goes here.</p>` };
-    if (kind === 'biz') return { title: arg, body: `<p>${esc(BIZ[arg] || 'Dummy text.')}</p>` };
+    if (kind === 'stage') return { title: 'Performance stage', body: `<div class="round">${STAGE_TIMES.map(x => `<div class="tt"><span class="t">${tm(x.t)}</span><span class="tm won" style="grid-column:2/-1;text-align:left">${esc(x.who)}<small>${esc(x.what)}</small></span></div>`).join('')}</div><p class="fine">Times are the plan — listen for the MC.</p>` };
+    if (kind === 'biz') return { title: arg, body: `<p>${esc(BIZ[arg] || 'Business stall on Field 6.')}</p>` };
     if (kind === 'duty') {
       const d = DUTIES[arg]; if (!d) return { title: '', body: '' };
       const i = block; const rows = i >= 0 && i < BLOCKS ? rowsFor(i).filter(([id]) => id === arg) : [];
@@ -2620,6 +2647,7 @@
   const FEST_NOTES = `# Spice Road Experience — notes for Spicy
 The Spice Road Experience is a one-day cultural festival at the University of Queensland run by student societies: UQISC (Indian Students' Club) and its partner society UQSLA (Sri Lankan Association), with eleven clubs running marquees. It's outdoors on a sports ground from mid-afternoon into the evening: club stalls, food and fundraising stalls, volleyball, football and cricket competitions, and a performance stage. The people using this app are execs — student volunteers rostered onto duties in 30-minute blocks.
 Organisers: Archita, Sanuka (UQSLA president), Prabhas and Thinanthanan. Sandes built the app and handles anything technical. Questions the notes don't answer should go to Sandes (there's a Message Sandes button under every answer).
+Programme: bump-in from 1:00 pm (food trucks 1:00 – 1:40, business stalls 1:50 – 2:20, club stalls 2:00), MJ's speech 2:50, doors 3:00. Football 3:00 – 6:00 on Field 7 (16 teams, groups then semis 4:50 and final 5:30). Volleyball 3:00 – 5:00 on the beach volleyball courts (one competitive court, two social). Performances on the stage 3:15 – 4:40 and 6:00 – 6:40. Cricket (T6, tennis ball) 6:40 – 8:40 on Field 7, winner announced 8:50. Raffle drawn 8:40. Bump-out 8:50 – 9:40. Food trucks (7) and business stalls (6) are on Field 6 all day, club marquees too (numbered 1 – 12). First aid: the UQIC venue manager at the First Aid marquee on Field 6. Security: Tru Security.
 Escalation: anything medical or dangerous — call 000 first, then tell an organiser. Emergency contacts are in the app under Settings → Emergency (never repeat phone numbers; point people there). Lost property, first aid, behaviour and equipment problems get logged under Settings → Log incident.`;
   const strip = (html) => { const d = document.createElement('div'); d.innerHTML = html; return d.textContent; };
   function spicyNotes() {
