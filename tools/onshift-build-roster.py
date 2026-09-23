@@ -12,7 +12,7 @@ REST = int(_os.environ.get('REST', '4'))   # people kept free each block
 HOUR_BLOCKS = {3: (0, 1), 4: (2, 3), 5: (4, 5), 6: (6, 7), 7: (8, 9), 8: (10, 11)}
 SOC = {'SLA': 'UQSLA', 'ISC': 'UQISC', 'TELS': 'UQTELS', 'NC': 'UQNC', 'GS': 'UQGS',
        'PSA': 'UQPSA', 'NAATAK': 'UQNAATAK', 'PA': 'UQPA', 'TAS': 'UQTAS', 'ISS': 'UQISS',
-       'GIDDHA': 'UQGIDDHA'}
+       'GIDDHA': 'UQGIDDHA', 'U': 'UQU'}
 
 # name | societies | hours on site | setup? | packup? | can't do | notes
 P = [
@@ -90,6 +90,8 @@ P = [
  ("Shreya Chhetri","NC","3,4,5,6,7,8",1,1,"","nc-vp"),
  ("Shriyans Bista","NC","3,4,5,6,7,8",1,1,"ck",""),
  ("Christopher Malik","PA","6,7",0,0,"",""),
+ # logistics, not a club with a stall
+ ("Mathew Jimmy","U","3,4,5,6,7,8",1,1,"","logi"),
 ]
 # when each performer is on stage (block index): GS garba 4:30, UQPA bhangra
 # 6:00, NAATAK 6:30 — they're off duty for that block only
@@ -121,7 +123,8 @@ for name, socs, hours, setup, packup, cd, note in P:
     SETUP_FLAG[first] = setup
 
 byfirst = {p["n"].split()[0]: p for p in people}
-socs_present = sorted({s for p in people for s in p["s"]})
+NO_STALL = {'UQU'}
+socs_present = sorted({s for p in people for s in p["s"]} - NO_STALL)
 SOC_SIZE = collections.Counter(s for p in people if avail[p["n"].split()[0]] for s in p["s"])
 
 def can(first, duty):
@@ -354,7 +357,9 @@ phones = json.load(open(phones_path)) if os.path.exists(phones_path) else {}
 for p in people:
     p["a"] = sorted(avail[p["n"].split()[0]])
     if p["n"].split()[0] in phones: p["t"] = phones[p["n"].split()[0]]
-out = {"people": people, "roster": roster, "setup": sorted([d, sorted(xs)] for d, xs in setup.items() if xs)}
+# numbers for contacts who aren't execs (full names in phones.json)
+contacts = {k: v for k, v in phones.items() if ' ' in k}
+out = {"people": people, "roster": roster, "contacts": contacts, "setup": sorted([d, sorted(xs)] for d, xs in setup.items() if xs)}
 json.dump(out, open(sys.argv[1], 'w'), indent=2)
 
 # ---- report ------------------------------------------------------------
