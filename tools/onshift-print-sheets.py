@@ -1,0 +1,111 @@
+#!/usr/bin/env python3
+"""One printable page per exec: name at the top, times down the left, duties on the right."""
+import json, sys, html, datetime
+
+# usage: onshift-print-sheets.py <roster.json> <onshift-build-roster.py> <out.html>
+d = json.load(open(sys.argv[1]))
+# who ticked setup / pack-up — read from the builder's source list
+src = open(sys.argv[2]).read()
+P = {}
+for line in src.split('\n'):
+    line = line.strip()
+    if line.startswith('("') and line.count('"') >= 8:
+        parts = eval(line.rstrip(','))
+        P[parts[0].split()[0]] = {'setup': parts[3], 'packup': parts[4]}
+
+DUTY = {
+  'vb': ('Volleyball referee', 'Beach volleyball courts'),
+  'fb': ('Football referee', 'Field 7 infield — one of Field 1–6'),
+  'fb-score': ('Football scores', 'Field 7 sideline, results desk'),
+  'ck': ('Cricket', 'Field 7 — umpire, leg umpire or scorer'),
+  'tk': ('Ticketing', 'Main entry gate — scan Humanitix QR codes'),
+  'st': ('Stage', 'Performance stage — cue acts, keep it clear'),
+  'cr-gate': ('Crowd & support', 'Entry gate zone'),
+  'cr-lawn': ('Crowd & support', 'Stage lawn'),
+  'cr-food': ('Crowd & support', 'Field 6 food row'),
+  'cr-gen': ('Crowd & support', 'Generators & cords sweep'),
+  'fund-pp': ('Nepal Floods fundraiser', 'Charity marquee — raffle & spin the wheel'),
+  'fund-bake': ('UQ Manali Medical Project', 'Charity marquee, Field 6'),
+  'fund-hope': ('Hope by Hands', 'Charity marquee, Field 6'),
+  'logi': ('Logistics', 'Everywhere — answer calls for help'),
+  'play-vb': ('Playing volleyball', 'Beach volleyball courts — for your society'),
+  'play-fb': ('Playing football', 'Field 7 — group stage, for your society'),
+  'play-ck': ('Playing cricket', 'Field 7 — for your society'),
+  'perform': ('Performing', 'Performance stage'),
+}
+def duty(id_):
+    if id_.startswith('stall-'):
+        c = id_[6:]; return (f'{c} stall', f'{c} marquee, Field 6 — visitors, sign-ups, content')
+    return DUTY.get(id_, (id_, ''))
+
+people = sorted(d['people'], key=lambda p: p['n'].lower())
+socOf = {p['n'].split()[0]: set(p['s']) for p in people}
+times = [(f"{3 + i // 2}:{'00' if i % 2 == 0 else '30'}", f"{3 + (i + 1) // 2}:{'00' if (i + 1) % 2 == 0 else '30'}") for i in range(12)]
+esc = html.escape
+
+pages = []
+for p in people:
+    first = p['n'].split()[0]
+    avail = set(p.get('a', range(12)))
+    rows = []
+    flags = P.get(first, {'setup': 0, 'packup': 0})
+    rows.append(('2:00 – 3:00', ('Setup — all hands', 'Marquees, tables, cones, fencing'), [], 'hands' if flags['setup'] else 'off'))
+    for i in range(12):
+        t = f'{times[i][0]} – {times[i][1]}'
+        if i not in avail:
+            rows.append((t, ('Not on site', ''), [], 'off')); continue
+        got = None
+        for id_, ppl in d['roster'][i]:
+            if first in ppl:
+                mates = [x for x in ppl if x != first]
+                if id_.startswith('play-'): mates = [x for x in mates if socOf.get(x, set()) & socOf[first]]
+                got = (duty(id_), mates, 'play' if id_.startswith('play-') or id_ == 'perform' else 'duty'); break
+        if got: rows.append((t, got[0], got[1], got[2]))
+        else: rows.append((t, ('Free — check the app', 'A job can still land here on the day'), [], 'free'))
+    rows.append(('9:00 – 10:00', ('Pack-up — all hands', 'Strike marquees, bag rubbish, return gear'), [], 'hands' if flags['packup'] else 'off'))
+
+    trs = []
+    for t, (name, where), mates, kind in rows:
+        withs = f'<span class="w">with {esc(", ".join(mates))}</span>' if mates else ''
+        trs.append(f'<tr class="{kind}"><td class="t">{esc(t)}</td><td class="d"><b>{esc(name)}</b>'
+                   f'{f"<span>{esc(where)}</span>" if where else ""}{withs}</td></tr>')
+    socs = ' · '.join(s for s in p['s'])
+    pages.append(f'''<section class="page">
+  <header><div class="eb">Spice Road Experience · Friday 25 September · UQ Athletics Centre</div>
+    <h1>{esc(p["n"])}</h1><div class="soc">{esc(socs)}</div></header>
+  <table><thead><tr><th>Time</th><th>Duty</th></tr></thead><tbody>{"".join(trs)}</tbody></table>
+  <footer><b>The app is the live roster.</b> Swaps, sports results and cover change it on the day — if this sheet and the app disagree, the app wins.
+    <span>sandeswelagedara.com/toybox/on-shift · Emergency: 000 first, then an organiser · Printed {datetime.date.today():%a %d %b}</span></footer>
+</section>''')
+
+doc = f'''<!doctype html><html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+SC:wght@600;700&family=Atkinson+Hyperlegible+Next:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  @page {{ size: A4; margin: 0; }}
+  * {{ box-sizing: border-box; margin: 0; }}
+  body {{ font-family: "Atkinson Hyperlegible Next", system-ui, sans-serif; color: #2B1A14; -webkit-print-color-adjust: exact; print-color-adjust: exact; }}
+  .page {{ width: 210mm; height: 297mm; padding: 14mm 16mm 12mm; page-break-after: always; display: flex; flex-direction: column; }}
+  header {{ border-bottom: 3px solid #6E2418; padding-bottom: 5mm; margin-bottom: 5mm; }}
+  .eb {{ font-size: 9.5pt; letter-spacing: .08em; text-transform: uppercase; color: #8C5A2B; font-weight: 700; }}
+  h1 {{ font-family: "Cormorant SC", serif; font-weight: 700; font-size: 36pt; line-height: 1; color: #6E2418; margin-top: 2mm; }}
+  .soc {{ font-weight: 700; font-size: 11pt; color: #6B5347; margin-top: 1.5mm; letter-spacing: .04em; }}
+  table {{ width: 100%; border-collapse: collapse; }}
+  th {{ text-align: left; font-size: 8.5pt; letter-spacing: .1em; text-transform: uppercase; color: #8C7B6E; padding: 0 0 2mm; }}
+  th:first-child {{ width: 31mm; }}
+  td {{ border-top: 1px solid #DACBB2; padding: 2.1mm 0; vertical-align: top; }}
+  td.t {{ font-weight: 800; font-size: 10.5pt; font-variant-numeric: tabular-nums; color: #2B1A14; white-space: nowrap; padding-right: 4mm; }}
+  td.d b {{ display: block; font-size: 11.5pt; }}
+  td.d span {{ display: block; font-size: 9pt; color: #6B5347; margin-top: .4mm; }}
+  td.d span.w {{ color: #8C5A2B; font-weight: 700; }}
+  tr.duty td.d b {{ color: #2B1A14; }}
+  tr.play td {{ background: #EAF3EE; }} tr.play td.d b {{ color: #2E7D5B; }}
+  tr.hands td {{ background: #F3EEE3; }}
+  tr.free td.d b {{ color: #5F6E7A; }}
+  tr.off td {{ color: #B9ADA2; }} tr.off td.t, tr.off td.d b {{ color: #B9ADA2; font-weight: 500; }}
+  tr.off td.d span {{ display: none; }}
+  tr.play td:first-child, tr.hands td:first-child {{ padding-left: 2mm; }}
+  footer {{ margin-top: auto; border-top: 1px solid #DACBB2; padding-top: 3mm; font-size: 9pt; color: #6B5347; line-height: 1.4; }}
+  footer span {{ display: block; margin-top: 1mm; color: #8C7B6E; }}
+</style></head><body>{"".join(pages)}</body></html>'''
+open(sys.argv[3], 'w').write(doc)
+print(len(pages), 'pages')

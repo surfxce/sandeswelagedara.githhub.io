@@ -61,10 +61,13 @@ P = [
  ("Gayashi Rathnayaka","SLA","3,4",1,0,"",""),
  ("Khaleeda Irsya Khairoul Haniff","ISS","3,4",1,0,"crowd",""),
  ("Ginni Shukla","PA","3,4,5,6,7",0,0,"",""),
+ ("Matvi Jani","GS","3,4,5,6,7,8",1,0,"",""),
+ ("Sritam Vytla","ISC","3,4,5,6,7",0,0,"","vb-head"),
+ ("Archita Sahu","SLA","3,4,5,6,7,8",1,1,"","logi"),
 ]
 # when each performer is on stage (block index): GS garba 4:30, UQPA bhangra
 # 6:00, NAATAK 6:30 — they're off duty for that block only
-PERF = {'Helly': (3,), 'Tanisha': (3,), 'Jasmine': (6,), 'Shalet': (7,)}
+PERF = {'Helly': (3,), 'Tanisha': (3,), 'Matvi': (3,), 'Jasmine': (6,), 'Shalet': (7,)}
 
 # society volleyball teams (from "which sport are you playing")
 VB_TEAM = {'UQSLA': ["Shavini", "Diya", "Leron", "Sanuka", "Deana", "Nimnah"],
@@ -99,7 +102,7 @@ def can(first, duty):
 
 # heads stay on their own thing
 PREF = {'Dhyan': 'fb', 'Aditya': 'ck', 'Humza': 'ck', 'Hasara': 'fund-pp', 'Thanabammini': 'cr-food',
-        'Divita': 'stall-UQISC', 'Sandes': 'vb', 'Helly': 'st', 'Amal': 'st'}
+        'Divita': 'stall-UQISC', 'Sandes': 'vb', 'Helly': 'st', 'Amal': 'st', 'Sritam': 'vb'}
 # a head is pinned to their own duty while it's running, before anything else
 PIN = {'Aditya': ('ck', (7, 8, 9)), 'Dhyan': ('fb', (4, 5)), 'Hasara': ('fund-pp', (6, 7, 10, 11))}
 
@@ -183,9 +186,11 @@ for i in range(BLOCKS):
             ok = [f for f in elig if sameRun[f].get(duty, 0) < 2 and run[f] < 3]
             if not ok: ok = [f for f in elig if run[f] < 3]
             if not ok: ok = elig
-            # finish your hour before moving: someone one block into this duty
-            # is the first pick to stay on it
-            ok.sort(key=lambda f: (sameRun[f].get(duty, 0) != 1, PREF.get(f) != duty,
+            # cricket only: finish your hour before moving, so someone one block
+            # into it is the first pick to stay. Everything else changes every
+            # 30 minutes where it can.
+            ok.sort(key=lambda f: ((sameRun[f].get(duty, 0) != 1) if duty == 'ck' else sameRun[f].get(duty, 0) > 0,
+                                   PREF.get(f) != duty,
                                    doneDuty[f].get(duty, 0), counts[f], run[f], f))
             f = ok[0]; pool.remove(f); slots[duty].append(f); placed.add(f)
     onduty = {x for xs in slots.values() for x in xs}
