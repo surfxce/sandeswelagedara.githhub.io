@@ -94,7 +94,7 @@ VB_TEAM = {'UQSLA': ["Shavini", "Diya", "Leron", "Sanuka", "Deana", "Nimnah"],
 VB_BLOCK = 1          # round 1 at 3:30
 # execs on the other teams, for their first game: NC + PA and Solos play at
 # 3:35, Shriyans's team (Shane) at 3:55 — he's here from 4
-VB_OTHER = {'Avinab': 1, 'Jasmine': 1, 'Aarya': 1, 'Prabhjot': 1, 'Ishan': 1, 'Matvi': 1, 'Shane': 2}
+VB_OTHER = {'Avinab': 1, 'Jasmine': 1, 'Aarya': 1, 'Prabhjot': 1, 'Ishan': 1, 'Sujal': 1, 'Matvi': 1, 'Shane': 2}
 FB_PLAYERS = ["Aravinth", "Mekayil", "Dhyan", "Raziel", "Rishi"]     # no football team list yet
 CK_PLAYERS = ["Mathisha", "Thihan", "Rushi", "Sanupa"]                # cricket team lists pending
 
