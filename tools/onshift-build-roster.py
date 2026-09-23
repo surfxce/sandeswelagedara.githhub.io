@@ -211,6 +211,7 @@ fixed[8]['Aarya'] = 'ck'
 # and 7:30 – 8:00
 fixed[0]['Shreya B'] = 'stall-UQTELS'
 AVOID = {('Shreya B', 1, 'stall-UQTELS'), ('Shreya B', 9, 'stall-UQTELS')}
+STALL_WANT = {'UQSLA': 5, 'UQISC': 5}
 # people Sandes wants out and about even if their stall goes quiet
 MOVE_ABOUT = {'Dhriti'}
 for f, (duty, blocks) in PIN.items():
@@ -223,7 +224,9 @@ def needs(i):
     a society, so they're the hardest to fill."""
     n = {}
     # two on every society stall, where the society has two execs to give
-    for s in socs_present: n['stall-' + s] = (2, 2) if SOC_SIZE[s] >= 2 else (1, 1)
+    # the big two can spare five (two on the stall, the rest on content and
+    # sign-ups); everyone else two
+    for s in socs_present: n['stall-' + s] = (2, STALL_WANT.get(s, 2)) if SOC_SIZE[s] >= 2 else (1, 1)
     # football, per the committee's run sheet: a ref per game and two on the
     # score document — 6 for the groups (3:00 – 4:40), 2 for the semis
     # (4:50), 1 for the final (5:30) — then three pack up the gear at 6:00
@@ -303,8 +306,8 @@ for i in range(BLOCKS):
                 elig = [f for f in pool if can(f, duty) and (duty == 'ck' or sameRun[f].get(duty, 0) < 2)
                         and (f, i, duty) not in AVOID
                         # the festival's more than a stall: at most 40% of your day on
-                        # one — unless it'd leave the stall empty
-                        and not (duty.startswith('stall-') and (slots[duty] or f in MOVE_ABOUT) and doneDuty[f].get(duty, 0) + 1 > max(1, 0.4 * len(avail[f])))]
+                        # one — unless the stall would drop below two
+                        and not (duty.startswith('stall-') and (len(slots[duty]) >= 2 or f in MOVE_ABOUT) and doneDuty[f].get(duty, 0) + 1 > max(1, 0.4 * len(avail[f])))]
                 # essentials first — a match with no ref or a gate with nobody
                 # on it is worse than a quiet stage — then hardest-to-fill
                 tier = 0 if duty in ('vb', 'fb', 'ck', 'tk', 'fb-score', 'fund-pp') or duty.startswith('stall-') or (duty == 'st' and (i <= 3 or i in (6, 7))) else 1
