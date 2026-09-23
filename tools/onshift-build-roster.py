@@ -69,10 +69,18 @@ P = [
  ("Jais Khehra","GIDDHA","3,4",1,0,"sport",""),
  ("Simar Bhambra","GIDDHA","5,6",0,0,"",""),
  ("Devansh Pandya","GS","3,4,5,6,7,8",1,1,"",""),
+ ("Mehulpreet Kaur","ISS","3,4,5,6,7,8",1,1,"",""),
+ ("Sanupa Wijethunge","SLA","3,4,5,6,7,8",1,1,"","class early afternoon"),
+ ("Jia Patel","GS","3",1,0,"sport",""),
+ ("Hargun Kaur","PA","3,4,5,6,7",1,0,"sport",""),
+ ("Rishi Veeramachaneni","ISC","3,4,5,6,7,8",0,1,"",""),
+ ("Roshni Bhatia","PA","4,5,6,7",0,0,"",""),
+ ("Thar Suthes","SLA","5,6,7",0,0,"",""),
+ ("Aarya Sharma","PA","3,4,5,6,7,8",0,1,"fb","pa-pres"),
 ]
 # when each performer is on stage (block index): GS garba 4:30, UQPA bhangra
 # 6:00, NAATAK 6:30 — they're off duty for that block only
-PERF = {'Helly': (3,), 'Tanisha': (3,), 'Matvi': (3,), 'Jasmine': (6,), 'Shalet': (7,)}
+PERF = {'Helly': (3,), 'Tanisha': (3,), 'Matvi': (3,), 'Roshni': (6,), 'Jasmine': (6,), 'Shalet': (7,)}
 
 # society volleyball teams (from "which sport are you playing")
 VB_TEAM = {'UQSLA': ["Shavini", "Diya", "Leron", "Sanuka", "Deana", "Nimnah"],
@@ -80,9 +88,9 @@ VB_TEAM = {'UQSLA': ["Shavini", "Diya", "Leron", "Sanuka", "Deana", "Nimnah"],
 VB_BLOCK = 1          # round 1 at 3:30
 # execs on the other teams, for their first game: NC + PA and Solos play at
 # 3:35, Shriyans's team (Shane) at 3:55 — he's here from 4
-VB_OTHER = {'Avinab': 1, 'Jasmine': 1, 'Matvi': 1, 'Shane': 2}
-FB_PLAYERS = ["Aravinth", "Mekayil", "Dhyan", "Raziel"]     # no football team list yet
-CK_PLAYERS = ["Mathisha", "Thihan", "Rushi"]                # cricket team lists pending
+VB_OTHER = {'Avinab': 1, 'Jasmine': 1, 'Aarya': 1, 'Matvi': 1, 'Shane': 2}
+FB_PLAYERS = ["Aravinth", "Mekayil", "Dhyan", "Raziel", "Rishi"]     # no football team list yet
+CK_PLAYERS = ["Mathisha", "Thihan", "Rushi", "Sanupa"]                # cricket team lists pending
 
 people, avail, cant, tags = [], {}, {}, {}
 for name, socs, hours, setup, packup, cd, note in P:
@@ -110,7 +118,7 @@ def can(first, duty):
 
 # heads stay on their own thing
 PREF = {'Dhyan': 'fb', 'Aditya': 'ck', 'Humza': 'ck', 'Hasara': 'fund-pp', 'Thanabammini': 'cr-food',
-        'Divita': 'stall-UQISC', 'Sandes': 'vb', 'Helly': 'st', 'Amal': 'st', 'Sritam': 'vb'}
+        'Divita': 'stall-UQISC', 'Sandes': 'vb', 'Helly': 'st', 'Amal': 'st', 'Sritam': 'vb', 'Aarya': 'stall-UQPA'}
 # a head is pinned to their own duty while it's running, before anything else
 PIN = {'Aditya': ('ck', (7, 8, 9)), 'Dhyan': ('fb', (4, 5)), 'Hasara': ('fund-pp', (6, 7, 10, 11))}
 
@@ -149,6 +157,8 @@ fixed[0]['Sandes'] = 'photo-pres'
 fixed[6]['Devansh'] = 'ck-brief'
 # …and he's on cricket for the first two games; after that it's self-run
 for i in (7, 8): fixed[i]['Devansh'] = 'ck'
+# Aarya (PA president) asked to umpire one game: match 2 at 7:00, with Devansh there
+fixed[8]['Aarya'] = 'ck'
 for f, (duty, blocks) in PIN.items():
     for i in blocks:
         if i in avail.get(f, ()) and f not in fixed[i] and can(f, duty): fixed[i][f] = duty
