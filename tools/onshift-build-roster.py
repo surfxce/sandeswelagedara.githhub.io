@@ -71,7 +71,7 @@ PERF = {'Helly': (3,), 'Tanisha': (3,), 'Matvi': (3,), 'Jasmine': (6,), 'Shalet'
 
 # society volleyball teams (from "which sport are you playing")
 VB_TEAM = {'UQSLA': ["Shavini", "Diya", "Leron", "Sanuka", "Deana", "Nimnah"],
-           'UQISC': ["Mithila", "Sandes", "Krisha", "Divita", "Ragesh", "Shane"]}
+           'UQISC': ["Mithila", "Sandes", "Krisha", "Alex", "Ragesh", "Shane"]}
 VB_BLOCK = 1          # round 1 at 3:30
 FB_PLAYERS = ["Aravinth", "Mekayil", "Dhyan", "Raziel"]     # no football team list yet
 CK_PLAYERS = ["Mathisha", "Thihan", "Rushi"]                # cricket team lists pending
@@ -138,18 +138,17 @@ def needs(i):
     """(minimum, nice-to-have) per duty. Stalls come first — they're locked to
     a society, so they're the hardest to fill."""
     n = {}
-    for s in socs_present: n['stall-' + s] = (1, 2 if s in ('UQSLA', 'UQISC') else 1)
-    # football, per the committee: one ref per game, two people on the score sheet
-    if i <= 3:  n['fb'] = (6, 6)                 # group stage: six pitches at once
-    elif i == 4: n['fb'] = (2, 2)                # semi-finals, two games
-    elif i == 5: n['fb'] = (1, 1)                # the final
-    if i <= 5:  n['fb-score'] = (2, 2)
+    for s in socs_present: n['stall-' + s] = (1, 2)      # two on every society stall
+    # football, per the committee: eight people the whole time it runs (3:00 –
+    # 6:00) — six refs (in the semis and final the spares run the lines and
+    # keep the pitch clear) and two on the score sheet
+    if i <= 5:  n['fb'] = (6, 6); n['fb-score'] = (2, 2)
     if i <= 3:  n['vb'] = (1, 2)
     if 7 <= i <= 11: n['ck'] = (4, 4)   # umpire, leg umpire, scorer + spare, per the cricket committee
     n['tk'] = (2, 2) if i <= 3 else (1, 2)
     n['st'] = (2, 2) if (i <= 3 or i in (6, 7)) else (1, 1)
     n['cr-gate'] = (1, 1); n['cr-food'] = (1, 2)
-    if i >= 6: n['cr-lawn'] = (1, 1)
+    n['cr-lawn'] = (1, 1)
     n['fund-pp'] = (1, 1)
     if i >= 6: n['fund-bake'] = (1, 1); n['fund-hope'] = (1, 1)
     return n
@@ -166,6 +165,11 @@ for i in range(BLOCKS):
     placed = set(fixed[i])
     pool = sorted([f for f in avail if i in avail[f] and f not in placed],
                   key=lambda f: (counts[f], f))
+    # four people kept free every block — a buffer for covering winning
+    # teams, emergencies, a breather. It's whoever has gone longest without a
+    # break (an hour on duty at least), so it rotates through everyone.
+    resting = set(sorted([f for f in pool if run[f] >= 2], key=lambda f: (-run[f], -counts[f], f))[:4])
+    pool = [f for f in pool if f not in resting]
     n = needs(i)
     for level in (0, 1):                      # minimums first, then the nice-to-haves
         while True:
@@ -178,7 +182,7 @@ for i in range(BLOCKS):
                 elig = [f for f in pool if can(f, duty)]
                 # essentials first — a match with no ref or a gate with nobody
                 # on it is worse than a quiet stage — then hardest-to-fill
-                tier = 0 if duty in ('vb', 'fb', 'ck', 'tk', 'fb-score') or duty.startswith('stall-') or (duty == 'st' and (i <= 3 or i in (6, 7))) else 1
+                tier = 0 if duty in ('vb', 'fb', 'ck', 'tk', 'fb-score', 'fund-pp') or duty.startswith('stall-') or (duty == 'st' and (i <= 3 or i in (6, 7))) else 1
                 if elig: open_.append((tier, len(elig), duty, elig))
             if not open_: break
             open_.sort()
@@ -195,6 +199,17 @@ for i in range(BLOCKS):
                                    PREF.get(f) != duty,
                                    doneDuty[f].get(duty, 0), counts[f], run[f], f))
             f = ok[0]; pool.remove(f); slots[duty].append(f); placed.add(f)
+    # everyone still standing goes on crowd & support — the festival wants
+    # every hand (the four resting are already out of the pool).
+    CROWD = [d for d in ('cr-gate', 'cr-food', 'cr-lawn', 'cr-gen') if d in n or d == 'cr-gen']
+    for f in sorted(pool, key=lambda f: (counts[f], f)):
+        opts = [d for d in CROWD if can(f, d)]
+        if not opts:     # can't do crowd: a third pair of hands on their own stall
+            opts = [d for d in n if d.startswith('stall-') and can(f, d)]
+        if not opts: continue
+        opts.sort(key=lambda d: (len(slots[d]), sameRun[f].get(d, 0), doneDuty[f].get(d, 0), d))
+        slots[opts[0]].append(f); placed.add(f)
+    pool = [f for f in pool if f not in placed]
     onduty = {x for xs in slots.values() for x in xs}
     for x in onduty: counts[x] += 1; run[x] += 1
     for f in avail:
