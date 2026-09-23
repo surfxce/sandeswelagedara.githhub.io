@@ -80,6 +80,9 @@ P = [
  ("Prabhjot Singh","PA","3,4,5",1,0,"",""),
  ("Ishan Pal","PA","3,4,5,6,7,8",0,0,"",""),
  ("Pritisha Sihota","PA","3,4,5",1,0,"",""),
+ ("Sujal Raiyani","PA","3,4,5,6,7",1,0,"",""),
+ # rolled ankle: nothing that means walking or running
+ ("Swornim Khatiwada","NC","3,8",1,1,"stage,sport,crowd",""),
 ]
 # when each performer is on stage (block index): GS garba 4:30, UQPA bhangra
 # 6:00, NAATAK 6:30 — they're off duty for that block only
