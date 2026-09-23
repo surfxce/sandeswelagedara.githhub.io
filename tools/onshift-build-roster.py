@@ -118,7 +118,7 @@ def can(first, duty):
 
 # heads stay on their own thing
 PREF = {'Dhyan': 'fb', 'Aditya': 'ck', 'Humza': 'ck', 'Hasara': 'fund-pp', 'Thanabammini': 'cr-food',
-        'Divita': 'stall-UQISC', 'Sandes': 'vb', 'Helly': 'st', 'Amal': 'st', 'Sritam': 'vb', 'Aarya': 'stall-UQPA'}
+        'Divita': 'stall-UQISC', 'Sandes': 'vb', 'Helly': 'st', 'Amal': 'st', 'Sritam': 'vb'}
 # a head is pinned to their own duty while it's running, before anything else
 PIN = {'Aditya': ('ck', (7, 8, 9)), 'Dhyan': ('fb', (4, 5)), 'Hasara': ('fund-pp', (6, 7, 10, 11))}
 
@@ -150,9 +150,9 @@ CK_GAMES = {'UQSLA': (7, 9), 'UQISC': (7, 10), 'UQGS': (8, 9)}
 for f in CK_PLAYERS:
     for i in next((g for sc, g in CK_GAMES.items() if sc in byfirst[f]["s"]), ()):
         if i in avail.get(f, ()) and f not in fixed[i]: fixed[i][f] = 'play-ck'
-# presidents' photo at 3:15, before volleyball starts — Sandes takes it, so
-# he's off everything else that block
-fixed[0]['Sandes'] = 'photo-pres'
+# presidents' photo at 4:55, straight after the volleyball final and before
+# Jais leaves at 5 — Sandes takes it, so he's off everything else that block
+fixed[3]['Sandes'] = 'photo-pres'
 # Devansh briefs the cricket crew at 6:20, before the first games at 6:40
 fixed[6]['Devansh'] = 'ck-brief'
 # …and he's on cricket for the first two games; after that it's self-run
