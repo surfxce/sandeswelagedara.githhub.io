@@ -26,7 +26,7 @@ P = [
  ("Helly Parekh","GS","3,4,5,6,7,8",1,0,"","perf3"),
  ("Mekayil Saadat","PSA","3,4,5,6,7,8",1,1,"",""),
  ("Amal Asif","PSA","3,4,5,6,7,8",1,1,"sport",""),
- ("Alex John","ISC","3,4,5,6,7,8",1,1,"",""),
+ ("Alex John","ISC","",1,0,"sport",""),
  ("Kavinila Gunaseelan","ISC","4,5,6",0,0,"",""),
  ("Shane Shaji","ISC","4,5,6,7,8",1,0,"",""),
  ("Avinab Baral","NC","3,4,5,6,7,8",1,1,"",""),
@@ -64,6 +64,11 @@ P = [
  ("Matvi Jani","GS","3,4,5,6,7,8",1,0,"",""),
  ("Sritam Vytla","ISC","3,4,5,6,7",0,0,"","vb-head"),
  ("Archita Sahu","SLA","3,4,5,6,7,8",1,1,"","logi"),
+ ("Sita Das","ISC","3,4",1,0,"sport",""),
+ ("Swadha Sharma","ISC","",0,1,"",""),
+ ("Jais Khehra","GIDDHA","3,4",1,0,"sport",""),
+ ("Simar Bhambra","GIDDHA","5,6",0,0,"",""),
+ ("Devansh Pandya","GS","3,4,5,6,7,8",1,1,"",""),
 ]
 # when each performer is on stage (block index): GS garba 4:30, UQPA bhangra
 # 6:00, NAATAK 6:30 — they're off duty for that block only
@@ -71,7 +76,7 @@ PERF = {'Helly': (3,), 'Tanisha': (3,), 'Matvi': (3,), 'Jasmine': (6,), 'Shalet'
 
 # society volleyball teams (from "which sport are you playing")
 VB_TEAM = {'UQSLA': ["Shavini", "Diya", "Leron", "Sanuka", "Deana", "Nimnah"],
-           'UQISC': ["Mithila", "Sandes", "Krisha", "Alex", "Ragesh", "Shane"]}
+           'UQISC': ["Mithila", "Sandes", "Krisha", "Sritam", "Ragesh", "Shane"]}
 VB_BLOCK = 1          # round 1 at 3:30
 FB_PLAYERS = ["Aravinth", "Mekayil", "Dhyan", "Raziel"]     # no football team list yet
 CK_PLAYERS = ["Mathisha", "Thihan", "Rushi"]                # cricket team lists pending
