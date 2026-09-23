@@ -1546,8 +1546,8 @@
           tasks:['Your society\'s team', '5 min early', 'Not umpiring'] },
     perform: { cat:'photo', icon:'mic', name:'Performing', where:'Performance stage', do:'You\'re on stage with your society\'s act this block — nothing else is rostered. Warm up, perform, then check your next block.',
           tasks:['Warm-up', 'On stage'] },
-    'photo-pres': { cat:'photo', name:'Presidents\' photo — taking it', where:'Performance stage steps', do:'You\'re the photographer. At 5:45 the presidents meet at the stage steps: Sanuka (UQSLA), Prabhas (UQISC), Akash (UQTELS), Aarya (UQPA), Akansh (UQNAATAK), Devansh (UQGS) and Jais (UQGIDDHA). Round up anyone missing, take a few shots, and send them back to their spots within five minutes.',
-          tasks:['5:45 at the stage steps', 'Seven presidents', 'Five minutes'] },
+    'photo-pres': { cat:'photo', name:'Presidents\' photo — taking it', where:'Performance stage steps', do:'You\'re the photographer. At 3:15, before volleyball starts, the presidents meet at the stage steps: Sanuka (UQSLA), Prabhas (UQISC), Akash (UQTELS), Aarya (UQPA), Akansh (UQNAATAK), Devansh (UQGS) and Jais (UQGIDDHA). Round up anyone missing, take a few shots, and send them back to their spots within five minutes.',
+          tasks:['3:15 at the stage steps', 'Seven presidents', 'Five minutes'] },
     logi: { cat:'logi', name:'Logistics', where:'Everywhere', do:'Floating. Fix what\'s broken, move gear, back up whichever team is short. Every swap request and call for help lands in your bell — take the ones nobody else has.',
           tasks:['Equipment', 'Backing up teams', 'Answering the bell'] },
     free: { cat:'free', name:'Free', where:'Enjoy the festival', do:'You\'re off this block. Grab food, catch the stage — and be back a few minutes before your next duty.' },
@@ -2033,8 +2033,8 @@
   // Moments — a few minutes inside a block that everyone (or a named group)
   // attends without leaving their duty. Shown as a banner on Now and in the run sheet.
   const MOMENTS = [
-    // presidents only; Sandes is rostered off at 5:30 to take it
-    { block: 5, at: '5:45 pm', name: 'Presidents\' photo', where: 'Stage steps', note: 'Presidents only — leave your spot for five minutes, then straight back. Sandes takes it.', who: ['Sanuka', 'Prabhas', 'Akash', 'Aarya', 'Akansh', 'Devansh', 'Jais', 'Sandes'], whoLabel: 'presidents' },
+    // presidents only, before volleyball starts; Sandes is rostered off at 3:00 to take it
+    { block: 0, at: '3:15 pm', name: 'Presidents\' photo', where: 'Stage steps', note: 'Presidents only — leave your spot for five minutes, then straight back. Sandes takes it.', who: ['Sanuka', 'Prabhas', 'Akash', 'Aarya', 'Akansh', 'Devansh', 'Jais', 'Sandes'], whoLabel: 'presidents' },
   ];
   const momentsFor = (i) => MOMENTS.filter(m => m.block === i && (m.who === 'all' || (me && m.who.includes(me.first))));
   function momentHtml(m) {

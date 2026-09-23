@@ -132,8 +132,9 @@ for f in FB_PLAYERS:
 for f in CK_PLAYERS:
     for i in (7, 8):
         if i in avail.get(f, ()) and f not in fixed[i]: fixed[i][f] = 'play-ck'
-# presidents' photo at 5:45 — Sandes takes it, so he's off everything else that block
-fixed[5]['Sandes'] = 'photo-pres'
+# presidents' photo at 3:15, before volleyball starts — Sandes takes it, so
+# he's off everything else that block
+fixed[0]['Sandes'] = 'photo-pres'
 for f, (duty, blocks) in PIN.items():
     for i in blocks:
         if i in avail.get(f, ()) and f not in fixed[i] and can(f, duty): fixed[i][f] = duty
@@ -200,8 +201,12 @@ for i in range(BLOCKS):
             # cricket only: finish your hour before moving, so someone one block
             # into it is the first pick to stay. Everything else changes every
             # 30 minutes where it can.
+            # pair within a society where we can: someone who shares a club
+            # with whoever's already on this duty goes first
+            mates = slots[duty]
             ok.sort(key=lambda f: ((sameRun[f].get(duty, 0) != 1) if duty == 'ck' else sameRun[f].get(duty, 0) > 0,
                                    PREF.get(f) != duty,
+                                   bool(mates) and not any(byfirst[f]["s"][k] in byfirst[m]["s"] for m in mates for k in range(len(byfirst[f]["s"]))),
                                    doneDuty[f].get(duty, 0), counts[f], run[f], f))
             f = ok[0]; pool.remove(f); slots[duty].append(f); placed.add(f)
     # everyone still standing goes on crowd & support — the festival wants
@@ -212,7 +217,8 @@ for i in range(BLOCKS):
         if not opts:     # can't do crowd: a third pair of hands on their own stall
             opts = [d for d in n if d.startswith('stall-') and can(f, d)]
         if not opts: continue
-        opts.sort(key=lambda d: (len(slots[d]), sameRun[f].get(d, 0), doneDuty[f].get(d, 0), d))
+        mate = lambda d: any(set(byfirst[f]["s"]) & set(byfirst[m]["s"]) for m in slots[d])
+        opts.sort(key=lambda d: (not (mate(d) and len(slots[d]) < 4), len(slots[d]), sameRun[f].get(d, 0), doneDuty[f].get(d, 0), d))
         slots[opts[0]].append(f); placed.add(f)
     pool = [f for f in pool if f not in placed]
     onduty = {x for xs in slots.values() for x in xs}
