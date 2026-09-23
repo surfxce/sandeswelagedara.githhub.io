@@ -2066,13 +2066,14 @@
   // Moments — a few minutes inside a block that everyone (or a named group)
   // attends without leaving their duty. Shown as a banner on Now and in the run sheet.
   const MOMENTS = [
-    // everyone rostered on cricket (umpiring or playing) at any point tonight
+    // everyone rostered to umpire or score cricket at any point tonight
     { block: 6, at: '6:10 pm', name: 'Cricket briefing', where: 'Field 7, by the cricket pitches', note: 'Devansh runs through how tonight\'s cricket works and the crew sets up — first game 6:30.', who: 'ck', whoLabel: 'cricket crew' },
     // presidents only, straight after the volleyball final and before Jais
     // leaves at 5; Sandes is rostered off 4:30 – 5:00 to take it
     { block: 3, at: '4:55 pm', name: 'Presidents\' photo', where: 'Stage steps', note: 'Presidents only, straight after the volleyball final — leave your spot for five minutes, then straight back. Sandes takes it.', who: ['Sanuka', 'Prabhas', 'Akash', 'Aarya', 'Akansh', 'Devansh', 'Jais', 'Bhumik', 'Sandes'], whoLabel: 'presidents' },
   ];
-  const onCricket = (first) => [7, 8, 9, 10, 11].some(i => ['ck', 'play-ck'].includes(assignmentFor(first, i).id));
+  // umpires and scorers only — players don't need the briefing
+  const onCricket = (first) => [6, 7, 8, 9, 10, 11].some(i => assignmentFor(first, i).id === 'ck');
   const momentsFor = (i) => MOMENTS.filter(m => m.block === i && (m.who === 'all' || (me && (m.who === 'ck' ? onCricket(me.first) : m.who.includes(me.first)))))
     .sort((a, b) => a.at.localeCompare(b.at));
   function momentHtml(m) {
@@ -3080,7 +3081,7 @@ Escalation: anything medical or dangerous — call 000 first, then tell an organ
     L.push('\n## Duties (what each one is, where, and who heads it)');
     Object.entries(DUTIES).forEach(([id, d]) => { if (d.cat === 'free') return; const lead = leadFor(id); L.push(`- ${d.name} [${CATS[d.cat].label}] — where: ${d.where || '—'}. ${d.do || ''}${d.tasks && d.tasks.length ? ' Tasks: ' + d.tasks.join(', ') + '.' : ''}${lead ? ' Committee head: ' + lead + '.' : ''}`); });
     L.push('\n## Stage running order\n' + STAGE_TIMES.map(x => `${tm(x.t)} — ${x.who}: ${x.what}`).join('\n'));
-    L.push('\n## Moments\n' + MOMENTS.map(m => `${m.at} (block ${m.block + 1}) — ${m.name} at ${m.where}. ${m.note} Who: ${m.who === 'all' ? 'everyone' : m.who === 'ck' ? 'everyone on cricket tonight' : m.who.join(', ')}.`).join('\n'));
+    L.push('\n## Moments\n' + MOMENTS.map(m => `${m.at} (block ${m.block + 1}) — ${m.name} at ${m.where}. ${m.note} Who: ${m.who === 'all' ? 'everyone' : m.who === 'ck' ? 'everyone umpiring or scoring cricket tonight (not the players)' : m.who.join(', ')}.`).join('\n'));
     L.push('\n## Emergency contacts (numbers are in the app under Settings → Emergency — never give a number)\n' + EMERGENCY.map(c => `${c.n} — ${c.role}`).join('\n'));
     L.push('\n## Where things are (pins on the Map tab)\n' + PINS.map(pin => `${pin.label} — ${pin.sub}`).join('\n') + '\nFootball is six small pitches on the Field 7 infield, numbered Field 1 to Field 6: two across, three down, left to right from the top (zoom right in on the map to see them).');
     L.push('\n## Things Spicy can point at (put the id in "show" when the answer is about tapping or finding one of these)\n' + Object.entries(POINTS).map(([id, pt]) => `${id} — ${pt.what}`).join('\n'));
