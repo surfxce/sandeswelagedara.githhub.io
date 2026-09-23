@@ -1312,24 +1312,20 @@
     <div class="dm-backdrop" id="set-backdrop" hidden></div>
     <section class="dm-sheet" id="set-sheet" hidden aria-label="Settings">
       <div class="dm-head"><span class="nm">Settings</span><button class="linkbtn" id="set-close" type="button">Close</button></div>
-      <div class="set-row">
+      <div class="set-row" id="set-screen-row" hidden>
         <div class="txt"><b>Big screen mode</b><span>Photos and live scores on a TV. Full screen; tap the screen to exit.</span></div>
         <button class="btn-small" id="screen-start" type="button">Start</button>
-      </div>
-      <div class="set-row">
-        <div class="txt"><b>Notification when the block changes</b><span id="nudge-state">Best effort — depends on your phone and browser.</span></div>
-        <button class="toggle" id="nudge" type="button" role="switch" aria-checked="false" aria-label="Notification when the block changes"></button>
       </div>
       <div class="set-row">
         <div class="txt"><b>Spicy</b><span>Ask anything about the day or the app. Doesn't know? It'll say so.</span></div>
         <button class="btn-small" id="set-spicy" type="button">Ask</button>
       </div>
-      <div class="set-row">
+      <div class="set-row" id="set-manual-row" hidden>
         <div class="txt"><b>Manual</b><span>Every part of the app, searchable. Also replays the welcome tour.</span></div>
         <button class="btn-small ghost" id="set-manual" type="button">Open</button>
       </div>
       <div class="set-row" id="set-photo-row" style="align-items:center"></div>
-      <div class="set-row">
+      <div class="set-row" id="set-switch-row" hidden>
         <div class="txt"><b>Signed in as <span id="set-who">—</span></b><span>Saved on this phone.</span></div>
         <button class="btn-small ghost" id="set-switch" type="button">Switch</button>
       </div>
@@ -1589,7 +1585,12 @@
     if (sim && sim.on && Number.isInteger(sim.block)) return sim.block < 0 ? 14 * 60 + 30 : sim.block >= BLOCKS ? DAY_START + BLOCKS * 30 + 30 : DAY_START + sim.block * 30 + 5;
     const d = new Date(); return d.getHours() * 60 + d.getMinutes() + d.getSeconds() / 60;
   };
+  // Friday 25 September 2026. Notifications only fire on the day (or while
+  // the master clock is on), and from the Saturday nothing is "live" any more.
+  const isFestDay = () => { const d = new Date(); return d.getFullYear() === 2026 && d.getMonth() === 8 && d.getDate() === 25; };
+  const festOver = () => new Date() >= new Date(2026, 8, 26);
   const liveBlock = () => {
+    if (!(sim && sim.on) && festOver()) return null;
     const m = nowMin();
     if (m < 14 * 60 || m >= 22 * 60) return null;
     if (m < DAY_START) return -1;                  // setup
@@ -1728,7 +1729,15 @@
   let ident = null;        // {name, society}
   let block = 0;           // -1 setup … 12 pack-up
   let live = false;
-  let nudge = false;
+  function notify(title, opts) {
+    if (!('Notification' in window) || Notification.permission !== 'granted') return;
+    if (!isFestDay() && !(sim && sim.on)) return;
+    const o = Object.assign({ icon: 'icon-192.png', badge: 'icon-192.png' }, opts || {});
+    const direct = () => { try { new Notification(title, o); } catch {} };
+    if ('serviceWorker' in navigator && navigator.serviceWorker.controller) navigator.serviceWorker.ready.then(r => r.showNotification(title, o)).catch(direct);
+    else direct();
+    try { navigator.vibrate && navigator.vibrate([200, 100, 200]); } catch {}
+  }
   const $ = (id) => document.getElementById(id);
 
   // ---------- Entry ----------
@@ -1969,8 +1978,8 @@
     mapsTick();
     if (me && live && block >= 0 && block < BLOCKS) {
       const a = assignmentFor(me.first, block); const key = block + ':' + a.id;
-      if (lastShown && lastShown.split(':')[0] === String(block) && lastShown !== key && 'Notification' in window && Notification.permission === 'granted') {
-        const d = DUTIES[a.id]; try { new Notification('Roster change — ' + d.name, { body: a.cover ? `Covering for ${a.cover.for}, who's playing ${(SPORTS[a.cover.sport] || '').toLowerCase()}. ${d.where}` : d.where }); navigator.vibrate && navigator.vibrate([200, 100, 200]); } catch {}
+      if (lastShown && lastShown.split(':')[0] === String(block) && lastShown !== key) {
+        const d = DUTIES[a.id]; notify('Roster change — ' + d.name, { body: a.cover ? `Covering for ${a.cover.for}, who's playing ${(SPORTS[a.cover.sport] || '').toLowerCase()}. ${d.where}` : d.where, tag: 'block' });
       }
       lastShown = key;
     }
@@ -2407,9 +2416,9 @@
     const lb = liveBlock(); if (lb === null) return;
     if (lb === block) { if (block >= 0 && block < BLOCKS) { const left = Math.max(0, Math.ceil(DAY_START + (block + 1) * 30 - nowMin())); const el = $('bb-label').querySelector('.bb-left'); if (el) el.textContent = `· ${left} min left`; } return; }
     block = lb; render();
-    if (nudge && 'Notification' in window && Notification.permission === 'granted' && me) {
+    if (me) {
       const a = assignmentFor(me.first, block); const d = DUTIES[a.id];
-      try { new Notification('New block — ' + d.name, { body: d.where + (a.people.length ? ' · with ' + names(a.people) : '') }); } catch {}
+      notify('New block — ' + d.name, { body: d.where + (a.people.length ? ' · with ' + names(a.people) : ''), tag: 'block' });
     }
     renderStageNow();
   }, 10000);
@@ -2417,19 +2426,23 @@
   $('logi-nudge-btn').addEventListener('click', async () => {
     let perm = Notification.permission;
     if (perm === 'default') { try { perm = await Notification.requestPermission(); } catch { perm = 'denied'; } }
-    if (perm === 'granted') { nudge = true; $('nudge').setAttribute('aria-checked', 'true'); pingLogi(); }
+    if (perm === 'granted') pingLogi();
     renderLogiNudge();
   });
-  // ---------- Nudge toggle (best effort) ----------
-  $('nudge').addEventListener('click', async () => {
-    const btn = $('nudge'); const st = $('nudge-state');
-    if (nudge) { nudge = false; btn.setAttribute('aria-checked', 'false'); st.textContent = 'Off. Best effort — depends on your phone and browser.'; return; }
-    if (!('Notification' in window)) { st.textContent = 'Not supported in this browser — keep the screen handy instead.'; return; }
-    let perm = Notification.permission;
-    if (perm === 'default') { try { perm = await Notification.requestPermission(); } catch { perm = 'denied'; } }
-    if (perm === 'granted') { nudge = true; btn.setAttribute('aria-checked', 'true'); st.textContent = 'On while this page is open. Still check the screen — it can miss.'; }
-    else { st.textContent = 'Blocked in this browser. Keep the screen handy instead.'; }
-  });
+  // ---------- Block-change notifications: asked once, in the welcome tour ----------
+  const isIOS = /iP(hone|ad|od)/.test(navigator.userAgent);
+  const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+  function alertsState() {
+    if (!('Notification' in window)) return isIOS && !standalone ? 'On iPhone, add this app to your Home Screen first (Share → Add to Home Screen), open it from there and sign in again — this step comes back.' : 'This browser can\'t do notifications — keep the app open and glance at it each half hour.';
+    if (Notification.permission === 'granted') return 'On. You\'ll get a buzz when your block changes on Friday — only while the app is open, and never after the festival.';
+    if (Notification.permission === 'denied') return 'Blocked for this site in your phone\'s settings. No problem — just check the app each half hour.';
+    return '';
+  }
+  async function turnOnAlerts() {
+    if (!('Notification' in window)) return;
+    try { await Notification.requestPermission(); } catch {}
+    renderLogiNudge();
+  }
 
   // ---------- Map background (procedural) ----------
   const PORTS = [['Kandahar',.16,.16],['Lahore',.32,.11],['Delhi',.40,.22],['Kathmandu',.60,.15],['Muscat',.06,.36],['Goa',.30,.46],['Cochin',.33,.60],['Colombo',.44,.72],['Malacca',.88,.66]];
@@ -2645,14 +2658,13 @@
   // for help (on top of the bell), because they're the ones meant to answer.
   const pinged = new Set(); let pingArmed = false;
   function pingLogi() {
-    if (!me || !('Notification' in window) || Notification.permission !== 'granted') return;
+    if (!me || !('Notification' in window) || Notification.permission !== 'granted' || festOver()) return;
     const lb = liveBlock(); const cur = lb !== null ? lb : block; if (!isLogi(me.first, cur)) return;
     const fresh = [];
     helpsForMe().forEach(([id, h]) => { if (!pinged.has('h' + id)) { pinged.add('h' + id); fresh.push({ title: 'Needs more execs — ' + ((DUTIES[h.duty] || {}).name || ''), body: `${h.from} · ${(DUTIES[h.duty] || {}).where || ''}` }); } });
     swapsForMe().forEach(([id, sw]) => { if (!pinged.has('s' + id)) { pinged.add('s' + id); fresh.push({ title: 'Swap request — ' + ((DUTIES[sw.duty] || {}).name || ''), body: `${sw.from} wants out · ${range(sw.block)}` }); } });
     if (!pingArmed) { pingArmed = true; return; }   // the first pass just learns what's already there
-    fresh.forEach(n => { try { new Notification(n.title, { body: n.body, tag: n.title }); } catch {} });
-    if (fresh.length) { try { navigator.vibrate && navigator.vibrate([200, 100, 200]); } catch {} }
+    fresh.forEach(n => notify(n.title, { body: n.body, tag: n.title }));
   }
   function renderLogiNudge() {
     const el = $('logi-nudge'); if (!el) return;
@@ -2878,13 +2890,14 @@
     { icon: 'football',color: 'var(--c-sport)',  t: 'Scores & brackets', k: 'scores bracket match referee start end plus minus timetable teams who is in record keep score result winner', p: '<b>To score a match:</b> Scores tab → pick the sport → tap the two teams playing → tap <b>+</b> for each point → <b>End match</b>. The bracket fills the winner in itself; tap a team\'s name in the bracket to set a winner by hand. Pick the sport at the top. <b>Teams</b> shows who\'s in each team (execs in maroon). In the <b>bracket</b>, tap a match to start it — scoring opens under Live matches. Referees: <b>the score you tap is the score</b> — it goes to the big screen and the public page within a second. The gear on a live match edits the team names. <b>End match</b> fills the bracket in.' },
     { icon: 'tent',    color: 'var(--c-club)',   t: 'Map', k: 'map where location pinch zoom pins field 7 field 6 first aid toilets satellite where am i blue dot gps', p: '<b>Simple</b> is the ground plan, <b>Satellite</b> is real imagery — both have pins for football and cricket (Field 7), volleyball (the beach courts), food trucks and stalls (Field 6), the grandstand, the entry, first aid, toilets and the assembly point. Tap a pin for what\'s there. On Satellite, the <b>target</b> button shows where you are as a blue dot (your phone will ask once). Drag to pan, pinch to zoom, double-tap to zoom in.' },
     { icon: 'sparkle', color: 'var(--c-ticket)', t: "What's On", k: 'whats on stalls timetable stage performances businesses clubs photos upload', p: 'Everything at the festival. Tap a sport for the match timetable, the stage for the running order, a business for what they do, a club for who\'s on the marquee. Send festival photos from the bottom.' },
-    { icon: 'camera',  color: 'var(--c-photo)',  t: 'Photos & big screen', k: 'photos upload approve big screen tv slideshow', p: 'Anyone can send a photo in; organisers approve them; approved photos roll across the big screen. <b>Big screen mode</b> is under Settings for whoever runs the TV.' },
+    { icon: 'camera',  color: 'var(--c-photo)',  t: 'Photos & big screen', k: 'photos upload approve big screen tv slideshow', p: 'Anyone can send a photo in; organisers approve them; approved photos roll across the big screen. Sandes runs the TV in <b>big screen mode</b>.' },
     { icon: 'cricket', color: 'var(--c-sport)', t: 'Refereeing — when to give a point', k: 'referee ref umpire scoring rules point goal run wide no ball out how to score guide', p: 'Never reffed it before? Tap your duty title, or <b>When do I tap +?</b> on a live match, for the short guide: what earns a point, what\'s out, what\'s a foul, how long a game is. Volleyball, football and cricket. Spicy can open it too.' },
     { icon: 'volleyball', color: 'var(--c-sport)', t: 'Playing for your society', k: 'playing team bracket knocked out eliminated free volleyball football cricket', p: 'If you\'re on a society team, your roster says <b>Playing</b> only for your first game. <b>Win</b>, and the app holds you for the next round\'s block too — whatever you were meant to do then goes to a free exec, who sees it pop up with "Covering for …". <b>Lose</b>, and your normal roster just carries on. All of it happens the moment the ref taps the result.' },
     { icon: 'sparkle', color: 'var(--tan)',      t: 'Demo mode', k: 'demo onboarding tour replay show walkthrough video', p: 'Settings → <b>Demo mode</b> (Sandes only). The welcome tour plays every time you sign in, so you can show the app to a room without resetting anyone. Turn it off afterwards.' },
     { icon: 'box',     color: 'var(--c-hands)',  t: 'Logistics', k: 'logistics floating organisers help everything ping notification', p: 'The floating team (Nandos, Prabhas, Archita, Sanuli, Devashri, Tanisha). Not rostered on any one thing — they back up whichever team is short. Every <b>swap request</b> and <b>call for help</b> lands in their bell, and with pings turned on, on their phone too.' },
     { icon: 'sparkle', color: 'var(--tan)',      t: 'Spicy', k: 'spicy ask question help bot chat ai assistant who do i talk to where is', p: 'Settings → <b>Spicy</b>. Ask anything — what your duty involves, who\'s on what right now, how a part of the app works. It answers from the roster and this manual, points you to a person when there is one, and says so when it doesn\'t know. When the answer is a button or a place in the app, tap <b>Show me</b> and Spicy spotlights it on screen. Every answer has a <b>Message Sandes</b> button.' },
-    { icon: 'box',     color: 'var(--c-hands)',  t: 'Settings', k: 'settings gear notification notify switch user sign out big screen manual emergency spicy', p: 'The gear. Big screen mode, a notification when the block changes, switch who\'s signed in, <b>Spicy</b> (ask it anything), this manual, <b>Log incident</b> (first aid, lost property, behaviour, equipment — timestamped for the organisers), and the red <b>Emergency</b> button with who to call.' },
+    { icon: 'mic',     color: 'var(--c-stage)',  t: 'Notifications', k: 'notifications notify buzz alert block changes turn on off', p: 'Offered once, in the welcome tour: a buzz when your block changes, and when your duty changes because a team won. Friday only, only while the app is open, and nothing after the festival. Missed it? Allow notifications for sandeswelagedara.com in your browser\'s site settings. On iPhone it only works from the Home Screen app.' },
+    { icon: 'box',     color: 'var(--c-hands)',  t: 'Settings', k: 'settings gear emergency spicy incident photo', p: 'The gear. <b>Spicy</b> (ask it anything), this manual, <b>Log incident</b> (first aid, lost property, behaviour, equipment — timestamped for the organisers), and the red <b>Emergency</b> button with who to call.' },
     { icon: 'heart',   color: '#B23A2E',         t: 'Emergency', k: 'emergency call phone number urgent 000 organiser help', p: 'Settings → <b>Emergency</b>. A big <b>Call 000</b> button, then every organiser with a Call button next to their name. Anything medical or dangerous: <b>000 first</b>.' },
   ];
   function renderManual(q) {
@@ -2908,7 +2921,7 @@
   // Each step points at a real thing: prep() gets it on screen (switch tab,
   // open the tray, open settings), then the spotlight cuts a hole around it.
   const TOUR = [
-    { icon: 'coffee', color: 'var(--c-free)', h: 'Welcome', me: true, p: 'Add a photo first — it shows next to your name everywhere, so execs who haven\'t met you can find you. Then a one-minute tour of where everything is. Close it any time with the × — it won\'t come back. It\'s also under Settings → Manual if you want it again.', prep: () => { closeSheets(); showView('now'); } },
+    { icon: 'coffee', color: 'var(--c-free)', h: 'Welcome', me: true, p: 'Add a photo first — it shows next to your name everywhere, so execs who haven\'t met you can find you. Then a one-minute tour of where everything is. Close it any time with the × — it won\'t come back. Want it again later? Ask Spicy.', prep: () => { closeSheets(); showView('now'); } },
     { icon: 'football', color: 'var(--c-sport)', h: 'Your duty, right now', target: '#now-card > .duty-card', prep: () => { showView('now'); tourDemoBlock(); }, p: 'The big card is what you\'re doing this block: <b>where to be</b>, <b>what it involves</b>, and <b>who you\'re with</b>. The dot pulses when the clock is live. <b>Tap the title</b> for the committee head and everyone else on it; tap a name to message them.' },
     { icon: 'crowd', color: 'var(--c-crowd)', h: 'Stuck? Two buttons.', target: '#now-card .ctl-row', prep: () => { showView('now'); tourDemoBlock(); }, p: '<b>Request more execs</b> pings every free exec — they tap "on my way". <b>Ask to swap</b> gives you three options: <b>Not fussed</b> (everyone is asked), <b>take a break</b> (free execs come and take over), or <b>pick another activity</b> (the execs on it are asked to swap places with you). In a sports competition it reads <b>Ask a teammate to sub in</b>.' },
     { icon: 'coffee', color: 'var(--c-free)', h: 'Next up and your day', target: '#now-next, #runsheet', prep: () => showView('now'), p: 'What\'s coming next, then your whole day — every block, who with, and moments like the presidents\' photo. The <b>‹ › LIVE</b> buttons underneath let you look ahead.' },
@@ -2918,8 +2931,9 @@
     { icon: 'tent', color: 'var(--c-club)', h: 'Map', target: '#map-exec', prep: () => showView('map'), p: 'The ground, with a pin on everything. <b>Simple</b> is the plan, <b>Satellite</b> is the real thing. Drag to pan, pinch to zoom, tap a pin.' },
     { icon: 'sparkle', color: 'var(--c-ticket)', h: "What's On", target: '#exec-on > div:nth-of-type(1)', prep: () => showView('on'), p: 'Everything at the festival. Tap a <b>sport</b> for its match timetable, the <b>stage</b> for the running order, a <b>business</b> for what they do, a <b>club</b> for who\'s on the marquee.' },
     { icon: 'camera', color: 'var(--c-photo)', h: 'Festival photos', target: '[data-share="exec"]', prep: () => showView('on'), p: 'Send in a photo from here. An organiser approves it and it rolls across the <b>big screen</b>.' },
-    { icon: 'box', color: 'var(--c-hands)', h: 'Settings', target: '#set-sheet', prep: () => { showView('now'); openSettings(true); }, after: () => openSettings(false), p: 'The gear at the top. Turn on a <b>notification</b> when the block changes, <b>switch</b> who\'s signed in, open the <b>manual</b>, <b>log an incident</b> (first aid, lost property, behaviour) so the organisers have a record, and the red <b>Emergency</b> button has who to call.' },
-    { icon: 'heart', color: '#B23A2E', h: 'Questions?', prep: () => { closeSheets(); showView('now'); }, p: 'If you forget any of this, the <b>manual</b> under Settings has every section and a search bar. Still stuck? <b>Ask Spicy</b> — it knows the app and the day, and who\'s where right now, and it can <b>point at</b> whatever it\'s talking about. Or message Sandes.', last: true },
+    { icon: 'mic', color: 'var(--c-stage)', h: 'Know when to move', alerts: true, prep: () => { closeSheets(); showView('now'); }, p: 'Your phone can buzz when your block changes, with where to go next. It only works on Friday, only while the app is open, and it switches itself off after the festival.' },
+    { icon: 'box', color: 'var(--c-hands)', h: 'Settings', target: '#set-sheet', prep: () => { showView('now'); openSettings(true); }, after: () => openSettings(false), p: 'The gear at the top. <b>Spicy</b> answers questions, <b>log an incident</b> (first aid, lost property, behaviour) so the organisers have a record, and the red <b>Emergency</b> button has who to call.' },
+    { icon: 'heart', color: '#B23A2E', h: 'Questions?', prep: () => { closeSheets(); showView('now'); }, p: 'If you forget any of this, the <b>manual</b> below has every section and a search bar. Still stuck? <b>Ask Spicy</b> — it knows the app and the day, and who\'s where right now, and it can <b>point at</b> whatever it\'s talking about. Or message Sandes.', last: true },
   ];
   let tourIdx = 0, tourOn = false, tourSaved = null;
   function closeSheets() { openTray(false); openSettings(false); if ($('spicy-sheet')) openSpicy(false); }
@@ -2967,12 +2981,13 @@
     const hi = t.me && me; // the welcome slide greets you with your own picture
     const mine = hi && !!pfps[me.first.toLowerCase()];
     const pick = hi ? `<div class="pfp-pick">${pfp(me.first, 72)}<div><button class="btn-small ${mine ? 'ghost' : ''}" id="onb-photo" type="button">${mine ? 'Change photo' : 'Add a photo of you'}</button><p class="fine" id="onb-photo-msg">${mine ? 'Looking good.' : 'So people can find you on the day.'}</p></div></div>` : '';
-    $('onb-slide').innerHTML = `${hi ? '' : iconHtml(t.icon, t.color)}<h2>${hi ? 'Hi ' + esc(me.first) : t.h}</h2>${pick}<p>${t.p}</p>${t.last ? `<div class="btns" style="margin-top:6px"><button class="btn-small" id="onb-spicy" type="button">Ask Spicy</button><button class="btn-small ghost" id="onb-msg" type="button">Message Sandes</button><button class="btn-small ghost" id="onb-man" type="button">Open the manual</button></div>` : ''}`;
+    $('onb-slide').innerHTML = `${hi ? '' : iconHtml(t.icon, t.color)}<h2>${hi ? 'Hi ' + esc(me.first) : t.h}</h2>${pick}<p>${t.p}</p>${t.alerts ? `<div class="btns" style="margin-top:6px">${'Notification' in window && Notification.permission === 'default' ? '<button class="btn-small" id="onb-alerts" type="button" style="width:100%;height:auto;padding:10px 14px;line-height:1.3;white-space:normal">Turn on notifications when the block changes</button>' : ''}</div><p class="fine" id="onb-alerts-msg">${esc(alertsState())}</p>` : ''}${t.last ? `<div class="btns" style="margin-top:6px"><button class="btn-small" id="onb-spicy" type="button">Ask Spicy</button><button class="btn-small ghost" id="onb-msg" type="button">Message Sandes</button><button class="btn-small ghost" id="onb-man" type="button">Open the manual</button></div>` : ''}`;
     $('onb-dots').innerHTML = TOUR.map((_, i) => `<i class="${i === tourIdx ? 'on' : ''}"></i>`).join('');
     $('onb-prev').hidden = tourIdx === 0; $('onb-next').textContent = tourIdx === TOUR.length - 1 ? 'Done' : 'Next';
     const msg = $('onb-msg'); if (msg) msg.addEventListener('click', () => { endTour(); if (me && me.first !== 'Sandes') openDm('Sandes'); });
     const man = $('onb-man'); if (man) man.addEventListener('click', () => { endTour(); openManual(true); });
     const sp = $('onb-spicy'); if (sp) sp.addEventListener('click', () => { endTour(); openSpicy(true); });
+    const al = $('onb-alerts'); if (al) al.addEventListener('click', async () => { await turnOnAlerts(); renderTour(); });
     const ph = $('onb-photo'); if (ph) ph.addEventListener('click', () => pickPhoto('onb-photo-msg'));
     if (t.prep) t.prep();
     requestAnimationFrame(() => requestAnimationFrame(placeTour));
@@ -3097,13 +3112,9 @@ If someone asks how to score a match, walk them through these steps and set "sho
     'photo-upload':    { what: "where to send in festival photos, at the bottom of What's On", target: '[data-share="exec"]', prep: () => { closeSheets(); showView('on'); } },
     'shout-out':       { what: "the shout-out box at the bottom of What's On", target: '[data-shout="exec"]', prep: () => { closeSheets(); showView('on'); } },
     'settings-spicy':  { what: 'Spicy, under Settings', target: '.set-row:has(#set-spicy)', ...inSettings },
-    'settings-manual': { what: 'the Manual, under Settings', target: '.set-row:has(#set-manual)', ...inSettings },
     'settings-incident': { what: 'Log incident, under Settings', target: '.set-row:has(#set-inc)', ...inSettings },
     'settings-emergency': { what: 'the red Emergency button, under Settings', target: '.set-row:has(#set-emg)', ...inSettings },
     'settings-photo':  { what: 'Your photo, under Settings', target: '#set-photo-row', ...inSettings },
-    'settings-switch': { what: 'Switch who is signed in, under Settings', target: '.set-row:has(#set-switch)', ...inSettings },
-    'settings-screen': { what: 'Big screen mode, under Settings', target: '.set-row:has(#screen-start)', ...inSettings },
-    'settings-notify': { what: 'the block-change notification toggle, under Settings', target: '.set-row:has(#nudge)', ...inSettings },
     'desk':            { what: 'the Organiser desk button at the top (organisers only)', target: '#deskbtn', prep: () => { closeSheets(); showView('now'); } },
     'guide-vb':        { what: 'the volleyball scoring guide (when to give a point)', target: '#info-sheet', prep: () => { closeSheets(); openGuide('vb'); }, after: () => { $('info-sheet').hidden = true; $('info-backdrop').hidden = true; } },
     'guide-fb':        { what: 'the football scoring guide (goals, kick-ins, fouls, time)', target: '#info-sheet', prep: () => { closeSheets(); openGuide('fb'); }, after: () => { $('info-sheet').hidden = true; $('info-backdrop').hidden = true; } },
@@ -3602,7 +3613,8 @@ If someone asks how to score a match, walk them through these steps and set "sho
   const simLabel = (b) => b < 0 ? 'Setup · 2:00 – 3:00 pm' : b >= BLOCKS ? 'Pack-up · 9:00 – 10:00 pm' : `Block ${b + 1} · ${range(b)}`;
   function renderSim() {
     const ok = canSim(); $('set-sim-row').hidden = !ok;
-    $('set-demo-row').hidden = !ok;
+    // Sandes's tools: everyone else never needs them on the day
+    ['set-demo-row', 'set-screen-row', 'set-manual-row', 'set-switch-row'].forEach(id => { $(id).hidden = !ok; });
     $('demo-toggle').setAttribute('aria-checked', String(demoMode));
     $('demo-state').textContent = demoMode ? 'On — the tour plays every time you sign in. Off when you\'re done showing people.' : 'Replays the welcome tour every time you sign in — for showing people the app. This phone only.';
     const on = !!(sim && sim.on); $('sim-toggle').setAttribute('aria-checked', String(on));

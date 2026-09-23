@@ -23,3 +23,11 @@ self.addEventListener('fetch', e => {
   // everything else: cache first, then network (and remember it)
   e.respondWith(caches.match(e.request, { ignoreSearch: true }).then(r => r || fetch(e.request).then(res => { if (res.ok && (url.origin === location.origin || url.hostname === 'www.gstatic.com' || url.hostname === 'fonts.gstatic.com' || url.hostname === 'fonts.googleapis.com')) { const copy = res.clone(); caches.open(CACHE).then(c => c.put(e.request, copy)); } return res; })));
 });
+
+// tapping a block-change notification brings the app back up
+self.addEventListener('notificationclick', e => {
+  e.notification.close();
+  e.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(cs => {
+    const c = cs.find(x => x.url.includes('/on-shift')); return c ? c.focus() : self.clients.openWindow('./');
+  }));
+});
