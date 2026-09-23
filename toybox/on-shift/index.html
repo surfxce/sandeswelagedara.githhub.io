@@ -1513,7 +1513,7 @@
           tasks:['Scorekeeping', 'Rotating teams', 'Ball bag'] },
     'fb-score': { cat:'sport', icon:'football', name:'Football scores', where:'Field 7 sideline — results desk', do:'Get every result the moment a game ends: from the ref, into the committee\'s score sheet, and into the app (Scores tab → Football → tap the match, + for each goal, End match) so the big screen and the group tables are right. The semi-final draw comes from your sheet.',
           tasks:['Results from refs', 'Score sheet', 'App scores'] },
-    fb: { cat:'sport', name:'Football', where:'Field 7 (the main oval)', do:'One referee per pitch — you\'re on one of Field 1 – 6 on the infield. Group games are 22 minutes plus a 3-minute changeover, starting 3:00, 3:25, 3:50 and 4:15; then semis at 4:50 and the final at 5:30. Blow up on time, and tell the results desk the score the second it ends.',
+    fb: { cat:'sport', name:'Football', where:'Field 7 (the main oval)', do:'One referee per pitch — you\'re on one of Field 1 – 6 on the infield. Group games are 22 minutes plus a 3-minute changeover, starting 3:00, 3:25, 3:50 and 4:15; then semis at 4:50 and the final at 5:30 — there are more of you than games by then, so the spares run the lines and keep spectators off the pitch. Blow up on time, and tell the results desk the score the second it ends.',
           tasks:['Refereeing', 'Sideline clear', 'Team swaps'] },
     ck: { cat:'sport', icon:'cricket', name:'Cricket', where:'Field 7, after the football', do:'Two pitches side by side on Field 7 — an umpire on each. T6 with a tennis ball, six overs a side. Two games at once at 6:40 and 7:20, then the final at 8:00 between the top two. Winner announced 8:50.',
           tasks:['Umpiring', 'Getting people off the field', 'Spectators behind cones'] },
@@ -1660,9 +1660,16 @@
       const pool = PEOPLE.map(p => p.first).filter(f => !busy.has(f) && onSite(f, i)).sort();
       vacancies.forEach(v => {
         const club = (DUTIES[v.id] || {}).club;
-        const j = pool.findIndex(f => !club || byFirst[f.toLowerCase()].s.includes(club));
-        if (j < 0) return;
-        const f = pool.splice(j, 1)[0]; addTo(v.id, f); cover[f] = { for: v.by, sport: v.sport };
+        const fits = f => !club || byFirst[f.toLowerCase()].s.includes(club);
+        const j = pool.findIndex(fits);
+        if (j >= 0) { const f = pool.splice(j, 1)[0]; addTo(v.id, f); cover[f] = { for: v.by, sport: v.sport }; return; }
+        // nobody free: borrow from crowd & support, from the busiest zone,
+        // never leaving a zone empty
+        const zones = rows.filter(r => r[0].startsWith('cr-') && r[1].length > 1).sort((a, b) => b[1].length - a[1].length || a[0].localeCompare(b[0]));
+        for (const z of zones) {
+          const f = z[1].slice().sort().find(x => fits(x) && !cover[x]); if (!f) continue;
+          z[1].splice(z[1].indexOf(f), 1); addTo(v.id, f); cover[f] = { for: v.by, sport: v.sport }; return;
+        }
       });
     }
     // ---- swaps, as exchanges ----
@@ -2550,7 +2557,7 @@
       // listed in draw order: 1v2, 3v4, 5v6, 7v8 — the two society teams meet
       // first so whichever loses has its execs back on duty by 3:50
       { name: 'UQSLA',        soc: 'UQSLA', players: ['Shavini Kariyawasam', 'Sanuli Ranatunga', 'Diya Chandy', 'Leron Hewapathiranage'] },
-      { name: 'UQISC',        soc: 'UQISC', players: ['Ragesh Ramanalingam', 'Alex John', 'Shane Shaji', 'Mithila Balamurugan', 'Sandes Welagedara'] },
+      { name: 'UQISC',        soc: 'UQISC', players: ['Ragesh Ramanalingam', 'Alex John', 'Shane Shaji', 'Mithila Balamurugan', 'Sandes Welagedara', 'Krisha Rekha'] },
       { name: "Aum's team",   players: ['Aum', 'Harshil', 'Jaydeep', 'Maan', 'Nikhil', 'Kartik Karri'] },
       { name: "Sargun's team", players: ['Sargun', 'Kanav', 'Manan', 'Yashraj', 'Atharv', 'Mudit'] },
       { name: "Luhara's team", players: ['Luhara Weerawardhane', 'Gabriela Santamaria', 'Lindel Heron', 'Pranav Biju', 'Shannon Galegedara', 'Shanaya Galegedara', 'Sewni Jaburagoda', 'Isha Chawla', 'Vatsal Delivala'] },
