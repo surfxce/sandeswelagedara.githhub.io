@@ -26,7 +26,7 @@ P = [
  ("Helly Parekh","GS","3,4,5,6,7,8",1,0,"","perf3"),
  ("Mekayil Saadat","PSA","3,4,5,6,7,8",1,1,"",""),
  ("Amal Asif","PSA","3,4,5,6,7,8",1,1,"sport",""),
- ("Alex John","ISC","",1,0,"",""),
+ ("Alex John","ISC","3,4,5,6,7,8",1,1,"",""),
  ("Kavinila Gunaseelan","ISC","4,5,6",0,0,"",""),
  ("Shane Shaji","ISC","4,5,6,7,8",1,0,"",""),
  ("Avinab Baral","NC","3,4,5,6,7,8",1,1,"",""),
