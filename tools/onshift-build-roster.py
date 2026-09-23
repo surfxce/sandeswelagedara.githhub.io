@@ -131,14 +131,19 @@ for soc, squad in VB_TEAM.items():
 for f in FB_PLAYERS:
     for i in range(0, 4):
         if i in avail.get(f, ()) and f not in fixed[i]: fixed[i][f] = 'play-fb'
+# cricket, one game at a time (the committee's poster): SLA 6:30 & 7:30,
+# ISC 6:30 & 8:00, GS 7:00 & 7:30, Mixed 7:00 & 8:00
+CK_GAMES = {'UQSLA': (7, 9), 'UQISC': (7, 10), 'UQGS': (8, 9)}
 for f in CK_PLAYERS:
-    for i in (7, 8):
+    for i in next((g for sc, g in CK_GAMES.items() if sc in byfirst[f]["s"]), ()):
         if i in avail.get(f, ()) and f not in fixed[i]: fixed[i][f] = 'play-ck'
 # presidents' photo at 3:15, before volleyball starts — Sandes takes it, so
 # he's off everything else that block
 fixed[0]['Sandes'] = 'photo-pres'
 # Devansh briefs the cricket crew at 6:20, before the first games at 6:40
 fixed[6]['Devansh'] = 'ck-brief'
+# …and he's on cricket for the first two games; after that it's self-run
+for i in (7, 8): fixed[i]['Devansh'] = 'ck'
 for f, (duty, blocks) in PIN.items():
     for i in blocks:
         if i in avail.get(f, ()) and f not in fixed[i] and can(f, duty): fixed[i][f] = duty
@@ -154,7 +159,7 @@ def needs(i):
     # keep the pitch clear) and two on the score sheet
     if i <= 5:  n['fb'] = (6, 6); n['fb-score'] = (2, 2)
     if i <= 3:  n['vb'] = (2, 2)                 # a ref on each of the two bracket courts
-    if 7 <= i <= 11: n['ck'] = (4, 4)   # umpire, leg umpire, scorer + spare, per the cricket committee
+    if 7 <= i <= 10: n['ck'] = (4, 4)   # 6:30 – 8:30, four matches: umpire, leg umpire, scorer + spare
     n['tk'] = (2, 2) if i <= 3 else (1, 2)
     n['st'] = (2, 2) if (i <= 3 or i in (6, 7)) else (1, 1)
     n['cr-gate'] = (1, 1); n['cr-food'] = (1, 2)

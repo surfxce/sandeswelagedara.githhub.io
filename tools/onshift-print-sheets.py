@@ -17,7 +17,7 @@ DUTY = {
   'vb': ('Volleyball referee', 'Beach volleyball courts'),
   'fb': ('Football referee', 'Field 7 infield — one of Field 1–6'),
   'fb-score': ('Football scores', 'Field 7 sideline, results desk'),
-  'ck': ('Cricket', 'Field 7 — umpire, leg umpire or scorer'),
+  'ck': ('Cricket', 'Field 7 — umpire, leg umpire or scorer, one game at a time'),
   'tk': ('Ticketing', 'Main entry gate — scan Humanitix QR codes'),
   'st': ('Stage', 'Performance stage — cue acts, keep it clear'),
   'cr-gate': ('Crowd & support', 'Entry gate zone'),
