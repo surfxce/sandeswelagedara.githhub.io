@@ -316,6 +316,9 @@
   .partner .pfp { width: 28px; height: 28px; font-size: 11px; margin-right: 6px; }
   .tt .pfp { margin-right: 6px; }
   .dm-head .nm { display: inline-flex; align-items: center; gap: 10px; }
+  .dm-head .dm-acts { display: inline-flex; align-items: center; gap: 12px; flex: 0 0 auto; }
+  .dm-call { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px; border-radius: 6px; background: var(--maroon); color: var(--cream); font-weight: 700; font-size: 14px; text-decoration: none; }
+  .dm-call svg { width: 15px; height: 15px; }
   .emg-top { display: flex; align-items: center; gap: 10px; }
   .emg-top > div { display: grid; gap: 2px; }
   /* Spicy */
@@ -1438,7 +1441,7 @@
     <!-- DM sheet: tap any name to open -->
     <div class="dm-backdrop" id="dm-backdrop" hidden></div>
     <section class="dm-sheet" id="dm-sheet" hidden aria-label="Message">
-      <div class="dm-head"><span class="nm" id="dm-who">—</span><button class="linkbtn" id="dm-close" type="button">Close</button></div>
+      <div class="dm-head"><span class="nm" id="dm-who">—</span><span class="dm-acts"><a class="dm-call" id="dm-call" href="#" hidden>Call</a><button class="linkbtn" id="dm-close" type="button">Close</button></span></div>
       <div class="dm-thread" id="dm-thread"></div>
       <div class="dm-canned" id="dm-canned"></div>
       <form class="bcast-form" id="dm-form" autocomplete="off">
@@ -2154,7 +2157,8 @@
     }
     const rows = rowsFor(block);
     const busy = new Set(rows.flatMap(r => r[1]));
-    const free = PEOPLE.map(p => p.first).filter(f => !busy.has(f));
+    // free = here and not rostered; people who aren't on site yet don't count
+    const free = PEOPLE.map(p => p.first).filter(f => !busy.has(f) && onSite(f, block));
     $('t-free-n').textContent = free.length; $('t-duty-n').textContent = busy.size;
     const freeShown = free.filter(shown);
     $('t-free').innerHTML = freeShown.length ? freeShown.map(chip).join('') : `<span class="fine">${free.length ? 'Nobody you\'re watching is free.' : 'Everyone is on duty this block.'}</span>`;
@@ -2860,6 +2864,8 @@
   function openDm(other) {
     if (!db || !me || !other || other === me.first) return;
     dmOpen = other; $('dm-who').innerHTML = pfp(other, 44) + '<span>Message ' + esc(full(other)) + '</span>';
+    const tel = (byFirst[other.toLowerCase()] || {}).t; const call = $('dm-call');
+    call.hidden = !tel; if (tel) { call.href = 'tel:' + tel.replace(/\s/g, ''); call.title = tel; call.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>Call'; }
     $('dm-canned').innerHTML = CANNED.map(t => `<button type="button" data-canned="${esc(t)}">${esc(t)}</button>`).join('');
     $('dm-canned').querySelectorAll('button').forEach(b => b.addEventListener('click', () => sendDm(b.dataset.canned)));
     $('dm-sheet').hidden = false; $('dm-backdrop').hidden = false;

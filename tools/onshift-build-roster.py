@@ -259,8 +259,13 @@ for i in range(BLOCKS):
     last = {x: d for d, xs in slots.items() for x in xs}
     roster.append(sorted(([d, sorted(xs)] for d, xs in slots.items() if xs), key=lambda r: r[0]))
 
+# phone numbers live beside the roster file, never in the repo
+import os
+phones_path = os.path.join(os.path.dirname(os.path.abspath(sys.argv[1])), 'phones.json')
+phones = json.load(open(phones_path)) if os.path.exists(phones_path) else {}
 for p in people:
     p["a"] = sorted(avail[p["n"].split()[0]])
+    if p["n"].split()[0] in phones: p["t"] = phones[p["n"].split()[0]]
 out = {"people": people, "roster": roster}
 json.dump(out, open(sys.argv[1], 'w'), indent=2)
 
