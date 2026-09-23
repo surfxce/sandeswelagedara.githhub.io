@@ -34,7 +34,7 @@ DUTY = {
   'perform': ('Performing', 'Performance stage'),
   'prep': ('Getting ready', "Performers' area — your act is next, be side-stage 10 min early"),
   'ck-brief': ('Cricket briefing — you run it', 'Field 7 at 6:20: umpires, scorers, captains; then set out the pitches'),
-  'photo-pres': ("Presidents' photo — you're taking it", 'Stage steps at 3:15 — back to normal after'),
+  'photo-pres': ("Presidents' photo — you're taking it", 'Stage steps at 4:55, straight after the volleyball final'),
 }
 def duty(id_):
     if id_.startswith('stall-'):
@@ -46,7 +46,7 @@ socOf = {p['n'].split()[0]: set(p['s']) for p in people}
 times = [(f"{3 + i // 2}:{'00' if i % 2 == 0 else '30'}", f"{3 + (i + 1) // 2}:{'00' if (i + 1) % 2 == 0 else '30'}") for i in range(12)]
 esc = html.escape
 
-# the 3:15 presidents' photo (the rest of the presidents aren't on the roster)
+# the 4:55 presidents' photo (the rest of the presidents aren't on the roster)
 PRES = {'Sanuka', 'Prabhas', 'Jais', 'Devansh', 'Aarya'}
 
 # everyone on cricket tonight gets the 6:20 briefing
@@ -69,19 +69,21 @@ for p in people:
                 mates = [x for x in ppl if x != first]
                 if id_.startswith('play-'): mates = [x for x in mates if socOf.get(x, set()) & socOf[first]]
                 got = (duty(id_), mates, 'play' if id_.startswith('play-') or id_ == 'perform' else 'duty'); break
-        if got and i == 0 and first in PRES:
-            got = ((got[0][0], got[0][1] + " · 3:15: presidents' photo at the stage steps, 5 min"), got[1], got[2])
-        if got and i == 6 and first in CK and first != 'Devansh':
-            got = ((got[0][0], got[0][1] + " · 6:20: cricket briefing with Devansh at Field 7, 10 min"), got[1], got[2])
         if got: rows.append((t, got[0], got[1], got[2]))
         else: rows.append((t, ('Free — check the app', 'A job can still land here on the day'), [], 'free'))
+        # moments get their own row, so they can't be missed
+        if i == 3 and first in PRES:
+            rows.append(('4:55', ("Presidents' photo", 'Stage steps, straight after the volleyball final · 5 minutes, then back to your spot'), [], 'moment'))
+        if i == 6 and first in CK and first != 'Devansh':
+            rows.append(('6:20', ('Cricket briefing with Devansh', 'Field 7, by the pitches · 10 minutes, then back to your spot until 6:30'), [], 'moment'))
     rows.append(('9:00 – 10:00', ('Pack-up — all hands', 'Strike marquees, bag rubbish, return gear'), [], 'hands' if flags['packup'] else 'off'))
 
     trs = []
     for t, (name, where), mates, kind in rows:
-        withs = f'<span class="w">with {esc(", ".join(mates))}</span>' if mates else ''
-        trs.append(f'<tr class="{kind}"><td class="t">{esc(t)}</td><td class="d"><b>{esc(name)}</b>'
-                   f'{f"<span>{esc(where)}</span>" if where else ""}{withs}</td></tr>')
+        # where and who on one line, so a full day fits on one page
+        withs = f' · <em class="w">with {esc(", ".join(mates))}</em>' if mates else ''
+        sub = f'<span>{esc(where)}{withs}</span>' if where else (f'<span>{withs[3:]}</span>' if withs else '')
+        trs.append(f'<tr class="{kind}"><td class="t">{esc(t)}</td><td class="d"><b>{esc(name)}</b>{sub}</td></tr>')
     socs = ' · '.join(s for s in p['s'])
     pages.append(f'''<section class="page">
   <header><div class="eb">Spice Road Experience · Friday 25 September · UQ Athletics Centre</div>
@@ -98,21 +100,22 @@ doc = f'''<!doctype html><html><head><meta charset="utf-8">
   * {{ box-sizing: border-box; margin: 0; }}
   body {{ font-family: "Atkinson Hyperlegible Next", system-ui, sans-serif; color: #2B1A14; -webkit-print-color-adjust: exact; print-color-adjust: exact; }}
   .page {{ width: 210mm; height: 297mm; padding: 14mm 16mm 12mm; page-break-after: always; display: flex; flex-direction: column; }}
-  header {{ border-bottom: 3px solid #6E2418; padding-bottom: 5mm; margin-bottom: 5mm; }}
+  header {{ border-bottom: 3px solid #6E2418; padding-bottom: 4mm; margin-bottom: 4mm; }}
   .eb {{ font-size: 9.5pt; letter-spacing: .08em; text-transform: uppercase; color: #8C5A2B; font-weight: 700; }}
   h1 {{ font-family: "Cormorant SC", serif; font-weight: 700; font-size: 36pt; line-height: 1; color: #6E2418; margin-top: 2mm; }}
   .soc {{ font-weight: 700; font-size: 11pt; color: #6B5347; margin-top: 1.5mm; letter-spacing: .04em; }}
   table {{ width: 100%; border-collapse: collapse; }}
   th {{ text-align: left; font-size: 8.5pt; letter-spacing: .1em; text-transform: uppercase; color: #8C7B6E; padding: 0 0 2mm; }}
   th:first-child {{ width: 31mm; }}
-  td {{ border-top: 1px solid #DACBB2; padding: 2.1mm 0; vertical-align: top; }}
+  td {{ border-top: 1px solid #DACBB2; padding: 1.7mm 0; vertical-align: top; }}
   td.t {{ font-weight: 800; font-size: 10.5pt; font-variant-numeric: tabular-nums; color: #2B1A14; white-space: nowrap; padding-right: 4mm; }}
   td.d b {{ display: block; font-size: 11.5pt; }}
   td.d span {{ display: block; font-size: 9pt; color: #6B5347; margin-top: .4mm; }}
-  td.d span.w {{ color: #8C5A2B; font-weight: 700; }}
+  td.d em.w {{ font-style: normal; color: #8C5A2B; font-weight: 700; }}
   tr.duty td.d b {{ color: #2B1A14; }}
   tr.play td {{ background: #EAF3EE; }} tr.play td.d b {{ color: #2E7D5B; }}
   tr.hands td {{ background: #F3EEE3; }}
+  tr.moment td {{ background: #F7ECF1; padding-top: 1.1mm; padding-bottom: 1.1mm; }} tr.moment td.t {{ padding-left: 2mm; color: #8A3B62; }} tr.moment td.d b {{ color: #8A3B62; }}
   tr.free td.d b {{ color: #5F6E7A; }}
   tr.off td {{ color: #B9ADA2; }} tr.off td.t, tr.off td.d b {{ color: #B9ADA2; font-weight: 500; }}
   tr.off td.d span {{ display: none; }}
