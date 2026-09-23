@@ -123,7 +123,10 @@ def can(first, duty):
 PREF = {'Dhyan': 'fb', 'Aditya': 'ck', 'Humza': 'ck', 'Hasara': 'fund-pp', 'Thanabammini': 'cr-food',
         'Divita': 'stall-UQISC', 'Sandes': 'vb', 'Helly': 'st', 'Amal': 'st', 'Sritam': 'vb'}
 # a head is pinned to their own duty while it's running, before anything else
-PIN = {'Aditya': ('ck', (7, 8, 9)), 'Dhyan': ('fb', (4, 5)), 'Hasara': ('fund-pp', (6, 7, 10, 11))}
+PIN = {'Aditya': ('ck', (7, 8, 9)), 'Dhyan': ('fb', (4, 5)), 'Hasara': ('fund-pp', (6, 7, 10, 11)),
+       # Aarya (PA president) wants to be at his stall: there most of the night,
+       # apart from volleyball (3:30), his cricket game (7:00) and a break at 5:30
+       'Aarya': ('stall-UQPA', (0, 2, 3, 4, 6, 7, 9, 10, 11))}
 
 # ---- fixed assignments -------------------------------------------------
 fixed = collections.defaultdict(dict)     # block -> {first: duty}
