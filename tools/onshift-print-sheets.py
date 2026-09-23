@@ -54,7 +54,7 @@ times = [(f"{3 + i // 2}:{'00' if i % 2 == 0 else '30'}", f"{3 + (i + 1) // 2}:{
 esc = html.escape
 
 # the 4:55 presidents' photo (the rest of the presidents aren't on the roster)
-PRES = {'Sanuka', 'Prabhas', 'Jais', 'Devansh', 'Aarya'}
+PRES = {'Sanuka', 'Prabhas', 'Jais', 'Devansh', 'Aarya', 'Bhumik'}
 
 # everyone on cricket tonight gets the 6:10 briefing
 CK = {f for b in d['roster'][7:] for x, ps in b if x in ('ck', 'play-ck') for f in ps}

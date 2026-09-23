@@ -46,7 +46,8 @@ P = [
  ("Eshal Ali","PSA","3,4,5,6,7,8",1,1,"stage,sport",""),
  ("Tanisha Raniga","GS","3,4,5,6,7,8",1,1,"","logi,perf3"),
  ("Divita Nagrath","ISC","3,4,5,6,7,8",1,0,"crowd,ck,tk,fb,vb","media"),
- ("Rushi Kakkad","GS","4,5,6",0,0,"stage",""),
+ # staying until 8 to play GS's cricket games (7:00, 7:30)
+ ("Rushi Kakkad","GS","4,5,6,7",0,0,"stage",""),
  ("Sanuka Ranatunga","SLA","3,4,5,6,7,8",1,1,"",""),
  ("Thanabammini Balasaravanan","SLA,TELS","3,4,5,6,7,8",0,1,"","biz-head"),
  ("Thihan Sendanayake","SLA","3,4,5,6,7,8",1,1,"",""),

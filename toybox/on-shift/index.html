@@ -1554,8 +1554,8 @@
           tasks:['Costume', 'Warm-up', 'Side-stage 10 min early'] },
     'ck-brief': { cat:'sport', icon:'cricket', name:'Cricket briefing', where:'Field 7, by the cricket pitches', do:'At 6:10, brief everyone running tonight\'s cricket — umpires, scorers and team captains: one game at a time, every half hour from 6:30 (four matches, no final — top of the table wins); six overs a side, seven on the field max, soft tennis balls only; how to score it in the app (Scores → Brackets → Cricket → tap the fixture) and where the gear is. Then you\'re on cricket for the first two games; after that it runs itself.',
           tasks:['6:10 briefing & set-up', 'Four games, one at a time', 'Scoring in the app', 'Gear out'] },
-    'photo-pres': { cat:'photo', name:'Presidents\' photo — taking it', where:'Performance stage steps', do:'You\'re the photographer. At 4:55, straight after the volleyball final, the presidents meet at the stage steps: Sanuka (UQSLA), Prabhas (UQISC), Akash (UQTELS), Aarya (UQPA), Akansh (UQNAATAK), Devansh (UQGS) and Jais (UQGIDDHA). Round up anyone missing, take a few shots, and send them back to their spots within five minutes.',
-          tasks:['4:55 at the stage steps', 'Seven presidents', 'Five minutes'] },
+    'photo-pres': { cat:'photo', name:'Presidents\' photo — taking it', where:'Performance stage steps', do:'You\'re the photographer. At 4:55, straight after the volleyball final, the presidents meet at the stage steps: Sanuka (UQSLA), Prabhas (UQISC), Akash (UQTELS), Aarya (UQPA), Akansh (UQNAATAK), Devansh (UQGS), Jais (UQGIDDHA) and Bhumik (UQNC). Round up anyone missing, take a few shots, and send them back to their spots within five minutes.',
+          tasks:['4:55 at the stage steps', 'Eight presidents', 'Five minutes'] },
     logi: { cat:'logi', name:'Logistics', where:'Everywhere', do:'Floating. Fix what\'s broken, move gear, back up whichever team is short. Every swap request and call for help lands in your bell — take the ones nobody else has.',
           tasks:['Equipment', 'Backing up teams', 'Answering the bell'] },
     free: { cat:'free', name:'Free', where:'Enjoy the festival', do:'You\'re off this block. Grab food, catch the stage — and be back a few minutes before your next duty.' },
@@ -2070,7 +2070,7 @@
     { block: 6, at: '6:10 pm', name: 'Cricket briefing', where: 'Field 7, by the cricket pitches', note: 'Devansh runs through how tonight\'s cricket works and the crew sets up — first game 6:30.', who: 'ck', whoLabel: 'cricket crew' },
     // presidents only, straight after the volleyball final and before Jais
     // leaves at 5; Sandes is rostered off 4:30 – 5:00 to take it
-    { block: 3, at: '4:55 pm', name: 'Presidents\' photo', where: 'Stage steps', note: 'Presidents only, straight after the volleyball final — leave your spot for five minutes, then straight back. Sandes takes it.', who: ['Sanuka', 'Prabhas', 'Akash', 'Aarya', 'Akansh', 'Devansh', 'Jais', 'Sandes'], whoLabel: 'presidents' },
+    { block: 3, at: '4:55 pm', name: 'Presidents\' photo', where: 'Stage steps', note: 'Presidents only, straight after the volleyball final — leave your spot for five minutes, then straight back. Sandes takes it.', who: ['Sanuka', 'Prabhas', 'Akash', 'Aarya', 'Akansh', 'Devansh', 'Jais', 'Bhumik', 'Sandes'], whoLabel: 'presidents' },
   ];
   const onCricket = (first) => [7, 8, 9, 10, 11].some(i => ['ck', 'play-ck'].includes(assignmentFor(first, i).id));
   const momentsFor = (i) => MOMENTS.filter(m => m.block === i && (m.who === 'all' || (me && (m.who === 'ck' ? onCricket(me.first) : m.who.includes(me.first)))))
