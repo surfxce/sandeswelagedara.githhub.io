@@ -33,10 +33,17 @@ DUTY = {
   'play-ck': ('Playing cricket', 'Field 7 — for your society'),
   'perform': ('Performing', 'Performance stage'),
   'prep': ('Getting ready', "Performers' area — your act is next, be side-stage 10 min early"),
-  'ck-brief': ('Cricket briefing — you run it', 'Field 7 at 6:20: umpires, scorers, captains; then set out the pitches'),
+  'ck-brief': ('Cricket briefing — you run it', 'Field 7 at 6:10: umpires, scorers, captains; then set out the pitches'),
+  'fb-pack': ('Football pack-up', 'Field 7, 6:00 – 6:15: balls, bibs, cones, whistles, pump to logistics'),
+  'su-fb': ('Setup — football', 'Field 7, 2:30 – 3:00: mark the pitch edges, balls/bibs/whistles out, teams ready'),
+  'su-vb': ('Setup — volleyball', 'Beach courts: three nets, lines, balls and ball bag, draw up'),
+  'su-fund': ('Setup — charity stalls', 'Charity marquee: tables, signage, raffle and wheel, floats'),
+  'su-biz': ('Setup — business stalls', 'Visit every business: missing anything? good to go by 3:00?'),
   'photo-pres': ("Presidents' photo — you're taking it", 'Stage steps at 4:55, straight after the volleyball final'),
 }
 def duty(id_):
+    if id_.startswith('su-UQ'):
+        c = id_[3:]; return (f'{c} stall setup', f'{c} marquee, Field 6 — tables, banner, sign-ups, open by 3:00')
     if id_.startswith('stall-'):
         c = id_[6:]; return (f'{c} stall', f'{c} marquee, Field 6 — visitors, sign-ups, content')
     return DUTY.get(id_, (id_, ''))
@@ -49,7 +56,7 @@ esc = html.escape
 # the 4:55 presidents' photo (the rest of the presidents aren't on the roster)
 PRES = {'Sanuka', 'Prabhas', 'Jais', 'Devansh', 'Aarya'}
 
-# everyone on cricket tonight gets the 6:20 briefing
+# everyone on cricket tonight gets the 6:10 briefing
 CK = {f for b in d['roster'][7:] for x, ps in b if x in ('ck', 'play-ck') for f in ps}
 
 pages = []
@@ -58,7 +65,9 @@ for p in people:
     avail = set(p.get('a', range(12)))
     rows = []
     flags = P.get(first, {'setup': 0, 'packup': 0})
-    rows.append(('2:00 – 3:00', ('Setup — all hands', 'Marquees, tables, cones, fencing'), [], 'hands' if flags['setup'] else 'off'))
+    su = next(((sid, ps) for sid, ps in d.get('setup', []) if first in ps), None)
+    if su: rows.append(('2:00 – 3:00', duty(su[0]), [x for x in su[1] if x != first], 'hands'))
+    else: rows.append(('2:00 – 3:00', ('Setup', 'Not on your form — come if you can'), [], 'off'))
     for i in range(12):
         t = f'{times[i][0]} – {times[i][1]}'
         if i not in avail:
@@ -75,7 +84,7 @@ for p in people:
         if i == 3 and first in PRES:
             rows.append(('4:55', ("Presidents' photo", 'Stage steps, straight after the volleyball final · 5 minutes, then back to your spot'), [], 'moment'))
         if i == 6 and first in CK and first != 'Devansh':
-            rows.append(('6:20', ('Cricket briefing with Devansh', 'Field 7, by the pitches · 10 minutes, then back to your spot until 6:30'), [], 'moment'))
+            rows.append(('6:10', ('Cricket briefing with Devansh', 'Field 7, by the pitches · set-up and run-through, first game 6:30'), [], 'moment'))
     rows.append(('9:00 – 10:00', ('Pack-up — all hands', 'Strike marquees, bag rubbish, return gear'), [], 'hands' if flags['packup'] else 'off'))
 
     trs = []

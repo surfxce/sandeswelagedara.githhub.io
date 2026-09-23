@@ -83,6 +83,10 @@ P = [
  ("Sujal Raiyani","PA","3,4,5,6,7",1,0,"",""),
  # rolled ankle: nothing that means walking or running
  ("Swornim Khatiwada","NC","3,8",1,1,"stage,sport,crowd",""),
+ ("Bhumik Sarma","NC","3,4,5,6,7,8",1,1,"","nc-pres"),
+ ("Shreya Chhetri","NC","3,4,5,6,7,8",1,1,"","nc-vp"),
+ ("Shriyans Bista","NC","3,4,5,6,7,8",1,1,"ck",""),
+ ("Christopher Malik","PA","6,7",0,0,"",""),
 ]
 # when each performer is on stage (block index): GS garba 4:30, UQPA bhangra
 # 6:00, NAATAK 6:30 — they're off duty for that block only
@@ -94,11 +98,14 @@ VB_TEAM = {'UQSLA': ["Shavini", "Diya", "Leron", "Sanuka", "Deana", "Nimnah"],
 VB_BLOCK = 1          # round 1 at 3:30
 # execs on the other teams, for their first game: NC + PA and Solos play at
 # 3:35, Shriyans's team (Shane) at 3:55 — he's here from 4
-VB_OTHER = {'Avinab': 1, 'Jasmine': 1, 'Aarya': 1, 'Prabhjot': 1, 'Ishan': 1, 'Sujal': 1, 'Matvi': 1, 'Shane': 2}
-FB_PLAYERS = ["Aravinth", "Mekayil", "Dhyan", "Raziel", "Rishi"]     # no football team list yet
-CK_PLAYERS = ["Mathisha", "Thihan", "Rushi", "Sanupa"]                # cricket team lists pending
+VB_OTHER = {'Avinab': 1, 'Jasmine': 1, 'Aarya': 1, 'Prabhjot': 1, 'Ishan': 1, 'Sujal': 1, 'Bhumik': 1,
+            'Shriyans': 1, 'Matvi': 1, 'Shane': 2}
+# execs on the football sign-up sheet (both UQNC); nobody else registered
+FB_PLAYERS = ["Aravinth", "Bhumik"]
+# the only execs playing cricket
+CK_PLAYERS = ["Mathisha", "Thihan", "Rushi"]
 
-people, avail, cant, tags = [], {}, {}, {}
+people, avail, cant, tags, SETUP_FLAG = [], {}, {}, {}, {}
 for name, socs, hours, setup, packup, cd, note in P:
     first = name.split()[0]
     people.append({"n": name, "s": [SOC[s] for s in socs.split(',')]})
@@ -108,9 +115,11 @@ for name, socs, hours, setup, packup, cd, note in P:
     avail[first] = bs
     cant[first] = set(x for x in cd.split(',') if x)
     tags[first] = set(x for x in note.split(',') if x)
+    SETUP_FLAG[first] = setup
 
 byfirst = {p["n"].split()[0]: p for p in people}
 socs_present = sorted({s for p in people for s in p["s"]})
+SOC_SIZE = collections.Counter(s for p in people if avail[p["n"].split()[0]] for s in p["s"])
 
 def can(first, duty):
     c = cant[first]
@@ -126,10 +135,14 @@ def can(first, duty):
 PREF = {'Dhyan': 'fb', 'Aditya': 'ck', 'Humza': 'ck', 'Hasara': 'fund-pp', 'Thanabammini': 'cr-food',
         'Divita': 'stall-UQISC', 'Sandes': 'vb', 'Helly': 'st', 'Amal': 'st', 'Sritam': 'vb'}
 # a head is pinned to their own duty while it's running, before anything else
-PIN = {'Aditya': ('ck', (7, 8, 9)), 'Dhyan': ('fb', (4, 5)), 'Hasara': ('fund-pp', (6, 7, 10, 11)),
+PIN = {'Aditya': ('ck', (6, 7, 8)), 'Dhyan': ('fb', (4, 5)), 'Hasara': ('fund-pp', (6, 7, 10, 11)),
        # Aarya (PA president) wants to be at his stall: there most of the night,
        # apart from volleyball (3:30), his cricket game (7:00) and a break at 5:30
-       'Aarya': ('stall-UQPA', (0, 2, 3, 4, 6, 7, 9, 10, 11))}
+       'Aarya': ('stall-UQPA', (0, 2, 3, 4, 6, 7, 9, 10, 11)),
+       # NC's president and VP both asked to put their stall first: Shreya
+       # there most of the night, Bhumik once football's done
+       'Shreya': ('stall-UQNC', (0, 1, 2, 3, 5, 6, 7, 9, 10, 11)),
+       'Bhumik': ('stall-UQNC', (4, 5, 7, 8, 10, 11))}
 
 # ---- fixed assignments -------------------------------------------------
 fixed = collections.defaultdict(dict)     # block -> {first: duty}
@@ -162,7 +175,7 @@ for f in CK_PLAYERS:
 # presidents' photo at 4:55, straight after the volleyball final and before
 # Jais leaves at 5 — Sandes takes it, so he's off everything else that block
 fixed[3]['Sandes'] = 'photo-pres'
-# Devansh briefs the cricket crew at 6:20, before the first games at 6:40
+# Devansh briefs the cricket crew at 6:10, before the first game at 6:30
 fixed[6]['Devansh'] = 'ck-brief'
 # …and he's on cricket for the first two games; after that it's self-run
 for i in (7, 8): fixed[i]['Devansh'] = 'ck'
@@ -177,15 +190,23 @@ def needs(i):
     """(minimum, nice-to-have) per duty. Stalls come first — they're locked to
     a society, so they're the hardest to fill."""
     n = {}
-    for s in socs_present: n['stall-' + s] = (1, 2)      # two on every society stall
-    # football, per the committee: eight people the whole time it runs (3:00 –
-    # 6:00) — six refs (in the semis and final the spares run the lines and
-    # keep the pitch clear) and two on the score sheet
-    if i <= 5:  n['fb'] = (6, 6); n['fb-score'] = (2, 2)
+    # two on every society stall, where the society has two execs to give
+    for s in socs_present: n['stall-' + s] = (2, 2) if SOC_SIZE[s] >= 2 else (1, 1)
+    # football, per the committee's run sheet: a ref per game and two on the
+    # score document — 6 for the groups (3:00 – 4:40), 2 for the semis
+    # (4:50), 1 for the final (5:30) — then three pack up the gear at 6:00
+    if i <= 3:  n['fb'] = (6, 6)
+    elif i == 4: n['fb'] = (2, 2)
+    elif i == 5: n['fb'] = (1, 1)
+    if i <= 5:  n['fb-score'] = (2, 2)
+    if i == 6:  n['fb-pack'] = (3, 3)
     # a ref on every bracket court: three courts 3:35 – 4:15, then two
     if i in (1, 2): n['vb'] = (3, 3)
     elif i in (0, 3): n['vb'] = (2, 2)
-    if 7 <= i <= 10: n['ck'] = (4, 4)   # 6:30 – 8:30, four matches: umpire, leg umpire, scorer + spare
+    # cricket, per its run sheet: four people (bowler's-end umpire, square-leg
+    # umpire, scorer, helper) from the 6:10 set-up and brief; the crew changes
+    # at 7:30; four again for the 8:30 result and pack-down
+    if 6 <= i <= 11: n['ck'] = (4, 4)
     n['tk'] = (2, 2) if i <= 3 else (1, 2)
     n['st'] = (2, 2) if (i <= 3 or i in (6, 7)) else (1, 1)
     n['cr-gate'] = (1, 1); n['cr-food'] = (1, 2)
@@ -209,7 +230,9 @@ for i in range(BLOCKS):
     # four people kept free every block — a buffer for covering winning
     # teams, emergencies, a breather. It's whoever has gone longest without a
     # break (an hour on duty at least), so it rotates through everyone.
-    resting = set(sorted([f for f in pool if run[f] >= 2], key=lambda f: (-run[f], -counts[f], f))[:4])
+    CK_STAY = i in (7, 8, 10, 11)       # cricket crews: 6:00 – 7:30, then 7:30 – 9:00
+    resting = set(sorted([f for f in pool if run[f] >= 2 and not (CK_STAY and sameRun[f].get('ck'))],
+                         key=lambda f: (-run[f], -counts[f], f))[:4])
     pool = [f for f in pool if f not in resting]
     n = needs(i)
     for level in (0, 1):                      # minimums first, then the nice-to-haves
@@ -232,14 +255,14 @@ for i in range(BLOCKS):
             # three blocks on the trot at all, then a break
             ok = [f for f in elig if sameRun[f].get(duty, 0) < 2 and run[f] < 3]
             if not ok: ok = [f for f in elig if run[f] < 3]
-            if not ok: ok = elig
+            if not ok or duty == 'ck': ok = elig
             # cricket only: finish your hour before moving, so someone one block
             # into it is the first pick to stay. Everything else changes every
             # 30 minutes where it can.
             # pair within a society where we can: someone who shares a club
             # with whoever's already on this duty goes first
             mates = slots[duty]
-            ok.sort(key=lambda f: ((sameRun[f].get(duty, 0) != 1) if duty == 'ck' else sameRun[f].get(duty, 0) > 0,
+            ok.sort(key=lambda f: ((not sameRun[f].get('ck') if CK_STAY else i == 9 and (bool(sameRun[f].get('ck')) or not {10, 11} <= avail[f])) if duty == 'ck' else sameRun[f].get(duty, 0) > 0,
                                    PREF.get(f) != duty,
                                    bool(mates) and not any(byfirst[f]["s"][k] in byfirst[m]["s"] for m in mates for k in range(len(byfirst[f]["s"]))),
                                    doneDuty[f].get(duty, 0), counts[f], run[f], f))
@@ -268,6 +291,30 @@ for i in range(BLOCKS):
     last = {x: d for d, xs in slots.items() for x in xs}
     roster.append(sorted(([d, sorted(xs)] for d, xs in slots.items() if xs), key=lambda r: r[0]))
 
+# ---- setup, 2:00 – 3:00: everyone who's there gets a job ---------------
+# Football (6, 2:30 – 3:00) and volleyball (4) go to whoever refs those first
+# blocks; the charity stalls get 5, the business stalls 3 (checking they have
+# power, tables and everything they need); everyone else sets up their own
+# society's marquee. Logistics float.
+BIZ_SUB = ['Thanabammini', 'Devansh', 'Divita', 'Thihan', 'Jia', 'Ishan', 'Amal', 'Alex', 'Swadha']
+at_setup = [p["n"].split()[0] for p in people if SETUP_FLAG[p["n"].split()[0]]]
+first_on = lambda f, ids: any(f in ps for b in roster[:2] for d, ps in b if d in ids)
+setup, taken = collections.defaultdict(list), set()
+for f in at_setup:
+    if 'logi' in tags[f]: setup['logi'].append(f); taken.add(f)
+def fill(duty, k, key, ok=lambda f: True):
+    for f in sorted([f for f in at_setup if f not in taken and ok(f)], key=key)[:k]:
+        setup[duty].append(f); taken.add(f)
+# people who asked to be at their own stall (and the fundraising head) keep to it
+own = lambda f: f in PIN and PIN[f][0].startswith('stall-')
+mobile = lambda f: 'sport' not in cant[f] and 'crowd' not in cant[f] and not own(f) and PREF.get(f) != 'fund-pp'
+fill('su-fund', 5, lambda f: (PREF.get(f) != 'fund-pp', not first_on(f, ('fund-pp', 'fund-bake', 'fund-hope')), f), lambda f: not own(f))
+fill('su-fb', 6, lambda f: (not first_on(f, ('fb', 'fb-score')), f), mobile)
+fill('su-vb', 4, lambda f: (not first_on(f, ('vb',)), f), mobile)
+fill('su-biz', 3, lambda f: (f not in BIZ_SUB, f), lambda f: not own(f))
+for f in at_setup:
+    if f not in taken: setup['su-' + byfirst[f]["s"][0]].append(f)
+
 # phone numbers live beside the roster file, never in the repo
 import os
 phones_path = os.path.join(os.path.dirname(os.path.abspath(sys.argv[1])), 'phones.json')
@@ -275,7 +322,7 @@ phones = json.load(open(phones_path)) if os.path.exists(phones_path) else {}
 for p in people:
     p["a"] = sorted(avail[p["n"].split()[0]])
     if p["n"].split()[0] in phones: p["t"] = phones[p["n"].split()[0]]
-out = {"people": people, "roster": roster}
+out = {"people": people, "roster": roster, "setup": sorted([d, sorted(xs)] for d, xs in setup.items() if xs)}
 json.dump(out, open(sys.argv[1], 'w'), indent=2)
 
 # ---- report ------------------------------------------------------------
