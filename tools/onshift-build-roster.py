@@ -78,6 +78,9 @@ PERF = {'Helly': (3,), 'Tanisha': (3,), 'Matvi': (3,), 'Jasmine': (6,), 'Shalet'
 VB_TEAM = {'UQSLA': ["Shavini", "Diya", "Leron", "Sanuka", "Deana", "Nimnah"],
            'UQISC': ["Mithila", "Sandes", "Krisha", "Sritam", "Ragesh", "Shane"]}
 VB_BLOCK = 1          # round 1 at 3:30
+# execs on the other teams, for their first game: NC + PA and Solos play at
+# 3:35, Shriyans's team (Shane) at 3:55 — he's here from 4
+VB_OTHER = {'Avinab': 1, 'Jasmine': 1, 'Matvi': 1, 'Shane': 2}
 FB_PLAYERS = ["Aravinth", "Mekayil", "Dhyan", "Raziel"]     # no football team list yet
 CK_PLAYERS = ["Mathisha", "Thihan", "Rushi"]                # cricket team lists pending
 
@@ -126,6 +129,8 @@ for soc, squad in VB_TEAM.items():
     # four on court is the minimum team; the rest of the squad stays on duty
     for f in [x for x in squad if VB_BLOCK in avail.get(x, ()) and x not in fixed[VB_BLOCK]][:4]:
         fixed[VB_BLOCK][f] = 'play-vb'
+for f, i in VB_OTHER.items():
+    if i in avail.get(f, ()) and f not in fixed[i]: fixed[i][f] = 'play-vb'
 # football players: the group stage only (3:00 – 4:40). Whoever wins through
 # to the semis and final is held by the app on the day, from the bracket.
 for f in FB_PLAYERS:
@@ -158,7 +163,9 @@ def needs(i):
     # 6:00) — six refs (in the semis and final the spares run the lines and
     # keep the pitch clear) and two on the score sheet
     if i <= 5:  n['fb'] = (6, 6); n['fb-score'] = (2, 2)
-    if i <= 3:  n['vb'] = (2, 2)                 # a ref on each of the two bracket courts
+    # a ref on every bracket court: three courts 3:35 – 4:15, then two
+    if i in (1, 2): n['vb'] = (3, 3)
+    elif i in (0, 3): n['vb'] = (2, 2)
     if 7 <= i <= 10: n['ck'] = (4, 4)   # 6:30 – 8:30, four matches: umpire, leg umpire, scorer + spare
     n['tk'] = (2, 2) if i <= 3 else (1, 2)
     n['st'] = (2, 2) if (i <= 3 or i in (6, 7)) else (1, 1)
