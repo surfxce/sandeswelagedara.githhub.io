@@ -1643,7 +1643,9 @@
   function setRoster(data) {
     PEOPLE = data.people; ROSTER = data.roster; SETUP = data.setup || null; CONTACTS = data.contacts || {}; rosterVersion++; renderTeams();
     for (const k in byFirst) delete byFirst[k];
-    PEOPLE.forEach(p => { p.first = p.n.split(' ')[0]; byFirst[p.first.toLowerCase()] = p; });
+    // everyone's key is their first name; two people sharing one get "k" from
+    // the roster ("Shreya B", "Shreya C")
+    PEOPLE.forEach(p => { p.first = p.k || p.n.split(' ')[0]; byFirst[p.first.toLowerCase()] = p; });
   }
 
   // ---------- Time helpers ----------
@@ -2004,7 +2006,15 @@
   // Change ADMIN_LOGIN to something only organisers know.
   const ADMIN_LOGIN = { name: 'spiceroad-admin', society: 'UQSLA' };
   const isAdminLogin = (n, soc) => n.trim().toLowerCase() === ADMIN_LOGIN.name && soc === ADMIN_LOGIN.society;
-  const onRoster = (n, soc) => { const p = byFirst[n.trim().toLowerCase()]; return !!(p && p.s.includes(soc)); };
+  // what they type → their roster key. A first name, a full name, or the key
+  // itself; the society settles it when two people share a first name.
+  const resolveName = (n, soc) => {
+    const t = n.trim().toLowerCase(); const direct = byFirst[t];
+    if (direct && direct.s.includes(soc)) return direct.first;
+    const p = PEOPLE.find(p => p.s.includes(soc) && (p.n.toLowerCase() === t || p.n.split(' ')[0].toLowerCase() === t));
+    return p ? p.first : null;
+  };
+  const onRoster = (n, soc) => !!resolveName(n, soc);
   $('entry-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     const name = $('f-name').value.trim(); const society = sel.value;
@@ -2019,7 +2029,7 @@
     if (!onRoster(name, society) && !isAdminLogin(name, society)) {
       err.textContent = 'That name and society aren\'t on the roster together. Check the spelling and your society, or ask your club lead.'; err.hidden = false; return;
     }
-    ident = { name, society };
+    ident = { name: resolveName(name, society) || name, society };
     try { localStorage.setItem('onshift.identity', JSON.stringify(ident)); } catch {}
     enter();
   });
@@ -3065,7 +3075,7 @@
         { first: 'Aarya',   role: 'UQPA president', does: 'Mostly at the PA stall' },
         { first: 'Devansh', role: 'UQGS president', does: 'GS stall; cricket briefing at 6:10' },
         { first: 'Jais',    role: 'UQGIDDHA president', does: 'GIDDHA stall, 3:00 – 5:00' },
-        { n: 'Akash Racha', role: 'UQTELS president', does: 'Not on the app — ask a TELS exec' },
+        { first: 'Akash',   role: 'UQTELS president', does: 'TELS stall; here 3:00 – 7:00' },
         { n: 'Akansh', role: 'UQNAATAK president', does: 'Not on the app — ask logistics' },
       ] },
     heads: { blurb: 'Whoever runs each part of the day — for questions about that thing.',
@@ -4312,6 +4322,7 @@ If someone asks how to score a match, walk them through these steps and set "sho
   // arriving from the big-screen QR: straight to the photo section, even if this phone is signed in
   const wantsPhotos = location.hash === '#photos';
   if (ident && ident.name && ident.society && !wantsPhotos) loadRoster().then(ok => {
+    if (ok && onRoster(ident.name, ident.society)) ident.name = resolveName(ident.name, ident.society);
     if (ok && (onRoster(ident.name, ident.society) || isAdminLogin(ident.name, ident.society))) enter();
     else { ident = null; try { localStorage.removeItem('onshift.identity'); } catch {} redraw(); }
   });

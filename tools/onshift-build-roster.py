@@ -90,6 +90,18 @@ P = [
  ("Shreya Chhetri","NC","3,4,5,6,7,8",1,1,"","nc-vp"),
  ("Shriyans Bista","NC","3,4,5,6,7,8",1,1,"ck",""),
  ("Christopher Malik","PA","6,7",0,0,"",""),
+ # from the first exec form; never filled in the new one. Rostered by their
+ # hours, anything but football and cricket (harder to run and score)
+ ("Akash Racha","ISC,TELS","3,4,5,6",1,0,"fb,ck","tels-pres"),
+ ("Afthab Shanavas","ISC","3,4",1,0,"fb,ck",""),
+ ("Tejashwini Sivasakthi Vishaalakshi","ISC","3,4,5,6,7,8",1,1,"fb,ck",""),
+ ("Sarju Koirala","NC","3,4,5,6,7,8",1,1,"fb,ck",""),
+ ("Dev Dahal","NC","3,4",1,0,"fb,ck,stage",""),
+ ("Prasant Adhikari","NC","5",0,0,"fb,ck",""),
+ ("Dhriti Praveen","TELS","5,6,7,8",0,0,"fb,ck",""),
+ ("Shreya Byru","TELS","3,6,7",1,0,"fb,ck",""),
+ ("Sadisha Saparamadu","NAATAK","6,7",0,0,"fb,ck",""),
+ ("Bhargavi Ganegaonkar","NAATAK","4,5,6,7,8",0,0,"fb,ck",""),
  # logistics, not a club with a stall
  ("Mathew Jimmy","U","3,4,5,6,7,8",1,1,"","logi"),
 ]
@@ -111,9 +123,14 @@ FB_PLAYERS = ["Aravinth", "Bhumik"]
 CK_PLAYERS = ["Mathisha", "Thihan", "Rushi"]
 
 people, avail, cant, tags, SETUP_FLAG = [], {}, {}, {}, {}
+# everyone is known by first name; two people sharing one get a surname
+# initial ("Shreya B", "Shreya C"), carried to the app as "k"
+_firsts = collections.Counter(r[0].split()[0] for r in P)
+KEY = {r[0]: (r[0].split()[0] + ' ' + r[0].split()[-1][0]) if _firsts[r[0].split()[0]] > 1 else r[0].split()[0] for r in P}
+key_of = lambda p: p.get("k") or p["n"].split()[0]
 for name, socs, hours, setup, packup, cd, note in P:
-    first = name.split()[0]
-    people.append({"n": name, "s": [SOC[s] for s in socs.split(',')]})
+    first = KEY[name]
+    people.append({"n": name, "s": [SOC[s] for s in socs.split(',')], **({"k": first} if first != name.split()[0] else {})})
     bs = set()
     for h in (int(x) for x in hours.split(',') if x):
         a, b = HOUR_BLOCKS[h]; bs.add(a); bs.add(b)
@@ -122,10 +139,10 @@ for name, socs, hours, setup, packup, cd, note in P:
     tags[first] = set(x for x in note.split(',') if x)
     SETUP_FLAG[first] = setup
 
-byfirst = {p["n"].split()[0]: p for p in people}
+byfirst = {key_of(p): p for p in people}
 NO_STALL = {'UQU'}
 socs_present = sorted({s for p in people for s in p["s"]} - NO_STALL)
-SOC_SIZE = collections.Counter(s for p in people if avail[p["n"].split()[0]] for s in p["s"])
+SOC_SIZE = collections.Counter(s for p in people if avail[key_of(p)] for s in p["s"])
 
 def can(first, duty):
     c = cant[first]
@@ -148,7 +165,7 @@ PIN = {'Aditya': ('ck', (6, 7, 8)), 'Dhyan': ('fb', (4, 5)), 'Hasara': ('fund-pp
        # NC's president and VP asked to put their stall first, so they're based
        # there, but each gets at least three blocks out and about to be seen;
        # Swornim (rolled ankle) holds the stall whenever he's here
-       'Shreya': ('stall-UQNC', (0, 1, 2, 4, 5, 7, 8, 10, 11)),
+       'Shreya C': ('stall-UQNC', (0, 1, 2, 4, 5, 7, 8, 10, 11)),
        'Bhumik': ('stall-UQNC', (4, 6, 7, 9)),
        'Swornim': ('stall-UQNC', (0, 1, 10, 11))}
 
@@ -332,7 +349,7 @@ for i in range(BLOCKS):
 # power, tables and everything they need); everyone else sets up their own
 # society's marquee. Logistics float.
 BIZ_SUB = ['Thanabammini', 'Devansh', 'Divita', 'Thihan', 'Jia', 'Ishan', 'Amal', 'Alex', 'Swadha']
-at_setup = [p["n"].split()[0] for p in people if SETUP_FLAG[p["n"].split()[0]]]
+at_setup = [key_of(p) for p in people if SETUP_FLAG[key_of(p)]]
 first_on = lambda f, ids: any(f in ps for b in roster[:2] for d, ps in b if d in ids)
 setup, taken = collections.defaultdict(list), set()
 for f in at_setup:
@@ -355,8 +372,8 @@ import os
 phones_path = os.path.join(os.path.dirname(os.path.abspath(sys.argv[1])), 'phones.json')
 phones = json.load(open(phones_path)) if os.path.exists(phones_path) else {}
 for p in people:
-    p["a"] = sorted(avail[p["n"].split()[0]])
-    if p["n"].split()[0] in phones: p["t"] = phones[p["n"].split()[0]]
+    p["a"] = sorted(avail[key_of(p)])
+    if key_of(p) in phones: p["t"] = phones[key_of(p)]
 # numbers for contacts who aren't execs (anyone in phones.json not on the roster)
 contacts = {k: v for k, v in phones.items() if k not in avail}
 out = {"people": people, "roster": roster, "contacts": contacts, "setup": sorted([d, sorted(xs)] for d, xs in setup.items() if xs)}
