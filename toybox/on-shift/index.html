@@ -1603,11 +1603,12 @@
   // decrypted in the browser with the key from the link execs were sent
   // (the part after #k=). Without the key the app shows a locked screen.
   let PEOPLE = [];
-  let SETUP = null;   // [[dutyId, [first names]]] for 2:00 – 3:00; null = everyone, all hands
+  let SETUP = null;
+  let CONTACTS = {};  // numbers for people who aren't execs (e.g. heads from outside), by full name   // [[dutyId, [first names]]] for 2:00 – 3:00; null = everyone, all hands
   let ROSTER = [];
   const byFirst = {};
   function setRoster(data) {
-    PEOPLE = data.people; ROSTER = data.roster; SETUP = data.setup || null; rosterVersion++; renderTeams();
+    PEOPLE = data.people; ROSTER = data.roster; SETUP = data.setup || null; CONTACTS = data.contacts || {}; rosterVersion++; renderTeams();
     for (const k in byFirst) delete byFirst[k];
     PEOPLE.forEach(p => { p.first = p.n.split(' ')[0]; byFirst[p.first.toLowerCase()] = p; });
   }
@@ -1800,6 +1801,8 @@
   // ---------- Entry ----------
   const sel = $('f-soc');
   CLUBS.forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; sel.appendChild(o); });
+  // societies with execs on the day but no stall (Mathew, logistics, is UQU)
+  ['UQU'].forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; sel.appendChild(o); });
   $('badge-strip').innerHTML = CLUBS.map(c => `<div class="badge" title="${c}">${CLUB_SHORT[c]}</div>`).join('');
   // ---------- What's On (public and exec tab, same source) ----------
   // Same cards as Team → On duty, minus the people. tags are visitor-facing.
@@ -2939,9 +2942,14 @@
   // in this file. Someone who isn't on the app shows without a Call button.
   const EMG_GROUPS = {
     logi: { blurb: 'Floating all day — equipment, anything broken or missing, and backing up anyone who calls for help. Call these first.',
-      people: () => PEOPLE.filter(p => ROSTER.some(b => b.some(([id, ppl]) => id === 'logi' && ppl.includes(p.first)))).map(p => ({ first: p.first,
-        role: 'Logistics' + (({ Prabhas: ' · organiser, oversees logistics with Nandos', Archita: ' · organiser' })[p.first] || ''),
-        does: 'Equipment, problems, extra hands' })) },
+      people: () => [
+        { first: 'Archita',  role: 'Logistics · organiser', does: 'Equipment, problems, extra hands' },
+        { first: 'Mathew',   role: 'Logistics', does: 'Equipment, problems, extra hands' },
+        { first: 'Sanuli',   role: 'Logistics', does: 'Equipment, problems, extra hands' },
+        { first: 'Devashri', role: 'Logistics', does: 'Equipment, problems, extra hands' },
+        { first: 'Tanisha',  role: 'Logistics', does: 'Equipment, problems, extra hands' },
+        { first: 'Prabhas',  role: 'Logistics · organiser, oversees logistics with Nandos', does: 'Equipment, problems, extra hands' },
+      ] },
     pres: { blurb: 'Each club\'s president — for anything about their club, its stall or its people.',
       people: () => [
         { first: 'Sanuka',  role: 'UQSLA president · organiser', does: 'SLA stall and team; co-runs the festival' },
@@ -2950,19 +2958,18 @@
         { first: 'Aarya',   role: 'UQPA president', does: 'Mostly at the PA stall' },
         { first: 'Devansh', role: 'UQGS president', does: 'GS stall; cricket briefing at 6:10' },
         { first: 'Jais',    role: 'UQGIDDHA president', does: 'GIDDHA stall, 3:00 – 5:00' },
-        { n: 'Akash',  role: 'UQTELS president', does: 'Not on the app — ask a TELS exec' },
+        { n: 'Akash Racha', role: 'UQTELS president', does: 'Not on the app — ask a TELS exec' },
         { n: 'Akansh', role: 'UQNAATAK president', does: 'Not on the app — ask logistics' },
       ] },
     heads: { blurb: 'Whoever runs each part of the day — for questions about that thing.',
       people: () => [
+        { first: 'Sandes',       role: 'Head of volleyball · the app', does: 'Volleyball on the beach courts, 3:35 – 5:00; anything technical with the app' },
         { first: 'Dhyan',        role: 'Head of football', does: 'Football on Field 7, 3:00 – 6:00' },
-        { first: 'Aditya',       role: 'Head of cricket', does: 'Cricket on Field 7 from 6:10' },
-        { first: 'Humza',        role: 'Cricket · food trucks', does: 'Cricket crew; the food trucks' },
-        { first: 'Sritam',       role: 'Volleyball', does: 'Volleyball draw and refs, 3:35 – 5:00' },
+        { first: 'Devansh',      role: 'Head of cricket', does: 'Cricket on Field 7 — briefs the crew at 6:10, on the first two games' },
+        { n: 'Arzuh Shankur',    role: 'Head of food trucks', does: 'The food trucks on Field 6' },
         { first: 'Hasara',       role: 'Head of fundraising', does: 'Charity marquee — Nepal Floods raffle, Manali, Hope by Hands' },
         { first: 'Thanabammini', role: 'Head of business stalls', does: 'The businesses on Field 6' },
         { first: 'Divita',       role: 'Media', does: 'Photos, video and socials on the night' },
-        { first: 'Sandes',       role: 'Volleyball · the app', does: 'Anything technical with the app' },
       ] },
   };
   let emgTab = 'logi';
@@ -2974,7 +2981,7 @@
     const lb = liveBlock(); const nowI = lb !== null && lb >= 0 && lb < BLOCKS ? lb : null;
     $('emg-grid').innerHTML = g.people().map(c => {
       const p = c.first ? byFirst[c.first.toLowerCase()] : null; const name = p ? p.n : (c.n || c.first);
-      const tel = p && p.t; const now = p && nowI !== null ? assignmentFor(p.first, nowI) : null;
+      const tel = (p && p.t) || CONTACTS[name]; const now = p && nowI !== null ? assignmentFor(p.first, nowI) : null;
       const where = now ? (now.id === 'away' ? 'Not here right now' : `Now: ${(DUTIES[now.id] || {}).name || now.id}`) : '';
       return `<div class="emg"><div class="emg-top">${pfp(name, 44)}<div><span class="nm">${esc(name)}</span><span class="role">${esc(c.role)}</span><span class="does">${esc(c.does)}${where ? ` · <b>${esc(where)}</b>` : ''}</span></div></div>${tel ? `<a class="call" href="tel:${tel.replace(/\s/g, '')}" aria-label="Call ${esc(name)}">${PHONE}</a>` : ''}</div>`;
     }).join('');
@@ -3001,7 +3008,7 @@
     { icon: 'cricket', color: 'var(--c-sport)', t: 'Refereeing — when to give a point', k: 'referee ref umpire scoring rules point goal run wide no ball out how to score guide', p: 'Never reffed it before? Tap your duty title, or <b>When do I tap +?</b> on a live match, for the short guide: what earns a point, what\'s out, what\'s a foul, how long a game is. Volleyball, football and cricket. Spicy can open it too.' },
     { icon: 'volleyball', color: 'var(--c-sport)', t: 'Playing for your society', k: 'playing team bracket knocked out eliminated free volleyball football cricket', p: 'If you\'re on a society team, your roster says <b>Playing</b> only for your first game. <b>Win</b>, and the app holds you for the next round\'s block too — whatever you were meant to do then goes to a free exec, who sees it pop up with "Covering for …". <b>Lose</b>, and your normal roster just carries on. All of it happens the moment the ref taps the result.' },
     { icon: 'sparkle', color: 'var(--tan)',      t: 'Demo mode', k: 'demo onboarding tour replay show walkthrough video', p: 'Settings → <b>Demo mode</b> (Sandes only). The welcome tour plays every time you sign in, so you can show the app to a room without resetting anyone. Turn it off afterwards.' },
-    { icon: 'box',     color: 'var(--c-hands)',  t: 'Logistics', k: 'logistics floating organisers help everything ping notification', p: 'The floating team (Nandos, Prabhas, Archita, Sanuli, Devashri, Tanisha). Not rostered on any one thing — they back up whichever team is short. Every <b>swap request</b> and <b>call for help</b> lands in their bell, and with pings turned on, on their phone too.' },
+    { icon: 'box',     color: 'var(--c-hands)',  t: 'Logistics', k: 'logistics floating organisers help everything ping notification', p: 'The floating team (Archita, Mathew, Sanuli, Devashri, Tanisha and Prabhas, with Nandos). Not rostered on any one thing — they back up whichever team is short. Every <b>swap request</b> and <b>call for help</b> lands in their bell, and with pings turned on, on their phone too.' },
     { icon: 'sparkle', color: 'var(--tan)',      t: 'Spicy', k: 'spicy ask question help bot chat ai assistant who do i talk to where is', p: 'Settings → <b>Spicy</b>. Ask anything — what your duty involves, who\'s on what right now, how a part of the app works. It answers from the roster and this manual, points you to a person when there is one, and says so when it doesn\'t know. When the answer is a button or a place in the app, tap <b>Show me</b> and Spicy spotlights it on screen. Every answer has a <b>Message Sandes</b> button.' },
     { icon: 'mic',     color: 'var(--c-stage)',  t: 'Notifications', k: 'notifications notify buzz alert block changes turn on off', p: 'Offered once, in the welcome tour: a buzz when your block changes, and when your duty changes because a team won. Friday only, only while the app is open, and nothing after the festival. Missed it? Allow notifications for sandeswelagedara.com in your browser\'s site settings. On iPhone it only works from the Home Screen app.' },
     { icon: 'box',     color: 'var(--c-hands)',  t: 'Settings', k: 'settings gear emergency spicy incident photo', p: 'The gear. <b>Spicy</b> (ask it anything), this manual, <b>Log incident</b> (first aid, lost property, behaviour, equipment — timestamped for the organisers), and the red <b>Emergency</b> button with who to call.' },
