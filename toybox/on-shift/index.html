@@ -2932,7 +2932,7 @@
   // in the bell); Decline and the yes button do what the tray buttons do.
   const ALERTED_LS = 'onshift.alerted';
   let alerted = new Set(); try { alerted = new Set(JSON.parse(localStorage.getItem(ALERTED_LS) || '[]')); } catch {}
-  let alertNow = null;
+  let alertNow = null, lastBuzz = 0;
   const markAlerted = (key) => { alerted.add(key); try { localStorage.setItem(ALERTED_LS, JSON.stringify([...alerted].slice(-300))); } catch {} };
   function pendingAlerts() {
     if (!me || !db) return [];
@@ -2942,8 +2942,12 @@
   }
   function checkAlerts() {
     const q = pendingAlerts();
-    if (alertNow && !q.some(a => a.key === alertNow.key)) { alertNow = null; $('alert-full').hidden = true; }   // taken or closed elsewhere
-    if (alertNow || !q.length || tourOn) return;
+    if (alertNow && !q.some(a => a.key === alertNow.key)) {   // answered elsewhere (taken, closed, withdrawn)
+      const src = alertNow.kind === 'swap' ? swaps : helps; const x = src[alertNow.id];
+      if (!x || x.status !== 'open' || alerted.has(alertNow.key)) { alertNow = null; $('alert-full').hidden = true; } else return;
+    }
+    if (alertNow) { const more = q.filter(a => a.key !== alertNow.key).length; $('al-more').textContent = more ? `${more} more waiting in the bell` : ''; return; }
+    if (!q.length || tourOn) return;
     showAlert(q[0], q.length - 1);
   }
   function showAlert(a, more) {
@@ -2967,7 +2971,7 @@
     $('al-detail').innerHTML = detail;
     $('al-more').textContent = more ? `${more} more waiting in the bell` : '';
     $('alert-full').hidden = false;
-    try { navigator.vibrate && navigator.vibrate([250, 120, 250, 120, 400]); } catch {}
+    if (Date.now() - lastBuzz > 8000) { lastBuzz = Date.now(); try { navigator.vibrate && navigator.vibrate([250, 120, 250, 120, 400]); } catch {} }
     // a system notification too, for a phone in a pocket (logistics already get theirs from pingLogi)
     if (!isLogi(me.first, x.block)) notify(a.kind === 'help' ? `${x.from} needs help` : `${x.from} wants a swap`, { body: `${d.name || ''} · ${d.where || ''}`, tag: a.key });
   }
@@ -4255,10 +4259,12 @@ If someone asks how to score a match, walk them through these steps and set "sho
     if (!db) { unavailable($('scores-live'), 'scores'); unavailable($('bcast-list'), 'updates'); unavailable($('brackets'), 'brackets'); const pub = $('public-scores'); if (pub) unavailable(pub, 'scores'); $('match-form').closest('details').hidden = true; $('bracket-form').closest('details').hidden = true; return; }
     const pub = $('public-scores');
     [$('scores-live'), $('bcast-list'), pub].forEach(el => { if (el) el.innerHTML = '<p class="fine">Connecting…</p>'; });
-    ref('scores').limitToLast(60).on('value', snap => { matches = snap.val() || {}; renderScores(); settleBrackets(); renderBrackets(); renderDesk(); if (scrOn) scrScores(); }, () => { unavailable($('scores-live'), 'scores'); if (pub) unavailable(pub, 'scores'); });
+    ref('scores').limitToLast(300).on('value', snap => { matches = snap.val() || {}; renderScores(); settleBrackets(); renderBrackets(); renderDesk(); if (scrOn) scrScores(); }, () => { unavailable($('scores-live'), 'scores'); if (pub) unavailable(pub, 'scores'); });
     ref('brackets').on('value', snap => { brackets = snap.val() || {}; rosterVersion++; renderBrackets(); if (!$('shell').hidden) { render(); renderHelps(); renderBell(); } }, () => { unavailable($('brackets'), 'brackets'); const pb = $('public-brackets'); if (pb) unavailable(pb, 'brackets'); });
     ref('broadcasts').limitToLast(30).on('value', snap => { bcasts = snap.val() || {}; renderBcasts(); }, () => { unavailable($('bcast-list'), 'updates'); });
-    ref('swaps').limitToLast(60).on('value', snap => { swaps = snap.val() || {}; rosterVersion++; if (!$('shell').hidden) { render(); renderSwaps(); renderBell(); pingLogi(); checkAlerts(); } }, () => { unavailable($('swap-list'), 'swaps'); });
+    // accepted swaps are part of the roster, so keep the whole day's (a
+    // stress test with 100 at once showed a 60 cap silently undoing old ones)
+    ref('swaps').limitToLast(1000).on('value', snap => { swaps = snap.val() || {}; rosterVersion++; if (!$('shell').hidden) { render(); renderSwaps(); renderBell(); pingLogi(); checkAlerts(); } }, () => { unavailable($('swap-list'), 'swaps'); });
     ref('dm').on('value', snap => { dms = snap.val() || {}; if (dmOpen) renderDmThread(); renderDmConvos(); renderBell(); }, () => {});
     ref('photos').orderByChild('status').equalTo('approved').on('value', snap => { phApproved = snap.val() || {}; renderPublicPhotos(); renderPhotoMod(); if (scrOn) bandSync(); }, () => {});
     ref('photos').orderByChild('status').equalTo('pending').on('value', snap => { phPending = snap.val() || {}; renderPhotoMod(); }, () => {});
@@ -4268,7 +4274,7 @@ If someone asks how to score a match, walk them through these steps and set "sho
     ref('incidents').limitToLast(100).on('value', snap => { incidents = snap.val() || {}; renderIncidents(); }, () => {});
     ref('pfp').on('value', snap => { pfps = snap.val() || {}; if (me && myPic && !pfps[me.first.toLowerCase()]) ref('pfp/' + me.first.toLowerCase()).set(myPic).catch(() => {}); if (!$('shell').hidden) { render(); $('who-pfp').innerHTML = me ? pfp(me.first, 32) : ''; if (tourOn) renderTour(); if (!$('set-sheet').hidden) renderPhotoRow($('set-photo-msg') ? $('set-photo-msg').textContent : ''); } }, () => {});
     ref('sim').on('value', snap => { sim = snap.val(); mapsTick(); if (!$('shell').hidden) { const lb = liveBlock(); live = lb !== null; if (live) block = lb; else if (block < 0 || block >= BLOCKS) block = 0; render(); renderSim(); } renderStageNow(); }, () => {});
-    ref('help').limitToLast(60).on('value', snap => { helps = snap.val() || {}; if (!$('shell').hidden) { render(); renderHelps(); renderBell(); pingLogi(); checkAlerts(); } }, () => { unavailable($('help-list'), 'help calls'); });
+    ref('help').limitToLast(1000).on('value', snap => { helps = snap.val() || {}; if (!$('shell').hidden) { render(); renderHelps(); renderBell(); pingLogi(); checkAlerts(); } }, () => { unavailable($('help-list'), 'help calls'); });
   }
   startLive();
 
