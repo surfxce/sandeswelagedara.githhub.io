@@ -143,7 +143,7 @@ def needs(i):
     # 6:00) — six refs (in the semis and final the spares run the lines and
     # keep the pitch clear) and two on the score sheet
     if i <= 5:  n['fb'] = (6, 6); n['fb-score'] = (2, 2)
-    if i <= 3:  n['vb'] = (1, 2)
+    if i <= 3:  n['vb'] = (2, 2)                 # a ref on each of the two bracket courts
     if 7 <= i <= 11: n['ck'] = (4, 4)   # umpire, leg umpire, scorer + spare, per the cricket committee
     n['tk'] = (2, 2) if i <= 3 else (1, 2)
     n['st'] = (2, 2) if (i <= 3 or i in (6, 7)) else (1, 1)
