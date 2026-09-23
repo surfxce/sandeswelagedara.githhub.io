@@ -77,6 +77,9 @@ P = [
  ("Roshni Bhatia","PA","4,5,6,7",0,0,"",""),
  ("Thar Suthes","SLA","5,6,7",0,0,"",""),
  ("Aarya Sharma","PA","3,4,5,6,7,8",0,1,"fb","pa-pres"),
+ ("Prabhjot Singh","PA","3,4,5",1,0,"",""),
+ ("Ishan Pal","PA","3,4,5,6,7,8",0,0,"",""),
+ ("Pritisha Sihota","PA","3,4,5",1,0,"",""),
 ]
 # when each performer is on stage (block index): GS garba 4:30, UQPA bhangra
 # 6:00, NAATAK 6:30 — they're off duty for that block only
@@ -88,7 +91,7 @@ VB_TEAM = {'UQSLA': ["Shavini", "Diya", "Leron", "Sanuka", "Deana", "Nimnah"],
 VB_BLOCK = 1          # round 1 at 3:30
 # execs on the other teams, for their first game: NC + PA and Solos play at
 # 3:35, Shriyans's team (Shane) at 3:55 — he's here from 4
-VB_OTHER = {'Avinab': 1, 'Jasmine': 1, 'Aarya': 1, 'Matvi': 1, 'Shane': 2}
+VB_OTHER = {'Avinab': 1, 'Jasmine': 1, 'Aarya': 1, 'Prabhjot': 1, 'Ishan': 1, 'Matvi': 1, 'Shane': 2}
 FB_PLAYERS = ["Aravinth", "Mekayil", "Dhyan", "Raziel", "Rishi"]     # no football team list yet
 CK_PLAYERS = ["Mathisha", "Thihan", "Rushi", "Sanupa"]                # cricket team lists pending
 
