@@ -1550,8 +1550,8 @@
           tasks:['Your society\'s team', '5 min early', 'Not umpiring'] },
     perform: { cat:'photo', icon:'mic', name:'Performing', where:'Performance stage', do:'You\'re on stage with your society\'s act this block — nothing else is rostered. Warm up, perform, then check your next block.',
           tasks:['Warm-up', 'On stage'] },
-    'photo-pres': { cat:'photo', name:'Presidents\' photo', where:'Performance stage', do:'All club presidents at the stage steps for the group photo. Be there two minutes early — the photographer has a five-minute window before the next act.',
-          tasks:['Presidents only', 'Stage steps', '2 min early'] },
+    'photo-pres': { cat:'photo', name:'Presidents\' photo — taking it', where:'Performance stage steps', do:'You\'re the photographer. At 5:45 the presidents meet at the stage steps: Sanuka (UQSLA), Prabhas (UQISC), Akash (UQTELS), Aarya (UQPA), Akansh (UQNAATAK), Devansh (UQGS) and Jais (UQGIDDHA). Round up anyone missing, take a few shots, and send them back to their spots within five minutes.',
+          tasks:['5:45 at the stage steps', 'Seven presidents', 'Five minutes'] },
     logi: { cat:'logi', name:'Logistics', where:'Everywhere', do:'Floating. Fix what\'s broken, move gear, back up whichever team is short. Every swap request and call for help lands in your bell — take the ones nobody else has.',
           tasks:['Equipment', 'Backing up teams', 'Answering the bell'] },
     free: { cat:'free', name:'Free', where:'Enjoy the festival', do:'You\'re off this block. Grab food, catch the stage — and be back a few minutes before your next duty.' },
@@ -2017,11 +2017,12 @@
   // Moments — a few minutes inside a block that everyone (or a named group)
   // attends without leaving their duty. Shown as a banner on Now and in the run sheet.
   const MOMENTS = [
-    { block: 5, at: '5:45 pm', name: 'Whole-team photo', where: 'Stage steps', note: 'Every exec — leave your spot for five minutes, then straight back.', who: 'all' },
+    // presidents only; Sandes is rostered off at 5:30 to take it
+    { block: 5, at: '5:45 pm', name: 'Presidents\' photo', where: 'Stage steps', note: 'Presidents only — leave your spot for five minutes, then straight back. Sandes takes it.', who: ['Sanuka', 'Prabhas', 'Akash', 'Aarya', 'Akansh', 'Devansh', 'Jais', 'Sandes'], whoLabel: 'presidents' },
   ];
   const momentsFor = (i) => MOMENTS.filter(m => m.block === i && (m.who === 'all' || (me && m.who.includes(me.first))));
   function momentHtml(m) {
-    return `<div class="moment"><span class="eyebrow">Photo · everyone</span>${iconHtml('camera', 'var(--c-photo)', 'sm')}<span class="t">${esc(m.at)}</span><span class="d">${esc(m.name)}<small>${esc(m.where)} · ${esc(m.note)}</small></span></div>`;
+    return `<div class="moment"><span class="eyebrow">Photo · ${esc(m.whoLabel || 'everyone')}</span>${iconHtml('camera', 'var(--c-photo)', 'sm')}<span class="t">${esc(m.at)}</span><span class="d">${esc(m.name)}<small>${esc(m.where)} · ${esc(m.note)}</small></span></div>`;
   }
 
   function renderNow() {
@@ -2048,7 +2049,7 @@
     $('rs').innerHTML = Array.from({ length: BLOCKS }, (_, i) => {
       const x = tentative(assignmentFor(me.first, i), i); const d = DUTIES[x.id];
       const w = x.people.length ? 'with ' + names(x.people) : (d.cat === 'free' || d.cat === 'soon' || d.cat === 'photo' ? '' : 'solo');
-      const mo = momentsFor(i).map(m => `<div class="rs-row mo" style="--c:var(--c-photo)"><span class="t">${esc(m.at.replace(' pm', ''))}</span><span class="bar"></span>${iconHtml('camera', 'var(--c-photo)', 'sm')}<span class="d">${esc(m.name)}<small>${esc(m.where)} · everyone</small></span></div>`).join('');
+      const mo = momentsFor(i).map(m => `<div class="rs-row mo" style="--c:var(--c-photo)"><span class="t">${esc(m.at.replace(' pm', ''))}</span><span class="bar"></span>${iconHtml('camera', 'var(--c-photo)', 'sm')}<span class="d">${esc(m.name)}<small>${esc(m.where)} · ${esc(m.whoLabel || 'everyone')}</small></span></div>`).join('');
       return `<div class="rs-row ${i === block ? 'now' : ''} ${d.cat === 'soon' ? 'soon' : ''} ${d.cat === 'away' ? 'away' : ''}" style="--c:${CATS[d.cat].color}">
         <span class="t">${fmt(DAY_START + i * 30)}</span><span class="bar"></span>${dutyIcon(d, 'sm')}
         <span class="d">${esc(d.name)}<small>${esc(d.cat === 'free' ? 'Enjoy the festival' : d.cat === 'soon' ? 'Check back closer to the time' : d.cat === 'away' ? 'Not at the festival this block' : d.where + (w ? ' · ' + w : ''))}</small></span>
@@ -2910,7 +2911,7 @@
     { icon: 'coffee', color: 'var(--c-free)', h: 'Welcome', me: true, p: 'Add a photo first — it shows next to your name everywhere, so execs who haven\'t met you can find you. Then a one-minute tour of where everything is. Close it any time with the × — it won\'t come back. It\'s also under Settings → Manual if you want it again.', prep: () => { closeSheets(); showView('now'); } },
     { icon: 'football', color: 'var(--c-sport)', h: 'Your duty, right now', target: '#now-card > .duty-card', prep: () => { showView('now'); tourDemoBlock(); }, p: 'The big card is what you\'re doing this block: <b>where to be</b>, <b>what it involves</b>, and <b>who you\'re with</b>. The dot pulses when the clock is live. <b>Tap the title</b> for the committee head and everyone else on it; tap a name to message them.' },
     { icon: 'crowd', color: 'var(--c-crowd)', h: 'Stuck? Two buttons.', target: '#now-card .ctl-row', prep: () => { showView('now'); tourDemoBlock(); }, p: '<b>Request more execs</b> pings every free exec — they tap "on my way". <b>Ask to swap</b> gives you three options: <b>Not fussed</b> (everyone is asked), <b>take a break</b> (free execs come and take over), or <b>pick another activity</b> (the execs on it are asked to swap places with you). In a sports competition it reads <b>Ask a teammate to sub in</b>.' },
-    { icon: 'coffee', color: 'var(--c-free)', h: 'Next up and your day', target: '#now-next, #runsheet', prep: () => showView('now'), p: 'What\'s coming next, then your whole day — every block, who with, and moments like the team photo. The <b>‹ › LIVE</b> buttons underneath let you look ahead.' },
+    { icon: 'coffee', color: 'var(--c-free)', h: 'Next up and your day', target: '#now-next, #runsheet', prep: () => showView('now'), p: 'What\'s coming next, then your whole day — every block, who with, and moments like the presidents\' photo. The <b>‹ › LIVE</b> buttons underneath let you look ahead.' },
     { icon: 'mic', color: 'var(--c-stage)', h: 'The bell', target: '#tray', prep: () => { showView('now'); openTray(true); }, after: () => openTray(false), p: 'Everything that needs you: <b>swap requests</b> and <b>calls for help</b> you can answer, your <b>messages</b>, and <b>notices</b> from the organisers. The red number on the bell is what\'s new.' },
     { icon: 'crowd', color: 'var(--c-club)', h: 'Team', target: '#t-filter, #t-free', prep: () => showView('team'), p: 'Who\'s <b>free right now</b> and who\'s <b>on duty</b>, this block. Tap a name to message them — you\'ll see their photo. <b>Societies</b> hides clubs you don\'t need to see; <b>Advanced</b> picks individual people. The arrows at the top step through the day.' },
     { icon: 'volleyball', color: 'var(--c-sport)', h: 'Scores', target: '#view-scores > div:nth-of-type(1), #view-scores > details:nth-of-type(1)', prep: () => showView('scores'), p: 'Referees: <b>the score you tap is the score.</b> Every + goes to the big screen and the public page within a second — nobody else keeps score, so if you don\'t tap, the crowd sees 0–0. <b>Start a match</b>, tap + and −, <b>End match</b>; the bracket fills in from that.' },

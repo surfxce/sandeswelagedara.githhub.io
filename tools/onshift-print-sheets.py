@@ -32,6 +32,7 @@ DUTY = {
   'play-fb': ('Playing football', 'Field 7 — group stage, for your society'),
   'play-ck': ('Playing cricket', 'Field 7 — for your society'),
   'perform': ('Performing', 'Performance stage'),
+  'photo-pres': ("Presidents' photo — you're taking it", 'Stage steps at 5:45 — back to normal after'),
 }
 def duty(id_):
     if id_.startswith('stall-'):
@@ -42,6 +43,9 @@ people = sorted(d['people'], key=lambda p: p['n'].lower())
 socOf = {p['n'].split()[0]: set(p['s']) for p in people}
 times = [(f"{3 + i // 2}:{'00' if i % 2 == 0 else '30'}", f"{3 + (i + 1) // 2}:{'00' if (i + 1) % 2 == 0 else '30'}") for i in range(12)]
 esc = html.escape
+
+# the 5:45 presidents' photo (the rest of the presidents aren't on the roster)
+PRES = {'Sanuka', 'Prabhas'}
 
 pages = []
 for p in people:
@@ -60,6 +64,8 @@ for p in people:
                 mates = [x for x in ppl if x != first]
                 if id_.startswith('play-'): mates = [x for x in mates if socOf.get(x, set()) & socOf[first]]
                 got = (duty(id_), mates, 'play' if id_.startswith('play-') or id_ == 'perform' else 'duty'); break
+        if got and i == 5 and first in PRES:
+            got = ((got[0][0], got[0][1] + " · 5:45: presidents' photo at the stage steps, 5 min"), got[1], got[2])
         if got: rows.append((t, got[0], got[1], got[2]))
         else: rows.append((t, ('Free — check the app', 'A job can still land here on the day'), [], 'free'))
     rows.append(('9:00 – 10:00', ('Pack-up — all hands', 'Strike marquees, bag rubbish, return gear'), [], 'hands' if flags['packup'] else 'off'))
