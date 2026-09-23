@@ -7,6 +7,8 @@ Setup (2–3) and pack-up (9–10) are handled by the app, not here.
 import json, collections, sys
 
 BLOCKS = 12
+import os as _os
+REST = int(_os.environ.get('REST', '4'))   # people kept free each block
 HOUR_BLOCKS = {3: (0, 1), 4: (2, 3), 5: (4, 5), 6: (6, 7), 7: (8, 9), 8: (10, 11)}
 SOC = {'SLA': 'UQSLA', 'ISC': 'UQISC', 'TELS': 'UQTELS', 'NC': 'UQNC', 'GS': 'UQGS',
        'PSA': 'UQPSA', 'NAATAK': 'UQNAATAK', 'PA': 'UQPA', 'TAS': 'UQTAS', 'ISS': 'UQISS',
@@ -140,10 +142,12 @@ PIN = {'Aditya': ('ck', (6, 7, 8)), 'Dhyan': ('fb', (4, 5)), 'Hasara': ('fund-pp
        # Aarya (PA president) wants to be at his stall: there most of the night,
        # apart from volleyball (3:30), his cricket game (7:00) and a break at 5:30
        'Aarya': ('stall-UQPA', (0, 2, 3, 4, 6, 7, 9, 10, 11)),
-       # NC's president and VP both asked to put their stall first: Shreya
-       # there most of the night, Bhumik once football's done
-       'Shreya': ('stall-UQNC', (0, 1, 2, 3, 5, 6, 7, 9, 10, 11)),
-       'Bhumik': ('stall-UQNC', (4, 5, 7, 8, 10, 11))}
+       # NC's president and VP asked to put their stall first, so they're based
+       # there, but each gets at least three blocks out and about to be seen;
+       # Swornim (rolled ankle) holds the stall whenever he's here
+       'Shreya': ('stall-UQNC', (0, 1, 2, 4, 5, 7, 8, 10, 11)),
+       'Bhumik': ('stall-UQNC', (4, 6, 7, 9)),
+       'Swornim': ('stall-UQNC', (0, 1, 10, 11))}
 
 # ---- fixed assignments -------------------------------------------------
 fixed = collections.defaultdict(dict)     # block -> {first: duty}
@@ -216,6 +220,28 @@ def needs(i):
     if i >= 6: n['fund-bake'] = (1, 1); n['fund-hope'] = (1, 1)
     return n
 
+# ---- one staggered break each --------------------------------------------
+# Everyone here three hours or more gets 30-minute breaks so no stretch runs
+# past 2.5 hours. They're staggered: each break goes within half an hour of
+# where it should fall in that person's day, on whichever of those blocks has
+# the fewest breaks so far, and never where they're already fixed (playing,
+# performing, pinned…).
+BREAK = {}
+load = collections.Counter()
+for f in sorted(avail, key=lambda f: (-len(avail[f]), f)):
+    L = len(avail[f])
+    if 'logi' in tags[f] or L < 6: continue
+    # as many breaks as it takes to keep every stretch to 2.5 hours: one for
+    # up to 5 hours on site, two for a full 3 – 9
+    k = next(b for b in range(1, 4) if -(-(L - b) // (b + 1)) <= 5)
+    lo = min(avail[f]); BREAK[f] = set()
+    for j in range(k):
+        target = lo + L * (j + 1) / (k + 1) - 0.5
+        opts = [i for i in range(2, 12) if i in avail[f] and f not in fixed[i] and i not in BREAK[f]]
+        if not opts: break
+        b = min(opts, key=lambda i: (max(0.0, abs(i - target) - 1), load[i], abs(i - target), i))
+        BREAK[f].add(b); load[b] += 1
+
 roster = []
 last = {}          # first -> duty last block, to keep runs of two
 counts = collections.Counter()
@@ -226,14 +252,17 @@ for i in range(BLOCKS):
     slots = collections.defaultdict(list)
     for f, d in fixed[i].items(): slots[d].append(f)
     placed = set(fixed[i])
-    pool = sorted([f for f in avail if i in avail[f] and f not in placed],
+    pool = sorted([f for f in avail if i in avail[f] and f not in placed and i not in BREAK.get(f, ())],
                   key=lambda f: (counts[f], f))
     # four people kept free every block — a buffer for covering winning
     # teams, emergencies, a breather. It's whoever has gone longest without a
     # break (an hour on duty at least), so it rotates through everyone.
     CK_STAY = i in (7, 8, 10, 11)       # cricket crews: 6:00 – 7:30, then 7:30 – 9:00
-    resting = set(sorted([f for f in pool if run[f] >= 2 and not (CK_STAY and sameRun[f].get('ck'))],
-                         key=lambda f: (-run[f], -counts[f], f))[:4])
+    # REST people kept free every block (4 by default), longest-working first
+    cands = sorted([f for f in pool if run[f] >= 2 and not (CK_STAY and sameRun[f].get('ck'))],
+                   key=lambda f: (-run[f], -counts[f], f))
+    # the planned breaks already count towards the free buffer
+    resting = set(cands[:max(0, REST - load[i])])
     pool = [f for f in pool if f not in resting]
     n = needs(i)
     for level in (0, 1):                      # minimums first, then the nice-to-haves
@@ -244,7 +273,7 @@ for i in range(BLOCKS):
             for duty, (mn, wn) in n.items():
                 target = mn if level == 0 else wn
                 if len(slots[duty]) >= target: continue
-                elig = [f for f in pool if can(f, duty)]
+                elig = [f for f in pool if can(f, duty) and (duty == 'ck' or sameRun[f].get(duty, 0) < 2)]
                 # essentials first — a match with no ref or a gate with nobody
                 # on it is worse than a quiet stage — then hardest-to-fill
                 tier = 0 if duty in ('vb', 'fb', 'ck', 'tk', 'fb-score', 'fund-pp') or duty.startswith('stall-') or (duty == 'st' and (i <= 3 or i in (6, 7))) else 1
@@ -274,7 +303,9 @@ for i in range(BLOCKS):
     for f in sorted(pool, key=lambda f: (counts[f], f)):
         opts = [d for d in CROWD if can(f, d)]
         if not opts:     # can't do crowd: a third pair of hands on their own stall
-            opts = [d for d in n if d.startswith('stall-') and can(f, d)]
+            opts = [d for d in n if d.startswith('stall-') and can(f, d) and sameRun[f].get(d, 0) < 2]
+        # a different zone from last block where there's one
+        opts = [d for d in opts if not sameRun[f].get(d)] or opts
         if not opts: continue
         mate = lambda d: any(set(byfirst[f]["s"]) & set(byfirst[m]["s"]) for m in slots[d])
         opts.sort(key=lambda d: (not (mate(d) and len(slots[d]) < 4), len(slots[d]), sameRun[f].get(d, 0), doneDuty[f].get(d, 0), d))
