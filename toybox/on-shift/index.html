@@ -1515,7 +1515,9 @@
     // tasks: the sub-jobs inside each job — shown as small tags on the duty card
     vb: { cat:'sport', icon:'volleyball', name:'Volleyball', where:'Beach volleyball courts (bottom of the ground)', do:'One court is the knockout bracket, two are social. Referee the bracket court, keep social games rotating so nobody hogs a court, and keep the ball bag with you. Bracket 3:35 – 4:50, winner at 5:00.',
           tasks:['Scorekeeping', 'Rotating teams', 'Ball bag'] },
-    fb: { cat:'sport', name:'Football', where:'Field 7 (the main oval)', do:'Six pitches on the infield (Field 1 – 6), a referee on each and a scorer where we can spare one — 6 to 12 execs. 16 teams: group games 3:00 – 4:40, semis 4:50, final 5:30. Blow up on time — the bracket depends on it.',
+    'fb-score': { cat:'sport', icon:'football', name:'Football scores', where:'Field 7 sideline — results desk', do:'Get every result the moment a game ends: from the ref, into the committee\'s score sheet, and into the app (Scores tab → Football → tap the match, + for each goal, End match) so the big screen and the group tables are right. The semi-final draw comes from your sheet.',
+          tasks:['Results from refs', 'Score sheet', 'App scores'] },
+    fb: { cat:'sport', name:'Football', where:'Field 7 (the main oval)', do:'One referee per pitch — you\'re on one of Field 1 – 6 on the infield. Group games are 22 minutes plus a 3-minute changeover, starting 3:00, 3:25, 3:50 and 4:15; then semis at 4:50 and the final at 5:30. Blow up on time, and tell the results desk the score the second it ends.',
           tasks:['Refereeing', 'Sideline clear', 'Team swaps'] },
     ck: { cat:'sport', icon:'cricket', name:'Cricket', where:'Field 7, after the football', do:'Two pitches side by side on Field 7 — an umpire on each. T6 with a tennis ball, six overs a side. Two games at once at 6:40 and 7:20, then the final at 8:00 between the top two. Winner announced 8:50.',
           tasks:['Umpiring', 'Getting people off the field', 'Spectators behind cones'] },
@@ -1546,6 +1548,8 @@
           tasks:['Your society\'s team', '5 min early', 'Not refereeing'] },
     'play-ck': { cat:'play', icon:'cricket', name:'Playing cricket', where:'Field 7, after the football', do:'You\'re on the pitch for your society while your team is still playing. Once you\'re done this turns free. Be there five minutes early, then hand back to whoever\'s umpiring.',
           tasks:['Your society\'s team', '5 min early', 'Not umpiring'] },
+    perform: { cat:'photo', icon:'mic', name:'Performing', where:'Performance stage', do:'You\'re on stage with your society\'s act this block — nothing else is rostered. Warm up, perform, then check your next block.',
+          tasks:['Warm-up', 'On stage'] },
     'photo-pres': { cat:'photo', name:'Presidents\' photo', where:'Performance stage', do:'All club presidents at the stage steps for the group photo. Be there two minutes early — the photographer has a five-minute window before the next act.',
           tasks:['Presidents only', 'Stage steps', '2 min early'] },
     logi: { cat:'logi', name:'Logistics', where:'Everywhere', do:'Floating. Fix what\'s broken, move gear, back up whichever team is short. Every swap request and call for help lands in your bell — take the ones nobody else has.',
@@ -3480,7 +3484,7 @@ If someone asks how to score a match, walk them through these steps and set "sho
 
   // --- admin: log in with ADMIN_LOGIN to see everyone's roster and nothing else ---
   let adminMode = false;
-  const SHORT = (id) => { const d = DUTIES[id] || {}; if (id === 'free') return '—'; if (id.startsWith('stall-')) return d.club.replace(/^UQ/, ''); if (id.startsWith('play-')) return 'PLAY ' + id.slice(5).toUpperCase(); if (id.startsWith('photo')) return 'PHOTO'; if (id.startsWith('cr-')) return 'CROWD'; if (id.startsWith('fund-')) return 'FUND'; return { vb: 'VB', fb: 'FB', ck: 'CK', tk: 'TKT', st: 'STAGE' }[id] || id.toUpperCase(); };
+  const SHORT = (id) => { const d = DUTIES[id] || {}; if (id === 'free') return '—'; if (id.startsWith('stall-')) return d.club.replace(/^UQ/, ''); if (id.startsWith('play-')) return 'PLAY ' + id.slice(5).toUpperCase(); if (id === 'perform') return 'STAGE'; if (id.startsWith('photo')) return 'PHOTO'; if (id.startsWith('cr-')) return 'CROWD'; if (id.startsWith('fund-')) return 'FUND'; return { 'fb-score': 'FB SCORE', vb: 'VB', fb: 'FB', ck: 'CK', tk: 'TKT', st: 'STAGE' }[id] || id.toUpperCase(); };
   const baseAssignment = (first, i) => { for (const [id, ppl] of ROSTER[i]) if (ppl.includes(first)) return id; return 'free'; };
   function adminChecks() {
     const out = [];

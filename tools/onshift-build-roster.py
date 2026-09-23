@@ -53,11 +53,21 @@ P = [
  ("Deana Jayaweera","SLA","3,4",0,0,"",""),
  ("Zahra Shabbir","PSA","5,6,7",0,0,"sport",""),
  ("Krisha Rekha","ISC","3,4,5,6,7,8",1,0,"",""),
- ("Shalet Shaju","NAATAK","6",0,0,"sport","perf"),
+ ("Shalet Shaju","NAATAK","6",0,0,"sport",""),
+ ("Humza Bhagat","PSA","3,4,5,6,7,8",1,0,"",""),
+ ("Alexis Han","ISS","3,4,5",0,0,"",""),
+ ("Nimnah Unantenna","SLA","4,5,6,7,8",0,1,"",""),
+ ("Jasmine Hanzra","PA","5,6",0,0,"",""),
+ ("Gayashi Rathnayaka","SLA","3,4",1,0,"",""),
+ ("Khaleeda Irsya Khairoul Haniff","ISS","3,4",1,0,"crowd",""),
+ ("Ginni Shukla","PA","3,4,5,6,7",0,0,"",""),
 ]
+# when each performer is on stage (block index): GS garba 4:30, UQPA bhangra
+# 6:00, NAATAK 6:30 — they're off duty for that block only
+PERF = {'Helly': (3,), 'Tanisha': (3,), 'Jasmine': (6,), 'Shalet': (7,)}
 
 # society volleyball teams (from "which sport are you playing")
-VB_TEAM = {'UQSLA': ["Shavini", "Diya", "Leron", "Sanuka", "Deana"],
+VB_TEAM = {'UQSLA': ["Shavini", "Diya", "Leron", "Sanuka", "Deana", "Nimnah"],
            'UQISC': ["Mithila", "Sandes", "Krisha", "Divita", "Ragesh", "Shane"]}
 VB_BLOCK = 1          # round 1 at 3:30
 FB_PLAYERS = ["Aravinth", "Mekayil", "Dhyan", "Raziel"]     # no football team list yet
@@ -80,14 +90,15 @@ socs_present = sorted({s for p in people for s in p["s"]})
 def can(first, duty):
     c = cant[first]
     if duty in c: return False
-    if duty in ('vb', 'fb', 'ck') and 'sport' in c: return False
+    if duty in ('vb', 'fb', 'ck', 'fb-score') and 'sport' in c: return False
+    if duty == 'fb-score' and 'fb' in c: return False
     if duty.startswith('cr-') and 'crowd' in c: return False
     if duty == 'st' and 'stage' in c: return False
     if duty.startswith('stall-'): return duty[6:] in byfirst[first]["s"]
     return True
 
 # heads stay on their own thing
-PREF = {'Dhyan': 'fb', 'Aditya': 'ck', 'Hasara': 'fund-pp', 'Thanabammini': 'cr-food',
+PREF = {'Dhyan': 'fb', 'Aditya': 'ck', 'Humza': 'ck', 'Hasara': 'fund-pp', 'Thanabammini': 'cr-food',
         'Divita': 'stall-UQISC', 'Sandes': 'vb', 'Helly': 'st', 'Amal': 'st'}
 # a head is pinned to their own duty while it's running, before anything else
 PIN = {'Aditya': ('ck', (7, 8, 9)), 'Dhyan': ('fb', (4, 5)), 'Hasara': ('fund-pp', (6, 7, 10, 11))}
@@ -97,12 +108,9 @@ fixed = collections.defaultdict(dict)     # block -> {first: duty}
 for f in [k for k, t in tags.items() if 'logi' in t]:
     for i in range(BLOCKS):
         if i in avail[f]: fixed[i][f] = 'logi'
-# performances: Helly and Tanisha are in the 4:30 GS act; Shalet in NAATAK's
-for f in [k for k, t in tags.items() if 'perf3' in t]:
-    fixed[3].pop(f, None); fixed[3][f] = 'photo-pres'
-for f in [k for k, t in tags.items() if 'perf' in t and 'perf3' not in tags[k]]:
-    for i in (6, 7):
-        if i in avail[f]: fixed[i][f] = 'photo-pres'
+for f, blocks in PERF.items():
+    for i in blocks:
+        if i in avail.get(f, ()): fixed[i].pop(f, None); fixed[i][f] = 'perform'
 # volleyball round 1
 for soc, squad in VB_TEAM.items():
     # four on court is the minimum team; the rest of the squad stays on duty
@@ -126,7 +134,11 @@ def needs(i):
     a society, so they're the hardest to fill."""
     n = {}
     for s in socs_present: n['stall-' + s] = (1, 2 if s in ('UQSLA', 'UQISC') else 1)
-    if i <= 5:  n['fb'] = (3, 5)                 # six pitches; three refs is the floor
+    # football, per the committee: one ref per game, two people on the score sheet
+    if i <= 3:  n['fb'] = (6, 6)                 # group stage: six pitches at once
+    elif i == 4: n['fb'] = (2, 2)                # semi-finals, two games
+    elif i == 5: n['fb'] = (1, 1)                # the final
+    if i <= 5:  n['fb-score'] = (2, 2)
     if i <= 3:  n['vb'] = (1, 2)
     if 7 <= i <= 11: n['ck'] = (4, 4)   # umpire, leg umpire, scorer + spare, per the cricket committee
     n['tk'] = (2, 2) if i <= 3 else (1, 2)
@@ -159,10 +171,13 @@ for i in range(BLOCKS):
                 target = mn if level == 0 else wn
                 if len(slots[duty]) >= target: continue
                 elig = [f for f in pool if can(f, duty)]
-                if elig: open_.append((len(elig), duty, elig))
+                # essentials first — a match with no ref or a gate with nobody
+                # on it is worse than a quiet stage — then hardest-to-fill
+                tier = 0 if duty in ('vb', 'fb', 'ck', 'tk', 'fb-score') or duty.startswith('stall-') or (duty == 'st' and (i <= 3 or i in (6, 7))) else 1
+                if elig: open_.append((tier, len(elig), duty, elig))
             if not open_: break
             open_.sort()
-            _, duty, elig = open_[0]
+            _, _, duty, elig = open_[0]
             # variety: two blocks on a thing is plenty, then something else;
             # three blocks on the trot at all, then a break
             ok = [f for f in elig if sameRun[f].get(duty, 0) < 2 and run[f] < 3]
