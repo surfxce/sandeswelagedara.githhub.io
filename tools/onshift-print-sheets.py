@@ -56,8 +56,8 @@ esc = html.escape
 # the 4:55 presidents' photo (the rest of the presidents aren't on the roster)
 PRES = {'Sanuka', 'Prabhas', 'Jais', 'Devansh', 'Aarya', 'Bhumik'}
 
-# everyone on cricket tonight gets the 6:10 briefing
-CK = {f for b in d['roster'][7:] for x, ps in b if x in ('ck', 'play-ck') for f in ps}
+# everyone umpiring or scoring cricket gets the 6:10 briefing (players don't)
+CK = {f for b in d['roster'][6:] for x, ps in b if x == 'ck' for f in ps}
 
 pages = []
 for p in people:
