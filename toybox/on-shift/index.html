@@ -403,6 +403,9 @@
   .set-row .txt { font-size: 14px; color: var(--ink-2); }
   .set-row .txt b { display: block; color: var(--ink); font-size: 16px; }
   .set-row .toggle, .set-row .btn-small { flex: 0 0 auto; }
+  .var-item { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+  .var-item .t small { display: block; color: var(--ink-3); font-size: 12px; margin-top: 2px; }
+  .var-item .btn-small { height: 30px; padding: 0 10px; font-size: 13px; }
   .deskbtn { position: relative; }
   /* photos: public strip + share */
   .photo-strip { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px; scrollbar-width: none; }
@@ -1344,6 +1347,10 @@
       <div class="set-row" id="set-sim-row" hidden>
         <div class="txt"><b>Master clock</b><span id="sim-state">Move every exec's app to a block, at your pace. Off = real time.</span></div>
         <button class="toggle" id="sim-toggle" type="button" role="switch" aria-checked="false" aria-label="Master clock"></button>
+      </div>
+      <div class="set-row" id="set-var-row" hidden>
+        <div class="txt"><b>Schedule variance</b><span id="var-state">Anything in the roster worth a second look. Only you see this.</span></div>
+        <button class="btn-small ghost" id="set-var" type="button">Open</button>
       </div>
       <div class="set-row sim-ctl" id="set-sim-ctl" hidden>
         <button class="step" id="sim-prev" type="button" aria-label="Previous block">‹</button>
@@ -3661,13 +3668,88 @@ If someone asks how to score a match, walk them through these steps and set "sho
     el.innerHTML = ids.length ? ids.map(i => { const x = incidents[i]; return `<div class="check" style="--c:#B23A2E"><b>${esc(x.type)} · ${x.t ? clock(x.t) : ''} · ${esc(x.by || '')}</b>${esc(x.text)}</div>`; }).join('') : '<p class="fine">None logged.</p>';
   }
 
+  // --- schedule variance (Sandes only): the roster checked for things that
+  // usually need a human look, so nobody has to read 72 timelines by hand.
+  // Built from the live roster, so swaps and cover are included. "Fine" hides
+  // an item on this phone.
+  const VAR_LS = 'onshift.varOk';
+  let varOk = new Set(); try { varOk = new Set(JSON.parse(localStorage.getItem(VAR_LS) || '[]')); } catch {}
+  const VAR_KINDS = [
+    ['short', 'Short-staffed', 'A duty with fewer people than it needs.'],
+    ['stall', 'Stall below two', 'A society stall with fewer than two on it while one of that society\'s execs is on crowd duty and could move across.'],
+    ['same', 'Same thing for an hour or more', 'Two or more blocks in a row on the same duty. Cricket crews, logistics, playing and performing aren\'t counted.'],
+    ['long', 'More than 2.5 hours without a break', 'Six or more blocks on duty back to back (2.5 hours straight is fine).'],
+    ['idle', 'Free for 1.5 hours+', 'On site with nothing rostered for three blocks in a row — could be used.'],
+    ['none', 'On site but never rostered', 'Here at some point and not on anything all day.'],
+    ['buffer', 'Nobody free', 'No one spare to cover if a team wins or someone\'s sick.'],
+    ['double', 'On two teams', 'Plays for two teams in the same sport — check their games don\'t overlap.'],
+  ];
+  function varianceItems() {
+    if (!PEOPLE.length) return [];
+    const items = [], span = (a, b) => `${fmt(DAY_START + a * 30)} – ${fmt(DAY_START + (b + 1) * 30)}`;
+    const expected = (id) => ['logi', 'ck', 'ck-brief', 'perform', 'prep', 'photo-pres'].includes(id) || id.startsWith('play-');
+    const off = (id) => ['free', 'away', 'soon'].includes(id);
+    PEOPLE.forEach(p => {
+      const f = p.first; const row = Array.from({ length: BLOCKS }, (_, i) => assignmentFor(f, i).id);
+      for (let i = 0; i < BLOCKS;) {
+        let j = i; while (j + 1 < BLOCKS && row[j + 1] === row[i]) j++;
+        const id = row[i], len = j - i + 1;
+        if (len >= 2 && !off(id) && !expected(id)) items.push({ kind: 'same', key: `same|${f}|${id}|${i}|${len}`, who: f, text: `${(DUTIES[id] || {}).name || id} — ${len} blocks`, when: span(i, j), sev: len });
+        if (len >= 3 && id === 'free') items.push({ kind: 'idle', key: `idle|${f}|${i}|${len}`, who: f, text: `free ${len} blocks`, when: span(i, j), sev: len });
+        i = j + 1;
+      }
+      let start = -1;
+      row.concat(['away']).forEach((id, i) => {
+        const on = !off(id) && id !== 'logi';
+        if (on && start < 0) start = i;
+        if (!on && start >= 0) { if (i - start >= 6) items.push({ kind: 'long', key: `long|${f}|${start}|${i - start}`, who: f, text: `${i - start} blocks straight`, when: span(start, i - 1), sev: i - start }); start = -1; }
+      });
+      if (row.some(id => id === 'free') && row.every(id => off(id))) items.push({ kind: 'none', key: `none|${f}`, who: f, text: 'nothing all day', when: '' });
+    });
+    for (let i = 0; i < BLOCKS; i++) {
+      const rows = rowsFor(i); const cnt = (id) => ((rows.find(r => r[0] === id) || [null, []])[1]).length;
+      const need = { tk: 1, st: 1, 'fund-pp': 1 };
+      if (i <= 3) need.fb = 6; else if (i === 4) need.fb = 2; else if (i === 5) need.fb = 1;
+      if (i <= 5) need['fb-score'] = 2;
+      if (i <= 3) need.vb = (i === 1 || i === 2) ? 3 : 2;
+      if (i >= 6) need.ck = 4;
+      Object.entries(need).forEach(([id, k]) => { const c = cnt(id); if (c < k) items.push({ kind: 'short', key: `short|${id}|${i}|${c}`, text: `${DUTIES[id].name}: ${c} of ${k}`, when: range(i), sev: k - c }); });
+      CLUBS.forEach(c => {
+        const movable = PEOPLE.filter(p => p.s.includes(c) && onSite(p.first, i) && assignmentFor(p.first, i).id.startsWith('cr-')).map(p => p.first);
+        const on = cnt('stall-' + c);
+        if (on < 2 && movable.length) items.push({ kind: 'stall', key: `stall|${c}|${i}|${on}`, text: `${c} stall: ${on} on — ${movable.join(', ')} on crowd could move`, when: range(i), sev: 2 - on });
+      });
+      const free = PEOPLE.filter(p => onSite(p.first, i) && assignmentFor(p.first, i).id === 'free').length;
+      if (!free) items.push({ kind: 'buffer', key: `buffer|${i}`, text: 'nobody free', when: range(i) });
+    }
+    Object.entries(TEAMS).forEach(([sport, list]) => PEOPLE.forEach(p => {
+      const mine = list.filter(t => (t.players || []).some(n => n.toLowerCase() === p.n.toLowerCase()));
+      if (mine.length > 1) items.push({ kind: 'double', key: `double|${sport}|${p.first}`, who: p.first, text: `${SPORTS[sport]}: ${mine.map(t => t.name).join(' and ')}`, when: '' });
+    }));
+    return items;
+  }
+  function renderVariance() {
+    const all = varianceItems(); const open = all.filter(x => !varOk.has(x.key)); const hidden = all.length - open.length;
+    const sec = VAR_KINDS.map(([k, title, blurb]) => {
+      const xs = open.filter(x => x.kind === k).sort((a, b) => (b.sev || 0) - (a.sev || 0)); if (!xs.length) return '';
+      return `<h4 class="sec-sm">${esc(title)} <span class="fine">· ${xs.length}</span></h4><p class="fine">${esc(blurb)}</p>` + xs.map(x =>
+        `<div class="var-item"><span class="t">${x.who ? `<b>${esc(full(x.who))}</b> ` : ''}${esc(x.text)}${x.when ? `<small>${esc(x.when)}</small>` : ''}</span><button type="button" class="btn-small ghost" data-varok="${esc(x.key)}">Fine</button></div>`).join('');
+    }).join('');
+    $('info-body').innerHTML = (sec || '<p>Nothing flagged. The roster looks clean.</p>')
+      + (hidden ? `<p class="fine" style="margin-top:14px">${hidden} marked fine. <button type="button" class="linkbtn" id="var-reset">Show them again</button></p>` : '');
+    $('info-body').querySelectorAll('[data-varok]').forEach(b => b.addEventListener('click', () => { varOk.add(b.dataset.varok); try { localStorage.setItem(VAR_LS, JSON.stringify([...varOk])); } catch {} renderVariance(); }));
+    const r = $('var-reset'); if (r) r.addEventListener('click', () => { varOk.clear(); try { localStorage.removeItem(VAR_LS); } catch {} renderVariance(); });
+  }
+  $('set-var').addEventListener('click', () => { if (!canSim()) return; openSettings(false); openInfoRaw('Schedule variance', ''); renderVariance(); });
+
   // --- master clock (Sandes / UQISC only) ---
   const canSim = () => me && me.first === 'Sandes' && me.s.includes('UQISC');
   const simLabel = (b) => b < 0 ? 'Setup · 2:00 – 3:00 pm' : b >= BLOCKS ? 'Pack-up · 9:00 – 10:00 pm' : `Block ${b + 1} · ${range(b)}`;
   function renderSim() {
     const ok = canSim(); $('set-sim-row').hidden = !ok;
     // Sandes's tools: everyone else never needs them on the day
-    ['set-demo-row', 'set-screen-row', 'set-manual-row', 'set-switch-row'].forEach(id => { $(id).hidden = !ok; });
+    ['set-demo-row', 'set-screen-row', 'set-manual-row', 'set-switch-row', 'set-var-row'].forEach(id => { $(id).hidden = !ok; });
+    if (ok) { const n = varianceItems().filter(x => !varOk.has(x.key)).length; $('var-state').textContent = n ? `${n} thing${n === 1 ? '' : 's'} to look at. Only you see this.` : 'Nothing flagged. Only you see this.'; }
     $('demo-toggle').setAttribute('aria-checked', String(demoMode));
     $('demo-state').textContent = demoMode ? 'On — the tour plays every time you sign in. Off when you\'re done showing people.' : 'Replays the welcome tour every time you sign in — for showing people the app. This phone only.';
     const on = !!(sim && sim.on); $('sim-toggle').setAttribute('aria-checked', String(on));
