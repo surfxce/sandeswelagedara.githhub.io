@@ -408,6 +408,25 @@
   .set-row .txt { font-size: 14px; color: var(--ink-2); }
   .set-row .txt b { display: block; color: var(--ink); font-size: 16px; }
   .set-row .toggle, .set-row .btn-small { flex: 0 0 auto; }
+  .alert-full { position: fixed; inset: 0; z-index: 3000; background: rgba(30, 12, 8, .72); display: flex; align-items: center; justify-content: center; padding: 20px; animation: al-in .25s ease-out; }
+  .alert-full[hidden] { display: none; }
+  .al-x { position: absolute; top: max(14px, env(safe-area-inset-top)); right: 16px; width: 44px; height: 44px; border-radius: 50%; border: 0; background: rgba(255,255,255,.14); color: #fff; font-size: 30px; line-height: 1; }
+  .al-card { width: 100%; max-width: 420px; background: var(--paper); border-radius: 16px; border-top: 6px solid #B23A2E; padding: 26px 20px 18px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,.4); }
+  .al-bell { width: 64px; height: 64px; margin: 0 auto 12px; border-radius: 50%; background: #B23A2E; color: #fff; display: grid; place-items: center; animation: al-bell .9s ease-out .15s both; }
+  .al-bell svg { width: 32px; height: 32px; }
+  .al-eyebrow { display: block; font-size: 12px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); }
+  .al-card h2 { font-size: 26px; line-height: 1.15; margin: 6px 0 8px; animation: al-fade .5s ease-out .25s both; }
+  .al-card h2 .red, .al-where .red { color: #B23A2E; }
+  .al-where { font-size: 18px; font-weight: 800; margin: 0 0 6px; animation: al-fade .5s ease-out .35s both; }
+  .al-detail { font-size: 14px; color: var(--ink-2); margin: 0 0 18px; animation: al-fade .5s ease-out .45s both; }
+  .al-btns { display: grid; gap: 10px; }
+  .al-btns button { height: 52px; border-radius: 10px; font-weight: 800; font-size: 17px; border: 0; }
+  .al-yes { background: #B23A2E; color: #fff; }
+  .al-no { background: transparent; color: var(--ink-2); border: 1.5px solid var(--line) !important; }
+  .al-more { font-size: 12.5px; color: var(--ink-3); margin: 12px 0 0; }
+  @keyframes al-in { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes al-fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  @keyframes al-bell { 0% { opacity: 0; transform: scale(.6) rotate(0); } 40% { opacity: 1; transform: scale(1.08) rotate(-14deg); } 60% { transform: rotate(12deg); } 80% { transform: rotate(-6deg); } 100% { transform: none; } }
   .var-item { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
   .var-item .t small { display: block; color: var(--ink-3); font-size: 12px; margin-top: 2px; }
   .var-item .btn-small { height: 30px; padding: 0 10px; font-size: 13px; }
@@ -1321,6 +1340,20 @@
     </section>
 
     <!-- Settings sheet -->
+    <!-- Full-screen alert: someone wants a swap or needs hands, and you're who they need -->
+    <div class="alert-full" id="alert-full" hidden role="alertdialog" aria-modal="true" aria-labelledby="al-title">
+      <button type="button" class="al-x" id="al-x" aria-label="Dismiss">×</button>
+      <div class="al-card">
+        <div class="al-bell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg></div>
+        <span class="al-eyebrow" id="al-eyebrow"></span>
+        <h2 id="al-title"></h2>
+        <p class="al-where" id="al-where"></p>
+        <p class="al-detail" id="al-detail"></p>
+        <div class="al-btns"><button type="button" class="al-yes" id="al-yes"></button><button type="button" class="al-no" id="al-no">Decline</button></div>
+        <p class="al-more" id="al-more"></p>
+      </div>
+    </div>
+
     <div class="dm-backdrop" id="set-backdrop" hidden></div>
     <section class="dm-sheet" id="set-sheet" hidden aria-label="Settings">
       <div class="dm-head"><span class="nm">Settings</span><button class="linkbtn" id="set-close" type="button">Close</button></div>
@@ -2886,6 +2919,64 @@
     el.querySelectorAll('[data-closehelp]').forEach(b => b.addEventListener('click', () => ref('help/' + b.dataset.closehelp).update({ status: 'closed', tt: Date.now() })));
   }
 
+  // --- full-screen alert for a swap or a call for help that's yours to answer ---
+  // One at a time, once per request per phone. The X just hides it (it's still
+  // in the bell); Decline and the yes button do what the tray buttons do.
+  const ALERTED_LS = 'onshift.alerted';
+  let alerted = new Set(); try { alerted = new Set(JSON.parse(localStorage.getItem(ALERTED_LS) || '[]')); } catch {}
+  let alertNow = null;
+  const markAlerted = (key) => { alerted.add(key); try { localStorage.setItem(ALERTED_LS, JSON.stringify([...alerted].slice(-300))); } catch {} };
+  function pendingAlerts() {
+    if (!me || !db) return [];
+    return swapsForMe().map(([id, sw]) => ({ key: 's' + id, kind: 'swap', id, x: sw }))
+      .concat(helpsForMe().map(([id, h]) => ({ key: 'h' + id, kind: 'help', id, x: h })))
+      .filter(a => !alerted.has(a.key)).sort((a, b) => (a.x.t || 0) - (b.x.t || 0));
+  }
+  function checkAlerts() {
+    const q = pendingAlerts();
+    if (alertNow && !q.some(a => a.key === alertNow.key)) { alertNow = null; $('alert-full').hidden = true; }   // taken or closed elsewhere
+    if (alertNow || !q.length || tourOn) return;
+    showAlert(q[0], q.length - 1);
+  }
+  function showAlert(a, more) {
+    alertNow = a; const x = a.x; const d = DUTIES[x.duty] || {};
+    const who = `<span class="red">${esc(full(x.from))}</span>`;
+    if (a.kind === 'help') {
+      $('al-eyebrow').textContent = 'Needs more hands';
+      $('al-title').innerHTML = `${who} needs help`;
+      $('al-yes').textContent = "I'm coming";
+    } else {
+      const mode = swapMode(x); const play = d.cat === 'play';
+      const myA = assignmentFor(me.first, x.block); const myD = DUTIES[myA.id] || {}; const onDuty = myD.cat && myD.cat !== 'free';
+      $('al-eyebrow').textContent = play ? 'Needs a sub' : 'Swap request';
+      $('al-title').innerHTML = `${who} ${mode === 'team' ? 'needs a sub' : mode === 'free' ? 'wants a break' : 'wants to swap'}`;
+      $('al-yes').textContent = play ? 'Sub me in' : onDuty ? 'Swap with them' : "I'll take it";
+    }
+    $('al-where').innerHTML = `<span class="red">${esc(d.name || x.duty)}</span> · ${esc(d.where || '')}`;
+    let detail = range(x.block);
+    if (a.kind === 'swap') { const myA = assignmentFor(me.first, x.block); const myD = DUTIES[myA.id] || {}; if (myD.cat && myD.cat !== 'free') detail += ` · you'd take theirs, ${esc(x.from)} ${myD.cat === 'logi' ? 'gets a break' : 'takes your ' + esc(myD.name)}`; }
+    else { const coming = Object.keys(x.responders || {}); if (coming.length) detail += ` · ${esc(names(coming))} already coming`; }
+    $('al-detail').innerHTML = detail;
+    $('al-more').textContent = more ? `${more} more waiting in the bell` : '';
+    $('alert-full').hidden = false;
+    try { navigator.vibrate && navigator.vibrate([250, 120, 250, 120, 400]); } catch {}
+    // a system notification too, for a phone in a pocket (logistics already get theirs from pingLogi)
+    if (!isLogi(me.first, x.block)) notify(a.kind === 'help' ? `${x.from} needs help` : `${x.from} wants a swap`, { body: `${d.name || ''} · ${d.where || ''}`, tag: a.key });
+  }
+  function closeAlert() { if (alertNow) markAlerted(alertNow.key); alertNow = null; $('alert-full').hidden = true; setTimeout(checkAlerts, 400); }
+  $('al-x').addEventListener('click', closeAlert);
+  $('al-no').addEventListener('click', () => {
+    const a = alertNow; if (!a) return;
+    ref((a.kind === 'swap' ? 'swaps/' : 'help/') + a.id + '/declines/' + me.first).set(true); closeAlert();
+  });
+  $('al-yes').addEventListener('click', () => {
+    const a = alertNow; if (!a) return;
+    if (a.kind === 'help') { ref('help/' + a.id + '/responders/' + me.first).set(true); closeAlert(); return; }
+    ref('swaps/' + a.id).transaction(sw => { if (!sw || sw.status !== 'open') return; sw.status = 'taken'; sw.to = me.first; sw.tt = Date.now(); return sw; },
+      (err, committed) => { if (!committed) alert('Someone else got there first.'); });
+    closeAlert();
+  });
+
   // --- messages (exec to exec) ---
   // Tap a name anywhere → a sheet with the thread, four one-tap lines, and a
   // box. Stored under dm/{a~b}; unread is tracked per conversation on the phone.
@@ -2967,6 +3058,7 @@
         { first: 'Dhyan',        role: 'Head of football', does: 'Football on Field 7, 3:00 – 6:00' },
         { first: 'Devansh',      role: 'Head of cricket', does: 'Cricket on Field 7 — briefs the crew at 6:10, on the first two games' },
         { n: 'Arzuh Shankur',    role: 'Head of food trucks', does: 'The food trucks on Field 6' },
+        { n: 'Kartik',           role: 'Head of performances', does: 'The stage and the running order' },
         { first: 'Hasara',       role: 'Head of fundraising', does: 'Charity marquee — Nepal Floods raffle, Manali, Hope by Hands' },
         { first: 'Thanabammini', role: 'Head of business stalls', does: 'The businesses on Field 6' },
         { first: 'Divita',       role: 'Media', does: 'Photos, video and socials on the night' },
@@ -4158,7 +4250,7 @@ If someone asks how to score a match, walk them through these steps and set "sho
     ref('scores').limitToLast(60).on('value', snap => { matches = snap.val() || {}; renderScores(); settleBrackets(); renderBrackets(); renderDesk(); if (scrOn) scrScores(); }, () => { unavailable($('scores-live'), 'scores'); if (pub) unavailable(pub, 'scores'); });
     ref('brackets').on('value', snap => { brackets = snap.val() || {}; rosterVersion++; renderBrackets(); if (!$('shell').hidden) { render(); renderHelps(); renderBell(); } }, () => { unavailable($('brackets'), 'brackets'); const pb = $('public-brackets'); if (pb) unavailable(pb, 'brackets'); });
     ref('broadcasts').limitToLast(30).on('value', snap => { bcasts = snap.val() || {}; renderBcasts(); }, () => { unavailable($('bcast-list'), 'updates'); });
-    ref('swaps').limitToLast(60).on('value', snap => { swaps = snap.val() || {}; rosterVersion++; if (!$('shell').hidden) { render(); renderSwaps(); renderBell(); pingLogi(); } }, () => { unavailable($('swap-list'), 'swaps'); });
+    ref('swaps').limitToLast(60).on('value', snap => { swaps = snap.val() || {}; rosterVersion++; if (!$('shell').hidden) { render(); renderSwaps(); renderBell(); pingLogi(); checkAlerts(); } }, () => { unavailable($('swap-list'), 'swaps'); });
     ref('dm').on('value', snap => { dms = snap.val() || {}; if (dmOpen) renderDmThread(); renderDmConvos(); renderBell(); }, () => {});
     ref('photos').orderByChild('status').equalTo('approved').on('value', snap => { phApproved = snap.val() || {}; renderPublicPhotos(); renderPhotoMod(); if (scrOn) bandSync(); }, () => {});
     ref('photos').orderByChild('status').equalTo('pending').on('value', snap => { phPending = snap.val() || {}; renderPhotoMod(); }, () => {});
@@ -4168,7 +4260,7 @@ If someone asks how to score a match, walk them through these steps and set "sho
     ref('incidents').limitToLast(100).on('value', snap => { incidents = snap.val() || {}; renderIncidents(); }, () => {});
     ref('pfp').on('value', snap => { pfps = snap.val() || {}; if (me && myPic && !pfps[me.first.toLowerCase()]) ref('pfp/' + me.first.toLowerCase()).set(myPic).catch(() => {}); if (!$('shell').hidden) { render(); $('who-pfp').innerHTML = me ? pfp(me.first, 32) : ''; if (tourOn) renderTour(); if (!$('set-sheet').hidden) renderPhotoRow($('set-photo-msg') ? $('set-photo-msg').textContent : ''); } }, () => {});
     ref('sim').on('value', snap => { sim = snap.val(); mapsTick(); if (!$('shell').hidden) { const lb = liveBlock(); live = lb !== null; if (live) block = lb; else if (block < 0 || block >= BLOCKS) block = 0; render(); renderSim(); } renderStageNow(); }, () => {});
-    ref('help').limitToLast(60).on('value', snap => { helps = snap.val() || {}; if (!$('shell').hidden) { render(); renderHelps(); renderBell(); pingLogi(); } }, () => { unavailable($('help-list'), 'help calls'); });
+    ref('help').limitToLast(60).on('value', snap => { helps = snap.val() || {}; if (!$('shell').hidden) { render(); renderHelps(); renderBell(); pingLogi(); checkAlerts(); } }, () => { unavailable($('help-list'), 'help calls'); });
   }
   startLive();
 
