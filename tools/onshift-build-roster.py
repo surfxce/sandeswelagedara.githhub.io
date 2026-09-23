@@ -57,7 +57,7 @@ P = [
  ("Humza Bhagat","PSA","3,4,5,6,7,8",1,0,"",""),
  ("Alexis Han","ISS","3,4,5",0,0,"",""),
  ("Nimnah Unantenna","SLA","4,5,6,7,8",0,1,"",""),
- ("Jasmine Hanzra","PA","5,6",0,0,"",""),
+ ("Jasmine Hanzra","PA","3,4,5,6",0,0,"",""),
  ("Gayashi Rathnayaka","SLA","3,4",1,0,"",""),
  ("Khaleeda Irsya Khairoul Haniff","ISS","3,4",1,0,"crowd",""),
  ("Ginni Shukla","PA","3,4,5,6,7",0,0,"",""),
@@ -127,6 +127,8 @@ for f in FB_PLAYERS:
 for f in CK_PLAYERS:
     for i in (7, 8):
         if i in avail.get(f, ()) and f not in fixed[i]: fixed[i][f] = 'play-ck'
+# presidents' photo at 5:45 — Sandes takes it, so he's off everything else that block
+fixed[5]['Sandes'] = 'photo-pres'
 for f, (duty, blocks) in PIN.items():
     for i in blocks:
         if i in avail.get(f, ()) and f not in fixed[i] and can(f, duty): fixed[i][f] = duty
