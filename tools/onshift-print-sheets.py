@@ -32,6 +32,8 @@ DUTY = {
   'play-fb': ('Playing football', 'Field 7 — group stage, for your society'),
   'play-ck': ('Playing cricket', 'Field 7 — for your society'),
   'perform': ('Performing', 'Performance stage'),
+  'prep': ('Getting ready', "Performers' area — your act is next, be side-stage 10 min early"),
+  'ck-brief': ('Cricket briefing — you run it', 'Field 7 at 6:20: umpires, scorers, captains; then set out the pitches'),
   'photo-pres': ("Presidents' photo — you're taking it", 'Stage steps at 3:15 — back to normal after'),
 }
 def duty(id_):
@@ -46,6 +48,9 @@ esc = html.escape
 
 # the 3:15 presidents' photo (the rest of the presidents aren't on the roster)
 PRES = {'Sanuka', 'Prabhas', 'Jais', 'Devansh'}
+
+# everyone on cricket tonight gets the 6:20 briefing
+CK = {f for b in d['roster'][7:] for x, ps in b if x in ('ck', 'play-ck') for f in ps}
 
 pages = []
 for p in people:
@@ -66,6 +71,8 @@ for p in people:
                 got = (duty(id_), mates, 'play' if id_.startswith('play-') or id_ == 'perform' else 'duty'); break
         if got and i == 0 and first in PRES:
             got = ((got[0][0], got[0][1] + " · 3:15: presidents' photo at the stage steps, 5 min"), got[1], got[2])
+        if got and i == 6 and first in CK and first != 'Devansh':
+            got = ((got[0][0], got[0][1] + " · 6:20: cricket briefing with Devansh at Field 7, 10 min"), got[1], got[2])
         if got: rows.append((t, got[0], got[1], got[2]))
         else: rows.append((t, ('Free — check the app', 'A job can still land here on the day'), [], 'free'))
     rows.append(('9:00 – 10:00', ('Pack-up — all hands', 'Strike marquees, bag rubbish, return gear'), [], 'hands' if flags['packup'] else 'off'))

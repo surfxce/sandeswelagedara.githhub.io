@@ -119,6 +119,8 @@ for f in [k for k, t in tags.items() if 'logi' in t]:
 for f, blocks in PERF.items():
     for i in blocks:
         if i in avail.get(f, ()): fixed[i].pop(f, None); fixed[i][f] = 'perform'
+        # the half hour before is theirs to get changed and warm up
+        if i - 1 in avail.get(f, ()) and i - 1 >= 0: fixed[i - 1].pop(f, None); fixed[i - 1][f] = 'prep'
 # volleyball round 1
 for soc, squad in VB_TEAM.items():
     # four on court is the minimum team; the rest of the squad stays on duty
@@ -135,6 +137,8 @@ for f in CK_PLAYERS:
 # presidents' photo at 3:15, before volleyball starts — Sandes takes it, so
 # he's off everything else that block
 fixed[0]['Sandes'] = 'photo-pres'
+# Devansh briefs the cricket crew at 6:20, before the first games at 6:40
+fixed[6]['Devansh'] = 'ck-brief'
 for f, (duty, blocks) in PIN.items():
     for i in blocks:
         if i in avail.get(f, ()) and f not in fixed[i] and can(f, duty): fixed[i][f] = duty
