@@ -97,7 +97,8 @@ P = [
  ("Tejashwini Sivasakthi Vishaalakshi","ISC","3,4,5,6,7,8",1,1,"fb,ck",""),
  ("Sarju Koirala","NC","3,4,5,6,7,8",1,1,"fb,ck",""),
  ("Dev Dahal","NC","3,4",1,0,"fb,ck,stage",""),
- ("Prasant Adhikari","NC","5",0,0,"fb,ck",""),
+ # playing football for NC (on the football sign-up), so here for the groups too
+ ("Prasant Adhikari","NC","3,4,5",0,0,"",""),
  ("Dhriti Praveen","TELS","5,6,7,8",0,0,"fb,ck",""),
  ("Shreya Byru","TELS","3,6,7",1,0,"fb,ck",""),
  ("Sadisha Saparamadu","NAATAK","6,7",0,0,"fb,ck",""),
@@ -111,14 +112,14 @@ PERF = {'Helly': (3,), 'Tanisha': (3,), 'Matvi': (3,), 'Roshni': (6,), 'Jasmine'
 
 # society volleyball teams (from "which sport are you playing")
 VB_TEAM = {'UQSLA': ["Shavini", "Diya", "Leron", "Sanuka", "Deana", "Nimnah"],
-           'UQISC': ["Mithila", "Sandes", "Krisha", "Sritam", "Ragesh", "Shane"]}
+           'UQISC': ["Mithila", "Sandes", "Krisha", "Sritam", "Ragesh", "Shane", "Tejashwini", "Akash"]}
 VB_BLOCK = 1          # round 1 at 3:30
 # execs on the other teams, for their first game: NC + PA and Solos play at
 # 3:35, Shriyans's team (Shane) at 3:55 — he's here from 4
-VB_OTHER = {'Avinab': 1, 'Jasmine': 1, 'Aarya': 1, 'Prabhjot': 1, 'Ishan': 1, 'Sujal': 1, 'Bhumik': 1,
+VB_OTHER = {'Avinab': 1, 'Jasmine': 1, 'Aarya': 1, 'Prabhjot': 1, 'Ishan': 1, 'Sujal': 1, 'Bhumik': 1, 'Sarju': 1,
             'Shriyans': 1, 'Matvi': 1, 'Shane': 2}
 # execs on the football sign-up sheet (both UQNC); nobody else registered
-FB_PLAYERS = ["Aravinth", "Bhumik"]
+FB_PLAYERS = ["Aravinth", "Bhumik", "Prasant"]
 # the only execs playing cricket
 CK_PLAYERS = ["Mathisha", "Thihan", "Rushi"]
 
@@ -206,6 +207,12 @@ fixed[6]['Devansh'] = 'ck-brief'
 for i in (7, 8): fixed[i]['Devansh'] = 'ck'
 # Aarya (PA president) asked to umpire one game: match 2 at 7:00, with Devansh there
 fixed[8]['Aarya'] = 'ck'
+# Shreya B on the TELS stall the moment it's set up (3:00), and off it 3:30
+# and 7:30 – 8:00
+fixed[0]['Shreya B'] = 'stall-UQTELS'
+AVOID = {('Shreya B', 1, 'stall-UQTELS'), ('Shreya B', 9, 'stall-UQTELS')}
+# people Sandes wants out and about even if their stall goes quiet
+MOVE_ABOUT = {'Dhriti'}
 for f, (duty, blocks) in PIN.items():
     for i in blocks:
         if i in avail.get(f, ()) and f not in fixed[i] and can(f, duty): fixed[i][f] = duty
@@ -293,7 +300,11 @@ for i in range(BLOCKS):
             for duty, (mn, wn) in n.items():
                 target = mn if level == 0 else wn
                 if len(slots[duty]) >= target: continue
-                elig = [f for f in pool if can(f, duty) and (duty == 'ck' or sameRun[f].get(duty, 0) < 2)]
+                elig = [f for f in pool if can(f, duty) and (duty == 'ck' or sameRun[f].get(duty, 0) < 2)
+                        and (f, i, duty) not in AVOID
+                        # the festival's more than a stall: at most 40% of your day on
+                        # one — unless it'd leave the stall empty
+                        and not (duty.startswith('stall-') and (slots[duty] or f in MOVE_ABOUT) and doneDuty[f].get(duty, 0) + 1 > max(1, 0.4 * len(avail[f])))]
                 # essentials first — a match with no ref or a gate with nobody
                 # on it is worse than a quiet stage — then hardest-to-fill
                 tier = 0 if duty in ('vb', 'fb', 'ck', 'tk', 'fb-score', 'fund-pp') or duty.startswith('stall-') or (duty == 'st' and (i <= 3 or i in (6, 7))) else 1
@@ -323,7 +334,7 @@ for i in range(BLOCKS):
     for f in sorted(pool, key=lambda f: (counts[f], f)):
         opts = [d for d in CROWD if can(f, d)]
         if not opts:     # can't do crowd: a third pair of hands on their own stall
-            opts = [d for d in n if d.startswith('stall-') and can(f, d) and sameRun[f].get(d, 0) < 2]
+            opts = [d for d in n if d.startswith('stall-') and can(f, d) and sameRun[f].get(d, 0) < 2 and (f, i, d) not in AVOID]
         # a different zone from last block where there's one
         opts = [d for d in opts if not sameRun[f].get(d)] or opts
         if not opts: continue
