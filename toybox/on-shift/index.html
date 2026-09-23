@@ -317,8 +317,8 @@
   .tt .pfp { margin-right: 6px; }
   .dm-head .nm { display: inline-flex; align-items: center; gap: 10px; }
   .dm-head .dm-acts { display: inline-flex; align-items: center; gap: 12px; flex: 0 0 auto; }
-  .dm-call { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px; border-radius: 6px; background: var(--maroon); color: var(--cream); font-weight: 700; font-size: 14px; text-decoration: none; }
-  .dm-call svg { width: 15px; height: 15px; }
+  .dm-call { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; background: var(--maroon); color: var(--cream); text-decoration: none; flex: 0 0 auto; }
+  .dm-call svg { width: 17px; height: 17px; }
   .emg-top { display: flex; align-items: center; gap: 10px; }
   .emg-top > div { display: grid; gap: 2px; }
   /* Spicy */
@@ -348,8 +348,13 @@
   .emg { background: #fff; border: 1.5px solid var(--line); border-left: 6px solid #B23A2E; padding: 10px 12px; display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 10px; }
   .emg .nm { font-weight: 800; font-size: 16px; line-height: 1.15; }
   .emg .role { font-size: 13px; color: var(--ink-2); }
-  .emg .call { display: flex; height: 44px; padding: 0 14px; border-radius: 8px; background: #B23A2E; color: #fff; font-weight: 800; font-size: 15px; align-items: center; justify-content: center; gap: 8px; text-decoration: none; white-space: nowrap; }
-  .emg .call svg { width: 18px; height: 18px; }
+  .emg .does { font-size: 12.5px; color: var(--ink-3); line-height: 1.3; }
+  .emg .does b { color: var(--ink-2); font-weight: 700; }
+  .emg .call { display: flex; width: 44px; height: 44px; border-radius: 50%; background: #B23A2E; color: #fff; align-items: center; justify-content: center; text-decoration: none; flex: 0 0 auto; }
+  .emg .call svg { width: 20px; height: 20px; }
+  .emg-tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 4px; margin: 2px 0 8px; border-radius: 999px; background: var(--paper-2, #EFE6D6); border: 1.5px solid var(--line); }
+  .emg-tabs button { height: 36px; border: 0; border-radius: 999px; background: transparent; color: var(--ink-2); font-weight: 700; font-size: 14px; }
+  .emg-tabs button[aria-selected="true"] { background: #B23A2E; color: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.18); }
   /* manual */
   .man-sheet { max-height: 88vh; }
   .man-search { height: 46px; padding: 0 14px; border-radius: 6px; border: 1.5px solid var(--line); background: #fff; font-size: 16px; }
@@ -1405,7 +1410,13 @@
     <section class="dm-sheet emg-sheet" id="emg-sheet" hidden aria-label="Emergency contacts">
       <div class="dm-head"><span class="nm">Emergency</span><button class="linkbtn" id="emg-close" type="button">Close</button></div>
       <a class="emg-000" href="tel:000"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg>Call 000</a>
-      <p class="fine">Anything medical or dangerous: 000 first, then an organiser.</p>
+      <p class="fine">Anything medical or dangerous: 000 first, then logistics.</p>
+      <div class="emg-tabs" role="tablist" aria-label="Who to call">
+        <button type="button" role="tab" data-emg="logi" aria-selected="true">Logistics</button>
+        <button type="button" role="tab" data-emg="pres" aria-selected="false">Presidents</button>
+        <button type="button" role="tab" data-emg="heads" aria-selected="false">Heads</button>
+      </div>
+      <p class="fine" id="emg-blurb"></p>
       <div class="emg-grid" id="emg-grid"></div>
     </section>
 
@@ -2891,7 +2902,7 @@
     if (!db || !me || !other || other === me.first) return;
     dmOpen = other; $('dm-who').innerHTML = pfp(other, 44) + '<span>Message ' + esc(full(other)) + '</span>';
     const tel = (byFirst[other.toLowerCase()] || {}).t; const call = $('dm-call');
-    call.hidden = !tel; if (tel) { call.href = 'tel:' + tel.replace(/\s/g, ''); call.title = tel; call.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>Call'; }
+    call.hidden = !tel; if (tel) { call.href = 'tel:' + tel.replace(/\s/g, ''); call.title = tel; call.setAttribute('aria-label', 'Call ' + full(other)); call.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>'; }
     $('dm-canned').innerHTML = CANNED.map(t => `<button type="button" data-canned="${esc(t)}">${esc(t)}</button>`).join('');
     $('dm-canned').querySelectorAll('button').forEach(b => b.addEventListener('click', () => sendDm(b.dataset.canned)));
     $('dm-sheet').hidden = false; $('dm-backdrop').hidden = false;
@@ -2923,20 +2934,56 @@
   $('dm-form').addEventListener('submit', e => { e.preventDefault(); sendDm($('dm-text').value); $('dm-text').value = ''; });
 
   // --- settings sheet ---
-  // --- emergency contacts ---
-  // PLACEHOLDER NUMBERS — replace before the day.
-  const EMERGENCY = [
-    { n: 'Archita Sahu',              role: 'Organiser',              tel: '0400 000 001' },
-    { n: 'Sanuka Ranatunga',          role: 'Organiser · President',  tel: '0400 000 002' },
-    { n: 'Prabhas Bachu',             role: 'Organiser',              tel: '0400 000 003' },
-    { n: 'Thinanthanan Thirumurugan', role: 'Organiser',              tel: '0400 000 004' },
-    { n: 'Sandes Welagedara',         role: 'Technical difficulties', tel: '0400 000 005' },
-  ];
+  // --- emergency contacts: logistics, presidents, heads ---
+  // Numbers come from the roster (the exec form), so they're real and never
+  // in this file. Someone who isn't on the app shows without a Call button.
+  const EMG_GROUPS = {
+    logi: { blurb: 'Floating all day — equipment, anything broken or missing, and backing up anyone who calls for help. Call these first.',
+      people: () => PEOPLE.filter(p => ROSTER.some(b => b.some(([id, ppl]) => id === 'logi' && ppl.includes(p.first)))).map(p => ({ first: p.first,
+        role: 'Logistics' + (({ Prabhas: ' · organiser, oversees logistics with Nandos', Archita: ' · organiser' })[p.first] || ''),
+        does: 'Equipment, problems, extra hands' })) },
+    pres: { blurb: 'Each club\'s president — for anything about their club, its stall or its people.',
+      people: () => [
+        { first: 'Sanuka',  role: 'UQSLA president · organiser', does: 'SLA stall and team; co-runs the festival' },
+        { first: 'Prabhas', role: 'UQISC president · organiser', does: 'ISC stall and team; logistics' },
+        { first: 'Bhumik',  role: 'UQNC president', does: 'NC stall' },
+        { first: 'Aarya',   role: 'UQPA president', does: 'Mostly at the PA stall' },
+        { first: 'Devansh', role: 'UQGS president', does: 'GS stall; cricket briefing at 6:10' },
+        { first: 'Jais',    role: 'UQGIDDHA president', does: 'GIDDHA stall, 3:00 – 5:00' },
+        { n: 'Akash',  role: 'UQTELS president', does: 'Not on the app — ask a TELS exec' },
+        { n: 'Akansh', role: 'UQNAATAK president', does: 'Not on the app — ask logistics' },
+      ] },
+    heads: { blurb: 'Whoever runs each part of the day — for questions about that thing.',
+      people: () => [
+        { first: 'Dhyan',        role: 'Head of football', does: 'Football on Field 7, 3:00 – 6:00' },
+        { first: 'Aditya',       role: 'Head of cricket', does: 'Cricket on Field 7 from 6:10' },
+        { first: 'Humza',        role: 'Cricket · food trucks', does: 'Cricket crew; the food trucks' },
+        { first: 'Sritam',       role: 'Volleyball', does: 'Volleyball draw and refs, 3:35 – 5:00' },
+        { first: 'Hasara',       role: 'Head of fundraising', does: 'Charity marquee — Nepal Floods raffle, Manali, Hope by Hands' },
+        { first: 'Thanabammini', role: 'Head of business stalls', does: 'The businesses on Field 6' },
+        { first: 'Divita',       role: 'Media', does: 'Photos, video and socials on the night' },
+        { first: 'Sandes',       role: 'Volleyball · the app', does: 'Anything technical with the app' },
+      ] },
+  };
+  let emgTab = 'logi';
   const PHONE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg>';
+  function renderEmg() {
+    const g = EMG_GROUPS[emgTab];
+    document.querySelectorAll('[data-emg]').forEach(b => b.setAttribute('aria-selected', String(b.dataset.emg === emgTab)));
+    $('emg-blurb').textContent = g.blurb;
+    const lb = liveBlock(); const nowI = lb !== null && lb >= 0 && lb < BLOCKS ? lb : null;
+    $('emg-grid').innerHTML = g.people().map(c => {
+      const p = c.first ? byFirst[c.first.toLowerCase()] : null; const name = p ? p.n : (c.n || c.first);
+      const tel = p && p.t; const now = p && nowI !== null ? assignmentFor(p.first, nowI) : null;
+      const where = now ? (now.id === 'away' ? 'Not here right now' : `Now: ${(DUTIES[now.id] || {}).name || now.id}`) : '';
+      return `<div class="emg"><div class="emg-top">${pfp(name, 44)}<div><span class="nm">${esc(name)}</span><span class="role">${esc(c.role)}</span><span class="does">${esc(c.does)}${where ? ` · <b>${esc(where)}</b>` : ''}</span></div></div>${tel ? `<a class="call" href="tel:${tel.replace(/\s/g, '')}" aria-label="Call ${esc(name)}">${PHONE}</a>` : ''}</div>`;
+    }).join('');
+  }
   function openEmg(open) {
     $('emg-sheet').hidden = !open; $('emg-backdrop').hidden = !open; if (!open) return;
-    $('emg-grid').innerHTML = EMERGENCY.map((c) => `<div class="emg"><div class="emg-top">${pfp(c.n, 44)}<div><span class="nm">${esc(c.n)}</span><span class="role">${esc(c.role)}</span></div></div><a class="call" href="tel:${c.tel.replace(/\s/g, '')}" aria-label="Call ${esc(c.n)}">${PHONE} Call</a></div>`).join('');
+    renderEmg();
   }
+  document.querySelectorAll('[data-emg]').forEach(b => b.addEventListener('click', () => { emgTab = b.dataset.emg; renderEmg(); }));
   $('set-emg').addEventListener('click', () => { openSettings(false); openEmg(true); });
   $('emg-close').addEventListener('click', () => openEmg(false)); $('emg-backdrop').addEventListener('click', () => openEmg(false));
 
@@ -3089,7 +3136,7 @@ Escalation: anything medical or dangerous — call 000 first, then tell an organ
     Object.entries(DUTIES).forEach(([id, d]) => { if (d.cat === 'free') return; const lead = leadFor(id); L.push(`- ${d.name} [${CATS[d.cat].label}] — where: ${d.where || '—'}. ${d.do || ''}${d.tasks && d.tasks.length ? ' Tasks: ' + d.tasks.join(', ') + '.' : ''}${lead ? ' Committee head: ' + lead + '.' : ''}`); });
     L.push('\n## Stage running order\n' + STAGE_TIMES.map(x => `${tm(x.t)} — ${x.who}: ${x.what}`).join('\n'));
     L.push('\n## Moments\n' + MOMENTS.map(m => `${m.at} (block ${m.block + 1}) — ${m.name} at ${m.where}. ${m.note} Who: ${m.who === 'all' ? 'everyone' : m.who === 'ck' ? 'everyone umpiring or scoring cricket tonight (not the players)' : m.who.join(', ')}.`).join('\n'));
-    L.push('\n## Emergency contacts (numbers are in the app under Settings → Emergency — never give a number)\n' + EMERGENCY.map(c => `${c.n} — ${c.role}`).join('\n'));
+    L.push('\n## Emergency contacts (numbers are in the app under Settings → Emergency — never give a number)\n' + Object.values(EMG_GROUPS).flatMap(g => g.people()).map(c => `${(c.first && byFirst[c.first.toLowerCase()] || {}).n || c.n || c.first} — ${c.role}: ${c.does}`).join('\n'));
     L.push('\n## Where things are (pins on the Map tab)\n' + PINS.map(pin => `${pin.label} — ${pin.sub}`).join('\n') + '\nFootball is six small pitches on the Field 7 infield, numbered Field 1 to Field 6: two across, three down, left to right from the top (zoom right in on the map to see them).');
     L.push('\n## Things Spicy can point at (put the id in "show" when the answer is about tapping or finding one of these)\n' + Object.entries(POINTS).map(([id, pt]) => `${id} — ${pt.what}`).join('\n'));
     L.push(`\n## Recording a score in the app (the steps a referee follows)
