@@ -357,8 +357,8 @@ phones = json.load(open(phones_path)) if os.path.exists(phones_path) else {}
 for p in people:
     p["a"] = sorted(avail[p["n"].split()[0]])
     if p["n"].split()[0] in phones: p["t"] = phones[p["n"].split()[0]]
-# numbers for contacts who aren't execs (full names in phones.json)
-contacts = {k: v for k, v in phones.items() if ' ' in k}
+# numbers for contacts who aren't execs (anyone in phones.json not on the roster)
+contacts = {k: v for k, v in phones.items() if k not in avail}
 out = {"people": people, "roster": roster, "contacts": contacts, "setup": sorted([d, sorted(xs)] for d, xs in setup.items() if xs)}
 json.dump(out, open(sys.argv[1], 'w'), indent=2)
 
