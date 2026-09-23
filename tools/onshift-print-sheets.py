@@ -11,7 +11,7 @@ for line in src.split('\n'):
     line = line.strip()
     if line.startswith('("') and line.count('"') >= 8:
         parts = eval(line.rstrip(','))
-        P[parts[0].split()[0]] = {'setup': parts[3], 'packup': parts[4]}
+        P[parts[0]] = {'setup': parts[3], 'packup': parts[4]}
 
 DUTY = {
   'vb': ('Volleyball referee', 'Beach volleyball courts'),
@@ -49,7 +49,8 @@ def duty(id_):
     return DUTY.get(id_, (id_, ''))
 
 people = sorted(d['people'], key=lambda p: p['n'].lower())
-socOf = {p['n'].split()[0]: set(p['s']) for p in people}
+kof = lambda p: p.get('k') or p['n'].split()[0]
+socOf = {kof(p): set(p['s']) for p in people}
 times = [(f"{3 + i // 2}:{'00' if i % 2 == 0 else '30'}", f"{3 + (i + 1) // 2}:{'00' if (i + 1) % 2 == 0 else '30'}") for i in range(12)]
 esc = html.escape
 
@@ -61,10 +62,10 @@ CK = {f for b in d['roster'][6:] for x, ps in b if x == 'ck' for f in ps}
 
 pages = []
 for p in people:
-    first = p['n'].split()[0]
+    first = kof(p)
     avail = set(p.get('a', range(12)))
     rows = []
-    flags = P.get(first, {'setup': 0, 'packup': 0})
+    flags = P.get(p['n'], {'setup': 0, 'packup': 0})
     su = next(((sid, ps) for sid, ps in d.get('setup', []) if first in ps), None)
     if su: rows.append(('2:00 – 3:00', duty(su[0]), [x for x in su[1] if x != first], 'hands'))
     else: rows.append(('2:00 – 3:00', ('Setup', 'Not on your form — come if you can'), [], 'off'))
