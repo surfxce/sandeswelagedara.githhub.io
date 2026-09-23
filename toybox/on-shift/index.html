@@ -1546,6 +1546,10 @@
           tasks:['Your society\'s team', '5 min early', 'Not umpiring'] },
     perform: { cat:'photo', icon:'mic', name:'Performing', where:'Performance stage', do:'You\'re on stage with your society\'s act this block — nothing else is rostered. Warm up, perform, then check your next block.',
           tasks:['Warm-up', 'On stage'] },
+    prep: { cat:'photo', icon:'mic', name:'Getting ready', where:'Performers\' area, behind the stage', do:'Nothing rostered — your act is next block. Get changed, warm up, and be side-stage ten minutes before you\'re on.',
+          tasks:['Costume', 'Warm-up', 'Side-stage 10 min early'] },
+    'ck-brief': { cat:'sport', icon:'cricket', name:'Cricket briefing', where:'Field 7, by the cricket pitches', do:'At 6:20, brief everyone on tonight\'s cricket — umpires, scorers and team captains: two pitches side by side, T6 with a tennis ball, six overs a side; games at 6:40 and 7:20, final at 8:00 between the top two; how to score it in the app (Scores → Cricket → tap the fixture) and where the gear is. Then help set out the pitches and stumps.',
+          tasks:['6:20 briefing', 'Two pitches', 'Scoring in the app', 'Gear out'] },
     'photo-pres': { cat:'photo', name:'Presidents\' photo — taking it', where:'Performance stage steps', do:'You\'re the photographer. At 3:15, before volleyball starts, the presidents meet at the stage steps: Sanuka (UQSLA), Prabhas (UQISC), Akash (UQTELS), Aarya (UQPA), Akansh (UQNAATAK), Devansh (UQGS) and Jais (UQGIDDHA). Round up anyone missing, take a few shots, and send them back to their spots within five minutes.',
           tasks:['3:15 at the stage steps', 'Seven presidents', 'Five minutes'] },
     logi: { cat:'logi', name:'Logistics', where:'Everywhere', do:'Floating. Fix what\'s broken, move gear, back up whichever team is short. Every swap request and call for help lands in your bell — take the ones nobody else has.',
@@ -2034,9 +2038,13 @@
   // attends without leaving their duty. Shown as a banner on Now and in the run sheet.
   const MOMENTS = [
     // presidents only, before volleyball starts; Sandes is rostered off at 3:00 to take it
+    // everyone rostered on cricket (umpiring or playing) at any point tonight
+    { block: 6, at: '6:20 pm', name: 'Cricket briefing', where: 'Field 7, by the cricket pitches', note: 'Devansh runs through how tonight\'s cricket works — ten minutes, then back to your spot until 6:30.', who: 'ck', whoLabel: 'cricket crew' },
     { block: 0, at: '3:15 pm', name: 'Presidents\' photo', where: 'Stage steps', note: 'Presidents only — leave your spot for five minutes, then straight back. Sandes takes it.', who: ['Sanuka', 'Prabhas', 'Akash', 'Aarya', 'Akansh', 'Devansh', 'Jais', 'Sandes'], whoLabel: 'presidents' },
   ];
-  const momentsFor = (i) => MOMENTS.filter(m => m.block === i && (m.who === 'all' || (me && m.who.includes(me.first))));
+  const onCricket = (first) => [7, 8, 9, 10, 11].some(i => ['ck', 'play-ck'].includes(assignmentFor(first, i).id));
+  const momentsFor = (i) => MOMENTS.filter(m => m.block === i && (m.who === 'all' || (me && (m.who === 'ck' ? onCricket(me.first) : m.who.includes(me.first)))))
+    .sort((a, b) => a.at.localeCompare(b.at));
   function momentHtml(m) {
     return `<div class="moment"><span class="eyebrow">Photo · ${esc(m.whoLabel || 'everyone')}</span>${iconHtml('camera', 'var(--c-photo)', 'sm')}<span class="t">${esc(m.at)}</span><span class="d">${esc(m.name)}<small>${esc(m.where)} · ${esc(m.note)}</small></span></div>`;
   }
@@ -2057,7 +2065,7 @@
     else {
       const nb = block + 1; const na = tentative(assignmentFor(me.first, nb), nb); const nd = DUTIES[na.id];
       const t = nb >= BLOCKS ? '9:00 pm' : fmt(DAY_START + nb * 30) + ' pm';
-      const withTxt = na.people.length ? 'with ' + names(na.people) : (nd.cat === 'free' ? 'nothing rostered' : nd.cat === 'away' ? 'you\'re not here this block' : nd.cat === 'soon' ? 'check back closer to the time' : nd.cat === 'hands' ? 'everyone' : nd.cat === 'photo' ? 'all presidents' : 'solo');
+      const withTxt = na.people.length ? 'with ' + names(na.people) : (nd.cat === 'free' ? 'nothing rostered' : nd.cat === 'away' ? 'you\'re not here this block' : nd.cat === 'soon' ? 'check back closer to the time' : nd.cat === 'hands' ? 'everyone' : na.id === 'photo-pres' ? 'the presidents' : nd.cat === 'photo' ? '' : 'solo');
       $('now-next').innerHTML = `<div class="next ${nd.cat === 'soon' ? 'soon' : ''}" style="--c:${CATS[nd.cat].color}"><span class="eyebrow">Next up</span>${dutyIcon(nd, 'sm')}<span class="t">${t}</span><span class="d">${esc(nd.name)}${nd.club ? '' : ''}<small>${esc(nd.where)} · ${esc(withTxt)}</small></span></div>`;
     }
 
@@ -3035,7 +3043,7 @@ Escalation: anything medical or dangerous — call 000 first, then tell an organ
     L.push('\n## Duties (what each one is, where, and who heads it)');
     Object.entries(DUTIES).forEach(([id, d]) => { if (d.cat === 'free') return; const lead = leadFor(id); L.push(`- ${d.name} [${CATS[d.cat].label}] — where: ${d.where || '—'}. ${d.do || ''}${d.tasks && d.tasks.length ? ' Tasks: ' + d.tasks.join(', ') + '.' : ''}${lead ? ' Committee head: ' + lead + '.' : ''}`); });
     L.push('\n## Stage running order\n' + STAGE_TIMES.map(x => `${tm(x.t)} — ${x.who}: ${x.what}`).join('\n'));
-    L.push('\n## Moments\n' + MOMENTS.map(m => `${m.at} (block ${m.block + 1}) — ${m.name} at ${m.where}. ${m.note} Who: ${m.who === 'all' ? 'everyone' : m.who.join(', ')}.`).join('\n'));
+    L.push('\n## Moments\n' + MOMENTS.map(m => `${m.at} (block ${m.block + 1}) — ${m.name} at ${m.where}. ${m.note} Who: ${m.who === 'all' ? 'everyone' : m.who === 'ck' ? 'everyone on cricket tonight' : m.who.join(', ')}.`).join('\n'));
     L.push('\n## Emergency contacts (numbers are in the app under Settings → Emergency — never give a number)\n' + EMERGENCY.map(c => `${c.n} — ${c.role}`).join('\n'));
     L.push('\n## Where things are (pins on the Map tab)\n' + PINS.map(pin => `${pin.label} — ${pin.sub}`).join('\n') + '\nFootball is six small pitches on the Field 7 infield, numbered Field 1 to Field 6: two across, three down, left to right from the top (zoom right in on the map to see them).');
     L.push('\n## Things Spicy can point at (put the id in "show" when the answer is about tapping or finding one of these)\n' + Object.entries(POINTS).map(([id, pt]) => `${id} — ${pt.what}`).join('\n'));
