@@ -2892,12 +2892,20 @@
     const ask = $('help-ask');
     if (ask) ask.addEventListener('click', () => {
       const a = assignmentFor(me.first, block);
-      if (!confirm(`Call free execs to ${DUTIES[a.id].name}, ${DUTIES[a.id].where}?`)) return;
+      if (!confirm(`Call ${DUTIES[a.id].club ? 'free ' + DUTIES[a.id].club + ' execs' : 'free execs'} to ${DUTIES[a.id].name}, ${DUTIES[a.id].where}?`)) return;
       ref('help').push({ from: me.first, block, duty: a.id, status: 'open', t: now() });
     });
     document.querySelectorAll('[data-closehelp]').forEach(b => b.addEventListener('click', () => ref('help/' + b.dataset.closehelp).update({ status: 'closed', tt: Date.now() })));
   }
-  const helpsForMe = () => Object.entries(helps).filter(([, h]) => me && h.status === 'open' && h.from !== me.first && !(h.declines || {})[me.first] && !(h.responders || {})[me.first] && (isFree(me.first, h.block) || isLogi(me.first, h.block)));
+  // A call for help goes to free execs and logistics. A society stall is only
+  // staffed by that society, so a stall's call goes to free execs from that
+  // club (logistics still get it — they fix problems, they don't staff it).
+  const helpsForMe = () => Object.entries(helps).filter(([, h]) => {
+    if (!me || h.status !== 'open' || h.from === me.first || (h.declines || {})[me.first] || (h.responders || {})[me.first]) return false;
+    if (isLogi(me.first, h.block)) return true;
+    const club = (DUTIES[h.duty] || {}).club;
+    return isFree(me.first, h.block) && (!club || me.s.includes(club));
+  });
   function helpCard([id, h], role) {
     const d = DUTIES[h.duty] || {}; const color = CATS[d.cat] ? CATS[d.cat].color : 'var(--line)';
     const coming = Object.keys(h.responders || {});
@@ -3129,7 +3137,7 @@
   const TOUR = [
     { icon: 'coffee', color: 'var(--c-free)', h: 'Welcome', me: true, p: 'Add a photo first — it shows next to your name everywhere, so execs who haven\'t met you can find you. Then a one-minute tour of where everything is. Close it any time with the × — it won\'t come back. Want it again later? Ask Spicy.', prep: () => { closeSheets(); showView('now'); } },
     { icon: 'football', color: 'var(--c-sport)', h: 'Your duty, right now', target: '#now-card > .duty-card', prep: () => { showView('now'); tourDemoBlock(); }, p: 'The big card is what you\'re doing this block: <b>where to be</b>, <b>what it involves</b>, and <b>who you\'re with</b>. The dot pulses when the clock is live. <b>Tap the title</b> for the committee head and everyone else on it; tap a name to message them.' },
-    { icon: 'crowd', color: 'var(--c-crowd)', h: 'Stuck? Two buttons.', target: '#now-card .ctl-row', prep: () => { showView('now'); tourDemoBlock(); }, p: '<b>Request more execs</b> pings every free exec — they tap "on my way". <b>Ask to swap</b> gives you three options: <b>Not fussed</b> (everyone is asked), <b>take a break</b> (free execs come and take over), or <b>pick another activity</b> (the execs on it are asked to swap places with you). In a sports competition it reads <b>Ask a teammate to sub in</b>.' },
+    { icon: 'crowd', color: 'var(--c-crowd)', h: 'Stuck? Two buttons.', target: '#now-card .ctl-row', prep: () => { showView('now'); tourDemoBlock(); }, p: '<b>Request more execs</b> pings every free exec (for a club stall, only that club\'s) — they tap "on my way". <b>Ask to swap</b> gives you three options: <b>Not fussed</b> (everyone is asked), <b>take a break</b> (free execs come and take over), or <b>pick another activity</b> (the execs on it are asked to swap places with you). In a sports competition it reads <b>Ask a teammate to sub in</b>.' },
     { icon: 'coffee', color: 'var(--c-free)', h: 'Next up and your day', target: '#now-next, #runsheet', prep: () => showView('now'), p: 'What\'s coming next, then your whole day — every block, who with, and moments like the presidents\' photo. The <b>‹ › LIVE</b> buttons underneath let you look ahead.' },
     { icon: 'mic', color: 'var(--c-stage)', h: 'The bell', target: '#tray', prep: () => { showView('now'); openTray(true); }, after: () => openTray(false), p: 'Everything that needs you: <b>swap requests</b> and <b>calls for help</b> you can answer, your <b>messages</b>, and <b>notices</b> from the organisers. The red number on the bell is what\'s new.' },
     { icon: 'crowd', color: 'var(--c-club)', h: 'Team', target: '#t-filter, #t-free', prep: () => showView('team'), p: 'Who\'s <b>free right now</b> and who\'s <b>on duty</b>, this block. Tap a name to message them — you\'ll see their photo. <b>Societies</b> hides clubs you don\'t need to see; <b>Advanced</b> picks individual people. The arrows at the top step through the day.' },
