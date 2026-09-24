@@ -105,6 +105,8 @@ P = [
  ("Bhargavi Ganegaonkar","NAATAK","4,5,6,7,8",0,0,"fb,ck",""),
  # logistics, not a club with a stall
  ("Mathew Jimmy","U","3,4,5,6,7,8",1,1,"","logi"),
+ # head of performances and the MC; not on the exec form
+ ("Kartik Karri","NC,TELS","3,4,5,6,7,8",1,1,"","perf-head"),
  # Nandos: organiser, runs logistics, head of football
  ("Thirunanthanan (Nandos) Thirumurugan","SLA","3,4,5,6,7,8",1,1,"","logi"),
 ]
@@ -118,7 +120,7 @@ VB_TEAM = {'UQSLA': ["Shavini", "Diya", "Leron", "Sanuka", "Deana", "Nimnah"],
 VB_BLOCK = 1          # round 1 at 3:30
 # execs on the other teams, for their first game: NC + PA and Solos play at
 # 3:35, Shriyans's team (Shane) at 3:55 — he's here from 4
-VB_OTHER = {'Avinab': 1, 'Jasmine': 1, 'Aarya': 1, 'Prabhjot': 1, 'Ishan': 1, 'Sujal': 1, 'Bhumik': 1, 'Sarju': 1,
+VB_OTHER = {'Avinab': 1, 'Jasmine': 1, 'Aarya': 1, 'Prabhjot': 1, 'Ishan': 1, 'Sujal': 1, 'Bhumik': 1, 'Sarju': 1, 'Kartik': 1,
             'Shriyans': 1, 'Matvi': 1, 'Shane': 2}
 # execs on the football sign-up sheet (both UQNC); nobody else registered
 FB_PLAYERS = ["Aravinth", "Bhumik", "Prasant"]
@@ -204,6 +206,10 @@ for f in CK_PLAYERS:
 # Sandes refs the volleyball final and gives out the prizes, then takes the
 # presidents' photo at 4:55 (it's on his day as a moment)
 fixed[3]['Sandes'] = 'vb'
+# the MC: Div from 4:30 while Kartik's playing volleyball (3:35 – 4:50), then
+# Kartik for the rest of the night. Performances start 4:30 at the earliest.
+fixed[3]['Divita'] = 'st'
+for i in range(4, 12): fixed[i]['Kartik'] = 'st'
 # Heshan: the third volleyball ref at 3:00, and on volleyball again at 4:00
 fixed[0]['Heshan'] = 'vb'
 fixed[2]['Heshan'] = 'vb'
