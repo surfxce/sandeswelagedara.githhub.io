@@ -43,7 +43,7 @@ P = [
  ("Kartheeka Valluri","SLA","4,5,6,7,8",0,1,"",""),
  ("Dhyan Varboo","SLA","3,4,5,6",0,0,"","fb-head"),
  ("Heshan Chandrasekara","SLA","3,4,5,6",0,0,"",""),
- ("Sandes Welagedara","ISC","3,4,5,6,7,8",1,1,"",""),
+ ("Sandes Welagedara","ISC","3,4,5,6,7,8",1,1,"fb,fb-score,stall-UQISC",""),
  ("Rania Gaffoor","PSA","3,4,5,6,7,8",1,1,"",""),
  ("Eshal Ali","PSA","3,4,5,6,7,8",1,1,"stage,sport",""),
  ("Tanisha Raniga","GS","3,4,5,6,7,8",1,1,"","logi,perf3"),
@@ -179,18 +179,20 @@ def can(first, duty):
 
 # heads stay on their own thing
 PREF = {'Aditya': 'ck', 'Humza': 'ck', 'Hasara': 'fund-pp',
-        'Divita': 'stall-UQISC', 'Sandes': 'vb', 'Helly': 'st', 'Amal': 'st', 'Sritam': 'vb'}
+        'Divita': 'stall-UQISC', 'Sandes': 'vb', 'Helly': 'st', 'Amal': 'st', 'Sritam': 'vb',
+        # presidents and VPs who asked to be based at their stall still get it
+        # first, just broken up; Swornim (rolled ankle) and Tanvi on the gate
+        'Aarya': 'stall-UQPA', 'Shreya C': 'stall-UQNC', 'Bhumik': 'stall-UQNC', 'Akash': 'stall-UQTELS',
+        'Swornim': 'tk', 'Tanvi': 'tk', 'Sanupa': 'vb', 'Heshan': 'vb'}
+# how many half hours on a stall across the day: 1.5 hours, or 2.5 for the
+# people based at their stall
+STALL_CAP = {'Aarya': 5, 'Shreya C': 5, 'Akash': 4, 'Bhumik': 4}
+CROWD_CAP = 3
+# never on the same duty together
+NOT_WITH = {frozenset(x) for x in (('Sandes', 'Rishi'), ('Sandes', 'Siri'), ('Sita', 'Siri'))}
+fam = lambda d: 'stall' if d.startswith('stall-') else 'crowd' if d.startswith('cr-') else d
 # a head is pinned to their own duty while it's running, before anything else
-PIN = {'Aditya': ('ck', (6, 7, 8)), 'Hasara': ('fund-pp', (6, 7, 10, 11)),
-       # Aarya (PA president) wants to be at his stall: there most of the night,
-       # apart from volleyball (3:30), his cricket game (7:00) and a break at 5:30
-       'Aarya': ('stall-UQPA', (0, 2, 3, 4, 6, 7, 9, 10, 11)),
-       # NC's president and VP asked to put their stall first, so they're based
-       # there, but each gets at least three blocks out and about to be seen;
-       # Swornim (rolled ankle) holds the stall whenever he's here
-       'Shreya C': ('stall-UQNC', (0, 1, 2, 4, 5, 7, 8, 10, 11)),
-       'Bhumik': ('stall-UQNC', (4, 6, 7, 9)),
-       'Swornim': ('stall-UQNC', (0, 1, 10, 11))}
+PIN = {'Aditya': ('ck', (6, 7)), 'Hasara': ('fund-pp', (6, 10))}
 
 # ---- fixed assignments -------------------------------------------------
 fixed = collections.defaultdict(dict)     # block -> {first: duty}
@@ -224,6 +226,10 @@ for f in CK_PLAYERS:
 # Sandes refs the volleyball final and gives out the prizes, then takes the
 # presidents' photo at 4:55 (it's on his day as a moment)
 fixed[3]['Sandes'] = 'vb'
+fixed[0]['Sandes'] = 'vb'
+# Sritam and Heshan asked to referee volleyball: an hour each
+fixed[0]['Sritam'] = 'vb'
+fixed[2]['Sritam'] = 'vb'
 # the MC: Div from 4:30 while Kartik's playing volleyball (3:35 – 4:50), then
 # Kartik for the rest of the night. Performances start 4:30 at the earliest.
 fixed[3]['Divita'] = 'st'
@@ -244,7 +250,12 @@ fixed[8]['Aarya'] = 'ck'
 # and 7:30 – 8:00
 fixed[0]['Shreya B'] = 'stall-UQTELS'
 AVOID = {('Shreya B', 1, 'stall-UQTELS'), ('Shreya B', 9, 'stall-UQTELS'),
-         ('Raziel', 2, 'vb'), ('Akash', 3, 'vb')}
+         ('Raziel', 2, 'vb'), ('Akash', 3, 'vb'),
+         # Sandes's page-by-page notes: something other than the stall / crowd here
+         ('Shreya C', 1, 'stall'), ('Roshni', 9, 'stall'), ('Aarya', 10, 'stall'), ('Akash', 6, 'stall'),
+         ('Hasini', 3, 'crowd'), ('Hasini', 8, 'crowd')}
+avoid = lambda f, i, d: (f, i, d) in AVOID or (f, i, fam(d)) in AVOID
+clash = lambda f, ppl: any(frozenset((f, m)) in NOT_WITH for m in ppl)
 STALL_WANT = {'UQSLA': 5, 'UQISC': 5, 'UQPA': 3}
 STALL_MIN = {'UQPA': 3}      # PA's president plays volleyball: at least three on their stall
 # people Sandes wants out and about even if their stall goes quiet
@@ -261,7 +272,16 @@ def needs(i):
     # two on every society stall, where the society has two execs to give
     # the big two can spare five (two on the stall, the rest on content and
     # sign-ups); everyone else two
-    for s in socs_present: n['stall-' + s] = (STALL_MIN.get(s, 2), STALL_WANT.get(s, 2)) if SOC_SIZE[s] >= 2 else (1, 1)
+    # a club with fewer than four here this half hour needs only one on its
+    # stall, so the same two aren't stuck on it all night; PA wants three while
+    # their president's playing volleyball (3:30 – 5:00)
+    for s in socs_present:
+        # who's actually free to take a turn: here, not logistics, not already
+        # fixed on something else (playing, performing, pinned) this half hour
+        here = sum(1 for f in avail if i in avail[f] and s in byfirst[f]["s"] and 'logi' not in tags[f]
+                   and fixed[i].get(f, 'stall-' + s).startswith('stall-') and ('stall-' + s) not in cant[f])
+        mn = STALL_MIN.get(s, 2) if s != 'UQPA' or 1 <= i <= 3 else 2
+        n['stall-' + s] = (1, 1) if here < 2 else (1, 2) if here < 4 else (mn, max(mn, STALL_WANT.get(s, 2)))
     # football, per the committee's run sheet: a ref per game and two on the
     # score document — 6 for the groups (3:00 – 4:40), 2 for the semis
     # (4:50), 1 for the final (5:30) — then three pack up the gear at 6:00
@@ -323,6 +343,8 @@ counts = collections.Counter()
 run = collections.Counter()                          # consecutive blocks on duty
 sameRun = collections.defaultdict(dict)              # consecutive blocks on the SAME duty
 doneDuty = collections.defaultdict(collections.Counter)   # times on each duty today
+famDone = collections.defaultdict(collections.Counter)    # …on each kind (all stalls, all crowd zones)
+famRun = collections.defaultdict(lambda: (None, 0))       # (kind, consecutive blocks) as of last block
 for i in range(BLOCKS):
     slots = collections.defaultdict(list)
     for f, d in fixed[i].items(): slots[d].append(f)
@@ -332,7 +354,7 @@ for i in range(BLOCKS):
     # four people kept free every block — a buffer for covering winning
     # teams, emergencies, a breather. It's whoever has gone longest without a
     # break (an hour on duty at least), so it rotates through everyone.
-    CK_STAY = i in (7, 8, 10, 11)       # cricket crews: 6:00 – 7:30, then 7:30 – 9:00
+    CK_STAY = i in (7, 9, 11)           # cricket crews of an hour: 6:00, 7:00, 8:00
     # REST people kept free every block (4 by default), longest-working first
     cands = sorted([f for f in pool if run[f] >= 2 and not (CK_STAY and sameRun[f].get('ck'))],
                    key=lambda f: (-run[f], -counts[f], f))
@@ -348,11 +370,15 @@ for i in range(BLOCKS):
             for duty, (mn, wn) in n.items():
                 target = mn if level == 0 else wn
                 if len(slots[duty]) >= target: continue
-                elig = [f for f in pool if can(f, duty) and (duty == 'ck' or sameRun[f].get(duty, 0) < 2)
-                        and (f, i, duty) not in AVOID
-                        # the festival's more than a stall: at most 40% of your day on
-                        # one — unless the stall would drop below two
-                        and not (duty.startswith('stall-') and (len(slots[duty]) >= 2 or f in MOVE_ABOUT) and doneDuty[f].get(duty, 0) + 1 > max(1, 0.4 * len(avail[f])))]
+                # variety: half an hour on something, then something else (cricket
+                # crews do an hour); a cap on stall and crowd time across the day.
+                # If that leaves a minimum unfilled, a second half hour is allowed.
+                base = [f for f in pool if can(f, duty) and not avoid(f, i, duty) and not clash(f, slots[duty])
+                        and (sameRun[f].get('ck', 0) < 2 if duty == 'ck' else famRun[f][1] < 2 or famRun[f][0] != fam(duty))]
+                capped = lambda f: (fam(duty) == 'stall' and famDone[f]['stall'] >= STALL_CAP.get(f, 3)) or (fam(duty) == 'crowd' and famDone[f]['crowd'] >= CROWD_CAP)
+                nxt = lambda f: fam(fixed[i + 1].get(f, '')) if i + 1 < BLOCKS else None
+                elig = [f for f in base if (duty == 'ck' or (famRun[f][0] != fam(duty) and nxt(f) != fam(duty))) and not capped(f)]
+                if not elig and level == 0: elig = [f for f in base if not capped(f)] or base
                 # essentials first — a match with no ref or a gate with nobody
                 # on it is worse than a quiet stage — then hardest-to-fill
                 tier = 0 if duty in ('vb', 'fb', 'ck', 'tk', 'fb-score', 'fund-pp') or duty.startswith('stall-') or (duty == 'st' and (i <= 3 or i in (6, 7))) else 1
@@ -362,8 +388,7 @@ for i in range(BLOCKS):
             _, _, duty, elig = open_[0]
             # variety: two blocks on a thing is plenty, then something else;
             # three blocks on the trot at all, then a break
-            ok = [f for f in elig if sameRun[f].get(duty, 0) < 2 and run[f] < 3]
-            if not ok: ok = [f for f in elig if run[f] < 3]
+            ok = [f for f in elig if run[f] < 3]
             if not ok or duty == 'ck': ok = elig
             # cricket only: finish your hour before moving, so someone one block
             # into it is the first pick to stay. Everything else changes every
@@ -371,22 +396,25 @@ for i in range(BLOCKS):
             # pair within a society where we can: someone who shares a club
             # with whoever's already on this duty goes first
             mates = slots[duty]
-            ok.sort(key=lambda f: ((not sameRun[f].get('ck') if CK_STAY else i == 9 and (bool(sameRun[f].get('ck')) or not {10, 11} <= avail[f])) if duty == 'ck' else sameRun[f].get(duty, 0) > 0,
+            ok.sort(key=lambda f: ((not sameRun[f].get('ck') if CK_STAY else (bool(sameRun[f].get('ck')) or i + 1 not in avail[f])) if duty == 'ck' else famRun[f][0] == fam(duty),
                                    # with someone from your own team wherever we can
                                    bool(mates) and not any(set(byfirst[f]["s"]) & set(byfirst[m]["s"]) for m in mates),
                                    PREF.get(f) != duty,
-                                   doneDuty[f].get(duty, 0), counts[f], run[f], f))
+                                   famDone[f][fam(duty)], doneDuty[f].get(duty, 0), counts[f], run[f], f))
             f = ok[0]; pool.remove(f); slots[duty].append(f); placed.add(f)
     # everyone still standing goes on crowd & support — the festival wants
     # every hand (the four resting are already out of the pool).
     CROWD = [d for d in ('cr-gate', 'cr-food', 'cr-lawn', 'cr-gen') if d in n or d == 'cr-gen']
     for f in sorted(pool, key=lambda f: (counts[f], f)):
-        opts = [d for d in CROWD if can(f, d)]
-        if not opts:     # can't do crowd: a third pair of hands on their own stall
-            opts = [d for d in n if d.startswith('stall-') and can(f, d) and sameRun[f].get(d, 0) < 2 and (f, i, d) not in AVOID]
-        # a different zone from last block where there's one
-        opts = [d for d in opts if not sameRun[f].get(d)] or opts
-        if not opts: continue
+        fresh = lambda d: famRun[f][0] != fam(d) and not avoid(f, i, d) and not clash(f, slots[d])
+        opts = [d for d in CROWD if can(f, d) and fresh(d) and famDone[f]['crowd'] < CROWD_CAP]
+        # otherwise an extra pair of hands somewhere they haven't just been:
+        # their own stall, the gate, the charity marquee, the stage while it's on
+        if not opts:
+            opts = [d for d in n if d.startswith('stall-') and can(f, d) and fresh(d) and famDone[f]['stall'] < STALL_CAP.get(f, 3)
+                    and len(slots[d]) <= n[d][1]]
+            opts += [d for d in ('tk', 'fund-pp', 'st') if d in n and can(f, d) and fresh(d) and len(slots[d]) < n[d][1] + 1]
+        if not opts: continue      # a break
         mate = lambda d: any(set(byfirst[f]["s"]) & set(byfirst[m]["s"]) for m in slots[d])
         opts.sort(key=lambda d: (not (mate(d) and len(slots[d]) < 4), len(slots[d]), sameRun[f].get(d, 0), doneDuty[f].get(d, 0), d))
         slots[opts[0]].append(f); placed.add(f)
@@ -399,7 +427,8 @@ for i in range(BLOCKS):
     for f in avail:
         d = mine.get(f)
         sameRun[f] = {d: sameRun[f].get(d, 0) + 1} if d else {}
-        if d: doneDuty[f][d] += 1
+        if d: doneDuty[f][d] += 1; famDone[f][fam(d)] += 1
+        famRun[f] = (fam(d), famRun[f][1] + 1 if famRun[f][0] == fam(d) else 1) if d else (None, 0)
     last = {x: d for d, xs in slots.items() for x in xs}
     roster.append(sorted(([d, sorted(xs)] for d, xs in slots.items() if xs), key=lambda r: r[0]))
 
@@ -431,7 +460,8 @@ for a, b in PAIRS:
     for i in sorted(avail[a] & avail[b]):
         da, db = _duty(a, i), _duty(b, i)
         for mover, other, dest in ((a, b, db), (b, a, da)):
-            if dest and _movable(mover, i) and _can_join(mover, dest):
+            nb = {fam(_duty(mover, j) or '') for j in (i - 1, i + 1) if 0 <= j < BLOCKS}
+            if dest and _movable(mover, i) and _can_join(mover, dest) and fam(dest) not in nb and not clash(mover, _rows(i).get(dest, [])):
                 src = _duty(mover, i)
                 for bl in roster[i]:
                     if bl[0] == src: bl[1].remove(mover)
@@ -481,8 +511,12 @@ for c in sorted({byfirst[f]["s"][0] for f in at_setup if f not in taken}):
 import os
 phones_path = os.path.join(os.path.dirname(os.path.abspath(sys.argv[1])), 'phones.json')
 phones = json.load(open(phones_path)) if os.path.exists(phones_path) else {}
+PACKUP = {r[0]: r[4] for r in P}
 for p in people:
     p["a"] = sorted(avail[key_of(p)])
+    if PACKUP.get(p["n"]): p["u"] = 1
+    nostall = sorted(x[6:] for x in cant[key_of(p)] if x.startswith('stall-'))
+    if nostall: p["x"] = nostall
     if key_of(p) in phones: p["t"] = phones[key_of(p)]
 # numbers for contacts who aren't execs (anyone in phones.json not on the roster)
 contacts = {k: v for k, v in phones.items() if k not in avail}
