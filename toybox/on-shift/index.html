@@ -1880,7 +1880,8 @@
       });
     }
     // ---- swaps, as exchanges ----
-    const taken = Object.values(swaps).filter(sw => sw.status === 'taken' && sw.block === i && sw.to);
+    // only swaps that still line up with the roster: the asker was on that duty
+    const taken = Object.values(swaps).filter(sw => sw.status === 'taken' && sw.block === i && sw.to && rows.some(([id, ppl]) => id === sw.duty && ppl.includes(sw.from)));
     let out = rows.map(([id, ppl]) => [id, ppl.slice()]);
     if (taken.length) out = out.map(([id, ppl]) => {
       let o = ppl.slice();
@@ -3186,8 +3187,11 @@
   // A call for help goes to free execs and logistics. A society stall is only
   // staffed by that society, so a stall's call goes to free execs from that
   // club (logistics still get it — they fix problems, they don't staff it).
+  // a swap or help call only counts while the asker is still on that duty at
+  // that time — the roster has been rebuilt since some of them were made
+  const stillOn = (x) => { const i = x.block; if (!(i >= 0 && i < BLOCKS)) return false; const base = ROSTER[i].find(([id]) => id === x.duty); return !!(base && base[1].includes(x.from)) || assignmentFor(x.from, i).id === x.duty; };
   const helpsForMe = () => Object.entries(helps).filter(([, h]) => {
-    if (!me || h.status !== 'open' || h.from === me.first || (h.declines || {})[me.first] || (h.responders || {})[me.first]) return false;
+    if (!me || h.status !== 'open' || h.from === me.first || !stillOn(h) || (h.declines || {})[me.first] || (h.responders || {})[me.first]) return false;
     if (isLogi(me.first, h.block)) return true;
     const club = (DUTIES[h.duty] || {}).club;
     return isFree(me.first, h.block) && (!club || me.s.includes(club));
@@ -4330,8 +4334,8 @@ If someone asks how to score a match, walk them through these steps and set "sho
     const busy = new Set(rows.flatMap(r => r[1]));
     $('d-duty-n').textContent = inDay ? busy.size : PEOPLE.length;
     $('d-free-n').textContent = inDay ? PEOPLE.length - busy.size : 0;
-    const openHelp = Object.entries(helps).filter(([, h]) => h.status === 'open');
-    const openSwaps = Object.entries(swaps).filter(([, sw]) => sw.status === 'open');
+    const openHelp = Object.entries(helps).filter(([, h]) => h.status === 'open' && stillOn(h));
+    const openSwaps = Object.entries(swaps).filter(([, sw]) => sw.status === 'open' && stillOn(sw));
     $('d-help-n').textContent = openHelp.length; $('d-swap-n').textContent = openSwaps.length;
     renderIncidents(); renderTicks(); renderSpicyDesk(); renderNoticeLimit();
     $('d-help').innerHTML = openHelp.length ? openHelp.map(x => helpCard(x, 'mine')).join('') : '<p class="fine">None open.</p>';
@@ -4388,7 +4392,7 @@ If someone asks how to score a match, walk them through these steps and set "sho
   }
   const swapMode = (sw) => sw.mode || ((DUTIES[sw.duty] || {}).cat === 'play' ? 'team' : 'free');
   const swapsForMe = () => Object.entries(swaps).filter(([, sw]) => {
-    if (!me || sw.status !== 'open' || sw.from === me.first || (sw.declines || {})[me.first]) return false;
+    if (!me || sw.status !== 'open' || sw.from === me.first || (sw.declines || {})[me.first] || !stillOn(sw)) return false;
     if (isLogi(me.first, sw.block)) return true;   // logistics can take anything, anywhere
     const mode = swapMode(sw); const myId = assignmentFor(me.first, sw.block).id; const myCat = (DUTIES[myId] || {}).cat;
     // stalls belong to a society: the taker must be in the requester's stall's society, and
