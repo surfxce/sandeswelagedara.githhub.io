@@ -1916,7 +1916,7 @@
     'Solar Prime':       'Solar energy — a sponsor stall on Field 6.',
   };
   // Committee head per duty. Null = not applicable (ticketing, crowd…). Fill in from the committee list.
-  const LEADS = { vb: 'Sandes (head of volleyball)', fb: 'Nandos (head of football)', ck: 'Devansh (head of cricket)', st: 'Kartik (head of performances)', 'fund-pp': 'Hasara (head of fundraising)', 'fund-bake': 'Hasara (head of fundraising)', 'fund-hope': 'Hasara (head of fundraising)' };
+  const LEADS = { vb: 'Sandes (head of volleyball)', fb: 'Nandos (head of football)', ck: 'Devansh (head of cricket)', st: 'Kartik Karri (head of performances)', 'fund-pp': 'Hasara (head of fundraising)', 'fund-bake': 'Hasara (head of fundraising)', 'fund-hope': 'Hasara (head of fundraising)' };
   const leadFor = (id) => LEADS[id] || (id.startsWith('stall-') ? `${DUTIES[id].club} president — TBC` : null);
   const MARQUEE = { UQISC: 1, UQSLA: 2, UQTELS: 3, UQISS: 4, UQPA: 6, UQPSA: 7, UQNC: 8, UQGS: 9, UQNAATAK: 10, UQGIDDHA: 11 };
   const CLUB_INFO = Object.fromEntries(CLUBS.map(c => [c, { full: c, about: `Marquee ${MARQUEE[c] || '—'} on Field 6.`, execs: [] }]));
@@ -3098,7 +3098,7 @@
         { first: 'Nandos',       role: 'Head of football · logistics', does: 'Football on Field 7, 3:00 – 6:00' },
         { first: 'Devansh',      role: 'Head of cricket', does: 'Cricket on Field 7 — briefs the crew at 6:10, on the first two games' },
         { n: 'Arzuh Shankur',    role: 'Head of food trucks', does: 'The food trucks on Field 6' },
-        { n: 'Kartik',           role: 'Head of performances', does: 'The stage and the running order' },
+        { n: 'Kartik Karri',     role: 'Head of performances', does: 'The stage and the running order' },
         { first: 'Hasara',       role: 'Head of fundraising', does: 'Charity marquee — Nepal Floods raffle, Manali, Hope by Hands' },
         { first: 'Thanabammini', role: 'Head of business stalls', does: 'The businesses on Field 6' },
         { first: 'Divita',       role: 'Media', does: 'Photos, video and socials on the night' },
