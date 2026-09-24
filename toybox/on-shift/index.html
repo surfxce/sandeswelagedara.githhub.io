@@ -1607,7 +1607,7 @@
 
   const DUTIES = {
     // tasks: the sub-jobs inside each job — shown as small tags on the duty card
-    vb: { cat:'sport', icon:'volleyball', name:'Volleyball', where:'Beach volleyball courts (bottom of the ground)', do:'Eleven teams, knockout, 15-minute games with 5 minutes between. 3:15: all three first-round games at once (one ref per court). 3:35: three quarter-finals; 3:55: the last quarter-final and the first semi; 4:15: the second semi; 4:35: the final. From 3:55 the spare court goes social. Keep the ball bag with you. Winner at 5:00.',
+    vb: { cat:'sport', icon:'volleyball', name:'Volleyball', where:'Beach volleyball courts (bottom of the ground)', do:'Eleven teams, knockout, 15-minute games with 5 minutes between. 3:15: all three first-round games at once (one ref per court). 3:35: three quarter-finals; 3:55: the last quarter-final and the first semi; 4:15: the second semi; 4:35: the final, with the bronze-medal match (the two semi losers) on another court. Keep the ball bag with you. Winner at 5:00.',
           tasks:['Scorekeeping', 'Rotating teams', 'Ball bag'] },
     'fb-score': { cat:'sport', icon:'football', name:'Football scores', where:'Field 7 sideline — results desk', do:'Get every result the moment a game ends: from the ref, into the committee\'s score sheet, and into the app (Scores tab → Football → tap the match, + for each goal, End match) so the public page and the group tables are right. The semi-final draw comes from your sheet.',
           tasks:['Results from refs', 'Score sheet', 'App scores'] },
@@ -1785,6 +1785,16 @@
           addTo('play-' + sport, p.first);
         });
       }
+    });
+    // volleyball bronze: the two semi losers play at 4:35 too
+    Object.keys(BRONZE).forEach(sport => {
+      const bz = bronzeOf(sport, brackets[sport]); if (!bz || i !== roundBlock(sport, roundsTotal(brackets[sport].rounds[0].length) - 1, roundsTotal(brackets[sport].rounds[0].length))) return;
+      const teams = new Set([bz.a, bz.b].filter(Boolean).map(teamKey)); if (!teams.size) return;
+      PEOPLE.forEach(p => {
+        if (![...teamsOf(p.first, sport)].some(t => teams.has(t)) || !onSite(p.first, i)) return;
+        rows.forEach(([id, ppl]) => { const j = ppl.indexOf(p.first); if (j >= 0 && id !== 'play-' + sport) { ppl.splice(j, 1); if (COVERABLE(id)) vacancies.push({ id, by: p.first, sport }); } });
+        addTo('play-' + sport, p.first);
+      });
     });
     // football knockouts: players on a team that's through are held for the semis (5:00) and final (5:30)
     if (ROBIN.fb && (i === 4 || i === 5)) {
@@ -2025,7 +2035,9 @@
       }).join('') + '</div>';
       count = Math.ceil(count / 2);
     }
-    return html + (MATCH_TIMES[sport] ? `<p class="fine">15-minute games, 5 minutes between. Three courts at 3:15 and 3:35, two at 3:55, then one game at a time. The bracket fills in as teams win through.</p>` : `<p class="fine">Times are a guide — about ${sc.len} minutes a match, back to back. The bracket fills in as teams win through.</p>`);
+    const bz = bronzeOf(sport, br);
+    if (bz) html += `<div class="round"><h4>Bronze medal match</h4><div class="tt"><span class="t">${esc(BRONZE[sport])}</span><span class="tm">${esc(bz.a || 'Semi loser')}</span><span class="mid">v</span><span class="tm">${esc(bz.b || 'Semi loser')}</span></div></div>`;
+    return html + (MATCH_TIMES[sport] ? `<p class="fine">15-minute games, 5 minutes between. Three courts at 3:15 and 3:35, two at 3:55, one at 4:15, then the final and the bronze match side by side at 4:35. The bracket fills in as teams win through.</p>` : `<p class="fine">Times are a guide — about ${sc.len} minutes a match, back to back. The bracket fills in as teams win through.</p>`);
   }
   function openInfoRaw(title, body) { $('info-title').textContent = title; $('info-body').innerHTML = body; $('info-sheet').hidden = false; $('info-backdrop').hidden = false; }
   function infoHtml(key) {
@@ -3428,7 +3440,7 @@
   const FEST_NOTES = `# Spice Road Experience — notes for Spicy
 The Spice Road Experience is a one-day cultural festival at the University of Queensland run by student societies: UQISC (Indian Students' Club) and its partner society UQSLA (Sri Lankan Association), with ten clubs running marquees. It's outdoors on a sports ground from mid-afternoon into the evening: club stalls, food and fundraising stalls, volleyball, football and cricket competitions, and a performance stage. The people using this app are execs — student volunteers rostered onto duties in 30-minute blocks.
 Organisers: Nandos (Thirunanthanan Thirumurugan — runs logistics, head of football), Archita, Sanuka (UQSLA president) and Prabhas. Sandes built the app and handles anything technical. Questions the notes don't answer should go to Sandes (there's a Message Sandes button under every answer).
-Programme: bump-in from 1:00 pm (food trucks 1:00 – 1:40, business stalls 1:50 – 2:20, club stalls 2:00), all execs at the performance stage 2:45 (Sandes runs through the app), MJ's speech 2:50, doors 3:00. Team photos at each club's marquee: UQPA 4:05, UQISS 4:20, UQGS 5:10, UQPSA 5:15, UQTELS 5:20, UQSLA 5:40, UQISC 6:35, UQNAATAK 6:45, UQNC 6:50 — five minutes, then back to your duty. Football 3:00 – 6:00 on Field 7, six small pitches (16 teams, groups then semis 4:50 and final 5:30); referees are execs. Tickets are Humanitix QR codes scanned at the gate. Volleyball on the beach volleyball courts: eleven teams, knockout: all three first-round games at 3:15 (Ameya's team v UQISS, UQSLA v UQISC, Sargun's team v Solos), three quarter-finals at 3:35, the fourth (Shriyans's v Aum's) and a semi at 3:55, the other semi 4:15. 15-minute games with 5 minutes between: all three first-round games at 3:15, quarter-finals 3:35 and 3:55, semis 3:55 and 4:15, final 4:35, winner 5:00. Shriyans, Kartik, Shane and Devyn each play for two teams; the draw keeps their teams from playing at the same time. Performances on the stage 4:30 – 5:05 and 5:40 – 6:10 (break in between); winners and the raffle 8:30 – 8:40. Cricket (T6, tennis ball) on Field 7, which it takes over once football finishes: four teams (UQISC, UQGS, UQSLA, Mixed Team), Devansh briefs the cricket crew at 6:10 and is on cricket for the first two games, then it's self-run. One game at a time: UQSLA v UQISC 6:30, UQGS v Mixed Team 7:00, UQSLA v UQGS 7:30, UQISC v Mixed Team 8:00. Six overs a side, seven on the field max, soft tennis balls only. 20-minute games with 10-minute changeovers; the crew swaps at 7:30. No final: top of the table after match 4 wins, announced 8:30. Raffle drawn 8:40. Bump-out 8:50 – 9:40. Food trucks (7) and business stalls (6) are on Field 6 all day, club marquees too (numbered 1 – 12). First aid: the UQIC venue manager at the First Aid marquee on Field 6. Security: Tru Security.
+Programme: bump-in from 1:00 pm (food trucks 1:00 – 1:40, business stalls 1:50 – 2:20, club stalls 2:00), all execs at the performance stage 2:45 (Sandes runs through the app), MJ's speech 2:50, doors 3:00. Team photos at each club's marquee: UQPA 4:05, UQISS 4:20, UQGS 5:10, UQPSA 5:15, UQTELS 5:20, UQSLA 5:40, UQISC 6:35, UQNAATAK 6:45, UQNC 6:50 — five minutes, then back to your duty. Football 3:00 – 6:00 on Field 7, six small pitches (16 teams, groups then semis 4:50 and final 5:30); referees are execs. Tickets are Humanitix QR codes scanned at the gate. Volleyball on the beach volleyball courts: eleven teams, knockout: all three first-round games at 3:15 (Ameya's team v UQISS, UQSLA v UQISC, Sargun's team v Solos), three quarter-finals at 3:35, the fourth (Shriyans's v Aum's) and a semi at 3:55, the other semi 4:15. 15-minute games with 5 minutes between: all three first-round games at 3:15, quarter-finals 3:35 and 3:55, semis 3:55 and 4:15, final and bronze-medal match (semi losers) side by side at 4:35, winner 5:00. Shriyans, Kartik, Shane and Devyn each play for two teams; the draw keeps their teams from playing at the same time. Performances on the stage 4:30 – 5:05 and 5:40 – 6:10 (break in between); winners and the raffle 8:30 – 8:40. Cricket (T6, tennis ball) on Field 7, which it takes over once football finishes: four teams (UQISC, UQGS, UQSLA, Mixed Team), Devansh briefs the cricket crew at 6:10 and is on cricket for the first two games, then it's self-run. One game at a time: UQSLA v UQISC 6:30, UQGS v Mixed Team 7:00, UQSLA v UQGS 7:30, UQISC v Mixed Team 8:00. Six overs a side, seven on the field max, soft tennis balls only. 20-minute games with 10-minute changeovers; the crew swaps at 7:30. No final: top of the table after match 4 wins, announced 8:30. Raffle drawn 8:40. Bump-out 8:50 – 9:40. Food trucks (7) and business stalls (6) are on Field 6 all day, club marquees too (numbered 1 – 12). First aid: the UQIC venue manager at the First Aid marquee on Field 6. Security: Tru Security.
 Escalation: anything medical or dangerous — call 000 first, then tell an organiser. Emergency contacts are in the app under Settings → Emergency (never repeat phone numbers; point people there). Lost property, first aid, behaviour and equipment problems get logged under Settings → Log incident.`;
   const strip = (html) => { const d = document.createElement('div'); d.innerHTML = html; return d.textContent; };
   function spicyNotes() {
@@ -4325,7 +4337,15 @@ If someone asks how to score a match, walk them through these steps and set "sho
       : next ? `<div class="next" style="--c:${color}"><span class="eyebrow">Up next</span><b>${esc(next.m.a)} v ${esc(next.m.b)}</b><span class="fine">${rname(next.k, totalR)}${matchTime(sport, next.k, next.i) ? ' · ' + matchTime(sport, next.k, next.i) + ' pm' : ''}</span>${editable && !next.m.m ? `<button type="button" class="play" data-start="${sport}|${next.k}|${next.i}" data-jump="1">Play next</button>` : ''}</div>` : '';
     const outHtml = losers.size ? `<p class="out">Out: ${[...losers].map(t => `<s>${esc(t)}</s>`).join(', ')}</p>` : '';
     const delHtml = editable ? `<div class="foot"><span></span><button type="button" class="btn-small ghost" data-delbracket="${sport}">Delete bracket</button></div>` : '';
-    return `<div class="bracket" style="--c:${color}"><div class="head">${iconHtml(d.icon || 'football', color, 'sm')}<span class="ttl">${esc(SPORTS[sport] || sport)} bracket</span><span class="cnt">${(br.teams || []).length} teams</span></div>${nextHtml}${roundsHtml}${outHtml}${delHtml}</div>`;
+    const bz = bronzeOf(sport, br);
+    const bzMid = !bz ? '' : (() => { const sc = bz.m && matches[bz.m];
+      if (sc && sc.status === 'live') return `<span class="mid"><span class="live-tag">Live</span><span class="sc">${sc.sa}–${sc.sb}</span></span>`;
+      if (sc) return `<span class="mid"><span class="sc">${sc.sa}–${sc.sb}</span></span>`;
+      if (editable && bz.a && bz.b) return `<span class="mid"><button type="button" data-start="${sport}|bronze|0" data-names="${esc(bz.a)} v ${esc(bz.b)}" data-jump="1">Start</button></span>`;
+      return '<span class="mid">TBD</span>'; })();
+    const bzSide = (t, side) => `<span class="tm ${side} ${!t ? 'tbd' : bz.w ? (bz.w === t ? 'won' : 'lost') : ''}">${t ? esc(t) : 'Semi loser'}</span>`;
+    const bronzeHtml = !bz ? '' : `<div class="round"><h4>Bronze medal match</h4><div class="fine" style="margin:8px 0 2px">${BRONZE[sport]} pm · spare court, alongside the final${bz.w ? ' · Bronze — ' + esc(bz.w) : ''}</div><div class="bm">${bzSide(bz.a, 'r')}${bzMid}${bzSide(bz.b, '')}</div></div>`;
+    return `<div class="bracket" style="--c:${color}"><div class="head">${iconHtml(d.icon || 'football', color, 'sm')}<span class="ttl">${esc(SPORTS[sport] || sport)} bracket</span><span class="cnt">${(br.teams || []).length} teams</span></div>${nextHtml}${roundsHtml}${bronzeHtml}${outHtml}${delHtml}</div>`;
   }
   // The drawing: every round as a column, including rounds not yet reached
   // (TBD boxes), with lines from each match to the one its winner feeds.
@@ -4337,8 +4357,10 @@ If someone asks how to score a match, walk them through these steps and set "sho
     const sc = (m) => m.m && matches[m.m] ? matches[m.m] : null;
     const row = (t, m, side) => { const cls = !t ? 'tbd' : m.w ? (m.w === t ? 'won' : 'lost') : ''; const scv = sc(m); return `<div class="row ${cls}"><span>${t ? esc(t) : (m.b === null && m.a && m.w && side === 'b' ? 'bye' : 'TBD')}</span>${scv ? `<span class="sc">${side === 'a' ? scv.sa : scv.sb}</span>` : ''}</div>`; };
     const colsHtml = cols.map((r, k) => `<div class="bcol"><h5>${roundName(r.length * 2, k, cols.length)}</h5>${r.map((m, i) => `<div class="bbox ${sc(m) && sc(m).status === 'live' ? 'live' : ''} ${k === 0 && m.a && !m.b && m.w ? 'bye' : ''}" style="--c:${color}" data-k="${k}" data-i="${i}" data-w="${m.w ? 1 : 0}">${matchTime(sport, k, i) && !(k === 0 && m.a && !m.b) ? `<div class="bt">${esc(matchTime(sport, k, i))}</div>` : ''}${row(m.a, m, 'a')}${row(m.b, m, 'b')}</div>`).join('')}</div>`).join('');
+    const bz = bronzeOf(sport, br);
+    const bzHtml = !bz ? '' : `<div class="bcol"><h5>Bronze</h5><div class="bbox ${bz.m && matches[bz.m] && matches[bz.m].status === 'live' ? 'live' : ''}" style="--c:${color}"><div class="bt">${esc(BRONZE[sport])}</div>${row(bz.a || null, { ...bz, b: bz.b }, 'a')}${row(bz.b || null, bz, 'b')}</div></div>`;
     const last = cols[cols.length - 1]; const champion = last.length === 1 && last[0].w ? last[0].w : null;
-    return `<div class="bracket" style="--c:${color}"><div class="head">${iconHtml(d.icon || 'football', color, 'sm')}<span class="ttl">${esc(SPORTS[sport] || sport)} bracket</span><span class="cnt">${(br.teams || []).length} teams</span></div>${champion ? `<div class="champ">Champion — ${esc(champion)}</div>` : ''}<div class="bdraw-wrap"><div class="bdraw" data-sport="${sport}">${colsHtml}<svg class="blines"></svg></div></div></div>`;
+    return `<div class="bracket" style="--c:${color}"><div class="head">${iconHtml(d.icon || 'football', color, 'sm')}<span class="ttl">${esc(SPORTS[sport] || sport)} bracket</span><span class="cnt">${(br.teams || []).length} teams</span></div>${champion ? `<div class="champ">Champion — ${esc(champion)}</div>` : ''}<div class="bdraw-wrap"><div class="bdraw" data-sport="${sport}">${colsHtml}${bzHtml}<svg class="blines"></svg></div></div></div>`;
   }
   function drawBracketLines(root) {
     root.querySelectorAll('.bdraw').forEach(wrap => {
@@ -4376,6 +4398,17 @@ If someone asks how to score a match, walk them through these steps and set "sho
   const presetBracket = (sport) => DRAWS[sport] ? { ...buildBracket(DRAWS[sport]), teams: DRAWS[sport].filter(Boolean) }
     : (TEAMS[sport] || []).length >= 2 ? buildBracket(TEAMS[sport].map(t => t.name)) : null;
   const bracketFor = (sport) => brackets[sport] || presetBracket(sport);
+  // Bronze-medal match: the two semi-final losers, on the spare court at the
+  // same time as the final. Kept on the bracket as br.bronze.
+  const BRONZE = { vb: '4:35' };
+  function bronzeOf(sport, br) {
+    if (!BRONZE[sport] || !br || !br.rounds || !br.rounds[0]) return null;
+    const total = roundsTotal(br.rounds[0].length); const semis = br.rounds[total - 2] || [];
+    const loser = (m) => m && m.w && m.a && m.b ? (m.w === m.a ? m.b : m.a) : null;
+    const saved = br.bronze || {}; const sc = saved.m && matches[saved.m];
+    const w = saved.w || (sc && sc.status === 'done' && sc.sa !== sc.sb ? (sc.sa > sc.sb ? saved.a : saved.b) : null);
+    return { a: saved.a || loser(semis[0]), b: saved.b || loser(semis[1]), m: saved.m || null, w };
+  }
   // Standings from whatever's been played: W/L/points, runs for and against.
   function robinTable(sport, only) {
     const cfg = ROBIN[sport]; const br = brackets[sport] || {};
@@ -4451,6 +4484,13 @@ If someone asks how to score a match, walk them through these steps and set "sho
       // the match row has already asked, and arrives here as a synthetic click)
       if (e.isTrusted && !confirm(`Start ${b.dataset.names || 'this match'} now? It goes live for everyone.`)) return;
       const [sport, kS, iS] = b.dataset.start.split('|'); const k = +kS, i = +iS;
+      if (kS === 'bronze') {
+        const br = bracketFor(sport); const bz = bronzeOf(sport, br); if (!bz || !bz.a || !bz.b) return;
+        const pushed = await ref('scores').push({ sport, a: bz.a, b: bz.b, sa: 0, sb: 0, status: 'live', t: now(), by: me ? me.first : '' });
+        br.bronze = { a: bz.a, b: bz.b, m: pushed.key }; await saveBracket(sport, br);
+        if (b.dataset.jump) setTimeout(() => { const c = $('scores-live'); if (c) c.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 300);
+        return;
+      }
       if (ROBIN[sport]) {
         const cfg = ROBIN[sport]; const br = brackets[sport] || { teams: (TEAMS[sport] || []).map(t => t.name), rounds: [], t: Date.now() };
         br.rounds = br.rounds || [];
@@ -4492,6 +4532,8 @@ If someone asks how to score a match, walk them through these steps and set "sho
         const sc = m.m && matches[m.m];
         if (!m.w && sc && sc.status === 'done' && sc.sa !== sc.sb) { m.w = sc.sa > sc.sb ? m.a : m.b; changed = true; }
       }));
+      const bzs = br.bronze && br.bronze.m && matches[br.bronze.m];
+      if (br.bronze && !br.bronze.w && bzs && bzs.status === 'done' && bzs.sa !== bzs.sb) { br.bronze.w = bzs.sa > bzs.sb ? br.bronze.a : br.bronze.b; changed = true; }
       if (changed) saveBracket(sport, br);
     });
   }

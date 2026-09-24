@@ -179,7 +179,8 @@ def exec_page(p, soc):
             if sport == 'vb' and i == VB_FIRST.get(team, 1):   # everyone plays their first game
                 rows.append((t, (f'Playing {SPORT[sport]} — {team}, first game', f'If you\'re not needed on court: {back}'), [], 'play'))
             else:
-                rows.append((t, (f'Playing {SPORT[sport]} — if {team} are still in', f'{ROUND[i].capitalize()} · if they\'re out: {back}'), [], 'play'))
+                rnd = 'final or bronze match (4:35)' if sport == 'vb' and i == 3 else ROUND[i]
+                rows.append((t, (f'Playing {SPORT[sport]} — if {team} are still in', f'{rnd.capitalize()} · if they\'re out: {back}'), [], 'play'))
         elif (f, i) in cover:
             cur, who, sport, team = cover[(f, i)]
             nm, wh = duty(cur)
