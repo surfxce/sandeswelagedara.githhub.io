@@ -487,6 +487,12 @@ for f in ['Nandos', 'Prabhas', 'Mathew', 'Devansh']:
 setup['su-UQGS'].append('Tanisha'); taken.add('Tanisha')
 for f in at_setup:
     if f not in taken and 'logi' in tags[f]: setup['logi'].append(f); taken.add(f)
+# five people at setup, picked at random (same five every rebuild), start at
+# 1:00 with the logistics team
+import random as _random
+_pool = sorted(f for f in at_setup if f not in taken and f != 'Sandes' and 'logi' not in tags[f] and 'crowd' not in cant[f] and 'sport' not in cant[f])
+for f in _random.Random('spice-road-1pm').sample(_pool, min(5, len(_pool))):
+    setup['su-logi'].append(f); taken.add(f)
 def fill(duty, k, key, ok=lambda f: True):
     for f in sorted([f for f in at_setup if f not in taken and ok(f)], key=key)[:k]:
         setup[duty].append(f); taken.add(f)

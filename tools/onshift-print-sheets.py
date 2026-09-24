@@ -59,6 +59,7 @@ DUTY = {
   'su-vb': ('Setup — volleyball', 'Beach courts: three nets, lines, balls and ball bag, draw up'),
   'su-fund': ('Setup — charity stalls', 'Nepal Floods marquee: tables, signage, raffle and wheel, floats'),
   'su-cns': ('1:00 pm — meet at the C&S room', 'Collect the equipment and bring it down to the field'),
+  'su-logi': ('1:00 pm — setup with the logistics team', 'Meet logistics on Field 6: marquees, cones, fencing, signage — whatever they need'),
   'su-flex': ('Flexible', 'Check with the committee heads for what needs to be done'),
   'su-biz': ('Setup — business stalls', 'Visit every business: missing anything? good to go by 3:00?'),
   'photo-pres': ("Presidents' photo — you're taking it", 'Stage steps at 4:55, straight after the volleyball final'),
@@ -161,7 +162,7 @@ PHOTOS = [('UQPA', 2, '4:05', 'Joanna'), ('UQISS', 2, '4:20', 'Joanna'), ('UQGS'
 def exec_page(p, soc):
     f = kof(p); rows = []
     su = next(((sid, ps) for sid, ps in d.get('setup', []) if f in ps), None)
-    if su: rows.append(('1:00 – 3:00' if su[0] == 'su-cns' else '2:00 – 3:00', duty(su[0]), [x for x in su[1] if x != f], 'hands'))
+    if su: rows.append(('1:00 – 3:00' if su[0] in ('su-cns', 'su-logi') else '2:00 – 3:00', duty(su[0]), [x for x in su[1] if x != f], 'hands'))
     else: rows.append(('2:00 – 3:00', ('Setup', 'Not on your form — come if you can'), [], 'off'))
     if su or onsite(f, 0):
         rows.append(('2:45', ('All execs: performance stage', "Sandes runs through the app, then MJ's speech at 2:50 · then back to setup"), [], 'moment'))
