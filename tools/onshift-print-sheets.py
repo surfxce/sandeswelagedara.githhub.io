@@ -147,7 +147,7 @@ for i in range(12):
 PRES = {'Sanuka', 'Prabhas', 'Jais', 'Devansh', 'Aarya', 'Bhumik', 'Akash'}
 CK = {f for b in d['roster'][6:] for x, ps in b if x == 'ck' for f in ps}
 QR_URL = 'https://sandeswelagedara.com/toybox/on-shift/'
-LOGI_ORDER = ['Archita', 'Mathew', 'Sanuli', 'Devashri', 'Tanisha', 'Prabhas']
+LOGI_ORDER = ['Nandos', 'Archita', 'Mathew', 'Sanuli', 'Devashri', 'Tanisha', 'Prabhas']
 SPORT = {'vb': 'volleyball', 'fb': 'football'}
 
 def exec_page(p, soc):
@@ -232,7 +232,7 @@ def cover_page(soc, members, title=None, sub=None):
     where = f'Marquee {MARQUEE[soc]} · Field 6' if soc in MARQUEE else (sub or '')
     return f'''<section class="page cover">{ROUTES}
   <div class="qrbig"><div class="qr" data-u="{QR_URL}"></div><small>Live roster — scan when there's signal</small></div>
-  <div class="cv-top"><div class="eb">UQISC × UQSLA · Friday 25 September · UQ Athletics Centre</div>
+  <div class="cv-top"><div class="eb">UQSLA × UQISC · Friday 25 September · UQ Athletics Centre</div>
     <div class="kick">Spice Road Experience</div>
     <h1 class="cv">{esc(big)}</h1>
     <div class="cv-sub">Stall booklet · {esc(where)} · {len(members)} exec{"s" if len(members) != 1 else ""}</div></div>

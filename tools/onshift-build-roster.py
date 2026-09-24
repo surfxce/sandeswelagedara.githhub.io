@@ -105,6 +105,8 @@ P = [
  ("Bhargavi Ganegaonkar","NAATAK","4,5,6,7,8",0,0,"fb,ck",""),
  # logistics, not a club with a stall
  ("Mathew Jimmy","U","3,4,5,6,7,8",1,1,"","logi"),
+ # Nandos: organiser, runs logistics, head of football
+ ("Thirunanthanan (Nandos) Thirumurugan","U","3,4,5,6,7,8",1,1,"","logi"),
 ]
 # when each performer is on stage (block index): GS garba 4:30, UQPA bhangra
 # 6:00, NAATAK 6:30 — they're off duty for that block only
@@ -128,6 +130,7 @@ people, avail, cant, tags, SETUP_FLAG = [], {}, {}, {}, {}
 # initial ("Shreya B", "Shreya C"), carried to the app as "k"
 _firsts = collections.Counter(r[0].split()[0] for r in P)
 KEY = {r[0]: (r[0].split()[0] + ' ' + r[0].split()[-1][0]) if _firsts[r[0].split()[0]] > 1 else r[0].split()[0] for r in P}
+KEY["Thirunanthanan (Nandos) Thirumurugan"] = "Nandos"     # what everyone calls him
 key_of = lambda p: p.get("k") or p["n"].split()[0]
 for name, socs, hours, setup, packup, cd, note in P:
     first = KEY[name]
@@ -156,10 +159,10 @@ def can(first, duty):
     return True
 
 # heads stay on their own thing
-PREF = {'Dhyan': 'fb', 'Aditya': 'ck', 'Humza': 'ck', 'Hasara': 'fund-pp', 'Thanabammini': 'cr-food',
+PREF = {'Aditya': 'ck', 'Humza': 'ck', 'Hasara': 'fund-pp', 'Thanabammini': 'cr-food',
         'Divita': 'stall-UQISC', 'Sandes': 'vb', 'Helly': 'st', 'Amal': 'st', 'Sritam': 'vb'}
 # a head is pinned to their own duty while it's running, before anything else
-PIN = {'Aditya': ('ck', (6, 7, 8)), 'Dhyan': ('fb', (4, 5)), 'Hasara': ('fund-pp', (6, 7, 10, 11)),
+PIN = {'Aditya': ('ck', (6, 7, 8)), 'Hasara': ('fund-pp', (6, 7, 10, 11)),
        # Aarya (PA president) wants to be at his stall: there most of the night,
        # apart from volleyball (3:30), his cricket game (7:00) and a break at 5:30
        'Aarya': ('stall-UQPA', (0, 2, 3, 4, 6, 7, 9, 10, 11)),
