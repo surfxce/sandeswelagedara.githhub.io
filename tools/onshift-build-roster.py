@@ -106,7 +106,7 @@ P = [
  # logistics, not a club with a stall
  ("Mathew Jimmy","U","3,4,5,6,7,8",1,1,"","logi"),
  # Nandos: organiser, runs logistics, head of football
- ("Thirunanthanan (Nandos) Thirumurugan","U","3,4,5,6,7,8",1,1,"","logi"),
+ ("Thirunanthanan (Nandos) Thirumurugan","SLA","3,4,5,6,7,8",1,1,"","logi"),
 ]
 # when each performer is on stage (block index): GS garba 4:30, UQPA bhangra
 # 6:00, NAATAK 6:30 — they're off duty for that block only
