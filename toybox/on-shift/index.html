@@ -1628,7 +1628,7 @@
 
   const DUTIES = {
     // tasks: the sub-jobs inside each job — shown as small tags on the duty card
-    vb: { cat:'sport', icon:'volleyball', name:'Volleyball', where:'Beach volleyball courts (bottom of the ground)', do:'Eleven teams, knockout, 15-minute games with 5 minutes between. 3:15: all three first-round games at once (one ref per court). 3:35: three quarter-finals; 3:55: the last quarter-final and the first semi; 4:15: the second semi; 4:35: the final, with the bronze-medal match (the two semi losers) on another court. Keep the ball bag with you. Winner at 5:00.',
+    vb: { cat:'sport', icon:'volleyball', name:'Volleyball', where:'Beach volleyball courts (bottom of the ground)', do:'Eleven teams, knockout, 15-minute games with 5 minutes between. Winners go up on the performance stage at 5:05. 3:15: all three first-round games at once (one ref per court). 3:35: three quarter-finals; 3:55: the last quarter-final and the first semi; 4:15: the second semi; 4:35: the final, with the bronze-medal match (the two semi losers) on another court. Keep the ball bag with you. Winner at 5:00.',
           tasks:['Scorekeeping', 'Rotating teams', 'Ball bag'] },
     'fb-score': { cat:'sport', icon:'football', name:'Football scores', where:'Field 7 sideline — results desk', do:'Get every result the moment a game ends: from the ref, into the committee\'s score sheet, and into the app (Scores tab → Football → tap the match, + for each goal, End match) so the public page and the group tables are right. The semi-final draw comes from your sheet.',
           tasks:['Results from refs', 'Score sheet', 'App scores'] },
@@ -2004,7 +2004,7 @@
   const WHATS_ON = [
     { h: 'Sports', items: [
       { cat: 'sport', info: 'sport:fb', name: 'Football',   where: 'Field 7',                 blurb: '16 teams in four groups on six pitches, then semi-finals and a final. 3:00 – 6:00 pm.', tags: ['Six pitches', 'Groups 3:00 – 4:40', 'Semis 4:50', 'Final 5:30'] },
-      { cat: 'sport', icon: 'volleyball', info: 'sport:vb', name: 'Volleyball', where: 'Beach volleyball courts', blurb: 'Eleven teams, knockout from 3:15. All three courts run the bracket 3:35 – 4:15, then one court opens for social play — anyone can jump in. Final 4:35.', tags: ['Bracket from 3:35', 'Final 4:35', 'Social from 4:15'] },
+      { cat: 'sport', icon: 'volleyball', info: 'sport:vb', name: 'Volleyball', where: 'Beach volleyball courts', blurb: 'Eleven teams, knockout: all three first-round games at 3:15, quarter-finals 3:35 and 3:55, semis 3:55 and 4:15, then the final and the bronze-medal match side by side at 4:35. Winners on the performance stage at 5:05.', tags: ['First round 3:15', 'Final 4:35', 'Winners 5:05'] },
       { cat: 'sport', icon: 'cricket', info: 'sport:ck', name: 'Cricket',    where: 'Field 7',                 blurb: 'Four teams — UQSLA, UQISC, UQGS and a Mixed Team. Round robin, one game every half hour from 6:30: six overs a side, seven on the field, soft tennis balls. Bring your own gear if you have it.', tags: ['6:30 – 8:20', '4 matches', 'Winner 8:30'] },
     ]},
     { h: 'Stage & entry', items: [
@@ -2012,25 +2012,26 @@
       { cat: 'ticket', name: 'Ticketing',         where: 'Main entry gate', blurb: 'Have your Humanitix QR code ready on your phone — scan at the gate, get a wrist stamp.', tags: ['Humanitix QR', 'Wrist stamp'] },
     ]},
     { h: 'Fundraising', items: [
-      { cat: 'fund', icon: 'sparkle', name: 'Nepal Floods fundraiser', where: 'Charity marquee, Field 6', blurb: 'Raffle tickets all day and a pay-to-play spin-the-wheel — win raffle tickets, Fright Night drink vouchers, soft drinks and lollies. Every dollar goes to Nepal\'s flood relief fund. Raffle drawn at 8:40 pm.', tags: ['Raffle', 'Spin the wheel'] },
-      { cat: 'fund', name: 'UQ Manali Medical Project', where: 'Charity marquee, Field 6', blurb: 'Fundraising for the Manali Medical Project.' },
+      { cat: 'fund', icon: 'sparkle', name: 'Nepal Floods fundraiser', where: 'Charity marquee, Field 6', blurb: 'Raffle tickets all day and a pay-to-play spin-the-wheel — win raffle tickets, Fright Night drink vouchers, soft drinks and lollies. Every dollar goes straight to the Nepal Prime Minister\'s Disaster Relief Fund for flood rescue and recovery. Raffle drawn at 8:40 pm.', tags: ['Raffle', 'Spin the wheel'] },
+      { cat: 'fund', name: 'Manali Medical Aid Project', where: 'Charity marquee, Field 6', blurb: 'UQ student-run charity, founded 2007, funding medical equipment and financial aid for Lady Willingdon Hospital in Manali, Himachal Pradesh, India.' },
     ]},
     { h: 'Food trucks', items: [
-      { cat: 'fund', icon: 'bowl', label: 'Food truck', name: 'Meraki with Love',   where: 'Field 6' },
-      { cat: 'fund', icon: 'bowl', label: 'Food truck', name: 'Little Mamak',       where: 'Field 6', blurb: 'Malaysian.' },
+      { cat: 'fund', icon: 'bowl', label: 'Food truck', name: 'Meraki with Love',   where: 'Field 6', blurb: 'Indian desserts and ice cream.' },
+      { cat: 'fund', icon: 'bowl', label: 'Food truck', name: 'Little Mamak',       where: 'Field 6', blurb: 'Malaysian street food.' },
+      { cat: 'fund', icon: 'bowl', label: 'Food truck', name: '5911 Pind on Wheels', where: 'Field 6', blurb: 'Punjabi street food.' },
+      { cat: 'fund', icon: 'bowl', label: 'Food truck', name: 'Hawker Eats',        where: 'Field 6', blurb: 'Asian fusion dishes.' },
       { cat: 'fund', icon: 'bowl', label: 'Food truck', name: 'Wok Master',         where: 'Field 6' },
-      { cat: 'fund', icon: 'bowl', label: 'Food truck', name: 'Hawker Eats',        where: 'Field 6' },
-      { cat: 'fund', icon: 'bowl', label: 'Food truck', name: '5911 Pind on Wheels', where: 'Field 6' },
       { cat: 'fund', icon: 'bowl', label: 'Food truck', name: 'Istanbul on Wheels', where: 'Field 6' },
       { cat: 'fund', icon: 'bowl', label: 'Food truck', name: 'Yomigo',             where: 'Field 6' },
     ]},
-    { h: 'Business stalls', items: [
+    { h: 'Local businesses — jewellery, fashion, mehndi and more', items: [
       { cat: 'ticket', icon: 'sparkle', label: 'Stall', info: 'biz:Inara Collections', name: 'Inara Collections' },
       { cat: 'ticket', icon: 'sparkle', label: 'Stall', info: 'biz:Meheks Mehndi',     name: 'Meheks Mehndi' },
       { cat: 'ticket', icon: 'sparkle', label: 'Stall', info: 'biz:Sajaraa',           name: 'Sajaraa' },
       { cat: 'ticket', icon: 'sparkle', label: 'Stall', info: 'biz:The Dia Effect',    name: 'The Dia Effect' },
       { cat: 'ticket', icon: 'sparkle', label: 'Stall', info: 'biz:Indi Pride',        name: 'Indi Pride' },
       { cat: 'ticket', icon: 'sparkle', label: 'Stall', info: 'biz:Solar Prime',       name: 'Solar Prime' },
+      { cat: 'ticket', icon: 'sparkle', label: 'Stall', info: 'biz:Harmeen Thoma',     name: 'Harmeen Thoma' },
     ]},
     { h: 'Help & safety', items: [
       { cat: 'crowd', icon: 'heart', name: 'First aid',  where: 'First Aid marquee, Field 6', blurb: 'UQIC venue manager and first aid. For anything serious, call 000 first.', tags: ['Marquee 14'] },
@@ -2045,6 +2046,7 @@
     { t: 16 * 60 + 40, who: 'UQ Tamil',                      what: 'Dance' },
     { t: 16 * 60 + 50, who: 'UQTELS',                        what: 'Dance' },
     { t: 17 * 60,      who: 'Kanishq',                       what: 'Solo performance' },
+    { t: 17 * 60 + 5,  who: 'Volleyball winners',            what: 'Champions and bronze, announced on stage' },
     { t: 17 * 60 + 40, who: 'Nanya Sharma',                  what: 'Solo performance' },
     { t: 17 * 60 + 50, who: 'UQNAATAK',                      what: 'Bharatanatyam & Bollywood hip-hop' },
     { t: 18 * 60,      who: 'UQPA Bhangra',                  what: 'Jasmine, Roshni & team' },
@@ -2054,11 +2056,12 @@
   ];
   const BIZ = {
     'Inara Collections': 'Business stall on Field 6 — come and have a look.',
-    'Meheks Mehndi':     'Mehndi (henna) on Field 6.',
+    'Meheks Mehndi':     'Mehndi (henna) — get yours done on Field 6.',
+    'Harmeen Thoma':     'Makeup, hair, henna and draping — also a wedding and event MC. Field 6.',
     'Sajaraa':           'Business stall on Field 6 — come and have a look.',
     'The Dia Effect':    'Business stall on Field 6 — come and have a look.',
     'Indi Pride':        'Business stall on Field 6 — come and have a look.',
-    'Solar Prime':       'Solar energy — a sponsor stall on Field 6.',
+    'Solar Prime':       '“The smart way to power your home” — solar energy, on Field 6.',
   };
   // Committee head per duty. Null = not applicable (ticketing, crowd…). Fill in from the committee list.
   const LEADS = { vb: 'Sandes (head of volleyball)', fb: 'Nandos (head of football)', ck: 'Devansh (head of cricket)', st: 'Kartik Karri (head of performances)', 'fund-pp': 'Hasara (head of fundraising)', 'fund-bake': 'Hasara (head of fundraising)' };
@@ -2301,6 +2304,7 @@
     ...[['UQPA', 2, '4:05', 'Joanna'], ['UQISS', 2, '4:20', 'Joanna'], ['UQGS', 4, '5:10', 'Divita'], ['UQPSA', 4, '5:15', 'Divita'], ['UQTELS', 4, '5:20', 'Divita'],
         ['UQSLA', 5, '5:40', 'Krisha'], ['UQISC', 7, '6:35', null], ['UQNAATAK', 7, '6:45', 'Shane'], ['UQNC', 7, '6:50', 'Shane']]
       .map(([soc, block, at, by]) => ({ block, at: at + ' pm', name: soc + ' team photo', where: soc + ' marquee, Field 6', note: 'Five minutes, everyone from ' + soc + ' who\'s here.' + (by ? '' : ' Grab anyone nearby to take it.'), who: { soc }, by, whoLabel: soc + ' execs', back: true })),
+    { block: 4, at: '5:05 pm', name: 'Volleyball winners on stage', where: 'Performance stage', note: 'Champions and bronze — announce them and hand out the prizes, straight after Kanishq.', who: ['Sandes'], whoLabel: 'you', kind: 'brief' },
     { block: 6, at: '6:10 pm', name: 'Cricket briefing', where: 'Field 7, by the cricket pitches', note: 'Devansh runs through how tonight\'s cricket works and the crew sets up — first game 6:30.', who: 'ck', whoLabel: 'cricket crew' },
     // presidents only, straight after the volleyball final and before Jais
     // leaves at 5; Sandes is rostered off 4:30 – 5:00 to take it
@@ -3498,7 +3502,7 @@
   const FEST_NOTES = `# Spice Road Experience — notes for Spicy
 The Spice Road Experience is a one-day cultural festival at the University of Queensland run by student societies: UQISC (Indian Students' Club) and its partner society UQSLA (Sri Lankan Association), with ten clubs running marquees. It's outdoors on a sports ground from mid-afternoon into the evening: club stalls, food and fundraising stalls, volleyball, football and cricket competitions, and a performance stage. The people using this app are execs — student volunteers rostered onto duties in 30-minute blocks.
 Organisers: Nandos (Thirunanthanan Thirumurugan — runs logistics, head of football), Archita, Sanuka (UQSLA president) and Prabhas. Sandes built the app and handles anything technical. Questions the notes don't answer should go to Sandes (there's a Message Sandes button under every answer).
-Programme: bump-in from 1:00 pm (food trucks 1:00 – 1:40, business stalls 1:50 – 2:20, club stalls 2:00), all execs at the performance stage 2:45 (Sandes runs through the app), MJ's speech 2:50, doors 3:00. Team photos at each club's marquee: UQPA 4:05, UQISS 4:20, UQGS 5:10, UQPSA 5:15, UQTELS 5:20, UQSLA 5:40, UQISC 6:35, UQNAATAK 6:45, UQNC 6:50 — five minutes, then back to your duty. Football 3:00 – 6:00 on Field 7, six small pitches (16 teams, groups then semis 4:50 and final 5:30); referees are execs. Tickets are Humanitix QR codes scanned at the gate. Volleyball on the beach volleyball courts: eleven teams, knockout: all three first-round games at 3:15 (Ameya's team v UQISS, UQSLA v UQISC, Sargun's team v Solos), three quarter-finals at 3:35, the fourth (Shriyans's v Aum's) and a semi at 3:55, the other semi 4:15. 15-minute games with 5 minutes between: all three first-round games at 3:15, quarter-finals 3:35 and 3:55, semis 3:55 and 4:15, final and bronze-medal match (semi losers) side by side at 4:35, winner 5:00. Shriyans, Kartik, Shane and Devyn each play for two teams; the draw keeps their teams from playing at the same time. Performances on the stage 4:30 – 5:05 and 5:40 – 6:10 (break in between); winners and the raffle 8:30 – 8:40. Cricket (T6, tennis ball) on Field 7, which it takes over once football finishes: four teams (UQISC, UQGS, UQSLA, Mixed Team), Devansh briefs the cricket crew at 6:10 and is on cricket for the first two games, then it's self-run. One game at a time: UQSLA v UQISC 6:30, UQGS v Mixed Team 7:00, UQSLA v UQGS 7:30, UQISC v Mixed Team 8:00. Six overs a side, seven on the field max, soft tennis balls only. 20-minute games with 10-minute changeovers; the crew swaps at 7:30. No final: top of the table after match 4 wins, announced 8:30. Raffle drawn 8:40. Bump-out 8:50 – 9:40. Food trucks (7) and business stalls (6) are on Field 6 all day, club marquees too (numbered 1 – 12). First aid: the UQIC venue manager at the First Aid marquee on Field 6. Security: Tru Security.
+Programme: bump-in from 1:00 pm (food trucks 1:00 – 1:40, business stalls 1:50 – 2:20, club stalls 2:00), all execs at the performance stage 2:45 (Sandes runs through the app), MJ's speech 2:50, doors 3:00. Team photos at each club's marquee: UQPA 4:05, UQISS 4:20, UQGS 5:10, UQPSA 5:15, UQTELS 5:20, UQSLA 5:40, UQISC 6:35, UQNAATAK 6:45, UQNC 6:50 — five minutes, then back to your duty. Football 3:00 – 6:00 on Field 7, six small pitches (16 teams, groups then semis 4:50 and final 5:30); referees are execs. Tickets are Humanitix QR codes scanned at the gate. Volleyball on the beach volleyball courts: eleven teams, knockout: all three first-round games at 3:15 (Ameya's team v UQISS, UQSLA v UQISC, Sargun's team v Solos), three quarter-finals at 3:35, the fourth (Shriyans's v Aum's) and a semi at 3:55, the other semi 4:15. 15-minute games with 5 minutes between: all three first-round games at 3:15, quarter-finals 3:35 and 3:55, semis 3:55 and 4:15, final and bronze-medal match (semi losers) side by side at 4:35, winners announced on the performance stage at 5:05. Shriyans, Kartik, Shane and Devyn each play for two teams; the draw keeps their teams from playing at the same time. Performances on the stage 4:30 – 5:05 and 5:40 – 6:10 (break in between); winners and the raffle 8:30 – 8:40. Cricket (T6, tennis ball) on Field 7, which it takes over once football finishes: four teams (UQISC, UQGS, UQSLA, Mixed Team), Devansh briefs the cricket crew at 6:10 and is on cricket for the first two games, then it's self-run. One game at a time: UQSLA v UQISC 6:30, UQGS v Mixed Team 7:00, UQSLA v UQGS 7:30, UQISC v Mixed Team 8:00. Six overs a side, seven on the field max, soft tennis balls only. 20-minute games with 10-minute changeovers; the crew swaps at 7:30. No final: top of the table after match 4 wins, announced 8:30. Raffle drawn 8:40. Bump-out 8:50 – 9:40. Food trucks (7) and business stalls (6) are on Field 6 all day, club marquees too (numbered 1 – 12). First aid: the UQIC venue manager at the First Aid marquee on Field 6. Security: Tru Security.
 Escalation: anything medical or dangerous — call 000 first, then tell an organiser. Emergency contacts are in the app under Settings → Emergency (never repeat phone numbers; point people there). Lost property, first aid, behaviour and equipment problems get logged under Settings → Log incident.`;
   const strip = (html) => { const d = document.createElement('div'); d.innerHTML = html; return d.textContent; };
   function spicyNotes() {

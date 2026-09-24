@@ -192,7 +192,7 @@ def exec_page(p, soc):
         else:
             rows.append((t, ('Break', 'Your time off — enjoy the festival. If anything is short, logistics will find you.'), [], 'free'))
         if i == 3 and f == 'Sandes':
-            rows.append(('4:55', ("Presidents' photo — you're taking it", 'Stage steps, straight after the final and the prizes · five minutes'), [], 'moment'))
+            rows.append(('4:55', ("Presidents' photo — you're taking it", 'Stage steps, straight after the final · five minutes'), [], 'moment'))
         if i == 3 and f in PRES:
             rows.append(('4:55', ("Presidents' photo", 'Stage steps, straight after the volleyball final · 5 minutes, then back to your spot'), [], 'moment'))
         cur = rows[-1][1][0]
@@ -204,6 +204,8 @@ def exec_page(p, soc):
         for c, b, at, by in PHOTOS:
             if b == i and c in p['s']:
                 rows.append((at, (f'{c} team photo', f'{c} marquee, Field 6 · {by + " takes it" if by else "grab anyone nearby to take it"} · 5 minutes, then back to {backto}'), [], 'moment'))
+        if i == 4 and f == 'Sandes':
+            rows.append(('5:05', ('Volleyball winners on stage', 'Performance stage, after Kanishq · champions and bronze, hand out the prizes'), [], 'moment'))
         if i == 6 and f in CK and f != 'Devansh':
             rows.append(('6:10', ('Cricket briefing with Devansh', 'Field 7, by the pitches · set-up and run-through, first game 6:30'), [], 'moment'))
     rows.append(('9:00 – 10:00', ('Pack-up — all hands', 'Strike marquees, bag rubbish, return gear'), [], 'hands' if P.get(p['n'], {}).get('packup') else 'off'))
