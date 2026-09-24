@@ -58,6 +58,8 @@ DUTY = {
   'su-fb': ('Setup — football', 'Field 7, 2:30 – 3:00: mark the pitch edges, balls/bibs/whistles out, teams ready'),
   'su-vb': ('Setup — volleyball', 'Beach courts: three nets, lines, balls and ball bag, draw up'),
   'su-fund': ('Setup — charity stalls', 'Charity marquee: tables, signage, raffle and wheel, floats'),
+  'su-cns': ('1:00 pm — meet at the C&S room', 'Collect the equipment and bring it down to the field'),
+  'su-flex': ('Flexible', 'Check with the committee heads for what needs to be done'),
   'su-biz': ('Setup — business stalls', 'Visit every business: missing anything? good to go by 3:00?'),
   'photo-pres': ("Presidents' photo — you're taking it", 'Stage steps at 4:55, straight after the volleyball final'),
 }
@@ -155,7 +157,7 @@ SPORT = {'vb': 'volleyball', 'fb': 'football'}
 def exec_page(p, soc):
     f = kof(p); rows = []
     su = next(((sid, ps) for sid, ps in d.get('setup', []) if f in ps), None)
-    if su: rows.append(('2:00 – 3:00', duty(su[0]), [x for x in su[1] if x != f], 'hands'))
+    if su: rows.append(('1:00 – 3:00' if su[0] == 'su-cns' else '2:00 – 3:00', duty(su[0]), [x for x in su[1] if x != f], 'hands'))
     else: rows.append(('2:00 – 3:00', ('Setup', 'Not on your form — come if you can'), [], 'off'))
     for i in range(12):
         t = span(i)
