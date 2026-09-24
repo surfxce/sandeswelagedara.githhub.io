@@ -527,6 +527,8 @@ for p in people:
     if PACKUP.get(p["n"]): p["u"] = 1
     nostall = sorted(x[6:] for x in cant[key_of(p)] if x.startswith('stall-'))
     if nostall: p["x"] = nostall
+    nosport = sorted(d for d in ('vb', 'fb', 'fb-score', 'ck') if not can(key_of(p), d))
+    if nosport: p["c"] = nosport      # sports they can't referee or score (so cover never asks them)
     if key_of(p) in phones: p["t"] = phones[key_of(p)]
 # numbers for contacts who aren't execs (anyone in phones.json not on the roster)
 contacts = {k: v for k, v in phones.items() if k not in avail}
