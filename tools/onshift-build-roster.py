@@ -201,9 +201,12 @@ CK_GAMES = {'UQSLA': (7, 9), 'UQISC': (7, 10), 'UQGS': (8, 9)}
 for f in CK_PLAYERS:
     for i in next((g for sc, g in CK_GAMES.items() if sc in byfirst[f]["s"]), ()):
         if i in avail.get(f, ()) and f not in fixed[i]: fixed[i][f] = 'play-ck'
-# presidents' photo at 4:55, straight after the volleyball final and before
-# Jais leaves at 5 — Sandes takes it, so he's off everything else that block
-fixed[3]['Sandes'] = 'photo-pres'
+# Sandes refs the volleyball final and gives out the prizes, then takes the
+# presidents' photo at 4:55 (it's on his day as a moment)
+fixed[3]['Sandes'] = 'vb'
+# Heshan: the third volleyball ref at 3:00, and on volleyball again at 4:00
+fixed[0]['Heshan'] = 'vb'
+fixed[2]['Heshan'] = 'vb'
 # Devansh briefs the cricket crew at 6:10, before the first game at 6:30
 fixed[6]['Devansh'] = 'ck-brief'
 # …and he's on cricket for the first two games; after that it's self-run
@@ -213,7 +216,8 @@ fixed[8]['Aarya'] = 'ck'
 # Shreya B on the TELS stall the moment it's set up (3:00), and off it 3:30
 # and 7:30 – 8:00
 fixed[0]['Shreya B'] = 'stall-UQTELS'
-AVOID = {('Shreya B', 1, 'stall-UQTELS'), ('Shreya B', 9, 'stall-UQTELS')}
+AVOID = {('Shreya B', 1, 'stall-UQTELS'), ('Shreya B', 9, 'stall-UQTELS'),
+         ('Raziel', 2, 'vb'), ('Akash', 3, 'vb')}
 STALL_WANT = {'UQSLA': 5, 'UQISC': 5}
 # people Sandes wants out and about even if their stall goes quiet
 MOVE_ABOUT = {'Dhriti'}
@@ -239,8 +243,8 @@ def needs(i):
     if i <= 5:  n['fb-score'] = (2, 2)
     if i == 6:  n['fb-pack'] = (3, 3)
     # a ref on every bracket court: three courts 3:35 – 4:15, then two
-    if i in (1, 2): n['vb'] = (3, 3)
-    elif i in (0, 3): n['vb'] = (2, 2)
+    if i in (0, 1, 2): n['vb'] = (3, 3)
+    elif i == 3: n['vb'] = (2, 2)
     # cricket, per its run sheet: four people (bowler's-end umpire, square-leg
     # umpire, scorer, helper) from the 6:10 set-up and brief; the crew changes
     # at 7:30; four again for the 8:30 result and pack-down
