@@ -333,6 +333,7 @@
   .spicy-wait::after { content: '...'; animation: spicy-dots 1.2s steps(1) infinite; }
   .dm-canned button { min-height: 36px; padding: 0 12px; border-radius: 18px; border: 1.5px solid var(--line); background: #fff; font-weight: 700; font-size: 14px; color: var(--maroon); }
   /* moment banner (photos etc. that don't displace a duty) */
+  .bracket .bbox .bt { font-size: 10px; font-weight: 800; letter-spacing: .04em; color: var(--ink-3); padding: 3px 8px 0; }
   .moment { display: grid; grid-template-columns: 30px auto 1fr; gap: 4px 12px; align-items: center; padding: 12px 14px; background: #EEF1F7; border-left: 6px solid var(--c-photo); }
   .moment .eyebrow { grid-column: 1 / -1; color: var(--c-photo); }
   .moment .t { font-weight: 800; font-variant-numeric: tabular-nums; white-space: nowrap; }
@@ -1590,7 +1591,7 @@
 
   const DUTIES = {
     // tasks: the sub-jobs inside each job — shown as small tags on the duty card
-    vb: { cat:'sport', icon:'volleyball', name:'Volleyball', where:'Beach volleyball courts (bottom of the ground)', do:'Eleven teams, knockout. One play-in at 3:15, then 3:35 – 4:15 all three courts run bracket games (one ref each); from 4:15 it\'s two bracket courts and the third goes social. 20-minute games: 3:35, 3:55, semis 4:15, final 4:35. Keep the ball bag with you. Winner at 5:00.',
+    vb: { cat:'sport', icon:'volleyball', name:'Volleyball', where:'Beach volleyball courts (bottom of the ground)', do:'Eleven teams, knockout. One play-in at 3:15, then 3:35 – 4:15 all three courts run bracket games (one ref each); from 4:15 it\'s two bracket courts and the third goes social. 15-minute games with 5 minutes between: 3:35, 3:55, semis 4:15, final 4:35. Keep the ball bag with you. Winner at 5:00.',
           tasks:['Scorekeeping', 'Rotating teams', 'Ball bag'] },
     'fb-score': { cat:'sport', icon:'football', name:'Football scores', where:'Field 7 sideline — results desk', do:'Get every result the moment a game ends: from the ref, into the committee\'s score sheet, and into the app (Scores tab → Football → tap the match, + for each goal, End match) so the public page and the group tables are right. The semi-final draw comes from your sheet.',
           tasks:['Results from refs', 'Score sheet', 'App scores'] },
@@ -2007,7 +2008,7 @@
       }).join('') + '</div>';
       count = Math.ceil(count / 2);
     }
-    return html + (MATCH_TIMES[sport] ? `<p class="fine">20-minute games. Three courts until 4:15, then two. ????? fills in as teams win through.</p>` : `<p class="fine">Times are a guide — about ${sc.len} minutes a match, back to back. ????? fills in as teams win through.</p>`);
+    return html + (MATCH_TIMES[sport] ? `<p class="fine">15-minute games, 5 minutes between rounds. Three courts until 4:15, then two. ????? fills in as teams win through.</p>` : `<p class="fine">Times are a guide — about ${sc.len} minutes a match, back to back. ????? fills in as teams win through.</p>`);
   }
   function openInfoRaw(title, body) { $('info-title').textContent = title; $('info-body').innerHTML = body; $('info-sheet').hidden = false; $('info-backdrop').hidden = false; }
   function infoHtml(key) {
@@ -2746,7 +2747,7 @@
       ['Double hit / carry', 'One player hits it twice in a row, or holds, lifts or throws it: point to the other team.'],
       ['Net touch', 'A player touches the net while playing the ball: point to the other team. Ball hitting the net is fine — play on.'],
       ['Serve', 'Whoever wins the point serves next. Serve goes under the net or lands out: point to the receivers.'],
-      ['Set', 'First to 15, or whoever\'s ahead when the 5-minute whistle goes. Level at the whistle: next point wins. Best of three sets in a 20-minute game.'],
+      ['Set', 'First to 15, or whoever\'s ahead when the 5-minute whistle goes. Level at the whistle: next point wins. Best of three sets in a 15-minute game, then 5 minutes to change over before the next round.'],
     ]},
     fb: { title: 'Scoring football', lead: 'One goal, one tap of +. That\'s the whole score; everything else is a whistle, not a point.', points: [
       ['Goal', 'The whole ball crosses the whole line between the posts. Over the line by half a ball is no goal. Tap + for the scoring team.'],
@@ -3410,7 +3411,7 @@
   const FEST_NOTES = `# Spice Road Experience — notes for Spicy
 The Spice Road Experience is a one-day cultural festival at the University of Queensland run by student societies: UQISC (Indian Students' Club) and its partner society UQSLA (Sri Lankan Association), with ten clubs running marquees. It's outdoors on a sports ground from mid-afternoon into the evening: club stalls, food and fundraising stalls, volleyball, football and cricket competitions, and a performance stage. The people using this app are execs — student volunteers rostered onto duties in 30-minute blocks.
 Organisers: Nandos (Thirunanthanan Thirumurugan — runs logistics, head of football), Archita, Sanuka (UQSLA president) and Prabhas. Sandes built the app and handles anything technical. Questions the notes don't answer should go to Sandes (there's a Message Sandes button under every answer).
-Programme: bump-in from 1:00 pm (food trucks 1:00 – 1:40, business stalls 1:50 – 2:20, club stalls 2:00), all execs at the performance stage 2:45 (Sandes runs through the app), MJ's speech 2:50, doors 3:00. Team photos at each club's marquee: UQPA 4:05, UQISS 4:20, UQGS 5:10, UQPSA 5:15, UQTELS 5:20, UQSLA 5:40, UQISC 6:35, UQNAATAK 6:45, UQNC 6:50 — five minutes, then back to your duty. Football 3:00 – 6:00 on Field 7, six small pitches (16 teams, groups then semis 4:50 and final 5:30); referees are execs. Tickets are Humanitix QR codes scanned at the gate. Volleyball on the beach volleyball courts: eleven teams, knockout (ISS v Ameya's team play-in at 3:15). 3:35 – 4:15 all three courts run bracket games, then two bracket courts and one social. Games 3:35 and 3:55, semis 4:15, final 4:35, winner 5:00. Shriyans, Kartik, Shane and Devyn each play for two teams; the draw keeps their teams from playing at the same time. Performances on the stage 4:30 – 5:05 and 5:40 – 6:10 (break in between); winners and the raffle 8:30 – 8:40. Cricket (T6, tennis ball) on Field 7, which it takes over once football finishes: four teams (UQISC, UQGS, UQSLA, Mixed Team), Devansh briefs the cricket crew at 6:10 and is on cricket for the first two games, then it's self-run. One game at a time: UQSLA v UQISC 6:30, UQGS v Mixed Team 7:00, UQSLA v UQGS 7:30, UQISC v Mixed Team 8:00. Six overs a side, seven on the field max, soft tennis balls only. 20-minute games with 10-minute changeovers; the crew swaps at 7:30. No final: top of the table after match 4 wins, announced 8:30. Raffle drawn 8:40. Bump-out 8:50 – 9:40. Food trucks (7) and business stalls (6) are on Field 6 all day, club marquees too (numbered 1 – 12). First aid: the UQIC venue manager at the First Aid marquee on Field 6. Security: Tru Security.
+Programme: bump-in from 1:00 pm (food trucks 1:00 – 1:40, business stalls 1:50 – 2:20, club stalls 2:00), all execs at the performance stage 2:45 (Sandes runs through the app), MJ's speech 2:50, doors 3:00. Team photos at each club's marquee: UQPA 4:05, UQISS 4:20, UQGS 5:10, UQPSA 5:15, UQTELS 5:20, UQSLA 5:40, UQISC 6:35, UQNAATAK 6:45, UQNC 6:50 — five minutes, then back to your duty. Football 3:00 – 6:00 on Field 7, six small pitches (16 teams, groups then semis 4:50 and final 5:30); referees are execs. Tickets are Humanitix QR codes scanned at the gate. Volleyball on the beach volleyball courts: eleven teams, knockout (ISS v Ameya's team play-in at 3:15). 3:35 – 4:15 all three courts run bracket games, then two bracket courts and one social. 15-minute games with 5 minutes between rounds: 3:15 play-in, 3:35, 3:55, semis 4:15, final 4:35, winner 5:00. Shriyans, Kartik, Shane and Devyn each play for two teams; the draw keeps their teams from playing at the same time. Performances on the stage 4:30 – 5:05 and 5:40 – 6:10 (break in between); winners and the raffle 8:30 – 8:40. Cricket (T6, tennis ball) on Field 7, which it takes over once football finishes: four teams (UQISC, UQGS, UQSLA, Mixed Team), Devansh briefs the cricket crew at 6:10 and is on cricket for the first two games, then it's self-run. One game at a time: UQSLA v UQISC 6:30, UQGS v Mixed Team 7:00, UQSLA v UQGS 7:30, UQISC v Mixed Team 8:00. Six overs a side, seven on the field max, soft tennis balls only. 20-minute games with 10-minute changeovers; the crew swaps at 7:30. No final: top of the table after match 4 wins, announced 8:30. Raffle drawn 8:40. Bump-out 8:50 – 9:40. Food trucks (7) and business stalls (6) are on Field 6 all day, club marquees too (numbered 1 – 12). First aid: the UQIC venue manager at the First Aid marquee on Field 6. Security: Tru Security.
 Escalation: anything medical or dangerous — call 000 first, then tell an organiser. Emergency contacts are in the app under Settings → Emergency (never repeat phone numbers; point people there). Lost property, first aid, behaviour and equipment problems get logged under Settings → Log incident.`;
   const strip = (html) => { const d = document.createElement('div'); d.innerHTML = html; return d.textContent; };
   function spicyNotes() {
@@ -4302,9 +4303,9 @@ If someone asks how to score a match, walk them through these steps and set "sho
     };
     const totalR = roundsTotal((rounds[0] || []).length);
     const isBye = (m) => m.a && !m.b && m.w;
-    const roundsHtml = rounds.map((r, k) => r.some(m => !isBye(m)) ? `<div class="round"><h4>${rname(k, totalR)}</h4>${r.map((m, i) => isBye(m) ? '' : `<div class="bm">${team(m.a, m, 'r')}${mid(m, k, i)}${team(m.b, m, '')}</div>`).join('')}</div>` : '').join('');
+    const roundsHtml = rounds.map((r, k) => r.some(m => !isBye(m)) ? `<div class="round"><h4>${rname(k, totalR)}</h4>${r.map((m, i) => isBye(m) ? '' : (matchTime(sport, k, i) ? `<div class="fine" style="margin:8px 0 2px">${esc(matchTime(sport, k, i))} pm</div>` : '') + `<div class="bm">${team(m.a, m, 'r')}${mid(m, k, i)}${team(m.b, m, '')}</div>`).join('')}</div>` : '').join('');
     const nextHtml = champion ? `<div class="champ">Champion — ${esc(champion)}</div>`
-      : next ? `<div class="next" style="--c:${color}"><span class="eyebrow">Up next</span><b>${esc(next.m.a)} v ${esc(next.m.b)}</b><span class="fine">${rname(next.k, totalR)}</span>${editable && !next.m.m ? `<button type="button" class="play" data-start="${sport}|${next.k}|${next.i}" data-jump="1">Play next</button>` : ''}</div>` : '';
+      : next ? `<div class="next" style="--c:${color}"><span class="eyebrow">Up next</span><b>${esc(next.m.a)} v ${esc(next.m.b)}</b><span class="fine">${rname(next.k, totalR)}${matchTime(sport, next.k, next.i) ? ' · ' + matchTime(sport, next.k, next.i) + ' pm' : ''}</span>${editable && !next.m.m ? `<button type="button" class="play" data-start="${sport}|${next.k}|${next.i}" data-jump="1">Play next</button>` : ''}</div>` : '';
     const outHtml = losers.size ? `<p class="out">Out: ${[...losers].map(t => `<s>${esc(t)}</s>`).join(', ')}</p>` : '';
     const delHtml = editable ? `<div class="foot"><span></span><button type="button" class="btn-small ghost" data-delbracket="${sport}">Delete bracket</button></div>` : '';
     return `<div class="bracket" style="--c:${color}"><div class="head">${iconHtml(d.icon || 'football', color, 'sm')}<span class="ttl">${esc(SPORTS[sport] || sport)} bracket</span><span class="cnt">${(br.teams || []).length} teams</span></div>${nextHtml}${roundsHtml}${outHtml}${delHtml}</div>`;
@@ -4318,7 +4319,7 @@ If someone asks how to score a match, walk them through these steps and set "sho
     for (let k = 0; count >= 1; k++) { cols.push(rounds[k] || Array.from({ length: count }, () => ({ a: null, b: null, w: null }))); if (count === 1) break; count = Math.ceil(count / 2); }
     const sc = (m) => m.m && matches[m.m] ? matches[m.m] : null;
     const row = (t, m, side) => { const cls = !t ? 'tbd' : m.w ? (m.w === t ? 'won' : 'lost') : ''; const scv = sc(m); return `<div class="row ${cls}"><span>${t ? esc(t) : (m.b === null && m.a && m.w && side === 'b' ? 'bye' : 'TBD')}</span>${scv ? `<span class="sc">${side === 'a' ? scv.sa : scv.sb}</span>` : ''}</div>`; };
-    const colsHtml = cols.map((r, k) => `<div class="bcol"><h5>${roundName(r.length * 2, k, cols.length)}</h5>${r.map((m, i) => `<div class="bbox ${sc(m) && sc(m).status === 'live' ? 'live' : ''} ${k === 0 && m.a && !m.b && m.w ? 'bye' : ''}" style="--c:${color}" data-k="${k}" data-i="${i}" data-w="${m.w ? 1 : 0}">${row(m.a, m, 'a')}${row(m.b, m, 'b')}</div>`).join('')}</div>`).join('');
+    const colsHtml = cols.map((r, k) => `<div class="bcol"><h5>${roundName(r.length * 2, k, cols.length)}</h5>${r.map((m, i) => `<div class="bbox ${sc(m) && sc(m).status === 'live' ? 'live' : ''} ${k === 0 && m.a && !m.b && m.w ? 'bye' : ''}" style="--c:${color}" data-k="${k}" data-i="${i}" data-w="${m.w ? 1 : 0}">${matchTime(sport, k, i) && !(k === 0 && m.a && !m.b) ? `<div class="bt">${esc(matchTime(sport, k, i))}</div>` : ''}${row(m.a, m, 'a')}${row(m.b, m, 'b')}</div>`).join('')}</div>`).join('');
     const last = cols[cols.length - 1]; const champion = last.length === 1 && last[0].w ? last[0].w : null;
     return `<div class="bracket" style="--c:${color}"><div class="head">${iconHtml(d.icon || 'football', color, 'sm')}<span class="ttl">${esc(SPORTS[sport] || sport)} bracket</span><span class="cnt">${(br.teams || []).length} teams</span></div>${champion ? `<div class="champ">Champion — ${esc(champion)}</div>` : ''}<div class="bdraw-wrap"><div class="bdraw" data-sport="${sport}">${colsHtml}<svg class="blines"></svg></div></div></div>`;
   }
@@ -4348,6 +4349,8 @@ If someone asks how to score a match, walk them through these steps and set "sho
   const VB_DRAW = ['UQNC + UQPA', null, "Ameya's team", 'UQISS', "Shriyans's team", null, "Aum's team", null,
                    'UQSLA', 'UQISC', "Luhara's team", null, "Sargun's team", 'Solos', 'Team QUT', null];
   const DRAWS = { vb: VB_DRAW };
+  // kick-off time of a bracket match, where the sport has fixed times
+  const matchTime = (sport, k, i) => { const t = MATCH_TIMES[sport]; return t ? (t[k + '-' + i] || t[String(k)] || '') : ''; };
   const MATCH_TIMES = { vb: { '0-1': '3:15', '0-4': '3:35', '0-6': '3:35', '1-0': '3:35', '1-1': '3:55', '1-2': '3:55', '1-3': '3:55', '2': '4:15', '3': '4:35' } };
   const presetBracket = (sport) => DRAWS[sport] ? { ...buildBracket(DRAWS[sport]), teams: DRAWS[sport].filter(Boolean) }
     : (TEAMS[sport] || []).length >= 2 ? buildBracket(TEAMS[sport].map(t => t.name)) : null;
