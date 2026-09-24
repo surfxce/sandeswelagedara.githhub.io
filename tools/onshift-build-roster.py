@@ -373,8 +373,13 @@ BIZ_SUB = ['Thanabammini', 'Devansh', 'Divita', 'Thihan', 'Jia', 'Ishan', 'Amal'
 at_setup = [key_of(p) for p in people if SETUP_FLAG[key_of(p)]]
 first_on = lambda f, ids: any(f in ps for b in roster[:2] for d, ps in b if d in ids)
 setup, taken = collections.defaultdict(list), set()
+# 1:00 pm at the C&S room: collect the equipment and bring it down
+for f in ['Nandos', 'Prabhas', 'Mathew', 'Devansh']:
+    if f in avail: setup['su-cns'].append(f); taken.add(f)
+# Tanisha helps set up the GS marquee
+setup['su-UQGS'].append('Tanisha'); taken.add('Tanisha')
 for f in at_setup:
-    if 'logi' in tags[f]: setup['logi'].append(f); taken.add(f)
+    if f not in taken and 'logi' in tags[f]: setup['logi'].append(f); taken.add(f)
 def fill(duty, k, key, ok=lambda f: True):
     for f in sorted([f for f in at_setup if f not in taken and ok(f)], key=key)[:k]:
         setup[duty].append(f); taken.add(f)
@@ -385,8 +390,15 @@ fill('su-fund', 5, lambda f: (PREF.get(f) != 'fund-pp', not first_on(f, ('fund-p
 fill('su-fb', 6, lambda f: (not first_on(f, ('fb', 'fb-score')), f), mobile)
 fill('su-vb', 4, lambda f: (not first_on(f, ('vb',)), f), mobile)
 fill('su-biz', 3, lambda f: (f not in BIZ_SUB, f), lambda f: not own(f))
-for f in at_setup:
-    if f not in taken: setup['su-' + byfirst[f]["s"][0]].append(f)
+# at most three on any club's marquee (presidents and people based at their
+# stall first); anyone over goes flexible — the committee heads will use them
+MARQUEE_MAX = 3
+first_pick = lambda f: (not (('pres' in ' '.join(tags[f])) or (f in PIN and PIN[f][0].startswith('stall-'))), f)
+for c in sorted({byfirst[f]["s"][0] for f in at_setup if f not in taken}):
+    club = sorted([f for f in at_setup if f not in taken and byfirst[f]["s"][0] == c], key=first_pick)
+    room = MARQUEE_MAX - len(setup['su-' + c])
+    for f in club[:max(0, room)]: setup['su-' + c].append(f); taken.add(f)
+    for f in club[max(0, room):]: setup['su-flex'].append(f); taken.add(f)
 
 # phone numbers live beside the roster file, never in the repo
 import os
