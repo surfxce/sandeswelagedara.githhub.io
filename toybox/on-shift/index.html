@@ -1768,6 +1768,15 @@
         });
       }
     });
+    // football knockouts: players on a team that's through are held for the semis (5:00) and final (5:30)
+    if (ROBIN.fb && (i === 4 || i === 5)) {
+      const ko = robinKO('fb'); const teams = new Set((i === 4 ? ko.semis.flatMap(m => [m.a, m.b]) : [ko.final.a, ko.final.b]).filter(Boolean).map(teamKey));
+      if (teams.size) PEOPLE.forEach(p => {
+        if (![...teamsOf(p.first, 'fb')].some(t => teams.has(t)) || !onSite(p.first, i)) return;
+        rows.forEach(([id, ppl]) => { const j = ppl.indexOf(p.first); if (j >= 0 && id !== 'play-fb') { ppl.splice(j, 1); if (COVERABLE(id)) vacancies.push({ id, by: p.first, sport: 'fb' }); } });
+        addTo('play-fb', p.first);
+      });
+    }
     // ---- cover: free execs step into the vacated duties, same result on every phone ----
     if (vacancies.length) {
       const busy = new Set(rows.flatMap(r => r[1]));
@@ -1980,6 +1989,8 @@
   const tm = (m) => fmt(m) + (m >= 720 ? ' pm' : '');
   // Approximate timetable from the bracket: matches run back to back per sport, byes take no slot.
   function timetableHtml(sport) {
+    if (ROBIN[sport] && ROBIN[sport].groups) { const cfg = ROBIN[sport]; const ko = robinKO(sport);
+      return `<div class="round">${cfg.rounds.map((pairs, k) => pairs.map(([a, b], i) => `<div class="tt"><span class="t">${esc(cfg.times[k])}</span><span class="tm won" style="grid-column:2/-1;text-align:left">${esc(a)} v ${esc(b)}<small>Field ${i + 1} · Group ${groupOf(sport, a)}</small></span></div>`).join('')).join('')}${ko.semis.map((m, i) => `<div class="tt"><span class="t">${esc(cfg.semiTime)}</span><span class="tm won" style="grid-column:2/-1;text-align:left">Semi-final: ${esc(m.a || 'Winner ' + cfg.semis[i][0])} v ${esc(m.b || 'Winner ' + cfg.semis[i][1])}</span></div>`).join('')}<div class="tt"><span class="t">${esc(cfg.finalTime)}</span><span class="tm won" style="grid-column:2/-1;text-align:left">Final: ${esc(ko.final.a || 'Semi 1 winner')} v ${esc(ko.final.b || 'Semi 2 winner')}</span></div></div><p class="fine">${esc(cfg.note)}</p>`; }
     if (ROBIN[sport]) { const cfg = ROBIN[sport]; return `<div class="round">${cfg.rounds.map((pairs, k) => pairs.map(([a, b]) => `<div class="tt"><span class="t">${esc(cfg.times[k])}</span><span class="tm won" style="grid-column:2/-1;text-align:left">${esc(a)} v ${esc(b)}</span></div>`).join('')).join('')}${cfg.finalTime ? `<div class="tt"><span class="t">${esc(cfg.finalTime)}</span><span class="tm won" style="grid-column:2/-1;text-align:left">Final — top two on the table</span></div>` : ''}</div><p class="fine">One game at a time on Field 7. 20-minute games, 10-minute changeovers. Win 2, tie 1; top of the table after match 4 wins. Winner announced 8:30.</p>`; }
     const br = bracketFor(sport);
     if (!br || !br.rounds || !br.rounds[0]) return '<p class="fine">No bracket set up for this yet — check back closer to the time.</p>';
@@ -2776,7 +2787,24 @@
       { name: "Ameya's team", players: ['Ameya Eldhose', 'Elvin Binoy', 'Charan', 'Dhruvesh Vinaikumar', 'Devyn Ramos', 'Aravind KB', 'Jaydip Zalavadiya'] },
       { name: 'Solos',        players: ['Uday', 'Jai Bhatia', 'Sam Klaassen', 'Priyansh', 'Tanveer Salaria', 'Anshraj Srivatava', 'Matvi Jani'] },
     ],
-    fb: [],
+    // From the football committee's sheet. The "combined" lists are split by the
+    // club in their notes column, to match the fixtures. Solo teams, UQIC,
+    // UQAPS, UQISS and UQNAATAK: players to come.
+    fb: [
+      { name: 'UQSLA',    soc: 'UQSLA',  players: ['Hiruna', 'Deneth Perera', 'Muhammad Rassool', 'Sam Klaassen', 'Senith Ranasinghe', 'Dhruvesh Vinaikumar', 'Ashane', 'Pamod Thinura', 'Akira'] },
+      { name: 'UQISS',    soc: 'UQISS',  players: [] },
+      { name: 'UQTELS',   soc: 'UQTELS', players: ['Hemish Srikanth', 'Lochan', 'Hitesh Paritala', 'Chika', 'Ede Warneke'] },
+      { name: 'UQPA',     soc: 'UQPA',   players: ['Manveer', 'Joban Kahlon', 'Ashish Tripathi'] },
+      { name: 'UQISC',    soc: 'UQISC',  players: ['Delvin Shibu', 'Rhythm Pandya', 'Faizan Ahmad', 'Nakul Gireesh', 'Karthik', 'Priyansh', 'Ahan', 'Ishan Singh'] },
+      { name: 'UQIC',     players: [] },
+      { name: 'UQNC',     soc: 'UQNC',   players: ['Prayush Adhikari', 'Aravinth Renganathan', 'Bhumik Sarma', 'Prasant Adhikari', 'Kabhishek Shanthakumar'] },
+      { name: 'UQNAATAK', soc: 'UQNAATAK', players: [] },
+      { name: 'UQGS',     soc: 'UQGS',   players: ['Naman Oza', 'Krish', 'Jaydeep Gohel', 'Nikhil Khatri', 'Samarth Patel', 'Ronak Ashara', 'Shahzeb Hussain'] },
+      { name: 'UQAPS',    players: [] },
+      { name: 'UQPSA',    soc: 'UQPSA',  players: ['Abdullah Tariq', 'Ali Abbasi', 'Aban Shahzad', 'Muzamil Rafiq', 'Ronak Ashara', 'Shahzeb Hussain'] },
+      { name: 'UQTAS',    players: ['Soorya Ammanur Madapoosi', 'Muheen Siva', 'Aksharan S'] },
+      { name: 'Solo 1',   players: [] }, { name: 'Solo 2', players: [] }, { name: 'Solo 3', players: [] }, { name: 'Solo 4', players: [] },
+    ],
     // Four teams, from the cricket committee's sheet. Execs: Mathisha and
     // Thihan (UQSLA), Rushi (UQGS), Prabhjot (UQPA, for the Mixed Team).
     ck: [
@@ -2792,7 +2820,31 @@
   // by hand.
   // Per the cricket committee's poster: one game at a time, every half hour,
   // no final — top of the table after match 4 wins.
-  const ROBIN = { ck: { rounds: [[['UQSLA', 'UQISC']], [['UQGS', 'Mixed Team']], [['UQSLA', 'UQGS']], [['UQISC', 'Mixed Team']]], times: ['6:30 pm', '7:00 pm', '7:30 pm', '8:00 pm'], finalTime: null } };
+  const ROBIN = {
+    // Football, from the committee's six-field schedule: four groups of four,
+    // each game on its own field (the pair's position = the field), one group
+    // resting each slot. Group winners go through: semis 4:50, final 5:30.
+    fb: { groups: { A: ['UQSLA', 'UQISS', 'UQTELS', 'UQPA'], B: ['UQISC', 'UQIC', 'UQNC', 'UQNAATAK'], C: ['UQGS', 'UQAPS', 'UQPSA', 'UQTAS'], D: ['Solo 1', 'Solo 2', 'Solo 3', 'Solo 4'] },
+      rounds: [
+        [['UQISC', 'UQIC'], ['UQNC', 'UQNAATAK'], ['UQGS', 'UQAPS'], ['UQPSA', 'UQTAS'], ['Solo 1', 'Solo 4'], ['Solo 2', 'Solo 3']],
+        [['UQSLA', 'UQISS'], ['UQTELS', 'UQPA'], ['UQGS', 'UQTAS'], ['UQAPS', 'UQPSA'], ['Solo 1', 'Solo 3'], ['Solo 4', 'Solo 2']],
+        [['UQSLA', 'UQPA'], ['UQISS', 'UQTELS'], ['UQISC', 'UQNAATAK'], ['UQIC', 'UQNC'], ['Solo 1', 'Solo 2'], ['Solo 3', 'Solo 4']],
+        [['UQSLA', 'UQTELS'], ['UQPA', 'UQISS'], ['UQISC', 'UQNC'], ['UQNAATAK', 'UQIC'], ['UQGS', 'UQPSA'], ['UQTAS', 'UQAPS']]],
+      times: ['3:00 pm', '3:25 pm', '3:50 pm', '4:15 pm'], rests: ['A', 'B', 'C', 'D'], win: 3,
+      semis: [['A', 'C'], ['B', 'D']], semiTime: '4:50 pm', finalTime: '5:30 pm',
+      note: 'Field 7, six small pitches. 22-minute games, 3-minute changeovers. Win 3, draw 1; group winners go through. Knockout draws go to penalties — add one to the shootout winner\'s score.' },
+    ck: { rounds: [[['UQSLA', 'UQISC']], [['UQGS', 'Mixed Team']], [['UQSLA', 'UQGS']], [['UQISC', 'Mixed Team']]], times: ['6:30 pm', '7:00 pm', '7:30 pm', '8:00 pm'], finalTime: null } };
+  // group tables and who's through, from the scores (football)
+  const groupOf = (sport, name) => { const g = (ROBIN[sport] || {}).groups || {}; return Object.keys(g).find(k => g[k].includes(name)) || ''; };
+  const koWinner = (m) => { const sc = m && m.m && matches[m.m]; return sc && sc.status !== 'live' && sc.sa !== sc.sb ? (sc.sa > sc.sb ? m.a : m.b) : null; };
+  function robinKO(sport) {
+    const cfg = ROBIN[sport]; const br = brackets[sport] || {}; const G = cfg.rounds.length;
+    const tops = {}; Object.entries(cfg.groups || {}).forEach(([g, names]) => { const t = robinTable(sport, names); tops[g] = t.every(r => r.p >= names.length - 1) ? t[0].name : null; });
+    const saved = (k, i) => ((br.rounds || [])[k] || [])[i] || {};
+    const semis = (cfg.semis || []).map(([x, y], i) => { const s = saved(G, i); return { a: s.a || tops[x], b: s.b || tops[y], w: s.w || null, m: s.m || null }; });
+    const f = saved(G + 1, 0);
+    return { tops, semis, final: { a: f.a || koWinner(semis[0]), b: f.b || koWinner(semis[1]), w: f.w || null, m: f.m || null } };
+  }
   // One selected sport, shared by the Teams and Brackets sections on both pages.
   let sportSel = 'vb'; try { sportSel = localStorage.getItem('onshift.sport') || 'vb'; } catch {}
   if (!SPORTS[sportSel]) sportSel = 'vb';
@@ -4301,9 +4353,9 @@ If someone asks how to score a match, walk them through these steps and set "sho
     : (TEAMS[sport] || []).length >= 2 ? buildBracket(TEAMS[sport].map(t => t.name)) : null;
   const bracketFor = (sport) => brackets[sport] || presetBracket(sport);
   // Standings from whatever's been played: W/L/points, runs for and against.
-  function robinTable(sport) {
+  function robinTable(sport, only) {
     const cfg = ROBIN[sport]; const br = brackets[sport] || {};
-    const rows = Object.fromEntries((TEAMS[sport] || []).map(t => [t.name, { p: 0, w: 0, l: 0, t: 0, rf: 0, ra: 0 }]));
+    const rows = Object.fromEntries((only || (TEAMS[sport] || []).map(t => t.name)).map(n => [n, { p: 0, w: 0, l: 0, t: 0, rf: 0, ra: 0 }]));
     (br.rounds || []).slice(0, cfg.rounds.length).forEach(r => r.forEach(m => {
       const sc = m.m && matches[m.m]; if (!sc || sc.status === 'live' || !rows[m.a] || !rows[m.b]) return;
       rows[m.a].p++; rows[m.b].p++;
@@ -4311,7 +4363,7 @@ If someone asks how to score a match, walk them through these steps and set "sho
       if (sc.sa === sc.sb) { rows[m.a].t++; rows[m.b].t++; }
       else { const wn = sc.sa > sc.sb ? m.a : m.b, ln = sc.sa > sc.sb ? m.b : m.a; rows[wn].w++; rows[ln].l++; }
     }));
-    return Object.entries(rows).map(([name, x]) => ({ name, ...x, pts: x.w * 2 + x.t, diff: x.rf - x.ra }))
+    return Object.entries(rows).map(([name, x]) => ({ name, ...x, pts: x.w * (cfg.win || 2) + x.t, diff: x.rf - x.ra }))
       .sort((a, b) => b.pts - a.pts || b.diff - a.diff || a.name.localeCompare(b.name));
   }
   function robinCard(sport, editable) {
@@ -4325,6 +4377,16 @@ If someone asks how to score a match, walk them through these steps and set "sho
       const btn = editable && m.a && m.b && !sc ? `<button type="button" data-start="${sport}|${k}|${i}" data-names="${esc(m.a)} v ${esc(m.b)}" data-jump="1">Start</button>` : '';
       return `<div class="bm ${btn ? 'startable' : ''}"><span class="tm r ${sc && !live && sc.sa > sc.sb ? 'won' : sc && !live && sc.sa < sc.sb ? 'lost' : !m.a ? 'tbd' : ''}">${m.a ? esc(m.a) : 'TBD'}</span><span class="mid">${live ? '<span class="live-tag">Live</span>' : ''}${score || btn || `<span class="fine">${esc(when)}</span>`}</span><span class="tm ${sc && !live && sc.sb > sc.sa ? 'won' : sc && !live && sc.sb < sc.sa ? 'lost' : !m.b ? 'tbd' : ''}">${m.b ? esc(m.b) : 'TBD'}</span></div>`;
     };
+    if (cfg.groups) {
+      const G = cfg.rounds.length; const ko = robinKO(sport);
+      const grp = cfg.rounds.map((pairs, k) => { const saved = (br.rounds || [])[k] || [];
+        return `<div class="round"><h4>${esc(cfg.times[k])} — Group ${esc(cfg.rests[k])} rests</h4>${pairs.map(([a, b], i) => `<div class="fine" style="margin:8px 0 2px">Field ${i + 1} · Group ${groupOf(sport, a)}</div>` + game(saved[i] || { a, b, w: null, m: null }, k, i, cfg.times[k])).join('')}</div>`; }).join('');
+      const semis = `<div class="round"><h4>${esc(cfg.semiTime)} — Semi-finals</h4>${ko.semis.map((m, i) => `<div class="fine" style="margin:8px 0 2px">Winner ${cfg.semis[i][0]} v winner ${cfg.semis[i][1]}</div>` + game(m, G, i, cfg.semiTime)).join('')}</div>`;
+      const fin = `<div class="round"><h4>${esc(cfg.finalTime)} — Final</h4>${game(ko.final, G + 1, 0, cfg.finalTime)}</div>`;
+      const tables = Object.entries(cfg.groups).map(([g, names]) => { const t = robinTable(sport, names);
+        return `<h4 style="margin:14px 0 4px">Group ${g}</h4><table class="rgrid robin"><tr><th>Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>Pts</th><th>GD</th></tr>${t.map((r, i) => `<tr class="${i === 0 && r.p ? 'top' : ''}"><td>${esc(r.name)}</td><td>${r.p}</td><td>${r.w}</td><td>${r.t}</td><td>${r.l}</td><td>${r.pts}</td><td>${r.diff > 0 ? '+' : ''}${r.diff}</td></tr>`).join('')}</table>`; }).join('');
+      return `<div class="bbox" style="--c:${color}"><div class="head">${iconHtml(d.icon || 'football', color, 'sm')}<span class="lbl">${esc(SPORTS[sport])} — groups, semis, final</span></div>${grp}${semis}${fin}${tables}<p class="fine">${esc(cfg.note || '')}</p></div>`;
+    }
     const roundsHtml = cfg.rounds.map((pairs, k) => {
       const saved = (br.rounds || [])[k] || [];
       return `<div class="round"><h4>${esc(cfg.times[k])} — ${pairs.length > 1 ? 'two games at once' : 'Match ' + (k + 1)}</h4>${pairs.map(([a, b], i) => game(saved[i] || { a, b, w: null, m: null }, k, i, cfg.times[k])).join('')}</div>`;
@@ -4348,8 +4410,12 @@ If someone asks how to score a match, walk them through these steps and set "sho
         const cfg = ROBIN[sport]; const br = brackets[sport] || { teams: (TEAMS[sport] || []).map(t => t.name), rounds: [], t: Date.now() };
         br.rounds = br.rounds || [];
         cfg.rounds.forEach((pairs, kk) => { br.rounds[kk] = br.rounds[kk] || pairs.map(([a, bb]) => ({ a, b: bb, w: null, m: null })); });
-        const tb = robinTable(sport); if (cfg.finalTime) br.rounds[cfg.rounds.length] = br.rounds[cfg.rounds.length] || [{ a: null, b: null, w: null, m: null }];
-        if (cfg.finalTime && k === cfg.rounds.length) { br.rounds[k][0].a = br.rounds[k][0].a || tb[0].name; br.rounds[k][0].b = br.rounds[k][0].b || tb[1].name; }
+        const tb = robinTable(sport);
+        if (cfg.groups) {        // semis and final: whoever the tables and results say
+          const ko = robinKO(sport); const G = cfg.rounds.length;
+          br.rounds[G] = ko.semis.map(m => ({ a: m.a, b: m.b, w: m.w, m: m.m })); br.rounds[G + 1] = [{ a: ko.final.a, b: ko.final.b, w: ko.final.w, m: ko.final.m }];
+        } else if (cfg.finalTime) br.rounds[cfg.rounds.length] = br.rounds[cfg.rounds.length] || [{ a: null, b: null, w: null, m: null }];
+        if (!cfg.groups && cfg.finalTime && k === cfg.rounds.length) { br.rounds[k][0].a = br.rounds[k][0].a || tb[0].name; br.rounds[k][0].b = br.rounds[k][0].b || tb[1].name; }
         const mm = br.rounds[k][i];
         const pushed = await ref('scores').push({ sport, a: mm.a, b: mm.b, sa: 0, sb: 0, status: 'live', t: now(), by: me ? me.first : '' });
         br.rounds[k][i].m = pushed.key; br.t = Date.now(); await ref('brackets/' + sport).set(br);
@@ -4401,7 +4467,7 @@ If someone asks how to score a match, walk them through these steps and set "sho
     if (!db) { unavailable($('scores-live'), 'scores'); unavailable($('bcast-list'), 'updates'); unavailable($('brackets'), 'brackets'); const pub = $('public-scores'); if (pub) unavailable(pub, 'scores'); $('match-form').closest('details').hidden = true; $('bracket-form').closest('details').hidden = true; return; }
     const pub = $('public-scores');
     [$('scores-live'), $('bcast-list'), pub].forEach(el => { if (el) el.innerHTML = '<p class="fine">Connecting…</p>'; });
-    ref('scores').limitToLast(300).on('value', snap => { matches = snap.val() || {}; renderScores(); settleBrackets(); renderBrackets(); renderDesk(); if (scrOn) scrScores(); }, () => { unavailable($('scores-live'), 'scores'); if (pub) unavailable(pub, 'scores'); });
+    ref('scores').limitToLast(300).on('value', snap => { matches = snap.val() || {}; rosterVersion++; renderScores(); settleBrackets(); renderBrackets(); renderDesk(); if (scrOn) scrScores(); }, () => { unavailable($('scores-live'), 'scores'); if (pub) unavailable(pub, 'scores'); });
     ref('brackets').on('value', snap => { brackets = snap.val() || {}; rosterVersion++; renderBrackets(); if (!$('shell').hidden) { render(); renderHelps(); renderBell(); } }, () => { unavailable($('brackets'), 'brackets'); const pb = $('public-brackets'); if (pb) unavailable(pb, 'brackets'); });
     ref('broadcasts').limitToLast(30).on('value', snap => { bcasts = snap.val() || {}; renderBcasts(); }, () => { unavailable($('bcast-list'), 'updates'); });
     // accepted swaps are part of the roster, so keep the whole day's (a
