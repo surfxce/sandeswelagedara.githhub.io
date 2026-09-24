@@ -302,6 +302,14 @@
           ".validate": false
         }
       },
+      "absent": {
+        ".read": true,
+        "$first": { ".write": true, ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 12" }
+      },
+      "rollcall": {
+        ".read": true,
+        "$first": { ".write": true, ".validate": "newData.isBoolean()" }
+      },
       "here": {
         ".read": true,
         "$first": { "$block": { ".write": true, ".validate": "newData.isBoolean()" } }

@@ -428,6 +428,15 @@
   @keyframes al-in { from { opacity: 0; } to { opacity: 1; } }
   @keyframes al-fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
   @keyframes al-bell { 0% { opacity: 0; transform: scale(.6) rotate(0); } 40% { opacity: 1; transform: scale(1.08) rotate(-14deg); } 60% { transform: rotate(12deg); } 80% { transform: rotate(-6deg); } 100% { transform: none; } }
+  .rc-bar { display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 14px; margin: 0 0 8px; border: 1.5px solid var(--line); border-left: 6px solid #3E7A4A; border-radius: 6px; background: #fff; font-size: 14px; color: var(--ink-2); text-align: left; }
+  .rc-bar b { color: var(--ink); } .rc-bar .chev { margin-left: auto; color: var(--ink-3); }
+  .rc-h { margin: 14px 0 6px; font-size: 11px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); }
+  .rc-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+  .rc { display: grid; grid-template-columns: 22px 1fr auto; gap: 6px; align-items: center; text-align: left; padding: 8px 10px; border-radius: 6px; border: 1.5px solid var(--line); background: #fff; font-size: 14px; font-weight: 700; color: var(--ink); min-width: 0; }
+  .rc .nm { overflow-wrap: anywhere; } .rc .st { font-size: 11px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+  .rc .mk { width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid var(--line); display: grid; place-items: center; font-size: 13px; }
+  .rc.here { border-color: #3E7A4A; } .rc.here .mk { background: #3E7A4A; border-color: #3E7A4A; color: #fff; } .rc.here .st { color: #3E7A4A; }
+  .rc.absent { border-color: #B23A2E; background: #FBEDEA; } .rc.absent .mk { background: #B23A2E; border-color: #B23A2E; color: #fff; } .rc.absent .st { color: #B23A2E; } .rc.absent .nm { text-decoration: line-through; }
   .staff-nav { display: flex; align-items: center; justify-content: space-between; margin: 0 0 6px; }
   .staff-nav .step { width: 36px; height: 36px; border-radius: 50%; border: 1.5px solid var(--line); background: var(--paper); font-size: 20px; color: var(--maroon); }
   .staff-row { display: grid; grid-template-columns: 1fr 110px 26px 44px; gap: 8px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
@@ -1418,6 +1427,10 @@
         <div class="txt"><b>Master clock</b><span id="sim-state">Move every exec's app to a block, at your pace. Off = real time.</span></div>
         <button class="toggle" id="sim-toggle" type="button" role="switch" aria-checked="false" aria-label="Master clock"></button>
       </div>
+      <div class="set-row" id="set-roll-row" hidden>
+        <div class="txt"><b>Roll call</b><span id="set-roll-sum">Tick people in as they arrive. Anyone marked absent comes off the roster and their duties are covered.</span></div>
+        <button class="btn-small ghost" id="set-roll" type="button">Open</button>
+      </div>
       <div class="set-row" id="set-staff-row" hidden>
         <div class="txt"><b>Staffing</b><span>More or fewer on a duty, this block or any other. Everyone's app updates. Only you see this.</span></div>
         <button class="btn-small ghost" id="set-staff" type="button">Open</button>
@@ -1686,7 +1699,9 @@
   let PEOPLE = [];
   let SETUP = null;
   let staffing = {};
-  let here = {};      // spice-road/here/{first}/{block} = true: "I'm still here" on a block they'd said they'd be gone  // spice-road/staffing/{block}/{duty or 'crowd'} = headcount (Sandes)
+  let here = {};
+  let absent = {};    // spice-road/absent/{first} = first block they're missing from (roll call, Sandes)
+  let rollcall = {};  // spice-road/rollcall/{first} = true once ticked in      // spice-road/here/{first}/{block} = true: "I'm still here" on a block they'd said they'd be gone  // spice-road/staffing/{block}/{duty or 'crowd'} = headcount (Sandes)
   let CONTACTS = {};  // numbers for people who aren't execs (e.g. heads from outside), by full name   // [[dutyId, [first names]]] for 2:00 – 3:00; null = everyone, all hands
   let ROSTER = [];
   const byFirst = {};
@@ -1773,6 +1788,11 @@
     // ---- winners: held for the next round, duty vacated ----
     const vacancies = [];
     const addTo = (id, f) => { const r = rows.find(x => x[0] === id); if (r) { if (!r[1].includes(f)) r[1].push(f); } else rows.push([id, [f]]); };
+    // ---- absent (roll call): off their duty, and the cover step below fills it ----
+    Object.keys(absent).sort().forEach(f => {
+      if (onSite(f, i)) return;
+      rows.forEach(([id, ppl]) => { const j = ppl.indexOf(f); if (j >= 0) { ppl.splice(j, 1); if (COVERABLE(id)) vacancies.push({ id, by: f, sport: null }); } });
+    });
     Object.entries(brackets || {}).forEach(([sport, br]) => {
       if (!br || !br.rounds || !br.rounds[0] || ROBIN[sport]) return;
       const total = roundsTotal(br.rounds[0].length);
@@ -1873,7 +1893,12 @@
   }
   const sameSociety = (a, b) => { const pa = byFirst[a.toLowerCase()], pb = byFirst[b.toLowerCase()]; return !!(pa && pb && pa.s.some(c => pb.s.includes(c))); };
   // `a` is the blocks this exec said they'd be at the festival. Missing = all day.
-  const onSite = (first, i) => { const p = byFirst[first.toLowerCase()]; return !p || !p.a || p.a.includes(i) || !!(p && here[p.first] && here[p.first][i]); };
+  const onSite = (first, i) => {
+    const p = byFirst[first.toLowerCase()]; if (!p) return true;
+    if (here[p.first] && here[p.first][i]) return true;          // tapped "I'm still here"
+    if (absent[p.first] != null && i >= absent[p.first]) return false;   // marked absent at roll call
+    return !p.a || p.a.includes(i);
+  };
   function assignmentFor(first, i) {
     if (i < 0) {
       if (!SETUP) return { id:'setup', people:[] };
@@ -2039,7 +2064,7 @@
     if (bz) html += `<div class="round"><h4>Bronze medal match</h4><div class="tt"><span class="t">${esc(BRONZE[sport])}</span><span class="tm">${esc(bz.a || 'Semi loser')}</span><span class="mid">v</span><span class="tm">${esc(bz.b || 'Semi loser')}</span></div></div>`;
     return html + (MATCH_TIMES[sport] ? `<p class="fine">15-minute games, 5 minutes between. Three courts at 3:15 and 3:35, two at 3:55, one at 4:15, then the final and the bronze match side by side at 4:35. The bracket fills in as teams win through.</p>` : `<p class="fine">Times are a guide — about ${sc.len} minutes a match, back to back. The bracket fills in as teams win through.</p>`);
   }
-  function openInfoRaw(title, body) { $('info-title').textContent = title; $('info-body').innerHTML = body; $('info-sheet').hidden = false; $('info-backdrop').hidden = false; }
+  function openInfoRaw(title, body) { if (title !== 'Roll call') rcOpen = false; $('info-title').textContent = title; $('info-body').innerHTML = body; $('info-sheet').hidden = false; $('info-backdrop').hidden = false; }
   function infoHtml(key) {
     const [kind, arg] = key.split(':');
     if (kind === 'sport') return { title: SPORTS[arg] + ' — match timetable', body: timetableHtml(arg) };
@@ -2064,8 +2089,8 @@
     if (kind === 'club') { const c = CLUB_INFO[arg]; return { title: arg, body: `<p><b>${esc(c.full)}</b></p><p>${esc(c.about)}</p><h4 class="sec-sm">Execs on the marquee</h4><p class="fine">${c.execs.length ? c.execs.map(esc).join(', ') : '—'}</p>` }; }
     return { title: '', body: '' };
   }
-  function openInfo(key) { const { title, body } = infoHtml(key); $('info-title').textContent = title; $('info-body').innerHTML = body; $('info-sheet').hidden = false; $('info-backdrop').hidden = false; }
-  function closeInfo() { $('info-sheet').hidden = true; $('info-backdrop').hidden = true; }
+  function openInfo(key) { rcOpen = false; const { title, body } = infoHtml(key); $('info-title').textContent = title; $('info-body').innerHTML = body; $('info-sheet').hidden = false; $('info-backdrop').hidden = false; }
+  function closeInfo() { rcOpen = false; $('info-sheet').hidden = true; $('info-backdrop').hidden = true; }
   document.addEventListener('click', e => { if (e.target.closest('[data-dm]')) return; const n = e.target.closest('[data-info]'); if (n) openInfo(n.dataset.info); });
   $('info-close').addEventListener('click', closeInfo); $('info-backdrop').addEventListener('click', closeInfo);
 
@@ -2190,7 +2215,7 @@
     if (me && live && block >= 0 && block < BLOCKS) {
       const a = assignmentFor(me.first, block); const key = block + ':' + a.id;
       if (lastShown && lastShown.split(':')[0] === String(block) && lastShown !== key) {
-        const d = DUTIES[a.id]; notify('Roster change — ' + d.name, { body: a.cover ? `Covering for ${a.cover.for}, who's playing ${(SPORTS[a.cover.sport] || '').toLowerCase()}. ${d.where}` : d.where, tag: 'block' });
+        const d = DUTIES[a.id]; notify('Roster change — ' + d.name, { body: a.cover ? (a.cover.sport ? `Covering for ${a.cover.for}, who's playing ${(SPORTS[a.cover.sport] || '').toLowerCase()}. ${d.where}` : `Covering for ${a.cover.for}, who isn't here. ${d.where}`) : d.where, tag: 'block' });
       }
       lastShown = key;
     }
@@ -2224,7 +2249,7 @@
     // only follows when it says something the heading doesn't
     const status = live ? 'Live' : 'Preview';
     const catLine = `<div class="cat-label ${live ? 'live' : ''}">${status}${cat.label === d.name ? '' : ' · ' + cat.label}</div>`;
-    const coverLine = a.cover ? `<p class="duty-do" style="color:var(--maroon);font-weight:700">Covering for ${esc(full(a.cover.for))}, who\'s playing ${esc(SPORTS[a.cover.sport] || a.cover.sport).toLowerCase()} for their society.</p>` : '';
+    const coverLine = a.cover ? `<p class="duty-do" style="color:var(--maroon);font-weight:700">Covering for ${esc(full(a.cover.for))}, ${a.cover.sport ? `who\'s playing ${esc(SPORTS[a.cover.sport] || a.cover.sport).toLowerCase()} for their society` : 'who isn\'t here today'}.</p>` : '';
     return `<article class="duty-card ${extraClass || ''}" style="--c:${cat.color}">
       ${catLine}
       <div class="duty-head tap" data-info="duty:${a.id}" role="button" tabindex="0">${dutyIcon(d, 'lg')}<div><h1 class="duty-name">${esc(d.name)}<span class="chev">›</span></h1><div class="duty-where">${esc(d.where)}</div></div></div>
@@ -2274,6 +2299,7 @@
 
   function imHere(i) {
     if (!db || !me) return;
+    if (absent[me.first] != null) ref('absent/' + me.first).remove().catch(() => {});
     ref('here/' + me.first + '/' + i).set(true).catch(() => alert('Couldn\'t reach the roster. Check your connection and try again.'));
   }
   function renderNow() {
@@ -2286,7 +2312,9 @@
     $('now-card').innerHTML = dutyCard(tentative(a, block), { soon: 'soon', away: 'away' }[tentative(a, block).id] || '') + controlsHtml(a)
       + (a.id === 'away' && db && block >= 0 && block < BLOCKS ? `<div class="ctl-row" style="--c:${CATS.away.color}"><span></span><button type="button" class="btn-small" id="im-here">I'm still here — give me a duty</button></div>` : '');
     if ($('im-here')) $('im-here').addEventListener('click', () => imHere(block));
-    $('now-moment').innerHTML = momentsFor(block).map(momentHtml).join('');
+    const rc = canSim() && db ? rollcallSummary() : null;
+    $('now-moment').innerHTML = (rc ? `<button type="button" class="rc-bar" id="rc-bar"><b>Roll call</b><span>${rc.here} here · ${rc.absent} absent · ${rc.unmarked} to tick</span><span class="chev">›</span></button>` : '') + momentsFor(block).map(momentHtml).join('');
+    if ($('rc-bar')) $('rc-bar').addEventListener('click', () => { openInfoRaw('Roll call', ''); rcOpen = true; renderRollcall(); });
     bindHelpControl(); bindSwapControl();
 
     // Next block
@@ -4101,6 +4129,34 @@ If someone asks how to score a match, walk them through these steps and set "sho
     $('info-body').querySelectorAll('[data-varok]').forEach(b => b.addEventListener('click', () => { varOk.add(b.dataset.varok); try { localStorage.setItem(VAR_LS, JSON.stringify([...varOk])); } catch {} renderVariance(); }));
     const r = $('var-reset'); if (r) r.addEventListener('click', () => { varOk.clear(); try { localStorage.removeItem(VAR_LS); } catch {} renderVariance(); });
   }
+  // ---------- Roll call (Sandes) ----------
+  // Everyone due at the festival, club by club. Tap once: here. Twice: absent
+  // (from now — or the whole day before 3:00), which takes them off the roster
+  // and lets cover fill their duties. Three times: clear.
+  let rcOpen = false;
+  const rcFrom = () => { const lb = liveBlock(); return lb === null || lb < 0 ? 0 : Math.min(lb, BLOCKS - 1); };
+  function rcState(f) { return absent[f] != null ? 'absent' : rollcall[f] ? 'here' : 'unmarked'; }
+  function rollcallSummary() {
+    const due = PEOPLE.filter(p => (p.a || []).some(i => i >= rcFrom()));
+    const n = { here: 0, absent: 0, unmarked: 0 }; due.forEach(p => n[rcState(p.first)]++);
+    return { due: due.length, ...n };
+  }
+  function renderRollcall() {
+    const from = rcFrom(); const x = rollcallSummary();
+    const clubs = [...new Set(PEOPLE.map(p => p.s[0]))].sort((a, b) => CLUBS.indexOf(a) - CLUBS.indexOf(b));
+    const rowFor = (p) => { const st = rcState(p.first); const late = (p.a || [])[0] > from ? ` <span class="fine">· from ${fmt(DAY_START + p.a[0] * 30)}</span>` : '';
+      return `<button type="button" class="rc ${st}" data-rc="${esc(p.first)}"><span class="mk">${st === 'here' ? '✓' : st === 'absent' ? '✕' : ''}</span><span class="nm">${esc(full(p.first))}${late}</span><span class="st">${st === 'here' ? 'Here' : st === 'absent' ? 'Absent' : ''}</span></button>`; };
+    $('info-body').innerHTML = `<p class="fine"><b>${x.here}</b> here · <b>${x.absent}</b> absent · <b>${x.unmarked}</b> not ticked yet, of ${x.due} due from ${range(from).split(' – ')[0]}. Tap: here → absent → clear. Absent takes them off the roster ${from ? 'from ' + range(from).split(' – ')[0] : 'for the day'}; their duties get covered. If they turn up, tap them again (or they tap “I'm still here”).</p>`
+      + clubs.map(c => { const ppl = PEOPLE.filter(p => p.s[0] === c && (p.a || []).some(i => i >= from)).sort((a, b) => full(a.first).localeCompare(full(b.first)));
+          return ppl.length ? `<h4 class="rc-h">${esc(c)}</h4><div class="rc-list">${ppl.map(rowFor).join('')}</div>` : ''; }).join('');
+    $('info-body').querySelectorAll('[data-rc]').forEach(b => b.addEventListener('click', () => {
+      const f = b.dataset.rc; const st = rcState(f);
+      if (st === 'unmarked') ref('rollcall/' + f).set(true);
+      else if (st === 'here') { ref('rollcall/' + f).remove(); ref('absent/' + f).set(rcFrom()); }
+      else ref('absent/' + f).remove();
+    }));
+  }
+  $('set-roll').addEventListener('click', () => { if (!canSim()) return; openSettings(false); openInfoRaw('Roll call', ''); rcOpen = true; renderRollcall(); });
   let staffBlock = null;
   function renderStaffing() {
     const i = staffBlock; const rows = rowsFor(i);
@@ -4129,7 +4185,7 @@ If someone asks how to score a match, walk them through these steps and set "sho
   function renderSim() {
     const ok = canSim(); $('set-sim-row').hidden = !ok;
     // Sandes's tools: everyone else never needs them on the day
-    ['set-demo-row', 'set-screen-row', 'set-manual-row', 'set-switch-row', 'set-var-row', 'set-staff-row'].forEach(id => { $(id).hidden = !ok; });
+    ['set-demo-row', 'set-screen-row', 'set-manual-row', 'set-switch-row', 'set-var-row', 'set-staff-row', 'set-roll-row'].forEach(id => { $(id).hidden = !ok; });
     if (ok) { const n = varianceItems().filter(x => !varOk.has(x.key)).length; $('var-state').textContent = n ? `${n} thing${n === 1 ? '' : 's'} to look at. Only you see this.` : 'Nothing flagged. Only you see this.'; }
     $('demo-toggle').setAttribute('aria-checked', String(demoMode));
     $('demo-state').textContent = demoMode ? 'On — the tour plays every time you sign in. Off when you\'re done showing people.' : 'Replays the welcome tour every time you sign in — for showing people the app. This phone only.';
@@ -4565,6 +4621,8 @@ If someone asks how to score a match, walk them through these steps and set "sho
     ref('photos').orderByChild('status').equalTo('pending').on('value', snap => { phPending = snap.val() || {}; renderPhotoMod(); }, () => {});
     ref('photos').orderByChild('status').equalTo('rejected').on('value', snap => { phRejected = snap.val() || {}; renderPhotoMod(); }, () => {});
     ref('config/aiReview').on('value', snap => { aiOn = snap.val() !== false; renderPhotoMod(); }, () => {});
+    ref('absent').on('value', snap => { absent = snap.val() || {}; rosterVersion++; if (!$('shell').hidden) render(); if (rcOpen) renderRollcall(); }, () => {});
+    ref('rollcall').on('value', snap => { rollcall = snap.val() || {}; if (!$('shell').hidden) render(); if (rcOpen) renderRollcall(); }, () => {});
     ref('here').on('value', snap => { here = snap.val() || {}; rosterVersion++; if (!$('shell').hidden) render(); }, () => {});
     ref('staffing').on('value', snap => { staffing = snap.val() || {}; rosterVersion++; if (!$('shell').hidden) render(); }, () => {});
     ref('ticker').limitToLast(40).on('value', snap => { ticks = snap.val() || {}; if (scrOn) renderTicker(); if (!$('view-desk').hidden) renderTicks(); }, () => {});
