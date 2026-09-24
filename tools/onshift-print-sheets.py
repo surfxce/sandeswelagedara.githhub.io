@@ -153,12 +153,17 @@ CK = {f for b in d['roster'][6:11] for x, ps in b if x == 'ck' for f in ps}
 QR_URL = 'https://sandeswelagedara.com/toybox/on-shift/'
 LOGI_ORDER = ['Nandos', 'Archita', 'Mathew', 'Sanuli', 'Devashri', 'Tanisha', 'Prabhas']
 SPORT = {'vb': 'volleyball', 'fb': 'football'}
+# team photos at each club's marquee (same as MOMENTS in the app): club, block, time, photographer
+PHOTOS = [('UQPA', 2, '4:05', 'Joanna'), ('UQISS', 2, '4:20', 'Joanna'), ('UQGS', 4, '5:10', 'Divita'), ('UQPSA', 4, '5:15', 'Divita'),
+          ('UQTELS', 4, '5:20', 'Divita'), ('UQSLA', 5, '5:40', 'Krisha'), ('UQISC', 7, '6:35', 'Mathew'), ('UQNAATAK', 7, '6:45', 'Shane'), ('UQNC', 7, '6:50', 'Shane')]
 
 def exec_page(p, soc):
     f = kof(p); rows = []
     su = next(((sid, ps) for sid, ps in d.get('setup', []) if f in ps), None)
     if su: rows.append(('1:00 – 3:00' if su[0] == 'su-cns' else '2:00 – 3:00', duty(su[0]), [x for x in su[1] if x != f], 'hands'))
     else: rows.append(('2:00 – 3:00', ('Setup', 'Not on your form — come if you can'), [], 'off'))
+    if su or onsite(f, 0):
+        rows.append(('2:45', ('All execs: performance stage', "Sandes runs through the app, then MJ's speech at 2:50 · then back to setup"), [], 'moment'))
     for i in range(12):
         t = span(i)
         if not onsite(f, i): rows.append((t, ('Not on site', ''), [], 'off')); continue
@@ -184,6 +189,15 @@ def exec_page(p, soc):
             rows.append(('4:55', ("Presidents' photo — you're taking it", 'Stage steps, straight after the final and the prizes · five minutes'), [], 'moment'))
         if i == 3 and f in PRES:
             rows.append(('4:55', ("Presidents' photo", 'Stage steps, straight after the volleyball final · 5 minutes, then back to your spot'), [], 'moment'))
+        cur = rows[-1][1][0]
+        backto = 'your break' if cur == 'Break' else cur.split(' — ')[0] if cur.startswith('Playing') else cur
+        shots = [(c, at) for c, b, at, by in PHOTOS if b == i and by == f]
+        if shots:
+            rows.append((shots[0][1], ('Take team photos: ' + ', '.join(f'{c} {at}' for c, at in shots),
+                                       f'At each club\'s marquee, Field 6 · 5 minutes each, then back to {backto}'), [], 'moment'))
+        for c, b, at, by in PHOTOS:
+            if b == i and c in p['s']:
+                rows.append((at, (f'{c} team photo', f'{c} marquee, Field 6 · {by} takes it · 5 minutes, then back to {backto}'), [], 'moment'))
         if i == 6 and f in CK and f != 'Devansh':
             rows.append(('6:10', ('Cricket briefing with Devansh', 'Field 7, by the pitches · set-up and run-through, first game 6:30'), [], 'moment'))
     rows.append(('9:00 – 10:00', ('Pack-up — all hands', 'Strike marquees, bag rubbish, return gear'), [], 'hands' if P.get(p['n'], {}).get('packup') else 'off'))
@@ -282,7 +296,7 @@ CSS = '''
   table { width: 100%; border-collapse: collapse; }
   th { text-align: left; font-size: 8.5pt; letter-spacing: .1em; text-transform: uppercase; color: #8C7B6E; padding: 0 0 2mm; }
   th:first-child { width: 31mm; }
-  td { border-top: 1px solid #DACBB2; padding: 1.45mm 0; vertical-align: top; }
+  td { border-top: 1px solid #DACBB2; padding: 1.25mm 0; vertical-align: top; }
   td.t { font-weight: 800; font-size: 10.5pt; font-variant-numeric: tabular-nums; color: #2B1A14; white-space: nowrap; padding-right: 4mm; }
   td.d b { display: block; font-size: 11.5pt; }
   td.d span { display: block; font-size: 9pt; color: #6B5347; margin-top: .4mm; }
@@ -290,10 +304,11 @@ CSS = '''
   tr.play td { background: #EAF3EE; } tr.play td.d b { color: #2E7D5B; }
   tr.covering td { background: #FDF3E6; } tr.covering td.d b { color: #9A5A12; }
   tr.hands td { background: #F3EEE3; }
-  tr.moment td { background: #F7ECF1; padding-top: 1.1mm; padding-bottom: 1.1mm; } tr.moment td.t { padding-left: 2mm; color: #8A3B62; } tr.moment td.d b { color: #8A3B62; }
+  tr.moment td { background: #F7ECF1; padding-top: .6mm; padding-bottom: .6mm; font-size: 9.5pt; } tr.moment td.d b { display: inline; font-size: 10pt; } tr.moment td.d span { display: inline; margin-left: 2mm; font-size: 8.5pt; } tr.moment td.t { padding-left: 2mm; color: #8A3B62; } tr.moment td.d b { color: #8A3B62; }
   tr.free td.d b { color: #5F6E7A; }
   tr.off td { color: #B9ADA2; } tr.off td.t, tr.off td.d b { color: #B9ADA2; font-weight: 500; }
   tr.off td.d span { display: none; }
+  tr.off td { padding-top: .7mm; padding-bottom: .7mm; }
   tr.play td:first-child, tr.hands td:first-child, tr.covering td:first-child { padding-left: 2mm; }
   footer { margin-top: auto; border-top: 1px solid #DACBB2; padding-top: 3mm; font-size: 9pt; color: #6B5347; line-height: 1.4; display: flex; gap: 6mm; align-items: flex-end; }
   footer .ft { flex: 1; }

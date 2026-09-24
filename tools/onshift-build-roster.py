@@ -41,7 +41,7 @@ P = [
  ("Tanvi Rayabarapu","TELS","3,4,5,6",1,0,"",""),
  ("Tanya Rayabarapu","TELS","3,4,5",1,0,"",""),
  ("Kartheeka Valluri","SLA","4,5,6,7,8",0,1,"",""),
- ("Dhyan Varboo","SLA","3,4,5",0,0,"","fb-head"),
+ ("Dhyan Varboo","SLA","3,4,5,6",0,0,"","fb-head"),
  ("Heshan Chandrasekara","SLA","3,4,5,6",0,0,"",""),
  ("Sandes Welagedara","ISC","3,4,5,6,7,8",1,1,"",""),
  ("Rania Gaffoor","PSA","3,4,5,6,7,8",1,1,"",""),
