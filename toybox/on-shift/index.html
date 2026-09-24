@@ -437,6 +437,14 @@
   .rc .mk { width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid var(--line); display: grid; place-items: center; font-size: 13px; }
   .rc.here { border-color: #3E7A4A; } .rc.here .mk { background: #3E7A4A; border-color: #3E7A4A; color: #fff; } .rc.here .st { color: #3E7A4A; }
   .rc.absent { border-color: #B23A2E; background: #FBEDEA; } .rc.absent .mk { background: #B23A2E; border-color: #B23A2E; color: #fff; } .rc.absent .st { color: #B23A2E; } .rc.absent .nm { text-decoration: line-through; }
+  .stress { margin: 14px 0 8px; padding: 10px 12px; border-radius: 6px; border: 1.5px solid var(--line); border-left: 6px solid #3E7A4A; background: #fff; }
+  .stress.mid { border-left-color: #C98A1B; } .stress.hi { border-left-color: #B23A2E; background: #FBEDEA; }
+  .stress .sh { display: flex; justify-content: space-between; align-items: baseline; } .stress .sh span { font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: #3E7A4A; }
+  .stress.mid .sh span { color: #C98A1B; } .stress.hi .sh span { color: #B23A2E; }
+  .stress p { margin: 6px 0; font-size: 14px; color: var(--ink-2); }
+  .sx { display: grid; gap: 1px; padding: 6px 0; border-top: 1px solid var(--line); font-size: 14px; } .sx span { color: var(--ink-2); } .sx small { font-size: 12px; color: var(--ink-3); }
+  .sx.mid small { color: #C98A1B; font-weight: 700; } .sx.hi small { color: #B23A2E; font-weight: 700; }
+  .staff-act { display: flex; justify-content: flex-end; gap: 8px; margin: 8px 0 4px; }
   .staff-nav { display: flex; align-items: center; justify-content: space-between; margin: 0 0 6px; }
   .staff-nav .step { width: 36px; height: 36px; border-radius: 50%; border: 1.5px solid var(--line); background: var(--paper); font-size: 20px; color: var(--maroon); }
   .staff-row { display: grid; grid-template-columns: 1fr 110px 26px 44px; gap: 8px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
@@ -1781,6 +1789,12 @@
   const isPlayer = (first, sport) => ROSTER.some(b => b.some(([id, ppl]) => id === 'play-' + sport && ppl.includes(first)));
   const COVERABLE = (id) => !['free', 'logi', 'setup', 'packup'].includes(id) && !id.startsWith('play-') && (DUTIES[id] || {}).cat !== 'hands' && (DUTIES[id] || {}).cat !== 'photo';
   let rosterVersion = 0; const rowsCache = new Map();
+  const SPORT_DUTY = new Set(['vb', 'fb', 'fb-score', 'ck']);
+  // half hours on duty in the planned roster — who has the lightest day
+  let loadMemo = null;
+  const baseLoad = (f) => { if (!loadMemo || loadMemo.r !== ROSTER) { loadMemo = { r: ROSTER, n: {} }; ROSTER.forEach(b => b.forEach(([id, ppl]) => { if (id !== 'free') ppl.forEach(x => { loadMemo.n[x] = (loadMemo.n[x] || 0) + 1; }); })); } return loadMemo.n[f] || 0; };
+  // "c" in the roster: the sports someone can't referee or score
+  const canDo = (f, id) => !(SPORT_DUTY.has(id) && ((byFirst[f.toLowerCase()] || {}).c || []).includes(id));
   function rowsFor(i) {
     const hit = rowsCache.get(i); if (hit && hit.v === rosterVersion) return hit.rows;
     const rows = ROSTER[i].map(([id, ppl]) => [id, id.startsWith('play-') ? ppl.filter(p => !teamOut(id.slice(5), p, i)) : ppl.slice()]);
@@ -1826,20 +1840,36 @@
       });
     }
     // ---- cover: free execs step into the vacated duties, same result on every phone ----
+    // Refereeing and scoring come first and are never left empty. Cover goes to
+    // whoever has the lightest day (and wasn't on duty the half hour before),
+    // not whoever's first in the alphabet.
     if (vacancies.length) {
       const busy = new Set(rows.flatMap(r => r[1]));
-      const pool = PEOPLE.map(p => p.first).filter(f => !busy.has(f) && onSite(f, i)).sort();
+      const onBefore = (f) => i > 0 && ROSTER[i - 1].some(([, ppl]) => ppl.includes(f));
+      const fair = (a, b) => (onBefore(a) - onBefore(b)) || (baseLoad(a) - baseLoad(b)) || a.localeCompare(b);
+      const pool = PEOPLE.map(p => p.first).filter(f => !busy.has(f) && onSite(f, i)).sort(fair);
+      vacancies.sort((a, b) => SPORT_DUTY.has(b.id) - SPORT_DUTY.has(a.id));
       vacancies.forEach(v => {
         const club = (DUTIES[v.id] || {}).club;
-        const fits = f => !club || (byFirst[f.toLowerCase()].s.includes(club) && !(byFirst[f.toLowerCase()].x || []).includes(club));
+        const fits = f => canDo(f, v.id) && (!club || (byFirst[f.toLowerCase()].s.includes(club) && !(byFirst[f.toLowerCase()].x || []).includes(club)));
         const j = pool.findIndex(fits);
         if (j >= 0) { const f = pool.splice(j, 1)[0]; addTo(v.id, f); cover[f] = { for: v.by, sport: v.sport }; return; }
         // nobody free: borrow from crowd & support, from the busiest zone,
         // never leaving a zone empty
         const zones = rows.filter(r => r[0].startsWith('cr-') && r[1].length > 1).sort((a, b) => b[1].length - a[1].length || a[0].localeCompare(b[0]));
         for (const z of zones) {
-          const f = z[1].slice().sort().find(x => fits(x) && !cover[x]); if (!f) continue;
+          const f = z[1].slice().sort(fair).find(x => fits(x) && !cover[x]); if (!f) continue;
           z[1].splice(z[1].indexOf(f), 1); addTo(v.id, f); cover[f] = { for: v.by, sport: v.sport }; return;
+        }
+        // a referee or scorer still missing: take one from anything that isn't
+        // sport, playing or performing and has someone to spare — a stall, the
+        // gate, the charity marquee, then logistics
+        if (!SPORT_DUTY.has(v.id)) return;
+        const spare = rows.filter(r => r[1].length > 1 && !SPORT_DUTY.has(r[0]) && !/^(play-|perform|prep|ck-brief|photo)/.test(r[0]))
+          .sort((a, b) => (a[0] === 'logi') - (b[0] === 'logi') || b[1].length - a[1].length || a[0].localeCompare(b[0]));
+        for (const r of spare) {
+          const f = r[1].slice().sort(fair).find(x => !cover[x] && canDo(x, v.id)); if (!f) continue;
+          r[1].splice(r[1].indexOf(f), 1); addTo(v.id, f); cover[f] = { for: v.by, sport: v.sport }; return;
         }
       });
     }
@@ -1872,7 +1902,7 @@
       const n = want[key]; const isCrowd = key === 'crowd';
       const count = () => isCrowd ? crowdRows().reduce((k, r) => k + r[1].length, 0) : ((out.find(r => r[0] === key) || [0, []])[1]).length;
       const club = !isCrowd && (DUTIES[key] || {}).club;
-      const fits = (f) => !club || (byFirst[f.toLowerCase()].s.includes(club) && !(byFirst[f.toLowerCase()].x || []).includes(club));
+      const fits = (f) => canDo(f, key) && (!club || (byFirst[f.toLowerCase()].s.includes(club) && !(byFirst[f.toLowerCase()].x || []).includes(club)));
       const place = (f) => { if (isCrowd) { const z = crowdRows().sort((a, b) => a[1].length - b[1].length || a[0].localeCompare(b[0]))[0]; if (z) z[1].push(f); else out.push(['cr-lawn', [f]]); } else { const r = out.find(x => x[0] === key); if (r) r[1].push(f); else out.push([key, [f]]); } };
       let guard = 60;
       while (count() < n && guard--) {
@@ -4157,26 +4187,65 @@ If someone asks how to score a match, walk them through these steps and set "sho
     }));
   }
   $('set-roll').addEventListener('click', () => { if (!canSim()) return; openSettings(false); openInfoRaw('Roll call', ''); rcOpen = true; renderRollcall(); });
-  let staffBlock = null;
+  let staffBlock = null, staffDraft = null;   // the draft for staffBlock: {duty: headcount}; nothing's live until Apply
+  const sameJSON = (a, b) => JSON.stringify(a || {}) === JSON.stringify(b || {});
+  // the whole day's rows with a draft in place for one half hour, and without it
+  function staffPreview(i, draft) {
+    const saved = staffing; staffing = { ...saved, [i]: draft }; rosterVersion++;
+    const after = Array.from({ length: BLOCKS }, (_, j) => rowsFor(j));
+    staffing = saved; rosterVersion++;
+    const before = Array.from({ length: BLOCKS }, (_, j) => rowsFor(j));
+    return { before, after };
+  }
+  // how hard someone's day is: half hours on duty, and the longest stretch without a break
+  function dayLoad(day, f) {
+    let on = 0, run = 0, best = 0;
+    day.forEach((rows, j) => { const d = rows.some(([, ppl]) => ppl.includes(f)); if (d) { on++; run++; best = Math.max(best, run); } else run = 0; });
+    return { on, best };
+  }
+  const hrs = (n) => (n / 2).toString().replace('.5', '½') + 'h';
   function renderStaffing() {
-    const i = staffBlock; const rows = rowsFor(i);
-    const cnt = (id) => id === 'crowd' ? rows.filter(r => r[0].startsWith('cr-')).reduce((k, r) => k + r[1].length, 0) : ((rows.find(r => r[0] === id) || [0, []])[1]).length;
-    const ids = ['crowd', 'tk', 'st', 'fund-pp', 'vb', 'fb', 'fb-score', 'ck'].concat(CLUBS.map(c => 'stall-' + c)).filter(id => id === 'crowd' || cnt(id) || (staffing[i] || {})[id] != null);
-    const free = PEOPLE.filter(p => onSite(p.first, i) && !rows.some(r => r[1].includes(p.first))).length;
+    const i = staffBlock; if (!staffDraft) staffDraft = { ...(staffing[i] || {}) };
+    const { before, after } = staffPreview(i, staffDraft); const rows = after[i];
+    const cnt = (rs, id) => id === 'crowd' ? rs.filter(r => r[0].startsWith('cr-')).reduce((k, r) => k + r[1].length, 0) : ((rs.find(r => r[0] === id) || [0, []])[1]).length;
+    const ids = ['crowd', 'tk', 'st', 'fund-pp', 'vb', 'fb', 'fb-score', 'ck'].concat(CLUBS.map(c => 'stall-' + c)).filter(id => id === 'crowd' || cnt(before[i], id) || cnt(rows, id) || staffDraft[id] != null || (staffing[i] || {})[id] != null);
     const label = (id) => id === 'crowd' ? 'Crowd & support (all zones)' : DUTIES[id].name;
+    const dutyAt = (rs, f) => (rs.find(([, ppl]) => ppl.includes(f)) || [null])[0];
+    const here = PEOPLE.filter(p => onSite(p.first, i)).map(p => p.first);
+    const freeB = here.filter(f => !dutyAt(before[i], f)).length, freeA = here.filter(f => !dutyAt(rows, f)).length;
+    const moved = here.filter(f => dutyAt(before[i], f) !== dutyAt(rows, f)).map(f => {
+      const a = dayLoad(before, f), b = dayLoad(after, f);
+      return { f, from: dutyAt(before[i], f), to: dutyAt(rows, f), a, b, lost: !dutyAt(before[i], f) && !!dutyAt(rows, f) };
+    }).sort((x, y) => y.b.best - x.b.best || y.b.on - x.b.on || x.f.localeCompare(y.f));
+    const lost = moved.filter(m => m.lost).length;
+    const worst = moved.reduce((w, m) => Math.max(w, m.b.best), 0);
+    const level = worst >= 6 || lost >= 4 ? 'hi' : worst >= 5 || lost >= 2 ? 'mid' : 'lo';
+    const dirty = !sameJSON(staffDraft, staffing[i]);
+    const nm = (id) => !id ? 'a break' : id.startsWith('cr-') ? 'crowd & support' : (DUTIES[id] || {}).name || id;
+    const moveHtml = moved.length ? moved.map(m => `<div class="sx ${m.b.best >= 6 ? 'hi' : m.b.best >= 5 ? 'mid' : ''}"><b>${esc(full(m.f))}</b><span>${esc(nm(m.from))} → ${esc(nm(m.to))}</span><small>${m.a.on !== m.b.on ? `${hrs(m.a.on)} → ${hrs(m.b.on)} on today` : `${hrs(m.b.on)} on today`} · longest stretch ${m.a.best !== m.b.best ? hrs(m.a.best) + ' → ' : ''}${hrs(m.b.best)}${m.lost ? ' · loses a break' : ''}</small></div>`).join('') : '<p class="fine">Nobody moves.</p>';
     $('info-body').innerHTML = `<div class="staff-nav"><button type="button" class="step" id="st-prev" aria-label="Earlier block">‹</button><b>${range(i)}</b><button type="button" class="step" id="st-next" aria-label="Later block">›</button></div>
-      <p class="fine">${free} on a break this block. Raising a duty takes from crowd & support first, then people on a break; lowering sends the extras to crowd. Changes reach every phone straight away.</p>` +
-      ids.map(id => { const o = (staffing[i] || {})[id]; const c = cnt(id);
-        return `<div class="staff-row"><div class="lbl">${esc(label(id))}${o != null ? ' <span class="fine">· set</span>' : ''}</div><input type="range" min="0" max="${Math.max(12, c + 8)}" step="1" value="${c}" data-staff="${id}" aria-label="${esc(label(id))}"><b class="n" id="sn-${id}">${c}</b>${o != null ? `<button type="button" class="linkbtn" data-unstaff="${id}">Reset</button>` : '<span></span>'}</div>`; }).join('');
-    $('st-prev').addEventListener('click', () => { staffBlock = Math.max(0, i - 1); renderStaffing(); });
-    $('st-next').addEventListener('click', () => { staffBlock = Math.min(BLOCKS - 1, i + 1); renderStaffing(); });
+      <p class="fine">Drag to try it — nothing changes for anyone until you tap Apply. Raising a duty takes from crowd & support first, then people on a break (lightest day first); lowering sends the extras to crowd.</p>` +
+      ids.map(id => { const o = staffDraft[id]; const c = cnt(rows, id); const live = (staffing[i] || {})[id];
+        return `<div class="staff-row"><div class="lbl">${esc(label(id))}${live != null ? ' <span class="fine">· set</span>' : ''}${o !== live ? ' <span class="fine" style="color:var(--maroon)">· draft</span>' : ''}</div><input type="range" min="0" max="${Math.max(12, c + 8)}" step="1" value="${c}" data-staff="${id}" aria-label="${esc(label(id))}"><b class="n" id="sn-${id}">${c}</b>${o != null || live != null ? `<button type="button" class="linkbtn" data-unstaff="${id}">Reset</button>` : '<span></span>'}</div>`; }).join('') +
+      `<div class="stress ${level}"><div class="sh"><b>Stress on execs</b><span>${level === 'hi' ? 'High' : level === 'mid' ? 'Some' : 'Low'}</span></div>
+        <p>${here.length} here this half hour · ${freeA} on a break${freeA !== freeB ? ` (was ${freeB})` : ''} · ${moved.length} moved${lost ? ` · <b>${lost} lose a break</b>` : ''}${worst ? ` · longest stretch without a break ${hrs(worst)}` : ''}</p>
+        ${moveHtml}</div>
+      <div class="staff-act"><button type="button" class="btn-small ghost" id="st-discard" ${dirty ? '' : 'disabled'}>Discard</button><button type="button" class="btn-small" id="st-apply" ${dirty ? '' : 'disabled'}>Apply to everyone</button></div>`;
+    const go = (d) => { if (!sameJSON(staffDraft, staffing[i]) && !confirm('Drop your draft for ' + range(i) + '?')) return; staffDraft = null; staffBlock = Math.max(0, Math.min(BLOCKS - 1, i + d)); renderStaffing(); };
+    $('st-prev').addEventListener('click', () => go(-1)); $('st-next').addEventListener('click', () => go(1));
     $('info-body').querySelectorAll('[data-staff]').forEach(r => {
       r.addEventListener('input', () => { $('sn-' + r.dataset.staff).textContent = r.value; });
-      r.addEventListener('change', () => ref('staffing/' + i + '/' + r.dataset.staff).set(+r.value).then(() => setTimeout(renderStaffing, 150)));
+      r.addEventListener('change', () => { staffDraft = { ...staffDraft, [r.dataset.staff]: +r.value }; renderStaffing(); });
     });
-    $('info-body').querySelectorAll('[data-unstaff]').forEach(b => b.addEventListener('click', () => ref('staffing/' + i + '/' + b.dataset.unstaff).remove().then(() => setTimeout(renderStaffing, 150))));
+    $('info-body').querySelectorAll('[data-unstaff]').forEach(b => b.addEventListener('click', () => { const d = { ...staffDraft }; delete d[b.dataset.unstaff]; staffDraft = d; renderStaffing(); }));
+    $('st-discard').addEventListener('click', () => { staffDraft = null; renderStaffing(); });
+    $('st-apply').addEventListener('click', async () => {
+      const cur = staffing[i] || {}; const keys = new Set([...Object.keys(cur), ...Object.keys(staffDraft)]);
+      await Promise.all([...keys].map(k => staffDraft[k] != null ? ref('staffing/' + i + '/' + k).set(staffDraft[k]) : ref('staffing/' + i + '/' + k).remove()));
+      staffDraft = null; setTimeout(renderStaffing, 200);
+    });
   }
-  $('set-staff').addEventListener('click', () => { if (!canSim()) return; const lb = liveBlock(); staffBlock = lb !== null && lb >= 0 && lb < BLOCKS ? lb : Math.max(0, Math.min(BLOCKS - 1, block)); openSettings(false); openInfoRaw('Staffing', ''); renderStaffing(); });
+  $('set-staff').addEventListener('click', () => { if (!canSim()) return; const lb = liveBlock(); staffDraft = null; staffBlock = lb !== null && lb >= 0 && lb < BLOCKS ? lb : Math.max(0, Math.min(BLOCKS - 1, block)); openSettings(false); openInfoRaw('Staffing', ''); renderStaffing(); });
   $('set-var').addEventListener('click', () => { if (!canSim()) return; openSettings(false); openInfoRaw('Schedule variance', ''); renderVariance(); });
 
   // --- master clock (Sandes / UQISC only) ---
