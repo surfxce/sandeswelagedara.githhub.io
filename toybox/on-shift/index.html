@@ -428,6 +428,10 @@
   @keyframes al-in { from { opacity: 0; } to { opacity: 1; } }
   @keyframes al-fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
   @keyframes al-bell { 0% { opacity: 0; transform: scale(.6) rotate(0); } 40% { opacity: 1; transform: scale(1.08) rotate(-14deg); } 60% { transform: rotate(12deg); } 80% { transform: rotate(-6deg); } 100% { transform: none; } }
+  .ask-bd { position: fixed; inset: 0; background: rgba(20, 10, 6, .45); z-index: 9000; }
+  .ask { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(360px, calc(100vw - 32px)); z-index: 9001; background: #fff; border-radius: 10px; padding: 18px 18px 14px; box-shadow: 0 12px 40px rgba(0,0,0,.3); border-top: 6px solid var(--maroon); }
+  .ask p { margin: 0 0 14px; font-size: 16px; line-height: 1.4; color: var(--ink); }
+  .ask-btns { display: flex; justify-content: flex-end; gap: 8px; } .ask-btns button { min-height: 40px; padding: 0 16px; }
   .rc-bar { display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 14px; margin: 0 0 8px; border: 1.5px solid var(--line); border-left: 6px solid #3E7A4A; border-radius: 6px; background: #fff; font-size: 14px; color: var(--ink-2); text-align: left; }
   .rc-bar b { color: var(--ink); } .rc-bar .chev { margin-left: auto; color: var(--ink-3); }
   .rc-h { margin: 14px 0 6px; font-size: 11px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); }
@@ -1116,6 +1120,8 @@
 
   <!-- Info sheet: tap a What's On card -->
   <div class="dm-backdrop" id="info-backdrop" hidden></div>
+  <div class="ask-bd" id="ask-bd" hidden></div>
+  <div class="ask" id="ask" role="alertdialog" aria-modal="true" aria-labelledby="ask-msg" hidden><p id="ask-msg"></p><div class="ask-btns"><button type="button" class="btn-small ghost" id="ask-no">Cancel</button><button type="button" class="btn-small" id="ask-ok">Yes</button></div></div>
   <section class="dm-sheet" id="info-sheet" hidden aria-label="Details">
     <div class="dm-head"><span class="nm" id="info-title">—</span><button class="linkbtn" id="info-close" type="button">Close</button></div>
     <div class="info-body" id="info-body"></div>
@@ -2331,10 +2337,23 @@
     return `<div class="moment"><span class="eyebrow">${esc(x.label)}</span>${iconHtml(m.kind === 'brief' ? 'mic' : 'camera', 'var(--c-photo)', 'sm')}<span class="t">${esc(m.at)}</span><span class="d">${esc(x.name)}<small>${esc(m.where)} · ${esc(x.note)}</small></span></div>`;
   }
 
+  // Our own "are you sure?" — native confirm()/alert() are silently blocked in
+  // some in-app browsers (Discord, Instagram, previews), which made buttons do nothing.
+  function askYes(msg, ok = 'Yes', cancel = 'Cancel') {
+    return new Promise(res => {
+      const box = $('ask'), bd = $('ask-bd'); $('ask-msg').textContent = msg; $('ask-ok').textContent = ok;
+      $('ask-no').hidden = !cancel; $('ask-no').textContent = cancel || '';
+      box.hidden = false; bd.hidden = false; setTimeout(() => $('ask-ok').focus(), 30);
+      const done = (v) => { box.hidden = true; bd.hidden = true; $('ask-ok').onclick = $('ask-no').onclick = bd.onclick = null; document.removeEventListener('keydown', key); res(v); };
+      const key = (e) => { if (e.key === 'Escape') done(false); };
+      $('ask-ok').onclick = () => done(true); $('ask-no').onclick = () => done(false); bd.onclick = () => done(false); document.addEventListener('keydown', key);
+    });
+  }
+  const say = (msg) => askYes(msg, 'OK', null);
   function imHere(i) {
     if (!db || !me) return;
     if (absent[me.first] != null) ref('absent/' + me.first).remove().catch(() => {});
-    ref('here/' + me.first + '/' + i).set(true).catch(() => alert('Couldn\'t reach the roster. Check your connection and try again.'));
+    ref('here/' + me.first + '/' + i).set(true).catch(() => say('Couldn\'t reach the roster. Check your connection and try again.'));
   }
   function renderNow() {
     if (!me) {
@@ -2959,7 +2978,10 @@
   const renderPick = () => { const sp = $('b-sport').value; const names = [...new Set([...(TEAMS[sp] || []).map(t => t.name), ...CLUBS])]; $('b-pick').innerHTML = names.map(c => `<label><input type="checkbox" value="${esc(c)}" ${(TEAMS[sp] || []).some(t => t.name === c) ? 'checked' : ''}>${esc(c)}</label>`).join(''); };
   renderPick(); $('b-sport').addEventListener('change', renderPick);
   let db = null;
-  try { firebase.initializeApp(FB); db = firebase.database(); } catch (e) { db = null; }
+  try { firebase.initializeApp(FB); db = firebase.database();
+    // testing only: on this computer, ?emu points the app at a local copy of the database
+    if (/^(localhost|127\.0\.0\.1)$/.test(location.hostname) && new URLSearchParams(location.search).has('emu')) db.useEmulator('127.0.0.1', 9000);
+  } catch (e) { db = null; }
   const ref = (path) => db.ref('spice-road/' + path);
   const now = () => firebase.database.ServerValue.TIMESTAMP;
   const clock = (t) => new Date(t).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
@@ -2988,7 +3010,7 @@
     $('scores-live').innerHTML = live.length ? live.map(i => matchCard(i, matches[i], true)).join('') : '<p class="fine">Nothing on. Start one below.</p>';
     $('scores-done').innerHTML = done.length ? done.slice(0, 8).map(i => matchCard(i, matches[i], true)).join('') : '<p class="fine">None yet.</p>';
     $('scores-done').querySelectorAll('[data-del]').forEach(b => b.addEventListener('click', () => {
-      if (confirm('Remove this result? It also disappears from the public page.')) ref('scores/' + b.dataset.del).remove();
+      askYes('Remove this result? It also disappears from the public page.', 'Remove').then(ok => { if (ok) ref('scores/' + b.dataset.del).remove(); });
     }));
     $('scores-live').querySelectorAll('.pm button').forEach(b => b.addEventListener('click', () => {
       ref(`scores/${b.dataset.id}/${b.dataset.side}`).transaction(v => Math.max(0, (v || 0) + Number(b.dataset.d)));
@@ -3004,7 +3026,7 @@
       renaming = null;
     }));
     $('scores-live').querySelectorAll('[data-end]').forEach(b => b.addEventListener('click', () => {
-      if (confirm('End this match? The score stays up as a final.')) ref(`scores/${b.dataset.end}`).update({ status: 'done', ended: now() });
+      askYes('End this match? The score stays up as a final.', 'End match').then(ok => { if (ok) ref(`scores/${b.dataset.end}`).update({ status: 'done', ended: now() }).catch(() => say('Couldn\'t save that — check your connection and try again.')); });
     }));
   }
   $('match-form').addEventListener('submit', (e) => {
@@ -3044,7 +3066,7 @@
     const ids = Object.keys(bcasts).sort((a, b) => (bcasts[b].t || 0) - (bcasts[a].t || 0)).slice(0, 20);
     $('bcast-list').innerHTML = ids.length ? ids.map(i => { const b = bcasts[i]; const org = ADMINS.includes(b.by); const canX = isAdmin(); return `<div class="bcast-item ${org ? 'org' : ''} ${(b.t || 0) > seen ? 'fresh' : ''} ${canX ? 'mine' : ''}">${canX ? `<button type="button" class="x" data-delbcast="${i}" aria-label="Delete this notice">×</button>` : ''}<span class="txt">${org ? '<span class="tag">Organisers</span>' : ''}${esc(b.text || '')}</span><span class="meta">${esc(b.by || 'Exec')} · ${b.t ? clock(b.t) : ''}</span></div>`; }).join('')
       : '<p class="fine">Nothing posted yet.</p>';
-    $('bcast-list').querySelectorAll('[data-delbcast]').forEach(b => b.addEventListener('click', () => { if (confirm('Delete this notice for everyone?')) ref('broadcasts/' + b.dataset.delbcast).remove(); }));
+    $('bcast-list').querySelectorAll('[data-delbcast]').forEach(b => b.addEventListener('click', () => { askYes('Delete this notice for everyone?', 'Delete').then(ok => { if (ok) ref('broadcasts/' + b.dataset.delbcast).remove().catch(() => say('Couldn\'t delete it — check your connection.')); }); }));
     renderNoticeLimit();
     renderBell();
   }
@@ -3150,13 +3172,13 @@
   }
   function bindHelpControl() {
     const ask = $('help-ask');
-    if (ask) ask.addEventListener('click', () => {
+    if (ask) ask.addEventListener('click', async () => {
       const a = assignmentFor(me.first, block);
       // one call a minute per exec, so a nervous thumb can't flood everyone
       const lastMine = Math.max(0, ...Object.values(helps).filter(h => h.from === me.first).map(h => h.t || 0));
       const wait = Math.ceil((lastMine + 60000 - Date.now()) / 1000);
-      if (wait > 0) { alert(`You've just called for help — it's gone out. You can call again in ${wait} second${wait === 1 ? '' : 's'}.`); return; }
-      if (!confirm(`Call ${DUTIES[a.id].club ? 'free ' + DUTIES[a.id].club + ' execs' : 'free execs'} to ${DUTIES[a.id].name}, ${DUTIES[a.id].where}?`)) return;
+      if (wait > 0) { say(`You've just called for help — it's gone out. You can call again in ${wait} second${wait === 1 ? '' : 's'}.`); return; }
+      if (!(await askYes(`Call ${DUTIES[a.id].club ? 'free ' + DUTIES[a.id].club + ' execs' : 'free execs'} to ${DUTIES[a.id].name}, ${DUTIES[a.id].where}?`, 'Call for help'))) return;
       ref('help').push({ from: me.first, block, duty: a.id, status: 'open', t: now() });
     });
     document.querySelectorAll('[data-closehelp]').forEach(b => b.addEventListener('click', () => ref('help/' + b.dataset.closehelp).update({ status: 'closed', tt: Date.now() })));
@@ -3249,7 +3271,7 @@
     const a = alertNow; if (!a) return;
     if (a.kind === 'help') { ref('help/' + a.id + '/responders/' + me.first).set(true); closeAlert(); return; }
     ref('swaps/' + a.id).transaction(sw => { if (!sw || sw.status !== 'open') return; sw.status = 'taken'; sw.to = me.first; sw.tt = Date.now(); return sw; },
-      (err, committed) => { if (!committed) alert('Someone else got there first.'); });
+      (err, committed) => { if (!committed) say('Someone else got there first.'); });
     closeAlert();
   });
 
@@ -3878,7 +3900,7 @@ If someone asks how to score a match, walk them through these steps and set "sho
     $('d-pending').innerHTML = pend.length ? pend.map(i => photoCard(i, phPending[i], 'pending')).join('') : '<p class="fine">Nothing waiting.</p>';
     $('d-approved').innerHTML = appr.length ? appr.map(i => photoCard(i, phApproved[i], 'approved')).join('') : '<p class="fine">None yet.</p>';
     $('view-desk').querySelectorAll('[data-approve]').forEach(b => b.addEventListener('click', () => ref('photos/' + b.dataset.approve).update({ status: 'approved', tt: Date.now() })));
-    $('view-desk').querySelectorAll('[data-reject]').forEach(b => b.addEventListener('click', () => { if (confirm('Remove this photo? It\'s deleted for good.')) ref('photos/' + b.dataset.reject).remove(); }));
+    $('view-desk').querySelectorAll('[data-reject]').forEach(b => b.addEventListener('click', () => { askYes('Remove this photo? It\'s deleted for good.', 'Remove').then(ok => { if (ok) ref('photos/' + b.dataset.reject).remove(); }); }));
   }
 
   // big screen: cycles approved photos, live scores along the bottom
@@ -4077,13 +4099,13 @@ If someone asks how to score a match, walk them through these steps and set "sho
   $('inc-form').addEventListener('submit', async e => {
     e.preventDefault(); if (!db) return;
     await ref('incidents').push({ type: $('inc-type').value, text: $('inc-text').value.trim(), by: me ? me.first : (ident ? ident.name : ''), block, t: now() });
-    $('inc-text').value = ''; openInc(false); alert('Logged. Thank you.');
+    $('inc-text').value = ''; openInc(false); say('Logged. Thank you.');
   });
   function renderTicks() {
     const el = $('d-ticks'); if (!el) return;
     const ids = Object.keys(ticks).sort((a, b) => (ticks[b].t || 0) - (ticks[a].t || 0));
     el.innerHTML = ids.length ? ids.map(i => { const x = ticks[i]; const st = x.ok === true ? '' : x.ok === false ? `<div class="fine" style="color:#B23A2E">Blocked${x.ai && x.ai.reason ? ' — ' + esc(x.ai.reason) : ''}</div>` : '<div class="fine">Checking…</div>'; return `<div class="check" style="--c:${x.ok === false ? '#B23A2E' : x.ok === true ? 'var(--tan)' : 'var(--line)'}"><b>“${esc(x.text)}” <span class="fine">— ${esc(x.by || 'anon')} · ${x.t ? clock(x.t) : ''}</span></b>${st}<button type="button" class="btn-small ghost" data-deltick="${i}" style="margin-top:6px">Remove</button></div>`; }).join('') : '<p class="fine">None yet.</p>';
-    el.querySelectorAll('[data-deltick]').forEach(b => b.addEventListener('click', () => { if (confirm('Remove this shout-out from the screen?')) ref('ticker/' + b.dataset.deltick).remove(); }));
+    el.querySelectorAll('[data-deltick]').forEach(b => b.addEventListener('click', () => { askYes('Remove this shout-out from the screen?', 'Remove').then(ok => { if (ok) ref('ticker/' + b.dataset.deltick).remove(); }); }));
   }
   function renderIncidents() {
     const el = $('d-inc'); if (!el) return;
@@ -4235,7 +4257,7 @@ If someone asks how to score a match, walk them through these steps and set "sho
         <p>${here.length} here this half hour · ${freeA} on a break${freeA !== freeB ? ` (was ${freeB})` : ''} · ${moved.length} moved${lost ? ` · <b>${lost} lose a break</b>` : ''}${worst ? ` · longest stretch without a break ${hrs(worst)}` : ''}</p>
         ${moveHtml}</div>
       <div class="staff-act"><button type="button" class="btn-small ghost" id="st-discard" ${dirty ? '' : 'disabled'}>Discard</button><button type="button" class="btn-small" id="st-apply" ${dirty ? '' : 'disabled'}>Apply to everyone</button></div>`;
-    const go = (d) => { if (!sameJSON(staffDraft, staffing[i]) && !confirm('Drop your draft for ' + range(i) + '?')) return; staffDraft = null; staffBlock = Math.max(0, Math.min(BLOCKS - 1, i + d)); renderStaffing(); };
+    const go = async (d) => { if (!sameJSON(staffDraft, staffing[i]) && !(await askYes('Drop your draft for ' + range(i) + '?', 'Drop it'))) return; staffDraft = null; staffBlock = Math.max(0, Math.min(BLOCKS - 1, i + d)); renderStaffing(); };
     $('st-prev').addEventListener('click', () => go(-1)); $('st-next').addEventListener('click', () => go(1));
     $('info-body').querySelectorAll('[data-staff]').forEach(r => {
       r.addEventListener('input', () => { $('sn-' + r.dataset.staff).textContent = r.value; });
@@ -4274,10 +4296,10 @@ If someone asks how to score a match, walk them through these steps and set "sho
     renderSim();
     if (demoMode) startTour();
   });
-  $('sim-toggle').addEventListener('click', () => {
+  $('sim-toggle').addEventListener('click', async () => {
     if (!db || !canSim()) return;
     const on = !(sim && sim.on);
-    if (on && !confirm('Turn on the master clock? Every phone jumps to block 1 and stays wherever you put it until you turn this off.')) return;
+    if (on && !(await askYes('Turn on the master clock? Every phone jumps to block 1 and stays wherever you put it until you turn this off.', 'Turn it on'))) return;
     ref('sim').set({ on, block: on ? 0 : (sim && Number.isInteger(sim.block) ? sim.block : 0), t: now() });
   });
   const simStep = (d) => { if (!db || !canSim() || !(sim && sim.on)) return; ref('sim').set({ on: true, block: Math.max(-1, Math.min(BLOCKS, sim.block + d)), t: now() }); };
@@ -4358,7 +4380,7 @@ If someone asks how to score a match, walk them through these steps and set "sho
     const open = $('swap-open');
     if (open) open.addEventListener('click', () => {
       const a = assignmentFor(me.first, block); const d = DUTIES[a.id];
-      if (d.cat === 'play') { if (confirm(`Ask your society's execs to sub in for ${d.name.toLowerCase()}, ${range(block)}? Whoever takes it swaps duties with you.`)) sendSwap('team'); return; }
+      if (d.cat === 'play') { askYes(`Ask your society's execs to sub in for ${d.name.toLowerCase()}, ${range(block)}? Whoever takes it swaps duties with you.`, 'Ask').then(ok => { if (ok) sendSwap('team'); }); return; }
       openSwapSheet(true);
     });
     const wd = document.querySelector('[data-withdraw]');
@@ -4400,7 +4422,7 @@ If someone asks how to score a match, walk them through these steps and set "sho
     el.innerHTML = (open.map(x => card(x, 'take')).join('') + mine.map(x => card(x, 'mine')).join('')) || '<p class="fine">No swap requests right now.</p>';
     el.querySelectorAll('[data-take]').forEach(b => b.addEventListener('click', () => {
       ref('swaps/' + b.dataset.take).transaction(sw => { if (!sw || sw.status !== 'open') return; sw.status = 'taken'; sw.to = me.first; sw.tt = Date.now(); return sw; },
-        (err, committed) => { if (!committed) alert('Someone else got there first.'); });
+        (err, committed) => { if (!committed) say('Someone else got there first.'); });
     }));
     el.querySelectorAll('[data-decline]').forEach(b => b.addEventListener('click', () => ref('swaps/' + b.dataset.decline + '/declines/' + me.first).set(true)));
   }
@@ -4434,15 +4456,18 @@ If someone asks how to score a match, walk them through these steps and set "sho
     }
     return recompute({ teams, rounds: [r0], t: Date.now() });
   }
-  const saveBracket = (sport, br) => ref('brackets/' + sport).set(ROBIN[sport] ? br : recompute(br));
+  const saveBracket = (sport, br) => ref('brackets/' + sport).set(ROBIN[sport] ? br : recompute(br)).catch(err => { say('Couldn\'t save the bracket — check your connection and try again.'); throw err; });
   function bracketCard(sport, br, editable) {
     const color = CATS.sport.color; const d = DUTIES[sport] || {};
     const rounds = br.rounds || []; const last = rounds[rounds.length - 1] || [];
     const champion = last.length === 1 && last[0].w ? last[0].w : null;
     const winners = new Set(), losers = new Set();
     rounds.forEach(r => r.forEach(m => { if (m.w) { winners.add(m.w); [m.a, m.b].forEach(t => { if (t && t !== m.w) losers.add(t); }); } }));
-    let next = null;
-    rounds.some((r, k) => r.some((m, i) => { if (!m.w && m.a && m.b) { next = { m, k, i }; return true; } return false; }));
+    // next up: the earliest kick-off among games ready to play (bracket order where there are no fixed times)
+    let next = null; const ready = [];
+    rounds.forEach((r, k) => r.forEach((m, i) => { if (!m.w && m.a && m.b && !m.m) ready.push({ m, k, i, t: matchTime(sport, k, i) }); }));
+    const mins = (t) => { if (!t) return 9999; const [h, mm] = t.split(':').map(Number); return h * 60 + mm; };
+    ready.sort((a, b) => mins(a.t) - mins(b.t) || a.k - b.k || a.i - b.i); next = ready[0] || null;
     const scoreOf = (m) => m.m && matches[m.m] ? matches[m.m] : null;
     const team = (t, m, side) => {
       if (!t && !m.b && m.a && m.w) return `<span class="tm ${side}"></span>`;   // a bye has no opponent
@@ -4463,7 +4488,7 @@ If someone asks how to score a match, walk them through these steps and set "sho
     const isBye = (m) => m.a && !m.b && m.w;
     const roundsHtml = rounds.map((r, k) => r.some(m => !isBye(m)) ? `<div class="round"><h4>${rname(k, totalR)}</h4>${r.map((m, i) => isBye(m) ? '' : (matchTime(sport, k, i) ? `<div class="fine" style="margin:8px 0 2px">${esc(matchTime(sport, k, i))} pm</div>` : '') + `<div class="bm">${team(m.a, m, 'r')}${mid(m, k, i)}${team(m.b, m, '')}</div>`).join('')}</div>` : '').join('');
     const nextHtml = champion ? `<div class="champ">Champion — ${esc(champion)}</div>`
-      : next ? `<div class="next" style="--c:${color}"><span class="eyebrow">Up next</span><b>${esc(next.m.a)} v ${esc(next.m.b)}</b><span class="fine">${rname(next.k, totalR)}${matchTime(sport, next.k, next.i) ? ' · ' + matchTime(sport, next.k, next.i) + ' pm' : ''}</span>${editable && !next.m.m ? `<button type="button" class="play" data-start="${sport}|${next.k}|${next.i}" data-jump="1">Play next</button>` : ''}</div>` : '';
+      : next ? `<div class="next" style="--c:${color}"><span class="eyebrow">Up next</span><b>${esc(next.m.a)} v ${esc(next.m.b)}</b><span class="fine">${rname(next.k, totalR)}${matchTime(sport, next.k, next.i) ? ' · ' + matchTime(sport, next.k, next.i) + ' pm' : ''}</span>${editable && !next.m.m ? `<button type="button" class="play" data-start="${sport}|${next.k}|${next.i}" data-names="${esc(next.m.a)} v ${esc(next.m.b)}" data-jump="1">Play next</button>` : ''}</div>` : '';
     const outHtml = losers.size ? `<p class="out">Out: ${[...losers].map(t => `<s>${esc(t)}</s>`).join(', ')}</p>` : '';
     const delHtml = editable ? `<div class="foot"><span></span><button type="button" class="btn-small ghost" data-delbracket="${sport}">Delete bracket</button></div>` : '';
     const bz = bronzeOf(sport, br);
@@ -4607,11 +4632,12 @@ If someone asks how to score a match, walk them through these steps and set "sho
     if (ROBIN[k0]) { if (pub) { pub.innerHTML = robinCard(k0, false); } el.innerHTML = robinCard(k0, true); }
     else el.innerHTML = br0 ? bracketCard(k0, br0, true) + (!brackets[k0] ? '<p class="fine">The draw as registered. Tap a match to start it.</p>' : '') : none;
     // tapping the match itself starts it (same as the Start button)
-    el.querySelectorAll('.bm').forEach(row => { const st = row.querySelector('[data-start]'); if (st) { row.classList.add('startable'); row.addEventListener('click', e => { if (e.target.closest('button')) return; if (confirm(`Start ${st.dataset.names || 'this match'}? Scoring opens under Live matches.`)) st.click(); }); } });
+    el.querySelectorAll('.bm').forEach(row => { const st = row.querySelector('[data-start]'); if (st) { row.classList.add('startable'); row.addEventListener('click', e => { if (e.target.closest('button')) return; askYes(`Start ${st.dataset.names || 'this match'}? Scoring opens under Live matches.`, 'Start').then(ok => { if (ok) { st.dataset.ok = '1'; st.click(); } }); }); } });
     el.querySelectorAll('[data-start]').forEach(b => b.addEventListener('click', async (e) => {
       // a stray tap would put a match live on every phone: ask first (a tap on
       // the match row has already asked, and arrives here as a synthetic click)
-      if (e.isTrusted && !confirm(`Start ${b.dataset.names || 'this match'} now? It goes live for everyone.`)) return;
+      if (b.dataset.ok) delete b.dataset.ok;     // the match row already asked
+      else if (!(await askYes(`Start ${b.dataset.names || 'this match'} now? It goes live for everyone.`, 'Start'))) return;
       const [sport, kS, iS] = b.dataset.start.split('|'); const k = +kS, i = +iS;
       if (kS === 'bronze') {
         const br = bracketFor(sport); const bz = bronzeOf(sport, br); if (!bz || !bz.a || !bz.b) return;
@@ -4641,15 +4667,15 @@ If someone asks how to score a match, walk them through these steps and set "sho
       br.rounds[k][i].m = pushed.key; await saveBracket(sport, br);
       if (b.dataset.jump) setTimeout(() => { const c = $('scores-live'); if (c) c.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 300);
     }));
-    el.querySelectorAll('[data-delbracket]').forEach(b => b.addEventListener('click', () => {
+    el.querySelectorAll('[data-delbracket]').forEach(b => b.addEventListener('click', async () => {
       const sport = b.dataset.delbracket;
-      if (!confirm(`Delete the ${SPORTS[sport]} bracket? Match scores stay in Finished.`)) return;
+      if (!(await askYes(`Delete the ${SPORTS[sport]} bracket? Match scores stay in Finished.`, 'Delete'))) return;
       ref('brackets/' + sport).remove();
     }));
-    el.querySelectorAll('[data-win]').forEach(b => b.addEventListener('click', () => {
+    el.querySelectorAll('[data-win]').forEach(b => b.addEventListener('click', async () => {
       const [sport, k, i, side] = b.dataset.win.split('|'); const br = bracketFor(sport); const m = br.rounds[k][i];
       const w = side === 'a' ? m.a : m.b;
-      if (!confirm(`${w} through to the next round?`)) return;
+      if (!(await askYes(`${w} through to the next round?`, 'Yes, through'))) return;
       br.rounds[k][i].w = w; saveBracket(sport, br);
     }));
   }
@@ -4666,15 +4692,15 @@ If someone asks how to score a match, walk them through these steps and set "sho
       if (changed) saveBracket(sport, br);
     });
   }
-  $('bracket-form').addEventListener('submit', (e) => {
+  $('bracket-form').addEventListener('submit', async (e) => {
     e.preventDefault(); if (!db) return;
     const sport = $('b-sport').value;
     const ticked = [...$('b-pick').querySelectorAll('input:checked')].map(i => i.value);
     const extra = $('b-teams').value.split('\n').map(t => t.trim()).filter(Boolean);
     let teams = [...new Set(ticked.concat(extra))].slice(0, 32);
-    if (teams.length < 2) { alert('Tick at least two teams.'); return; }
+    if (teams.length < 2) { say('Tick at least two teams.'); return; }
     if ($('b-shuffle').checked) for (let i = teams.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [teams[i], teams[j]] = [teams[j], teams[i]]; }
-    if (brackets[sport] && !confirm(`Replace the ${SPORTS[sport]} bracket?`)) return;
+    if (brackets[sport] && !(await askYes(`Replace the ${SPORTS[sport]} bracket?`, 'Replace'))) return;
     saveBracket(sport, buildBracket(teams));
     $('b-teams').value = ''; $('b-pick').querySelectorAll('input').forEach(i => { i.checked = false; }); e.target.closest('details').open = false;
   });
