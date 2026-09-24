@@ -1579,7 +1579,7 @@
     // tasks: the sub-jobs inside each job — shown as small tags on the duty card
     vb: { cat:'sport', icon:'volleyball', name:'Volleyball', where:'Beach volleyball courts (bottom of the ground)', do:'Ten teams, knockout. 3:35 – 4:15 all three courts run bracket games (one ref each); from 4:15 it\'s two bracket courts and the third goes social. 20-minute games: 3:35, 3:55, semis 4:15, final 4:35. Keep the ball bag with you. Winner at 5:00.',
           tasks:['Scorekeeping', 'Rotating teams', 'Ball bag'] },
-    'fb-score': { cat:'sport', icon:'football', name:'Football scores', where:'Field 7 sideline — results desk', do:'Get every result the moment a game ends: from the ref, into the committee\'s score sheet, and into the app (Scores tab → Football → tap the match, + for each goal, End match) so the big screen and the group tables are right. The semi-final draw comes from your sheet.',
+    'fb-score': { cat:'sport', icon:'football', name:'Football scores', where:'Field 7 sideline — results desk', do:'Get every result the moment a game ends: from the ref, into the committee\'s score sheet, and into the app (Scores tab → Football → tap the match, + for each goal, End match) so the public page and the group tables are right. The semi-final draw comes from your sheet.',
           tasks:['Results from refs', 'Score sheet', 'App scores'] },
     fb: { cat:'sport', name:'Football', where:'Field 7 (the main oval)', do:'One referee per pitch — you\'re on one of Field 1 – 6 on the infield. Group games are 22 minutes plus a 3-minute changeover, starting 3:00, 3:25, 3:50 and 4:15; then semis 4:50 – 5:20 (two games, two refs) and the final 5:30 – 6:00 (one ref). Blow up on time, and tell the results desk the score the second it ends.',
           tasks:['Refereeing', 'Sideline clear', 'Team swaps'] },
@@ -3137,10 +3137,10 @@
     { icon: 'mic',     color: 'var(--c-stage)',  t: 'Bell', k: 'bell notifications broadcasts notices messages tray unread', p: 'The bell at the top. Swap requests and calls for help you can answer, messages, and notices from the organisers. The red number is what you haven\'t seen.' },
     { icon: 'crowd',   color: 'var(--c-club)',   t: 'Messages', k: 'message dm chat text someone name tap', p: 'Tap any name anywhere in the app to message them. Four one-tap lines and a box. Your conversations live in the bell.' },
     { icon: 'crowd',   color: 'var(--c-sport)',  t: 'Team', k: 'team who is free on duty filter societies mute advanced', p: 'Who\'s free and who\'s on what, this block. <b>‹ ›</b> to look at other blocks. <b>Societies</b> hides clubs you don\'t need to see; <b>Advanced</b> picks individual people.' },
-    { icon: 'football',color: 'var(--c-sport)',  t: 'Scores & brackets', k: 'scores bracket match referee start end plus minus timetable teams who is in record keep score result winner', p: '<b>To score a match:</b> Scores tab → pick the sport → tap the two teams playing → tap <b>+</b> for each point → <b>End match</b>. The bracket fills the winner in itself; tap a team\'s name in the bracket to set a winner by hand. Pick the sport at the top. <b>Teams</b> shows who\'s in each team (execs in maroon). In the <b>bracket</b>, tap a match to start it — scoring opens under Live matches. Referees: <b>the score you tap is the score</b> — it goes to the big screen and the public page within a second. The gear on a live match edits the team names. <b>End match</b> fills the bracket in.' },
+    { icon: 'football',color: 'var(--c-sport)',  t: 'Scores & brackets', k: 'scores bracket match referee start end plus minus timetable teams who is in record keep score result winner', p: '<b>To score a match:</b> Scores tab → pick the sport → tap the two teams playing → tap <b>+</b> for each point → <b>End match</b>. The bracket fills the winner in itself; tap a team\'s name in the bracket to set a winner by hand. Pick the sport at the top. <b>Teams</b> shows who\'s in each team (execs in maroon). In the <b>bracket</b>, tap a match to start it — scoring opens under Live matches. Referees: <b>the score you tap is the score</b> — it goes to the public page within a second. The gear on a live match edits the team names. <b>End match</b> fills the bracket in.' },
     { icon: 'tent',    color: 'var(--c-club)',   t: 'Map', k: 'map where location pinch zoom pins field 7 field 6 first aid toilets satellite where am i blue dot gps', p: '<b>Simple</b> is the ground plan, <b>Satellite</b> is real imagery — both have pins for football and cricket (Field 7), volleyball (the beach courts), food trucks and stalls (Field 6), the grandstand, the entry, first aid, toilets and the assembly point. Tap a pin for what\'s there. On Satellite, the <b>target</b> button shows where you are as a blue dot (your phone will ask once). Drag to pan, pinch to zoom, double-tap to zoom in.' },
     { icon: 'sparkle', color: 'var(--c-ticket)', t: "What's On", k: 'whats on stalls timetable stage performances businesses clubs photos upload', p: 'Everything at the festival. Tap a sport for the match timetable, the stage for the running order, a business for what they do, a club for who\'s on the marquee. Send festival photos from the bottom.' },
-    { icon: 'camera',  color: 'var(--c-photo)',  t: 'Photos & big screen', k: 'photos upload approve big screen tv slideshow', p: 'Anyone can send a photo in; organisers approve them; approved photos roll across the big screen. Sandes runs the TV in <b>big screen mode</b>.' },
+    { icon: 'camera',  color: 'var(--c-photo)',  t: 'Photos & shout-outs', k: 'photos upload approve marketing shout out tv slideshow', p: 'Anyone can send a photo or a shout-out in. Every one is checked automatically, and the best photos go into Spice Road\'s marketing. (Sandes can still show them on a TV in big screen mode if there\'s one spare.)' },
     { icon: 'cricket', color: 'var(--c-sport)', t: 'Refereeing — when to give a point', k: 'referee ref umpire scoring rules point goal run wide no ball out how to score guide', p: 'Never reffed it before? Tap your duty title, or <b>When do I tap +?</b> on a live match, for the short guide: what earns a point, what\'s out, what\'s a foul, how long a game is. Volleyball, football and cricket. Spicy can open it too.' },
     { icon: 'volleyball', color: 'var(--c-sport)', t: 'Playing for your society', k: 'playing team bracket knocked out eliminated free volleyball football cricket', p: 'If you\'re on a society team, your roster says <b>Playing</b> only for your first game. <b>Win</b>, and the app holds you for the next round\'s block too — whatever you were meant to do then goes to a free exec, who sees it pop up with "Covering for …". <b>Lose</b>, and your normal roster just carries on. All of it happens the moment the ref taps the result.' },
     { icon: 'sparkle', color: 'var(--tan)',      t: 'Demo mode', k: 'demo onboarding tour replay show walkthrough video', p: 'Settings → <b>Demo mode</b> (Sandes only). The welcome tour plays every time you sign in, so you can show the app to a room without resetting anyone. Turn it off afterwards.' },
@@ -3177,10 +3177,10 @@
     { icon: 'coffee', color: 'var(--c-free)', h: 'Next up and your day', target: '#now-next, #runsheet', prep: () => showView('now'), p: 'What\'s coming next, then your whole day — every block, who with, and moments like the presidents\' photo. The <b>‹ › LIVE</b> buttons underneath let you look ahead.' },
     { icon: 'mic', color: 'var(--c-stage)', h: 'The bell', target: '#tray', prep: () => { showView('now'); openTray(true); }, after: () => openTray(false), p: 'Everything that needs you: <b>swap requests</b> and <b>calls for help</b> you can answer, your <b>messages</b>, and <b>notices</b> from the organisers. The red number on the bell is what\'s new.' },
     { icon: 'crowd', color: 'var(--c-club)', h: 'Team', target: '#t-filter, #t-free', prep: () => showView('team'), p: 'Who\'s <b>free right now</b> and who\'s <b>on duty</b>, this block. Tap a name to message them — you\'ll see their photo. <b>Societies</b> hides clubs you don\'t need to see; <b>Advanced</b> picks individual people. The arrows at the top step through the day.' },
-    { icon: 'volleyball', color: 'var(--c-sport)', h: 'Scores', target: '#view-scores > div:nth-of-type(1), #view-scores > details:nth-of-type(1)', prep: () => showView('scores'), p: 'Referees: <b>the score you tap is the score.</b> Every + goes to the big screen and the public page within a second — nobody else keeps score, so if you don\'t tap, the crowd sees 0–0. <b>Start a match</b>, tap + and −, <b>End match</b>; the bracket fills in from that.' },
+    { icon: 'volleyball', color: 'var(--c-sport)', h: 'Scores', target: '#view-scores > div:nth-of-type(1), #view-scores > details:nth-of-type(1)', prep: () => showView('scores'), p: 'Referees: <b>the score you tap is the score.</b> Every + goes to the public page within a second — nobody else keeps score, so if you don\'t tap, the crowd sees 0–0. <b>Start a match</b>, tap + and −, <b>End match</b>; the bracket fills in from that.' },
     { icon: 'tent', color: 'var(--c-club)', h: 'Map', target: '#map-exec', prep: () => showView('map'), p: 'The ground, with a pin on everything. <b>Simple</b> is the plan, <b>Satellite</b> is the real thing. Drag to pan, pinch to zoom, tap a pin.' },
     { icon: 'sparkle', color: 'var(--c-ticket)', h: "What's On", target: '#exec-on > div:nth-of-type(1)', prep: () => showView('on'), p: 'Everything at the festival. Tap a <b>sport</b> for its match timetable, the <b>stage</b> for the running order, a <b>business</b> for what they do, a <b>club</b> for who\'s on the marquee.' },
-    { icon: 'camera', color: 'var(--c-photo)', h: 'Festival photos', target: '[data-share="exec"]', prep: () => showView('on'), p: 'Send in a photo from here. An organiser approves it and it rolls across the <b>big screen</b>.' },
+    { icon: 'camera', color: 'var(--c-photo)', h: 'Festival photos', target: '[data-share="exec"]', prep: () => showView('on'), p: 'Send in a photo from here. It\'s checked first, and the best go into Spice Road\'s <b>marketing</b>.' },
     { icon: 'mic', color: 'var(--c-stage)', h: 'Know when to move', alerts: true, prep: () => { closeSheets(); showView('now'); }, p: 'Your phone can buzz when your block changes, with where to go next. It only works on Friday, only while the app is open, and it switches itself off after the festival.' },
     { icon: 'box', color: 'var(--c-hands)', h: 'Settings', target: '#set-sheet', prep: () => { showView('now'); openSettings(true); }, after: () => openSettings(false), p: 'The gear at the top. <b>Spicy</b> answers questions, <b>log an incident</b> (first aid, lost property, behaviour) so the organisers have a record, and the red <b>Emergency</b> button has who to call.' },
     { icon: 'heart', color: '#B23A2E', h: 'Questions?', prep: () => { closeSheets(); showView('now'); }, p: 'If you forget any of this, the <b>manual</b> below has every section and a search bar. Still stuck? <b>Ask Spicy</b> — it knows the app and the day, and who\'s where right now, and it can <b>point at</b> whatever it\'s talking about. Or message Sandes.', last: true },
@@ -3287,7 +3287,7 @@ Anyone can do this from the Scores tab — you don't have to be rostered on that
 1. Scores tab.
 2. Under Brackets, tap the sport: Volleyball, Football or Cricket.
 3. Find the two teams playing and tap that match. Confirm, and it opens under Live matches.
-4. Tap + on the team that scored (and − if you tap one too many). It's on the big screen and the public page within a second.
+4. Tap + on the team that scored (and − if you tap one too many). It's on the public page within a second.
 5. Tap End match when it's over. The bracket fills the winner in by itself.
 6. If the score was level, or something went wrong, tap the winning team's name in the bracket to set it by hand. The gear on a live match edits the team names.
 If someone asks how to score a match, walk them through these steps and set "show" to record-score. If they ask what earns a point in a sport, use the scoring guide for that sport instead.\n`);
@@ -3559,7 +3559,7 @@ If someone asks how to score a match, walk them through these steps and set "sho
   // Same behaviour; execs get their name filled in.
   function mountShare(root, pre) {
     root.innerHTML = `
-      <p class="share-lead">Took a good one? Send it in — it goes on the big screen once it\'s checked.</p>
+      <p class="share-lead">Took a good one? Send it in — we\'ll use it for marketing! Every photo is checked first.</p>
       <label class="share-pick" for="${pre}-file">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>
         <span id="${pre}-pick-lbl">Choose a photo</span>
@@ -3596,7 +3596,7 @@ If someone asks how to score a match, walk them through these steps and set "sho
         const onv = (snap) => {
           const ph = snap.val(); const msg = $(pre + '-msg');
           if (!ph) { msg.textContent = 'That one was taken down by an organiser.'; stop(); return; }
-          if (ph.status === 'approved') { msg.textContent = 'It\'s on the big screen.'; stop(); }
+          if (ph.status === 'approved') { msg.textContent = 'Got it — thank you! It passed the check.'; stop(); }
           else if (ph.status === 'rejected') { msg.textContent = 'Not approved' + (ph.ai && ph.ai.reason ? ' — ' + tidy(ph.ai.reason) : '') + '. An organiser can still overrule.'; stop(); }
           else if (ph.ai && ph.ai.verdict === 'unsure') { msg.textContent = 'Held for an organiser to look at' + (ph.ai.reason ? ' — ' + tidy(ph.ai.reason) : '') + '.'; stop(); }
           else if (Date.now() - t0 > 20000) { msg.textContent = 'Still checking — an organiser will look at it.'; stop(); }
@@ -3794,7 +3794,7 @@ If someone asks how to score a match, walk them through these steps and set "sho
   let ticks = {};
   function mountShout(root, pre) {
     root.innerHTML = `
-      <p class="share-lead">Say something — it scrolls across the big screen. Keep it kind.</p>
+      <p class="share-lead">Say something — the best ones might end up in our posts. Keep it kind; every one is checked.</p>
       <div class="two">
         <div class="field"><label for="${pre}-by">Your name <small>(optional)</small></label><input id="${pre}-by" type="text" maxlength="24" placeholder="e.g. Priya"></div>
         <div class="field"><label for="${pre}-text">Your shout-out</label><input id="${pre}-text" type="text" maxlength="120" placeholder="e.g. UQSLA volleyball let's go"></div>
@@ -3813,7 +3813,7 @@ If someone asks how to score a match, walk them through these steps and set "sho
         const onv = (snap) => {
           const x = snap.val();
           if (!x) { msg.textContent = 'That one was taken down.'; watch.off('value', onv); return; }
-          if (x.ok === true) { msg.textContent = 'It\'s on the big screen.'; watch.off('value', onv); }
+          if (x.ok === true) { msg.textContent = 'Sent — thank you!'; watch.off('value', onv); }
           else if (x.ok === false) { msg.textContent = 'Sorry, this language is not allowed' + (x.ai && x.ai.reason && x.ai.verdict === 'block' ? ' — ' + esc(x.ai.reason).replace(/[.!]+$/, '') : '') + '.'; watch.off('value', onv); }
           else if (Date.now() - t0 > 20000) { msg.textContent = 'Still checking — it\'ll show once it\'s through.'; watch.off('value', onv); }
         };
@@ -4344,6 +4344,6 @@ If someone asks how to score a match, walk them through these steps and set "sho
     if (ok && (onRoster(ident.name, ident.society) || isAdminLogin(ident.name, ident.society))) enter();
     else { ident = null; try { localStorage.removeItem('onshift.identity'); } catch {} redraw(); }
   });
-  else { redraw(); if (wantsPhotos) setTimeout(() => showPublicView('photos'), 50); }
+  else { redraw(); if (wantsPhotos) setTimeout(() => showPublicView('photos'), 50); else if (location.hash === '#exec') setTimeout(showLogin, 50); }   // the exec poster's QR opens the login
 })();
 </script>
