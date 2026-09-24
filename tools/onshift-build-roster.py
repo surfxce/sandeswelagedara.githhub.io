@@ -138,11 +138,13 @@ VB_OTHER = {'Avinab': 1, 'Jasmine': 1, 'Aarya': 1, 'Prabhjot': 1, 'Ishan': 1, 'S
 # execs on the football sign-up sheet (both UQNC); nobody else registered
 FB_PLAYERS = ["Aravinth", "Bhumik", "Prasant"]
 # the only execs playing cricket
-CK_PLAYERS = ["Mathisha", "Thihan", "Rushi"]
+CK_PLAYERS = ["Mathisha", "Thihan", "Rushi", "Prabhjot"]
 
 people, avail, cant, tags, SETUP_FLAG = [], {}, {}, {}, {}
 # leaving on a half hour the form can't say
 LEAVES = {'Thanabammini': 7, 'Sujal': 9}     # first block they're gone: 6:30, 7:30
+# back only for a game: Prabhjot (UQPA) plays cricket for the Mixed Team at 7:00 and 8:00
+RETURNS = {'Prabhjot': (8, 10)}
 # everyone is known by first name; two people sharing one get a surname
 # initial ("Shreya B", "Shreya C"), carried to the app as "k"
 _firsts = collections.Counter(r[0].split()[0] for r in P)
@@ -155,7 +157,7 @@ for name, socs, hours, setup, packup, cd, note in P:
     bs = set()
     for h in (int(x) for x in hours.split(',') if x):
         a, b = HOUR_BLOCKS[h]; bs.add(a); bs.add(b)
-    avail[first] = {b for b in bs if b < LEAVES.get(first, 99)}
+    avail[first] = {b for b in bs if b < LEAVES.get(first, 99)} | set(RETURNS.get(first, ()))
     cant[first] = set(x for x in cd.split(',') if x)
     tags[first] = set(x for x in note.split(',') if x)
     SETUP_FLAG[first] = setup
@@ -215,8 +217,9 @@ for f in FB_PLAYERS:
 # cricket, one game at a time (the committee's poster): SLA 6:30 & 7:30,
 # ISC 6:30 & 8:00, GS 7:00 & 7:30, Mixed 7:00 & 8:00
 CK_GAMES = {'UQSLA': (7, 9), 'UQISC': (7, 10), 'UQGS': (8, 9)}
+CK_TEAM = {'Prabhjot': (8, 10)}   # plays for the Mixed Team, not his society
 for f in CK_PLAYERS:
-    for i in next((g for sc, g in CK_GAMES.items() if sc in byfirst[f]["s"]), ()):
+    for i in CK_TEAM.get(f) or next((g for sc, g in CK_GAMES.items() if sc in byfirst[f]["s"]), ()):
         if i in avail.get(f, ()) and f not in fixed[i]: fixed[i][f] = 'play-ck'
 # Sandes refs the volleyball final and gives out the prizes, then takes the
 # presidents' photo at 4:55 (it's on his day as a moment)
