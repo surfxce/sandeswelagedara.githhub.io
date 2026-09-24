@@ -145,7 +145,9 @@ for i in range(12):
 
 # ---- moments -----------------------------------------------------------------
 PRES = {'Sanuka', 'Prabhas', 'Jais', 'Devansh', 'Aarya', 'Bhumik', 'Akash'}
-CK = {f for b in d['roster'][6:] for x, ps in b if x == 'ck' for f in ps}
+# the 6:10 briefing is for whoever umpires or scores the games (6:00 – 8:30);
+# not the players, and not the 8:30 pack-down crew
+CK = {f for b in d['roster'][6:11] for x, ps in b if x == 'ck' for f in ps}
 QR_URL = 'https://sandeswelagedara.com/toybox/on-shift/'
 LOGI_ORDER = ['Nandos', 'Archita', 'Mathew', 'Sanuli', 'Devashri', 'Tanisha', 'Prabhas']
 SPORT = {'vb': 'volleyball', 'fb': 'football'}
@@ -169,13 +171,15 @@ def exec_page(p, soc):
         elif (f, i) in cover:
             cur, who, sport, team = cover[(f, i)]
             nm, wh = duty(cur)
-            rows.append((t, (f'Cover for {full(who)}: {nm}', f'{wh} · only if {team} are still in — otherwise, a break'), [], 'covering'))
+            rows.append((t, (f'Cover for {full(who)} (playing {SPORT[sport]}): {nm}', f'{wh} · only if {team} are still in — otherwise, a break'), [], 'covering'))
         elif base:
             id_, ps = base; mates = [x for x in ps if x != f]
             if id_.startswith('play-'): mates = [x for x in mates if socOf[x] & socOf[f]]
             rows.append((t, duty(id_), mates, 'play' if id_.startswith('play-') or id_ == 'perform' else 'duty'))
         else:
             rows.append((t, ('Break', 'Your time off — enjoy the festival. If anything is short, logistics will find you.'), [], 'free'))
+        if i == 3 and f == 'Sandes':
+            rows.append(('4:55', ("Presidents' photo — you're taking it", 'Stage steps, straight after the final and the prizes · five minutes'), [], 'moment'))
         if i == 3 and f in PRES:
             rows.append(('4:55', ("Presidents' photo", 'Stage steps, straight after the volleyball final · 5 minutes, then back to your spot'), [], 'moment'))
         if i == 6 and f in CK and f != 'Devansh':

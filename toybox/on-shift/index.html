@@ -2150,7 +2150,7 @@
     { block: 3, at: '4:55 pm', name: 'Presidents\' photo', where: 'Stage steps', note: 'Presidents only, straight after the volleyball final — leave your spot for five minutes, then straight back. Sandes takes it.', who: ['Sanuka', 'Prabhas', 'Akash', 'Aarya', 'Akansh', 'Devansh', 'Jais', 'Bhumik', 'Sandes'], whoLabel: 'presidents' },
   ];
   // umpires and scorers only — players don't need the briefing
-  const onCricket = (first) => [6, 7, 8, 9, 10, 11].some(i => assignmentFor(first, i).id === 'ck');
+  const onCricket = (first) => [6, 7, 8, 9, 10].some(i => assignmentFor(first, i).id === 'ck');   // the games, not the 8:30 pack-down
   const momentsFor = (i) => MOMENTS.filter(m => m.block === i && (m.who === 'all' || (me && (m.who === 'ck' ? onCricket(me.first) : m.who.includes(me.first)))))
     .sort((a, b) => a.at.localeCompare(b.at));
   function momentHtml(m) {
