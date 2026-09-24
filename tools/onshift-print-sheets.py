@@ -46,7 +46,7 @@ DUTY = {
   'cr-gen': ('Crowd & support', 'Generators & cords sweep'),
   'fund-pp': ('Nepal Floods fundraiser', 'Charity marquee — raffle & spin the wheel'),
   'fund-bake': ('UQ Manali Medical Project', 'Charity marquee, Field 6'),
-  'fund-hope': ('Hope by Hands', 'Charity marquee, Field 6'),
+  'logi-biz': ('Logistics — business stalls', 'Walk every business: set up, power, tables, anything missing'),
   'logi': ('Logistics', 'Everywhere — answer calls for help'),
   'play-vb': ('Playing volleyball', 'Beach volleyball courts'),
   'play-fb': ('Playing football', 'Field 7 — group stage'),
@@ -57,7 +57,7 @@ DUTY = {
   'fb-pack': ('Football pack-up', 'Field 7, 6:00 – 6:15: balls, bibs, cones, whistles, pump to logistics'),
   'su-fb': ('Setup — football', 'Field 7, 2:30 – 3:00: mark the pitch edges, balls/bibs/whistles out, teams ready'),
   'su-vb': ('Setup — volleyball', 'Beach courts: three nets, lines, balls and ball bag, draw up'),
-  'su-fund': ('Setup — charity stalls', 'Charity marquee: tables, signage, raffle and wheel, floats'),
+  'su-fund': ('Setup — charity stalls', 'Nepal Floods marquee: tables, signage, raffle and wheel, floats'),
   'su-cns': ('1:00 pm — meet at the C&S room', 'Collect the equipment and bring it down to the field'),
   'su-flex': ('Flexible', 'Check with the committee heads for what needs to be done'),
   'su-biz': ('Setup — business stalls', 'Visit every business: missing anything? good to go by 3:00?'),
@@ -114,7 +114,7 @@ ROUND = {1: 'first round', 2: 'semi-final', 3: 'final', 4: 'semi-final', 5: 'fin
 NEVER_MOVE = ('perform', 'prep', 'photo-pres', 'ck', 'ck-brief')
 # no gap to fill if they go: logistics float, and crowd & support is the
 # spare pool anyway
-UNCOVERED = ('logi', 'free', 'cr-gate', 'cr-lawn', 'cr-food', 'cr-gen')
+UNCOVERED = ('logi', 'logi-biz', 'free', 'cr-gate', 'cr-lawn', 'cr-food', 'cr-gen')
 
 cond, cover = {}, {}                           # (exec, block) -> details
 WORST = []
