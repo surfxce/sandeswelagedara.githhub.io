@@ -130,11 +130,13 @@ PERF = {'Helly': (3,), 'Tanisha': (3,), 'Matvi': (3,), 'Roshni': (6,), 'Jasmine'
 # society volleyball teams (from "which sport are you playing")
 VB_TEAM = {'UQSLA': ["Shavini", "Diya", "Leron", "Sanuka", "Deana", "Nimnah", "Dhyan"],
            'UQISC': ["Mithila", "Sandes", "Krisha", "Sritam", "Ragesh", "Shane", "Tejashwini", "Akash", "Afthab"]}
-VB_BLOCK = 1          # round 1 at 3:30
+VB_BLOCK = 0          # SLA v ISC is one of the three first-round games at 3:15
 # execs on the other teams, for their first game: NC + PA and Solos play at
 # 3:35, Shriyans's team (Shane) at 3:55 — he's here from 4
+# NC + PA's first game is 3:35 (block 1); Solos (Matvi), UQISS (Kaamya) and
+# UQSLA (Dhyan) play at 3:15; Shriyans's team (Shane) at 3:55, before he's here
 VB_OTHER = {'Avinab': 1, 'Jasmine': 1, 'Aarya': 1, 'Prabhjot': 1, 'Ishan': 1, 'Sujal': 1, 'Bhumik': 1, 'Sarju': 1, 'Kartik': 1,
-            'Shriyans': 1, 'Matvi': 1, 'Shane': 2, 'Kaamya': 0, 'Dhyan': 1}   # Kaamya: UQISS play-in at 3:15
+            'Shriyans': 1, 'Matvi': 0, 'Kaamya': 0, 'Dhyan': 0}   # Kaamya: UQISS play-in at 3:15
 # execs on the football sign-up sheet (both UQNC); nobody else registered
 FB_PLAYERS = ["Aravinth", "Bhumik", "Prasant"]
 # the only execs playing cricket
@@ -226,10 +228,10 @@ for f in CK_PLAYERS:
 # Sandes refs the volleyball final and gives out the prizes, then takes the
 # presidents' photo at 4:55 (it's on his day as a moment)
 fixed[3]['Sandes'] = 'vb'
-fixed[0]['Sandes'] = 'vb'
-# Sritam and Heshan asked to referee volleyball: an hour each
-fixed[0]['Sritam'] = 'vb'
+# Sritam and Heshan asked to referee volleyball: an hour each (Sandes and
+# Sritam play for ISC at 3:15, so their refereeing is later)
 fixed[2]['Sritam'] = 'vb'
+fixed[3]['Sritam'] = 'vb'
 # the MC: Div from 4:30 while Kartik's playing volleyball (3:35 – 4:50), then
 # Kartik for the rest of the night. Performances start 4:30 at the earliest.
 fixed[3]['Divita'] = 'st'
@@ -291,8 +293,10 @@ def needs(i):
     if i <= 5:  n['fb-score'] = (2, 2)
     if i == 6:  n['fb-pack'] = (3, 3)
     # a ref on every bracket court: three courts 3:35 – 4:15, then two
-    if i in (0, 1, 2): n['vb'] = (3, 3)
-    elif i == 3: n['vb'] = (2, 2)
+    # three courts for the 3:15 first round and the 3:35 quarter-finals, two at
+    # 3:55, then one bracket game at a time (the third court goes social)
+    if i in (0, 1): n['vb'] = (3, 3)
+    elif i in (2, 3): n['vb'] = (2, 2)
     # cricket, per its run sheet: four people (bowler's-end umpire, square-leg
     # umpire, scorer, helper) from the 6:10 set-up and brief; the crew changes
     # at 7:30; four again for the 8:30 result and pack-down

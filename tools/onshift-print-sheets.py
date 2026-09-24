@@ -94,15 +94,18 @@ def tel(f):
 i0 = app.index("    vb: [\n"); i1 = app.index("    fb: [", i0)
 VB_TEAMS = [(m.group(2), m.group(3), re.findall(r"'([^']+)'", m.group(4)))
             for m in re.finditer(r"\{ name: ('|\")(.+?)\1,\s*(?:soc: '(\w+)',\s*)?players: \[(.*?)\] \}", app[i0:i1])]
+# volleyball: all three first-round games at 3:15 (block 0), quarter-finals
+# 3:35 / 3:55 (block 1), semis 3:55 / 4:15, final 4:35 (block 3)
+VB_FIRST = {'UQSLA': 0, 'UQISC': 0, 'UQISS': 0, 'Solos': 0, "Ameya's team": 0, "Sargun's team": 0}
 team_of = collections.defaultdict(list)       # exec -> [(sport, team)]
 for name, soc, players in VB_TEAMS:
     for n in players:
         f = BYNAME.get(n.lower())
         if f: team_of[f].append(('vb', name))
-for id_, ps in d['roster'][1]:
+for id_, ps in d['roster'][0] + d['roster'][1]:
     if id_ == 'play-vb':
         for f in ps:
-            if not team_of[f]:
+            if not any(sp == 'vb' for sp, _ in team_of[f]):
                 t = next((n for n, soc, _ in VB_TEAMS if soc and soc in socOf[f]), None)
                 if t: team_of[f].append(('vb', t))
 FB = sorted({f for b in d['roster'][:4] for id_, ps in b if id_ == 'play-fb' for f in ps})
@@ -110,9 +113,9 @@ for f in FB: team_of[f].append(('fb', next(iter(sorted(socOf[f]))) + ' football'
 HOLD = collections.defaultdict(dict)          # block -> {exec: (sport, team)}
 for f, ts in team_of.items():
     for sport, team in ts:
-        for i in ((1, 2, 3) if sport == 'vb' else (4, 5)):
+        for i in (range(VB_FIRST.get(team, 1), 4) if sport == 'vb' else (4, 5)):
             HOLD[i].setdefault(f, (sport, team))
-ROUND = {1: 'first round', 2: 'semi-final', 3: 'final', 4: 'semi-final', 5: 'final'}
+ROUND = {0: 'first round', 1: 'quarter-final', 2: 'semi-final', 3: 'final', 4: 'semi-final', 5: 'final'}
 NEVER_MOVE = ('perform', 'prep', 'photo-pres', 'ck', 'ck-brief')
 # no gap to fill if they go: logistics float, and crowd & support is the
 # spare pool anyway
@@ -173,7 +176,7 @@ def exec_page(p, soc):
         if (f, i) in cond:
             sport, team, cur = cond[(f, i)]
             back = 'a break' if cur == 'free' else duty(cur)[0]
-            if ROUND[i] == 'first round':   # everyone plays their first game
+            if sport == 'vb' and i == VB_FIRST.get(team, 1):   # everyone plays their first game
                 rows.append((t, (f'Playing {SPORT[sport]} — {team}, first game', f'If you\'re not needed on court: {back}'), [], 'play'))
             else:
                 rows.append((t, (f'Playing {SPORT[sport]} — if {team} are still in', f'{ROUND[i].capitalize()} · if they\'re out: {back}'), [], 'play'))
