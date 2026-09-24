@@ -828,7 +828,12 @@
   .sport-tabs button { flex: 1; min-height: 38px; border-radius: 19px; border: 1.5px solid var(--line); background: #fff; color: var(--maroon); font-weight: 700; font-size: 14px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
   .sport-tabs button svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
   .sport-tabs button[aria-pressed="true"] { background: var(--maroon); color: var(--cream); border-color: var(--maroon); }
-  .team-list { display: grid; gap: 8px; }
+  .team-list { display: grid; gap: 8px; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
+  .team-list summary { min-width: 0; } .team-list summary > span:first-of-type { overflow-wrap: anywhere; }
+  .tog { cursor: pointer; display: flex; align-items: center; gap: 8px; user-select: none; }
+  .tog .chev { font-size: 18px; color: var(--ink-3); transition: transform .15s; transform: rotate(90deg); }
+  .tog-wrap.shut .tog .chev { transform: none; }
+  .tog-wrap.shut .team-list, .tog-wrap.shut .sport-tabs { display: none; }
   .team-list details { background: #fff; border: 1.5px solid var(--line); border-left: 6px solid var(--c-sport); border-radius: 6px; }
   .team-list summary { list-style: none; cursor: pointer; padding: 10px 12px; display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 15px; }
   .team-list summary::-webkit-details-marker { display: none; }
@@ -869,6 +874,17 @@
   .bracket .next b { font-size: 17px; }
   .bracket .champ { padding: 10px 12px; background: var(--paper-2); border-left: 6px solid var(--tan); font-weight: 800; font-size: 17px; }
   .round { display: grid; gap: 4px; }
+  .round .games { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .gm { display: grid; gap: 2px; padding: 8px 10px; background: #fff; border: 1.5px solid var(--line); border-left: 4px solid var(--c); border-radius: 6px; align-content: start; }
+  .gm.live { border-color: var(--c-club); }
+  .gm .gh { font-size: 11px; font-weight: 700; color: var(--ink-3); margin-bottom: 2px; }
+  .gm .gr { display: flex; justify-content: space-between; gap: 6px; font-weight: 700; font-size: 14px; }
+  .gm .gr span { overflow-wrap: anywhere; } .gm .gr b { font-variant-numeric: tabular-nums; }
+  .gm .gr.won { color: var(--maroon); } .gm .gr.lost { color: var(--ink-3); font-weight: 600; } .gm .gr.tbd { color: var(--ink-3); font-style: italic; font-weight: 500; }
+  .gm button { margin-top: 6px; height: 30px; border-radius: 6px; border: 1.5px solid var(--line); background: var(--paper); color: var(--maroon); font-weight: 700; font-size: 12px; }
+  .gm .live-tag { color: var(--c-club); }
+  .gtables { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 14px; }
+  .gtables table { width: 100%; }
   .round h4 { margin: 6px 0 2px; font-size: 11px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); }
   .bm { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 6px; min-height: 40px; padding: 4px 0; border-bottom: 1px solid var(--line); font-weight: 700; font-size: 15px; }
   .bm:last-child { border-bottom: 0; }
@@ -1057,7 +1073,7 @@
     <div class="whatson-body pview" data-pview="home" style="padding-bottom:0">
       <div class="stage-now" id="stage-now" hidden></div>
       <div><h2>Live scores</h2><div class="match-list" id="public-scores"></div></div>
-      <div><h2>Teams</h2><div class="sport-tabs" data-sporttabs="teams"></div><div class="team-list" id="teams-pub"></div></div>
+      <div class="tog-wrap shut"><h2 class="tog" role="button" tabindex="0" aria-expanded="false">Teams <span class="chev">›</span></h2><div class="sport-tabs" data-sporttabs="teams"></div><div class="team-list" id="teams-pub"></div></div>
       <div><h2>Brackets</h2><div class="sport-tabs" data-sporttabs="brackets"></div><div class="bracket-list" id="public-brackets"></div></div>
     </div>
     <div class="whatson-body pview" id="public-on" data-pview="on" hidden></div>
@@ -1284,8 +1300,8 @@
 
     <!-- SCORES (live, shared) -->
     <section class="view" id="view-scores" role="tabpanel" hidden>
-      <div>
-        <h2 class="sec">Teams</h2>
+      <div class="tog-wrap shut">
+        <h2 class="sec tog" role="button" tabindex="0" aria-expanded="false">Teams <span class="chev">›</span></h2>
         <div class="sport-tabs" data-sporttabs="teams"></div>
         <div class="team-list" id="teams-exec"></div>
       </div>
@@ -1650,6 +1666,7 @@
           tasks:['Tables & signage', 'Raffle & wheel', 'Floats ready'] },
     'su-biz':  { cat:'hands', icon:'tent', name:'Setup — business stalls', where:'Business row · 2:00 – 3:00 pm', do:'Three of you: go stall to stall. Ask each business if they\'re missing anything — power, a table, a chair, directions — and whether they\'re good to go by 3:00. Anything you can\'t fix, call logistics.',
           tasks:['Visit every stall', 'Missing anything?', 'Ready by 3:00'] },
+    'su-logi': { cat:'hands', icon:'box', name:'1:00 pm — setup with logistics', where:'Field 6, with the logistics team · 1:00 – 3:00 pm', do:'Start at 1:00 with the logistics team: unloading, marquees, cones, fencing, signage — whatever they need before doors at 3:00. Find Nandos or Archita when you arrive.', tasks:['Here by 1:00', 'Marquees & fencing', 'Ready by 3:00'] },
     'su-cns':  { cat:'hands', icon:'box', name:'1:00 pm — meet at the C&S room', where:'C&S room, then down to the field · 1:00 – 3:00 pm', do:'Meet at the C&S room at 1:00. Collect the festival equipment and bring it down to the field, then help get it where it needs to go before 3:00.',
           tasks:['1:00 at the C&S room', 'Equipment down to the field', 'Out where it goes'] },
     'su-flex': { cat:'hands', icon:'crowd', name:'Setup — flexible', where:'Wherever you\'re needed · 2:00 – 3:00 pm', do:'Check with the committee heads for what needs doing — they\'ll put you where setup is short.',
@@ -4380,24 +4397,42 @@ If someone asks how to score a match, walk them through these steps and set "sho
       const btn = editable && m.a && m.b && !sc ? `<button type="button" data-start="${sport}|${k}|${i}" data-names="${esc(m.a)} v ${esc(m.b)}" data-jump="1">Start</button>` : '';
       return `<div class="bm ${btn ? 'startable' : ''}"><span class="tm r ${sc && !live && sc.sa > sc.sb ? 'won' : sc && !live && sc.sa < sc.sb ? 'lost' : !m.a ? 'tbd' : ''}">${m.a ? esc(m.a) : 'TBD'}</span><span class="mid">${live ? '<span class="live-tag">Live</span>' : ''}${score || btn || `<span class="fine">${esc(when)}</span>`}</span><span class="tm ${sc && !live && sc.sb > sc.sa ? 'won' : sc && !live && sc.sb < sc.sa ? 'lost' : !m.b ? 'tbd' : ''}">${m.b ? esc(m.b) : 'TBD'}</span></div>`;
     };
+    // the first game not yet started, like the volleyball bracket's "Up next"
+    const upNext = () => {
+      const ko = cfg.groups ? robinKO(sport) : null; const list = [];
+      cfg.rounds.forEach((pairs, k) => pairs.forEach(([a, b], i) => list.push({ m: ((br.rounds || [])[k] || [])[i] || { a, b }, k, i, t: cfg.times[k] })));
+      if (ko) { ko.semis.forEach((m, i) => list.push({ m, k: cfg.rounds.length, i, t: cfg.semiTime })); list.push({ m: ko.final, k: cfg.rounds.length + 1, i: 0, t: cfg.finalTime }); }
+      const nx = list.find(x => x.m.a && x.m.b && !(x.m.m && matches[x.m.m]));
+      if (!nx) return '';
+      return `<div class="next" style="--c:${color}"><span class="eyebrow">Up next</span><b>${esc(nx.m.a)} v ${esc(nx.m.b)}</b><span class="fine">${esc(nx.t)}${cfg.groups && nx.k < cfg.rounds.length ? ' · Field ' + (nx.i + 1) : ''}</span>${editable ? `<button type="button" class="play" data-start="${sport}|${nx.k}|${nx.i}" data-names="${esc(nx.m.a)} v ${esc(nx.m.b)}" data-jump="1">Play next</button>` : ''}</div>`;
+    };
+    // a small card per game, two to a row
+    const cell = (m, k, i, label) => {
+      const sc = m.m && matches[m.m]; const live = sc && sc.status === 'live'; const done = sc && !live;
+      const side = (t, mine, theirs) => `<div class="gr ${done && mine > theirs ? 'won' : done && mine < theirs ? 'lost' : !t ? 'tbd' : ''}"><span>${t ? esc(t) : 'TBD'}</span>${sc ? `<b>${mine}</b>` : ''}</div>`;
+      const btn = editable && m.a && m.b && !sc ? `<button type="button" data-start="${sport}|${k}|${i}" data-names="${esc(m.a)} v ${esc(m.b)}" data-jump="1">Start</button>` : '';
+      return `<div class="gm ${live ? 'live' : ''}"><div class="gh">${esc(label)}${live ? ' <span class="live-tag">Live</span>' : ''}</div>${side(m.a, sc ? sc.sa : 0, sc ? sc.sb : 0)}${side(m.b, sc ? sc.sb : 0, sc ? sc.sa : 0)}${btn}</div>`;
+    };
     if (cfg.groups) {
       const G = cfg.rounds.length; const ko = robinKO(sport);
       const grp = cfg.rounds.map((pairs, k) => { const saved = (br.rounds || [])[k] || [];
-        return `<div class="round"><h4>${esc(cfg.times[k])} — Group ${esc(cfg.rests[k])} rests</h4>${pairs.map(([a, b], i) => `<div class="fine" style="margin:8px 0 2px">Field ${i + 1} · Group ${groupOf(sport, a)}</div>` + game(saved[i] || { a, b, w: null, m: null }, k, i, cfg.times[k])).join('')}</div>`; }).join('');
-      const semis = `<div class="round"><h4>${esc(cfg.semiTime)} — Semi-finals</h4>${ko.semis.map((m, i) => `<div class="fine" style="margin:8px 0 2px">Winner ${cfg.semis[i][0]} v winner ${cfg.semis[i][1]}</div>` + game(m, G, i, cfg.semiTime)).join('')}</div>`;
-      const fin = `<div class="round"><h4>${esc(cfg.finalTime)} — Final</h4>${game(ko.final, G + 1, 0, cfg.finalTime)}</div>`;
+        return `<div class="round"><h4>${esc(cfg.times[k])} — Group ${esc(cfg.rests[k])} rests</h4><div class="games">${pairs.map(([a, b], i) => cell(saved[i] || { a, b, w: null, m: null }, k, i, `Field ${i + 1} · Group ${groupOf(sport, a)}`)).join('')}</div></div>`; }).join('');
+      const semis = `<div class="round"><h4>${esc(cfg.semiTime)} — Semi-finals</h4><div class="games">${ko.semis.map((m, i) => cell(m, G, i, `Winner ${cfg.semis[i][0]} v winner ${cfg.semis[i][1]}`)).join('')}</div></div>`;
+      const fin = `<div class="round"><h4>${esc(cfg.finalTime)} — Final</h4><div class="games">${cell(ko.final, G + 1, 0, 'Semi-final winners')}</div></div>`;
       const tables = Object.entries(cfg.groups).map(([g, names]) => { const t = robinTable(sport, names);
-        return `<h4 style="margin:14px 0 4px">Group ${g}</h4><table class="rgrid robin"><tr><th>Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>Pts</th><th>GD</th></tr>${t.map((r, i) => `<tr class="${i === 0 && r.p ? 'top' : ''}"><td>${esc(r.name)}</td><td>${r.p}</td><td>${r.w}</td><td>${r.t}</td><td>${r.l}</td><td>${r.pts}</td><td>${r.diff > 0 ? '+' : ''}${r.diff}</td></tr>`).join('')}</table>`; }).join('');
-      return `<div class="bbox" style="--c:${color}"><div class="head">${iconHtml(d.icon || 'football', color, 'sm')}<span class="lbl">${esc(SPORTS[sport])} — groups, semis, final</span></div>${grp}${semis}${fin}${tables}<p class="fine">${esc(cfg.note || '')}</p></div>`;
+        return `<div><h4 style="margin:6px 0 4px">Group ${g}</h4><table class="rgrid robin"><tr><th>Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>Pts</th><th>GD</th></tr>${t.map((r, i) => `<tr class="${i === 0 && r.p ? 'top' : ''}"><td>${esc(r.name)}</td><td>${r.p}</td><td>${r.w}</td><td>${r.t}</td><td>${r.l}</td><td>${r.pts}</td><td>${r.diff > 0 ? '+' : ''}${r.diff}</td></tr>`).join('')}</table></div>`; }).join('');
+      return `<div class="bracket" style="--c:${color}"><div class="head">${iconHtml(d.icon || 'football', color, 'sm')}<span class="ttl">${esc(SPORTS[sport])} — groups, semis, final</span><span class="cnt">${Object.values(cfg.groups).flat().length} teams</span></div>${upNext()}${grp}${semis}${fin}<div class="gtables">${tables}</div><p class="fine">${esc(cfg.note || '')}</p></div>`;
     }
-    const roundsHtml = cfg.rounds.map((pairs, k) => {
-      const saved = (br.rounds || [])[k] || [];
-      return `<div class="round"><h4>${esc(cfg.times[k])} — ${pairs.length > 1 ? 'two games at once' : 'Match ' + (k + 1)}</h4>${pairs.map(([a, b], i) => game(saved[i] || { a, b, w: null, m: null }, k, i, cfg.times[k])).join('')}</div>`;
-    }).join('');
+    const roundsHtml = `<div class="round"><h4>${cfg.rounds.length} matches, one at a time</h4><div class="games">${cfg.rounds.map((pairs, k) => { const saved = (br.rounds || [])[k] || [];
+      return pairs.map(([a, b], i) => cell(saved[i] || { a, b, w: null, m: null }, k, i, `${cfg.times[k]} · Match ${k + 1}`)).join(''); }).join('')}</div></div>`;
     const finalHtml = !cfg.finalTime ? '' : `<div class="round"><h4>${esc(cfg.finalTime)} — Final</h4>${game({ a: fin[0].a || top2[0], b: fin[0].b || top2[1], w: fin[0].w, m: fin[0].m }, cfg.rounds.length, 0, cfg.finalTime)}</div>`;
     const standings = `<table class="rgrid robin"><tr><th>Team</th><th>P</th><th>W</th><th>L</th><th>Pts</th><th>+/−</th></tr>${table.map((r, i) => `<tr class="${i < (cfg.finalTime ? 2 : 1) && played ? 'top' : ''}"><td>${esc(r.name)}</td><td>${r.p}</td><td>${r.w}</td><td>${r.l}</td><td><b>${r.pts}</b></td><td>${r.diff > 0 ? '+' : ''}${r.diff}</td></tr>`).join('')}</table>`;
-    return `<div class="bbox" style="--c:${color}"><div class="head">${iconHtml(d.icon || 'cricket', color, 'sm')}<span class="lbl">${esc(SPORTS[sport])} — round robin${cfg.finalTime ? ' + final' : ''}</span></div>${roundsHtml}${finalHtml}${standings}<p class="fine">Win 2, tie 1, loss 0. Level on points: runs difference here, then net run rate by hand. ${cfg.finalTime ? 'Top two play the final.' : 'Top of the table after the last match wins.'}</p></div>`;
+    return `<div class="bracket" style="--c:${color}"><div class="head">${iconHtml(d.icon || 'cricket', color, 'sm')}<span class="ttl">${esc(SPORTS[sport])} — round robin${cfg.finalTime ? ' + final' : ''}</span><span class="cnt">${(TEAMS[sport] || []).length} teams</span></div>${upNext()}${roundsHtml}${finalHtml}${standings}<p class="fine">Win 2, tie 1, loss 0. Level on points: runs difference here, then net run rate by hand. ${cfg.finalTime ? 'Top two play the final.' : 'Top of the table after the last match wins.'}</p></div>`;
   }
+  document.querySelectorAll('.tog').forEach(h => {
+    const flip = () => { const w = h.closest('.tog-wrap'); const shut = w.classList.toggle('shut'); h.setAttribute('aria-expanded', String(!shut)); };
+    h.addEventListener('click', flip); h.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); flip(); } });
+  });
   function renderBrackets() {
     const k0 = sportSel; const br0 = bracketFor(k0);
     const none = `<p class="fine">No ${SPORTS[k0]} bracket yet.</p>`;
@@ -4407,7 +4442,10 @@ If someone asks how to score a match, walk them through these steps and set "sho
     else el.innerHTML = br0 ? bracketCard(k0, br0, true) + (!brackets[k0] ? '<p class="fine">The draw as registered. Tap a match to start it.</p>' : '') : none;
     // tapping the match itself starts it (same as the Start button)
     el.querySelectorAll('.bm').forEach(row => { const st = row.querySelector('[data-start]'); if (st) { row.classList.add('startable'); row.addEventListener('click', e => { if (e.target.closest('button')) return; if (confirm(`Start ${st.dataset.names || 'this match'}? Scoring opens under Live matches.`)) st.click(); }); } });
-    el.querySelectorAll('[data-start]').forEach(b => b.addEventListener('click', async () => {
+    el.querySelectorAll('[data-start]').forEach(b => b.addEventListener('click', async (e) => {
+      // a stray tap would put a match live on every phone: ask first (a tap on
+      // the match row has already asked, and arrives here as a synthetic click)
+      if (e.isTrusted && !confirm(`Start ${b.dataset.names || 'this match'} now? It goes live for everyone.`)) return;
       const [sport, kS, iS] = b.dataset.start.split('|'); const k = +kS, i = +iS;
       if (ROBIN[sport]) {
         const cfg = ROBIN[sport]; const br = brackets[sport] || { teams: (TEAMS[sport] || []).map(t => t.name), rounds: [], t: Date.now() };
