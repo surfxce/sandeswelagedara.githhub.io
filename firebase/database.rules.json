@@ -302,6 +302,10 @@
           ".validate": false
         }
       },
+      "staffing": {
+        ".read": true,
+        "$block": { "$duty": { ".write": true, ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 60" } }
+      },
       "spicy": {
         ".read": true,
         "$id": {

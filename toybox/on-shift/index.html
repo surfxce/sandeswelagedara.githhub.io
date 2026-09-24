@@ -427,6 +427,11 @@
   @keyframes al-in { from { opacity: 0; } to { opacity: 1; } }
   @keyframes al-fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
   @keyframes al-bell { 0% { opacity: 0; transform: scale(.6) rotate(0); } 40% { opacity: 1; transform: scale(1.08) rotate(-14deg); } 60% { transform: rotate(12deg); } 80% { transform: rotate(-6deg); } 100% { transform: none; } }
+  .staff-nav { display: flex; align-items: center; justify-content: space-between; margin: 0 0 6px; }
+  .staff-nav .step { width: 36px; height: 36px; border-radius: 50%; border: 1.5px solid var(--line); background: var(--paper); font-size: 20px; color: var(--maroon); }
+  .staff-row { display: grid; grid-template-columns: 1fr 110px 26px 44px; gap: 8px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+  .staff-row input[type=range] { width: 100%; accent-color: var(--maroon); }
+  .staff-row .n { text-align: center; font-variant-numeric: tabular-nums; }
   .var-item { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
   .var-item .t small { display: block; color: var(--ink-3); font-size: 12px; margin-top: 2px; }
   .var-item .btn-small { height: 30px; padding: 0 10px; font-size: 13px; }
@@ -648,6 +653,10 @@
     display: grid; grid-template-columns: 54px 8px 30px 1fr; gap: 0 10px; align-items: center;
     min-height: 52px; padding: 8px 0; border-bottom: 1px solid var(--line);
   }
+  .rs-row { position: relative; }
+  .rs-swap { position: absolute; right: 0; top: 50%; transform: translateY(-50%); height: 28px; padding: 0 10px; border-radius: 14px; border: 1.5px solid var(--line); background: var(--paper); color: var(--maroon); font-weight: 800; font-size: 12px; }
+  .rs-swap.asked { display: inline-flex; align-items: center; border-style: dashed; color: var(--ink-3); font-weight: 700; }
+  .rs-row .d { padding-right: 78px; }
   .rs-row.now { background: linear-gradient(90deg, rgba(217,164,100,.28), transparent 70%); margin: 0 -16px; padding-inline: 16px; }
   .rs-row .t { font-size: 14px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--ink-2); }
   .duty-card.soon { border: 2px dashed var(--ink-3); border-left-width: 2px; background: #FBF8F2; box-shadow: none; }
@@ -1392,6 +1401,10 @@
         <div class="txt"><b>Master clock</b><span id="sim-state">Move every exec's app to a block, at your pace. Off = real time.</span></div>
         <button class="toggle" id="sim-toggle" type="button" role="switch" aria-checked="false" aria-label="Master clock"></button>
       </div>
+      <div class="set-row" id="set-staff-row" hidden>
+        <div class="txt"><b>Staffing</b><span>More or fewer on a duty, this block or any other. Everyone's app updates. Only you see this.</span></div>
+        <button class="btn-small ghost" id="set-staff" type="button">Open</button>
+      </div>
       <div class="set-row" id="set-var-row" hidden>
         <div class="txt"><b>Schedule variance</b><span id="var-state">Anything in the roster worth a second look. Only you see this.</span></div>
         <button class="btn-small ghost" id="set-var" type="button">Open</button>
@@ -1577,7 +1590,7 @@
 
   const DUTIES = {
     // tasks: the sub-jobs inside each job — shown as small tags on the duty card
-    vb: { cat:'sport', icon:'volleyball', name:'Volleyball', where:'Beach volleyball courts (bottom of the ground)', do:'Ten teams, knockout. 3:35 – 4:15 all three courts run bracket games (one ref each); from 4:15 it\'s two bracket courts and the third goes social. 20-minute games: 3:35, 3:55, semis 4:15, final 4:35. Keep the ball bag with you. Winner at 5:00.',
+    vb: { cat:'sport', icon:'volleyball', name:'Volleyball', where:'Beach volleyball courts (bottom of the ground)', do:'Eleven teams, knockout. One play-in at 3:15, then 3:35 – 4:15 all three courts run bracket games (one ref each); from 4:15 it\'s two bracket courts and the third goes social. 20-minute games: 3:35, 3:55, semis 4:15, final 4:35. Keep the ball bag with you. Winner at 5:00.',
           tasks:['Scorekeeping', 'Rotating teams', 'Ball bag'] },
     'fb-score': { cat:'sport', icon:'football', name:'Football scores', where:'Field 7 sideline — results desk', do:'Get every result the moment a game ends: from the ref, into the committee\'s score sheet, and into the app (Scores tab → Football → tap the match, + for each goal, End match) so the public page and the group tables are right. The semi-final draw comes from your sheet.',
           tasks:['Results from refs', 'Score sheet', 'App scores'] },
@@ -1599,9 +1612,7 @@
           tasks:['Full loop', 'Tape loose cords', 'Generator check'] },
     'fund-pp':   { cat:'fund', icon:'sparkle', name:'Nepal Floods fundraiser', where:'Charity marquee, Field 6', do:'Sell raffle tickets and run spin-the-wheel. Prizes are raffle tickets, Fright Night drink vouchers, soft drinks and lollies. Count the float; every dollar goes to Nepal\'s flood relief fund.',
           tasks:['Raffle tickets', 'Spin the wheel', 'Payments'] },
-    'fund-bake': { cat:'fund', name:'UQ Manali Medical Project', where:'Charity marquee, Field 6', do:'Help the Manali volunteers serve and take payment. Keep the queue moving.',
-          tasks:['Serving', 'Payments', 'Queue'] },
-    'fund-hope': { cat:'fund', name:'Hope by Hands', where:'Charity marquee, Field 6', do:'Help the Hope by Hands volunteers serve and take payment. Keep the queue moving.',
+    'fund-bake': { cat:'fund', name:'UQ Manali Medical Project', where:'Charity marquee, Field 6', do:'Run by the Manali Medical Project team themselves — no execs needed. Point people their way.',
           tasks:['Serving', 'Payments', 'Queue'] },
     // Photo schedule — a duty like any other, so it shows up in the run sheet and Team.
     // Playing, as distinct from running a sport: you're on the field for your
@@ -1612,8 +1623,10 @@
           tasks:['Your society\'s team', '5 min early', 'Not refereeing'] },
     'play-ck': { cat:'play', icon:'cricket', name:'Playing cricket', where:'Field 7, after the football', do:'You\'re on the pitch for your society while your team is still playing. Once you\'re done this turns free. Be there five minutes early, then hand back to whoever\'s umpiring.',
           tasks:['Your society\'s team', '5 min early', 'Not umpiring'] },
-    perform: { cat:'photo', icon:'mic', name:'Performing', where:'Performance stage', do:'You\'re on stage with your society\'s act this block — nothing else is rostered. Warm up, perform, then check your next block.',
-          tasks:['Warm-up', 'On stage'] },
+    perform: { cat:'photo', icon:'mic', name:'Performing', where:'Performance stage', do:'Your society\'s act is this block — check the running order for your slot. Once you\'re off stage, help crowd & support on the stage lawn for the rest of the half hour.',
+          tasks:['On stage', 'Then crowd & support'] },
+    'logi-biz': { cat:'logi', name:'Logistics — business stalls', where:'Business stalls, Field 6', do:'You head the business stalls: walk them and make sure every business is set up and running smoothly — power, tables, anything missing. Anything you can\'t fix, call logistics.',
+          tasks:['Walk every business', 'Power & tables', 'Anything missing → logistics'] },
     prep: { cat:'photo', icon:'mic', name:'Getting ready', where:'Performers\' area, behind the stage', do:'Nothing rostered — your act is next block. Get changed, warm up, and be side-stage ten minutes before you\'re on.',
           tasks:['Costume', 'Warm-up', 'Side-stage 10 min early'] },
     'ck-brief': { cat:'sport', icon:'cricket', name:'Cricket briefing', where:'Field 7, by the cricket pitches', do:'At 6:10, brief everyone running tonight\'s cricket — umpires, scorers and team captains: one game at a time, every half hour from 6:30 (four matches, no final — top of the table wins); six overs a side, seven on the field max, soft tennis balls only; how to score it in the app (Scores → Brackets → Cricket → tap the fixture) and where the gear is. Then you\'re on cricket for the first two games; after that it runs itself.',
@@ -1632,7 +1645,7 @@
           tasks:['Pitch edges marked', 'Balls, bibs, whistles out', 'Teams ready'] },
     'su-vb':   { cat:'hands', icon:'volleyball', name:'Setup — volleyball', where:'Beach volleyball courts · 2:00 – 3:00 pm', do:'Four of you: nets up and tight on all three courts, lines clear, balls pumped, the ball bag and whistles ready, and the draw where the refs can see it. First games 3:35.',
           tasks:['Three nets', 'Lines', 'Balls & bag', 'Draw up'] },
-    'su-fund': { cat:'hands', icon:'heart', name:'Setup — charity stalls', where:'Charity marquee, Field 6 · 2:00 – 3:00 pm', do:'Five of you: set up the three charity stalls — Nepal Floods (raffle and spin the wheel), UQ Manali Medical Project and Hope by Hands. Tables, signage, floats and raffle books ready by 3:00.',
+    'su-fund': { cat:'hands', icon:'heart', name:'Setup — charity stalls', where:'Charity marquee, Field 6 · 2:00 – 3:00 pm', do:'Set up the Nepal Floods fundraiser — raffle and spin the wheel: tables, signage, floats and raffle books ready by 3:00. The Manali Medical Project runs its own stall; help them if they ask.',
           tasks:['Tables & signage', 'Raffle & wheel', 'Floats ready'] },
     'su-biz':  { cat:'hands', icon:'tent', name:'Setup — business stalls', where:'Business row · 2:00 – 3:00 pm', do:'Three of you: go stall to stall. Ask each business if they\'re missing anything — power, a table, a chair, directions — and whether they\'re good to go by 3:00. Anything you can\'t fix, call logistics.',
           tasks:['Visit every stall', 'Missing anything?', 'Ready by 3:00'] },
@@ -1654,6 +1667,7 @@
   // (the part after #k=). Without the key the app shows a locked screen.
   let PEOPLE = [];
   let SETUP = null;
+  let staffing = {};  // spice-road/staffing/{block}/{duty or 'crowd'} = headcount (Sandes)
   let CONTACTS = {};  // numbers for people who aren't execs (e.g. heads from outside), by full name   // [[dutyId, [first names]]] for 2:00 – 3:00; null = everyone, all hands
   let ROSTER = [];
   const byFirst = {};
@@ -1773,14 +1787,40 @@
     }
     // ---- swaps, as exchanges ----
     const taken = Object.values(swaps).filter(sw => sw.status === 'taken' && sw.block === i && sw.to);
-    let out = rows;
-    if (taken.length) out = rows.map(([id, ppl]) => {
+    let out = rows.map(([id, ppl]) => [id, ppl.slice()]);
+    if (taken.length) out = out.map(([id, ppl]) => {
       let o = ppl.slice();
       taken.forEach(sw => {
         if (sw.duty === id && o.includes(sw.from)) { o = o.filter(p => p !== sw.from && p !== sw.to); o.push(sw.to); }
         else if (o.includes(sw.to)) { o = o.filter(p => p !== sw.to); if (id !== 'logi' && !o.includes(sw.from)) o.push(sw.from); }   // the requester takes the taker's old duty — unless the taker was logistics, then they're just free
       });
       return [id, o];
+    });
+    // ---- Sandes's staffing overrides: raise or lower a duty's headcount ----
+    // Raising takes from crowd & support first (the flexible pool), then
+    // people on a break; lowering sends the extras to crowd (or a break, if
+    // it's crowd being cut). Sorted by name, so every phone agrees.
+    const want = (staffing && staffing[i]) || {};
+    const crowdRows = () => out.filter(r => r[0].startsWith('cr-'));
+    // crowd goes last so a raise elsewhere (which borrows from crowd) can't undercut it
+    Object.keys(want).sort((a, b) => (a === 'crowd') - (b === 'crowd') || a.localeCompare(b)).forEach(key => {
+      const n = want[key]; const isCrowd = key === 'crowd';
+      const count = () => isCrowd ? crowdRows().reduce((k, r) => k + r[1].length, 0) : ((out.find(r => r[0] === key) || [0, []])[1]).length;
+      const club = !isCrowd && (DUTIES[key] || {}).club;
+      const fits = (f) => !club || byFirst[f.toLowerCase()].s.includes(club);
+      const place = (f) => { if (isCrowd) { const z = crowdRows().sort((a, b) => a[1].length - b[1].length || a[0].localeCompare(b[0]))[0]; if (z) z[1].push(f); else out.push(['cr-lawn', [f]]); } else { const r = out.find(x => x[0] === key); if (r) r[1].push(f); else out.push([key, [f]]); } };
+      let guard = 60;
+      while (count() < n && guard--) {
+        let f = null;
+        if (!isCrowd) { const z = crowdRows().filter(r => r[1].length).sort((a, b) => b[1].length - a[1].length || a[0].localeCompare(b[0])); for (const r of z) { const g = r[1].slice().sort().find(fits); if (g) { r[1].splice(r[1].indexOf(g), 1); f = g; break; } } }
+        if (!f) { const busy = new Set(out.flatMap(r => r[1])); f = PEOPLE.map(p => p.first).filter(g => !busy.has(g) && onSite(g, i) && fits(g)).sort()[0] || null; }
+        if (!f) break; place(f);
+      }
+      while (count() > n && guard--) {
+        const r = isCrowd ? crowdRows().filter(x => x[1].length).sort((a, b) => b[1].length - a[1].length || a[0].localeCompare(b[0]))[0] : out.find(x => x[0] === key);
+        if (!r || !r[1].length) break; const f = r[1].slice().sort().pop(); r[1].splice(r[1].indexOf(f), 1);
+        if (!isCrowd) { const z = crowdRows().sort((a, b) => a[1].length - b[1].length || a[0].localeCompare(b[0]))[0]; if (z) z[1].push(f); else out.push(['cr-lawn', [f]]); }
+      }
     });
     out = out.filter(([, ppl]) => ppl.length); out.cover = cover;
     rowsCache.set(i, { v: rosterVersion, rows: out });
@@ -1861,7 +1901,7 @@
   const WHATS_ON = [
     { h: 'Sports', items: [
       { cat: 'sport', info: 'sport:fb', name: 'Football',   where: 'Field 7',                 blurb: '16 teams in four groups on six pitches, then semi-finals and a final. 3:00 – 6:00 pm.', tags: ['Six pitches', 'Groups 3:00 – 4:40', 'Semis 4:50', 'Final 5:30'] },
-      { cat: 'sport', icon: 'volleyball', info: 'sport:vb', name: 'Volleyball', where: 'Beach volleyball courts', blurb: 'Ten teams, knockout. All three courts run the bracket 3:35 – 4:15, then one court opens for social play — anyone can jump in. Final 4:35.', tags: ['Bracket from 3:35', 'Final 4:35', 'Social from 4:15'] },
+      { cat: 'sport', icon: 'volleyball', info: 'sport:vb', name: 'Volleyball', where: 'Beach volleyball courts', blurb: 'Eleven teams, knockout from 3:15. All three courts run the bracket 3:35 – 4:15, then one court opens for social play — anyone can jump in. Final 4:35.', tags: ['Bracket from 3:35', 'Final 4:35', 'Social from 4:15'] },
       { cat: 'sport', icon: 'cricket', info: 'sport:ck', name: 'Cricket',    where: 'Field 7',                 blurb: 'Four teams — UQSLA, UQISC, UQGS and a Mixed Team. Round robin, one game every half hour from 6:30: six overs a side, seven on the field, soft tennis balls. Bring your own gear if you have it.', tags: ['6:30 – 8:20', '4 matches', 'Winner 8:30'] },
     ]},
     { h: 'Stage & entry', items: [
@@ -1871,7 +1911,6 @@
     { h: 'Fundraising', items: [
       { cat: 'fund', icon: 'sparkle', name: 'Nepal Floods fundraiser', where: 'Charity marquee, Field 6', blurb: 'Raffle tickets all day and a pay-to-play spin-the-wheel — win raffle tickets, Fright Night drink vouchers, soft drinks and lollies. Every dollar goes to Nepal\'s flood relief fund. Raffle drawn at 8:40 pm.', tags: ['Raffle', 'Spin the wheel'] },
       { cat: 'fund', name: 'UQ Manali Medical Project', where: 'Charity marquee, Field 6', blurb: 'Fundraising for the Manali Medical Project.' },
-      { cat: 'fund', name: 'Hope by Hands',            where: 'Charity marquee, Field 6', blurb: 'Fundraising for Hope by Hands.' },
     ]},
     { h: 'Food trucks', items: [
       { cat: 'fund', icon: 'bowl', label: 'Food truck', name: 'Meraki with Love',   where: 'Field 6' },
@@ -1899,17 +1938,16 @@
   // here too so the public page's "on stage now" covers the whole night.
   const STAGE_TIMES = [
     { t: 14 * 60 + 50, who: 'Opening',                       what: 'Speech from MJ' },
-    { t: 15 * 60 + 15, who: 'Kanishq Chandwani',             what: 'Solo Bollywood hip-hop' },
-    { t: 15 * 60 + 25, who: 'Echo & Ember',                  what: 'Jennifa & partner — freestyle, contemporary, kuthu' },
-    { t: 15 * 60 + 40, who: 'UQTAS Dance Wing',              what: 'Folk & kuthu' },
-    { t: 16 * 60,      who: 'Karpagalaxmy Sivasivakari',     what: 'Bollywood mix' },
     { t: 16 * 60 + 30, who: 'UQ Gujarati Society',           what: 'Garba' },
-    { t: 18 * 60,      who: 'UQPA Bhangra',                  what: 'Jasmine Hanzra & team' },
+    { t: 16 * 60 + 40, who: 'UQ Tamil',                      what: 'Dance' },
+    { t: 16 * 60 + 50, who: 'UQTELS',                        what: 'Dance' },
+    { t: 17 * 60,      who: 'Kanishq',                       what: 'Solo performance' },
+    { t: 17 * 60 + 40, who: 'Nanya Sharma',                  what: 'Solo performance' },
+    { t: 17 * 60 + 50, who: 'UQNAATAK',                      what: 'Bharatanatyam & Bollywood hip-hop' },
+    { t: 18 * 60,      who: 'UQPA Bhangra',                  what: 'Jasmine, Roshni & team' },
     { t: 18 * 60 + 10, who: 'Football winners',              what: 'Announced on stage' },
-    { t: 18 * 60 + 15, who: 'Dil x Kwab',                    what: 'Shreya & group — north-to-south fusion' },
-    { t: 18 * 60 + 30, who: 'UQNAATAK',                      what: 'Bharatanatyam & Bollywood hip-hop' },
+    { t: 20 * 60 + 30, who: 'Cricket winners',               what: 'Announced on stage' },
     { t: 20 * 60 + 40, who: 'Raffle draw',                   what: 'Nepal Floods fundraiser winners' },
-    { t: 20 * 60 + 50, who: 'Cricket winners',               what: 'Announced on stage' },
   ];
   const BIZ = {
     'Inara Collections': 'Business stall on Field 6 — come and have a look.',
@@ -1920,7 +1958,7 @@
     'Solar Prime':       'Solar energy — a sponsor stall on Field 6.',
   };
   // Committee head per duty. Null = not applicable (ticketing, crowd…). Fill in from the committee list.
-  const LEADS = { vb: 'Sandes (head of volleyball)', fb: 'Nandos (head of football)', ck: 'Devansh (head of cricket)', st: 'Kartik Karri (head of performances)', 'fund-pp': 'Hasara (head of fundraising)', 'fund-bake': 'Hasara (head of fundraising)', 'fund-hope': 'Hasara (head of fundraising)' };
+  const LEADS = { vb: 'Sandes (head of volleyball)', fb: 'Nandos (head of football)', ck: 'Devansh (head of cricket)', st: 'Kartik Karri (head of performances)', 'fund-pp': 'Hasara (head of fundraising)', 'fund-bake': 'Hasara (head of fundraising)' };
   const leadFor = (id) => LEADS[id] || (id.startsWith('stall-') ? `${DUTIES[id].club} president — TBC` : null);
   const MARQUEE = { UQISC: 1, UQSLA: 2, UQTELS: 3, UQISS: 4, UQPA: 6, UQPSA: 7, UQNC: 8, UQGS: 9, UQNAATAK: 10, UQGIDDHA: 11 };
   const CLUB_INFO = Object.fromEntries(CLUBS.map(c => [c, { full: c, about: `Marquee ${MARQUEE[c] || '—'} on Field 6.`, execs: [] }]));
@@ -2186,11 +2224,18 @@
       const x = tentative(assignmentFor(me.first, i), i); const d = DUTIES[x.id];
       const w = x.people.length ? 'with ' + names(x.people) : (d.cat === 'free' || d.cat === 'soon' || d.cat === 'photo' ? '' : 'solo');
       const mo = momentsFor(i).map(m => `<div class="rs-row mo" style="--c:var(--c-photo)"><span class="t">${esc(m.at.replace(' pm', ''))}</span><span class="bar"></span>${iconHtml('camera', 'var(--c-photo)', 'sm')}<span class="d">${esc(m.name)}<small>${esc(m.where)} · ${esc(m.whoLabel || 'everyone')}</small></span></div>`).join('');
-      return `<div class="rs-row ${i === block ? 'now' : ''} ${d.cat === 'soon' ? 'soon' : ''} ${d.cat === 'away' ? 'away' : ''}" style="--c:${CATS[d.cat].color}">
+      // ask ahead: any block that hasn't started, on a duty you can hand over
+      const lbNow = liveBlock(); const ahead = db && (lbNow === null || i > lbNow) && !['free', 'away', 'hands', 'photo', 'logi', 'soon'].includes(d.cat);
+      const asked = ahead && mySwapFor(i);
+      const sw = !ahead ? '' : asked ? `<span class="rs-swap asked">${asked[1].status === 'taken' ? 'Swapped' : 'Swap asked'}</span>` : `<button type="button" class="rs-swap" data-swapblock="${i}">Swap</button>`;
+      return `<div class="rs-row ${i === block ? 'now' : ''} ${d.cat === 'soon' ? 'soon' : ''} ${d.cat === 'away' ? 'away' : ''}" style="--c:${CATS[d.cat].color}">${sw}
         <span class="t">${fmt(DAY_START + i * 30)}</span><span class="bar"></span>${dutyIcon(d, 'sm')}
         <span class="d">${esc(d.name)}<small>${esc(d.cat === 'free' ? 'Enjoy the festival' : d.cat === 'soon' ? 'Check back closer to the time' : d.cat === 'away' ? 'Not at the festival this block' : d.where + (w ? ' · ' + w : ''))}</small></span>
       </div>` + mo;
     }).join('');
+    $('rs').querySelectorAll('[data-swapblock]').forEach(b => b.addEventListener('click', () => {
+      live = false; block = +b.dataset.swapblock; render(); openSwapSheet(true);
+    }));
   }
 
   // ---------- Who you care about ----------
@@ -2675,10 +2720,11 @@
   // cricket lists to come from their committees.
   const TEAMS = {
     vb: [
-      // Ten teams. Four people play for two of them (Shriyans, Kartik, Shane,
+      // Eleven teams. Four people play for two of them (Shriyans, Kartik, Shane,
       // Devyn) — VB_DRAW below keeps their two teams apart in time.
       { name: 'UQSLA',        soc: 'UQSLA', players: ['Shavini Kariyawasam', 'Sanuli Ranatunga', 'Diya Chandy', 'Leron Hewapathiranage', 'Sanuka Ranatunga', 'Deana Jayaweera', 'Nimnah Unantenna'] },
-      { name: 'UQISC',        soc: 'UQISC', players: ['Mithila Balamurugan', 'Sandes Welagedara', 'Krisha Rekha', 'Sritam Vytla', 'Ragesh Ramanalingam', 'Shane Shaji', 'Tejashwini Sivasakthi Vishaalakshi', 'Akash Racha'] },
+      { name: 'UQISC',        soc: 'UQISC', players: ['Mithila Balamurugan', 'Sandes Welagedara', 'Krisha Rekha', 'Sritam Vytla', 'Ragesh Ramanalingam', 'Shane Shaji', 'Tejashwini Sivasakthi Vishaalakshi', 'Akash Racha', 'Afthab Shanavas'] },
+      { name: 'UQISS',        soc: 'UQISS', players: [] },
       { name: 'UQNC + UQPA',  players: ['Avinab Baral', 'Jasmine Hanzra', 'Aarya Sharma', 'Bhumik Sarma', 'Kartik Karri', 'Prabhjot Singh', 'Ishan Pal', 'Shriyans Bista', 'Sujal Raiyani', 'Sarju Koirala'] },
       { name: "Shriyans's team", players: ['Shriyans Bista', 'Shane Shaji', 'Sankalp Nandamuri', 'Arya Shah', 'Aryan Naveen', 'Sharan Pathre', 'Alwin Lijo', 'Devyn Ramos'] },
       { name: "Aum's team",   players: ['Aum', 'Harshil', 'Jaydeep', 'Maan', 'Nikhil', 'Kartik Karri'] },
@@ -2875,6 +2921,7 @@
   // the sheet: three ways to ask
   function openSwapSheet(open) {
     $('swap-sheet').hidden = !open; $('swap-backdrop').hidden = !open; if (!open) return;
+    $('swap-sheet').querySelector('.dm-head .nm').textContent = 'Ask to swap · ' + range(block);
     const mineId = assignmentFor(me.first, block).id;
     // stalls are staffed by their own society — only offer yours (either, if you're in two)
     const merged = {}; rowsFor(block).forEach(([id, ppl]) => { (merged[id] ||= []).push(...ppl); });   // one row per activity, however many pairs
@@ -3101,9 +3148,9 @@
         { first: 'Sandes',       role: 'Head of volleyball · the app', does: 'Volleyball on the beach courts, 3:35 – 5:00; anything technical with the app' },
         { first: 'Nandos',       role: 'Head of football · logistics', does: 'Football on Field 7, 3:00 – 6:00' },
         { first: 'Devansh',      role: 'Head of cricket', does: 'Cricket on Field 7 — briefs the crew at 6:10, on the first two games' },
-        { n: 'Arzuh Shankur',    role: 'Head of food trucks', does: 'The food trucks on Field 6' },
+        { first: 'Arzuh',        role: 'Head of food trucks', does: 'The food trucks on Field 6' },
         { first: 'Kartik',       role: 'Head of performances · MC', does: 'The stage and the running order; MCs from 5:00 (Div before that)' },
-        { first: 'Hasara',       role: 'Head of fundraising', does: 'Charity marquee — Nepal Floods raffle, Manali, Hope by Hands' },
+        { first: 'Hasara',       role: 'Head of fundraising', does: 'Nepal Floods raffle and spin the wheel' },
         { first: 'Thanabammini', role: 'Head of business stalls', does: 'The businesses on Field 6' },
         { first: 'Divita',       role: 'Media', does: 'Photos, video and socials on the night' },
       ] },
@@ -3269,7 +3316,7 @@
   const FEST_NOTES = `# Spice Road Experience — notes for Spicy
 The Spice Road Experience is a one-day cultural festival at the University of Queensland run by student societies: UQISC (Indian Students' Club) and its partner society UQSLA (Sri Lankan Association), with ten clubs running marquees. It's outdoors on a sports ground from mid-afternoon into the evening: club stalls, food and fundraising stalls, volleyball, football and cricket competitions, and a performance stage. The people using this app are execs — student volunteers rostered onto duties in 30-minute blocks.
 Organisers: Nandos (Thirunanthanan Thirumurugan — runs logistics, head of football), Archita, Sanuka (UQSLA president) and Prabhas. Sandes built the app and handles anything technical. Questions the notes don't answer should go to Sandes (there's a Message Sandes button under every answer).
-Programme: bump-in from 1:00 pm (food trucks 1:00 – 1:40, business stalls 1:50 – 2:20, club stalls 2:00), MJ's speech 2:50, doors 3:00. Football 3:00 – 6:00 on Field 7, six small pitches (16 teams, groups then semis 4:50 and final 5:30); referees are execs. Tickets are Humanitix QR codes scanned at the gate. Volleyball on the beach volleyball courts: ten teams, knockout. 3:35 – 4:15 all three courts run bracket games, then two bracket courts and one social. Games 3:35 and 3:55, semis 4:15, final 4:35, winner 5:00. Shriyans, Kartik, Shane and Devyn each play for two teams; the draw keeps their teams from playing at the same time. Performances on the stage 3:15 – 4:40 and 6:00 – 6:40. Cricket (T6, tennis ball) on Field 7, which it takes over once football finishes: four teams (UQISC, UQGS, UQSLA, Mixed Team), Devansh briefs the cricket crew at 6:10 and is on cricket for the first two games, then it's self-run. One game at a time: UQSLA v UQISC 6:30, UQGS v Mixed Team 7:00, UQSLA v UQGS 7:30, UQISC v Mixed Team 8:00. Six overs a side, seven on the field max, soft tennis balls only. 20-minute games with 10-minute changeovers; the crew swaps at 7:30. No final: top of the table after match 4 wins, announced 8:30. Raffle drawn 8:40. Bump-out 8:50 – 9:40. Food trucks (7) and business stalls (6) are on Field 6 all day, club marquees too (numbered 1 – 12). First aid: the UQIC venue manager at the First Aid marquee on Field 6. Security: Tru Security.
+Programme: bump-in from 1:00 pm (food trucks 1:00 – 1:40, business stalls 1:50 – 2:20, club stalls 2:00), MJ's speech 2:50, doors 3:00. Football 3:00 – 6:00 on Field 7, six small pitches (16 teams, groups then semis 4:50 and final 5:30); referees are execs. Tickets are Humanitix QR codes scanned at the gate. Volleyball on the beach volleyball courts: eleven teams, knockout (ISS v Ameya's team play-in at 3:15). 3:35 – 4:15 all three courts run bracket games, then two bracket courts and one social. Games 3:35 and 3:55, semis 4:15, final 4:35, winner 5:00. Shriyans, Kartik, Shane and Devyn each play for two teams; the draw keeps their teams from playing at the same time. Performances on the stage 4:30 – 5:05 and 5:40 – 6:10 (break in between); winners and the raffle 8:30 – 8:40. Cricket (T6, tennis ball) on Field 7, which it takes over once football finishes: four teams (UQISC, UQGS, UQSLA, Mixed Team), Devansh briefs the cricket crew at 6:10 and is on cricket for the first two games, then it's self-run. One game at a time: UQSLA v UQISC 6:30, UQGS v Mixed Team 7:00, UQSLA v UQGS 7:30, UQISC v Mixed Team 8:00. Six overs a side, seven on the field max, soft tennis balls only. 20-minute games with 10-minute changeovers; the crew swaps at 7:30. No final: top of the table after match 4 wins, announced 8:30. Raffle drawn 8:40. Bump-out 8:50 – 9:40. Food trucks (7) and business stalls (6) are on Field 6 all day, club marquees too (numbered 1 – 12). First aid: the UQIC venue manager at the First Aid marquee on Field 6. Security: Tru Security.
 Escalation: anything medical or dangerous — call 000 first, then tell an organiser. Emergency contacts are in the app under Settings → Emergency (never repeat phone numbers; point people there). Lost property, first aid, behaviour and equipment problems get logged under Settings → Log incident.`;
   const strip = (html) => { const d = document.createElement('div'); d.innerHTML = html; return d.textContent; };
   function spicyNotes() {
@@ -3930,6 +3977,26 @@ If someone asks how to score a match, walk them through these steps and set "sho
     $('info-body').querySelectorAll('[data-varok]').forEach(b => b.addEventListener('click', () => { varOk.add(b.dataset.varok); try { localStorage.setItem(VAR_LS, JSON.stringify([...varOk])); } catch {} renderVariance(); }));
     const r = $('var-reset'); if (r) r.addEventListener('click', () => { varOk.clear(); try { localStorage.removeItem(VAR_LS); } catch {} renderVariance(); });
   }
+  let staffBlock = null;
+  function renderStaffing() {
+    const i = staffBlock; const rows = rowsFor(i);
+    const cnt = (id) => id === 'crowd' ? rows.filter(r => r[0].startsWith('cr-')).reduce((k, r) => k + r[1].length, 0) : ((rows.find(r => r[0] === id) || [0, []])[1]).length;
+    const ids = ['crowd', 'tk', 'st', 'fund-pp', 'vb', 'fb', 'fb-score', 'ck'].concat(CLUBS.map(c => 'stall-' + c)).filter(id => id === 'crowd' || cnt(id) || (staffing[i] || {})[id] != null);
+    const free = PEOPLE.filter(p => onSite(p.first, i) && !rows.some(r => r[1].includes(p.first))).length;
+    const label = (id) => id === 'crowd' ? 'Crowd & support (all zones)' : DUTIES[id].name;
+    $('info-body').innerHTML = `<div class="staff-nav"><button type="button" class="step" id="st-prev" aria-label="Earlier block">‹</button><b>${range(i)}</b><button type="button" class="step" id="st-next" aria-label="Later block">›</button></div>
+      <p class="fine">${free} on a break this block. Raising a duty takes from crowd & support first, then people on a break; lowering sends the extras to crowd. Changes reach every phone straight away.</p>` +
+      ids.map(id => { const o = (staffing[i] || {})[id]; const c = cnt(id);
+        return `<div class="staff-row"><div class="lbl">${esc(label(id))}${o != null ? ' <span class="fine">· set</span>' : ''}</div><input type="range" min="0" max="${Math.max(12, c + 8)}" step="1" value="${c}" data-staff="${id}" aria-label="${esc(label(id))}"><b class="n" id="sn-${id}">${c}</b>${o != null ? `<button type="button" class="linkbtn" data-unstaff="${id}">Reset</button>` : '<span></span>'}</div>`; }).join('');
+    $('st-prev').addEventListener('click', () => { staffBlock = Math.max(0, i - 1); renderStaffing(); });
+    $('st-next').addEventListener('click', () => { staffBlock = Math.min(BLOCKS - 1, i + 1); renderStaffing(); });
+    $('info-body').querySelectorAll('[data-staff]').forEach(r => {
+      r.addEventListener('input', () => { $('sn-' + r.dataset.staff).textContent = r.value; });
+      r.addEventListener('change', () => ref('staffing/' + i + '/' + r.dataset.staff).set(+r.value).then(() => setTimeout(renderStaffing, 150)));
+    });
+    $('info-body').querySelectorAll('[data-unstaff]').forEach(b => b.addEventListener('click', () => ref('staffing/' + i + '/' + b.dataset.unstaff).remove().then(() => setTimeout(renderStaffing, 150))));
+  }
+  $('set-staff').addEventListener('click', () => { if (!canSim()) return; const lb = liveBlock(); staffBlock = lb !== null && lb >= 0 && lb < BLOCKS ? lb : Math.max(0, Math.min(BLOCKS - 1, block)); openSettings(false); openInfoRaw('Staffing', ''); renderStaffing(); });
   $('set-var').addEventListener('click', () => { if (!canSim()) return; openSettings(false); openInfoRaw('Schedule variance', ''); renderVariance(); });
 
   // --- master clock (Sandes / UQISC only) ---
@@ -3938,7 +4005,7 @@ If someone asks how to score a match, walk them through these steps and set "sho
   function renderSim() {
     const ok = canSim(); $('set-sim-row').hidden = !ok;
     // Sandes's tools: everyone else never needs them on the day
-    ['set-demo-row', 'set-screen-row', 'set-manual-row', 'set-switch-row', 'set-var-row'].forEach(id => { $(id).hidden = !ok; });
+    ['set-demo-row', 'set-screen-row', 'set-manual-row', 'set-switch-row', 'set-var-row', 'set-staff-row'].forEach(id => { $(id).hidden = !ok; });
     if (ok) { const n = varianceItems().filter(x => !varOk.has(x.key)).length; $('var-state').textContent = n ? `${n} thing${n === 1 ? '' : 's'} to look at. Only you see this.` : 'Nothing flagged. Only you see this.'; }
     $('demo-toggle').setAttribute('aria-checked', String(demoMode));
     $('demo-state').textContent = demoMode ? 'On — the tour plays every time you sign in. Off when you\'re done showing people.' : 'Replays the welcome tour every time you sign in — for showing people the app. This phone only.';
@@ -4183,10 +4250,11 @@ If someone asks how to score a match, walk them through these steps and set "sho
   //   4:15  semis (NC+PA/Ameya v Shriyans/Aum, and the other two) · 4:35 final
   // So nobody on two teams ever has both playing at once: Shriyans, Kartik and
   // Devyn's teams are 3:35 v 3:55 and share a semi-final half.
-  const VB_DRAW = ['UQNC + UQPA', null, "Ameya's team", null, "Shriyans's team", null, "Aum's team", null,
+  // 11th team (ISS): a 3:15 play-in against Ameya's team, winner meets NC + PA at 3:35
+  const VB_DRAW = ['UQNC + UQPA', null, "Ameya's team", 'UQISS', "Shriyans's team", null, "Aum's team", null,
                    'UQSLA', 'UQISC', "Luhara's team", null, "Sargun's team", 'Solos', 'Team QUT', null];
   const DRAWS = { vb: VB_DRAW };
-  const MATCH_TIMES = { vb: { '0-4': '3:35', '0-6': '3:35', '1-0': '3:35', '1-1': '3:55', '1-2': '3:55', '1-3': '3:55', '2': '4:15', '3': '4:35' } };
+  const MATCH_TIMES = { vb: { '0-1': '3:15', '0-4': '3:35', '0-6': '3:35', '1-0': '3:35', '1-1': '3:55', '1-2': '3:55', '1-3': '3:55', '2': '4:15', '3': '4:35' } };
   const presetBracket = (sport) => DRAWS[sport] ? { ...buildBracket(DRAWS[sport]), teams: DRAWS[sport].filter(Boolean) }
     : (TEAMS[sport] || []).length >= 2 ? buildBracket(TEAMS[sport].map(t => t.name)) : null;
   const bracketFor = (sport) => brackets[sport] || presetBracket(sport);
@@ -4302,6 +4370,7 @@ If someone asks how to score a match, walk them through these steps and set "sho
     ref('photos').orderByChild('status').equalTo('pending').on('value', snap => { phPending = snap.val() || {}; renderPhotoMod(); }, () => {});
     ref('photos').orderByChild('status').equalTo('rejected').on('value', snap => { phRejected = snap.val() || {}; renderPhotoMod(); }, () => {});
     ref('config/aiReview').on('value', snap => { aiOn = snap.val() !== false; renderPhotoMod(); }, () => {});
+    ref('staffing').on('value', snap => { staffing = snap.val() || {}; rosterVersion++; if (!$('shell').hidden) render(); }, () => {});
     ref('ticker').limitToLast(40).on('value', snap => { ticks = snap.val() || {}; if (scrOn) renderTicker(); if (!$('view-desk').hidden) renderTicks(); }, () => {});
     ref('incidents').limitToLast(100).on('value', snap => { incidents = snap.val() || {}; renderIncidents(); }, () => {});
     ref('pfp').on('value', snap => { pfps = snap.val() || {}; if (me && myPic && !pfps[me.first.toLowerCase()]) ref('pfp/' + me.first.toLowerCase()).set(myPic).catch(() => {}); if (!$('shell').hidden) { render(); $('who-pfp').innerHTML = me ? pfp(me.first, 32) : ''; if (tourOn) renderTour(); if (!$('set-sheet').hidden) renderPhotoRow($('set-photo-msg') ? $('set-photo-msg').textContent : ''); } }, () => {});

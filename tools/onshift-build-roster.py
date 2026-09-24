@@ -51,12 +51,14 @@ P = [
  # staying until 8 to play GS's cricket games (7:00, 7:30)
  ("Rushi Kakkad","GS","4,5,6,7",0,0,"stage",""),
  ("Sanuka Ranatunga","SLA","3,4,5,6,7,8",1,1,"",""),
- ("Thanabammini Balasaravanan","SLA,TELS","3,4,5,6,7,8",0,1,"","biz-head"),
+ # head of business stalls: supervises them 3 – 4, SLA stall only (not TELS), leaves 6:30
+ ("Thanabammini Balasaravanan","SLA,TELS","3,4,5,6",0,0,"stall-UQTELS","biz-head"),
  ("Thihan Sendanayake","SLA","3,4,5,6,7,8",1,1,"",""),
  ("Deana Jayaweera","SLA","3,4",0,0,"",""),
  ("Zahra Shabbir","PSA","5,6,7",0,0,"sport",""),
  ("Krisha Rekha","ISC","3,4,5,6,7,8",1,0,"",""),
- ("Shalet Shaju","NAATAK","6",0,0,"sport",""),
+ # NAATAK is on at 5:50, so here from 5
+ ("Shalet Shaju","NAATAK","5,6",0,0,"sport",""),
  ("Humza Bhagat","PSA","3,4,5,6,7,8",1,0,"",""),
  ("Alexis Han","ISS","3,4,5",0,0,"",""),
  ("Nimnah Unantenna","SLA","4,5,6,7,8",0,1,"",""),
@@ -94,6 +96,13 @@ P = [
  # hours, anything but football and cricket (harder to run and score)
  ("Akash Racha","ISC,TELS","3,4,5,6",1,0,"fb,ck","tels-pres"),
  ("Afthab Shanavas","ISC","3,4",1,0,"fb,ck",""),
+ ("Taruni Mithulananthan","ISC","3",1,0,"sport",""),
+ ("Arzuh Shankar","ISC","3,4",1,0,"","food-head"),
+ ("Vinuki Herath","SLA","3,4,5",0,0,"",""),
+ ("Kaamya Dutt","ISS","3,4,5,6,7,8",0,0,"",""),
+ # recent health issues: nothing physical or heavy
+ ("Abhayjeet Singh","PA","4,5,6",0,0,"fund-pp,crowd,stage,sport,fb-pack",""),
+ ("Sriya Sura","TELS","3,4,5",1,0,"",""),
  ("Tejashwini Sivasakthi Vishaalakshi","ISC","3,4,5,6,7,8",1,1,"fb,ck",""),
  ("Sarju Koirala","NC","3,4,5,6,7,8",0,1,"",""),
  ("Dev Dahal","NC","3,4",1,0,"fb,ck,stage",""),
@@ -116,11 +125,11 @@ P = [
 ]
 # when each performer is on stage (block index): GS garba 4:30, UQPA bhangra
 # 6:00, NAATAK 6:30 — they're off duty for that block only
-PERF = {'Helly': (3,), 'Tanisha': (3,), 'Matvi': (3,), 'Roshni': (6,), 'Jasmine': (6,), 'Shalet': (7,)}
+PERF = {'Helly': (3,), 'Tanisha': (3,), 'Matvi': (3,), 'Roshni': (6,), 'Jasmine': (6,), 'Shalet': (5,)}
 
 # society volleyball teams (from "which sport are you playing")
 VB_TEAM = {'UQSLA': ["Shavini", "Diya", "Leron", "Sanuka", "Deana", "Nimnah"],
-           'UQISC': ["Mithila", "Sandes", "Krisha", "Sritam", "Ragesh", "Shane", "Tejashwini", "Akash"]}
+           'UQISC': ["Mithila", "Sandes", "Krisha", "Sritam", "Ragesh", "Shane", "Tejashwini", "Akash", "Afthab"]}
 VB_BLOCK = 1          # round 1 at 3:30
 # execs on the other teams, for their first game: NC + PA and Solos play at
 # 3:35, Shriyans's team (Shane) at 3:55 — he's here from 4
@@ -132,6 +141,8 @@ FB_PLAYERS = ["Aravinth", "Bhumik", "Prasant"]
 CK_PLAYERS = ["Mathisha", "Thihan", "Rushi"]
 
 people, avail, cant, tags, SETUP_FLAG = [], {}, {}, {}, {}
+# leaving on a half hour the form can't say
+LEAVES = {'Thanabammini': 7, 'Sujal': 9}     # first block they're gone: 6:30, 7:30
 # everyone is known by first name; two people sharing one get a surname
 # initial ("Shreya B", "Shreya C"), carried to the app as "k"
 _firsts = collections.Counter(r[0].split()[0] for r in P)
@@ -144,7 +155,7 @@ for name, socs, hours, setup, packup, cd, note in P:
     bs = set()
     for h in (int(x) for x in hours.split(',') if x):
         a, b = HOUR_BLOCKS[h]; bs.add(a); bs.add(b)
-    avail[first] = bs
+    avail[first] = {b for b in bs if b < LEAVES.get(first, 99)}
     cant[first] = set(x for x in cd.split(',') if x)
     tags[first] = set(x for x in note.split(',') if x)
     SETUP_FLAG[first] = setup
@@ -165,7 +176,7 @@ def can(first, duty):
     return True
 
 # heads stay on their own thing
-PREF = {'Aditya': 'ck', 'Humza': 'ck', 'Hasara': 'fund-pp', 'Thanabammini': 'cr-food',
+PREF = {'Aditya': 'ck', 'Humza': 'ck', 'Hasara': 'fund-pp',
         'Divita': 'stall-UQISC', 'Sandes': 'vb', 'Helly': 'st', 'Amal': 'st', 'Sritam': 'vb'}
 # a head is pinned to their own duty while it's running, before anything else
 PIN = {'Aditya': ('ck', (6, 7, 8)), 'Hasara': ('fund-pp', (6, 7, 10, 11)),
@@ -213,7 +224,10 @@ fixed[3]['Sandes'] = 'vb'
 # the MC: Div from 4:30 while Kartik's playing volleyball (3:35 – 4:50), then
 # Kartik for the rest of the night. Performances start 4:30 at the earliest.
 fixed[3]['Divita'] = 'st'
-for i in range(4, 12): fixed[i]['Kartik'] = 'st'
+# acts run 4:30 – 5:05 and 5:40 – 6:10, then the raffle and winners at 8:30
+for i in (4, 5, 6, 11): fixed[i]['Kartik'] = 'st'
+# Thanabammini supervises the business stalls for the first hour
+for i in (0, 1): fixed[i]['Thanabammini'] = 'logi-biz'
 # Heshan: the third volleyball ref at 3:00, and on volleyball again at 4:00
 fixed[0]['Heshan'] = 'vb'
 fixed[2]['Heshan'] = 'vb'
@@ -228,7 +242,8 @@ fixed[8]['Aarya'] = 'ck'
 fixed[0]['Shreya B'] = 'stall-UQTELS'
 AVOID = {('Shreya B', 1, 'stall-UQTELS'), ('Shreya B', 9, 'stall-UQTELS'),
          ('Raziel', 2, 'vb'), ('Akash', 3, 'vb')}
-STALL_WANT = {'UQSLA': 5, 'UQISC': 5}
+STALL_WANT = {'UQSLA': 5, 'UQISC': 5, 'UQPA': 3}
+STALL_MIN = {'UQPA': 3}      # PA's president plays volleyball: at least three on their stall
 # people Sandes wants out and about even if their stall goes quiet
 MOVE_ABOUT = {'Dhriti'}
 for f, (duty, blocks) in PIN.items():
@@ -243,7 +258,7 @@ def needs(i):
     # two on every society stall, where the society has two execs to give
     # the big two can spare five (two on the stall, the rest on content and
     # sign-ups); everyone else two
-    for s in socs_present: n['stall-' + s] = (2, STALL_WANT.get(s, 2)) if SOC_SIZE[s] >= 2 else (1, 1)
+    for s in socs_present: n['stall-' + s] = (STALL_MIN.get(s, 2), STALL_WANT.get(s, 2)) if SOC_SIZE[s] >= 2 else (1, 1)
     # football, per the committee's run sheet: a ref per game and two on the
     # score document — 6 for the groups (3:00 – 4:40), 2 for the semis
     # (4:50), 1 for the final (5:30) — then three pack up the gear at 6:00
@@ -260,11 +275,12 @@ def needs(i):
     # at 7:30; four again for the 8:30 result and pack-down
     if 6 <= i <= 11: n['ck'] = (4, 4)
     n['tk'] = (2, 2) if i <= 3 else (1, 2)
-    n['st'] = (2, 2) if (i <= 3 or i in (6, 7)) else (1, 1)
+    # stage crew only while acts are on (4:30 – 6:10) and for the 8:30 raffle/winners
+    if 3 <= i <= 6: n['st'] = (2, 2)
+    elif i == 11: n['st'] = (1, 1)
     n['cr-gate'] = (1, 1); n['cr-food'] = (1, 2)
     n['cr-lawn'] = (1, 1)
     n['fund-pp'] = (1, 1)
-    if i >= 6: n['fund-bake'] = (1, 1); n['fund-hope'] = (1, 1)
     return n
 
 # ---- one staggered break each --------------------------------------------
@@ -291,7 +307,7 @@ for f in sorted(avail, key=lambda f: (-len(avail[f]), f)):
 
 # three of Sandes's pairs only meet if we place them by hand: a shared duty
 # at 7:00 / 7:30, with breaks moved so nobody runs past 2.5 hours
-for f, i, dty in (('Divita', 9, 'fund-hope'), ('Sanuka', 9, 'fund-hope'),
+for f, i, dty in (('Divita', 9, 'fund-pp'), ('Sanuka', 9, 'fund-pp'),
                   ('Devansh', 9, 'fund-pp'), ('Shreya B', 9, 'fund-pp'),
                   ('Bhumik', 8, 'ck')):
     fixed[i][f] = dty
@@ -444,7 +460,7 @@ def fill(duty, k, key, ok=lambda f: True):
 # people who asked to be at their own stall (and the fundraising head) keep to it
 own = lambda f: f in PIN and PIN[f][0].startswith('stall-')
 mobile = lambda f: 'sport' not in cant[f] and 'crowd' not in cant[f] and not own(f) and PREF.get(f) != 'fund-pp'
-fill('su-fund', 5, lambda f: (PREF.get(f) != 'fund-pp', not first_on(f, ('fund-pp', 'fund-bake', 'fund-hope')), f), lambda f: not own(f))
+fill('su-fund', 3, lambda f: (PREF.get(f) != 'fund-pp', not first_on(f, ('fund-pp', 'fund-bake', 'fund-hope')), f), lambda f: not own(f))
 fill('su-fb', 6, lambda f: (not first_on(f, ('fb', 'fb-score')), f), mobile)
 fill('su-vb', 4, lambda f: (not first_on(f, ('vb',)), f), mobile)
 fill('su-biz', 3, lambda f: (f not in BIZ_SUB, f), lambda f: not own(f))
