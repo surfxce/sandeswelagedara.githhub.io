@@ -134,7 +134,7 @@ VB_BLOCK = 1          # round 1 at 3:30
 # execs on the other teams, for their first game: NC + PA and Solos play at
 # 3:35, Shriyans's team (Shane) at 3:55 — he's here from 4
 VB_OTHER = {'Avinab': 1, 'Jasmine': 1, 'Aarya': 1, 'Prabhjot': 1, 'Ishan': 1, 'Sujal': 1, 'Bhumik': 1, 'Sarju': 1, 'Kartik': 1,
-            'Shriyans': 1, 'Matvi': 1, 'Shane': 2}
+            'Shriyans': 1, 'Matvi': 1, 'Shane': 2, 'Kaamya': 0}   # Kaamya: UQISS play-in at 3:15
 # execs on the football sign-up sheet (both UQNC); nobody else registered
 FB_PLAYERS = ["Aravinth", "Bhumik", "Prasant"]
 # the only execs playing cricket
