@@ -967,6 +967,12 @@
   .soc-row.pub { grid-template-columns: 34px 1fr; align-items: center; }
   .soc-row.pub .nm { font-size: 16px; color: var(--ink); }
   .soc-row .ring.long { font-size: 6.5px; letter-spacing: 0; }
+  .soc-row.pub { grid-template-columns: 40px 1fr; }
+  .soc-row .ring.has-logo { width: 40px; height: 40px; }
+  .badge.has-logo, .ring.has-logo { overflow: hidden; background: #fff; padding: 0; }
+  img.lg { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: block; }
+  img.lg.zoom { transform: scale(1.1); }
+  img.lg.whole { object-fit: contain; padding: 3px; }
   .fine { font-size: 13px; color: var(--ink-3); margin: 0; }
 
   /* ---------- Tabs ---------- */
@@ -1524,8 +1530,14 @@
 <script>
 (() => {
   // ---------- Reference data ----------
-  const CLUBS = ['UQISC','UQNC','UQPA','UQSLA','UQPSA','UQTAS','UQGS','UQTELS','UQGIDDHA','UQNAATAK','UQISS'];
-  const CLUB_SHORT = { UQISC:'ISC', UQNC:'NC', UQPA:'PA', UQSLA:'SLA', UQPSA:'PSA', UQTAS:'TAS', UQGS:'GS', UQTELS:'TELS', UQGIDDHA:'GIDDHA', UQNAATAK:'NAATAK', UQISS:'ISS' };
+  const CLUBS = ['UQISC','UQNC','UQPA','UQSLA','UQPSA','UQGS','UQTELS','UQGIDDHA','UQNAATAK','UQISS'];
+  const CLUB_SHORT = { UQISC:'ISC', UQNC:'NC', UQPA:'PA', UQSLA:'SLA', UQPSA:'PSA', UQGS:'GS', UQTELS:'TELS', UQGIDDHA:'GIDDHA', UQNAATAK:'NAATAK', UQISS:'ISS' };
+  // each club's own logo (160px, logos/). The screenshot-cropped ones sit a
+  // touch zoomed so their round edge fills the circle; NC's is a wide
+  // wordmark, so it's shown whole on white.
+  const LOGO = { UQISC:'isc', UQSLA:'sla', UQPSA:'psa', UQTELS:'tels', UQNC:'nc', UQGS:'gs', UQPA:'pa', UQGIDDHA:'giddha', UQISS:'iss', UQNAATAK:'naatak' };
+  const LOGO_FIT = { UQNC: 'whole', UQGS: 'zoom', UQPA: 'zoom', UQGIDDHA: 'zoom', UQISS: 'zoom', UQNAATAK: 'zoom' };
+  const logoImg = (c) => LOGO[c] ? `<img class="lg ${LOGO_FIT[c] || ''}" src="logos/${LOGO[c]}.jpg" alt="${c}" loading="lazy">` : esc(CLUB_SHORT[c] || c);
 
   // Line icons, 24-box, drawn with the current colour. One per activity.
   const ICONS = {
@@ -1838,7 +1850,7 @@
   CLUBS.forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; sel.appendChild(o); });
   // societies with execs on the day but no stall (Mathew, logistics, is UQU)
   ['UQU'].forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; sel.appendChild(o); });
-  $('badge-strip').innerHTML = CLUBS.map(c => `<div class="badge" title="${c}">${CLUB_SHORT[c]}</div>`).join('');
+  $('badge-strip').innerHTML = CLUBS.map(c => `<div class="badge ${LOGO[c] ? 'has-logo' : ''}" title="${c}">${logoImg(c)}</div>`).join('');
   // ---------- What's On (public and exec tab, same source) ----------
   // Same cards as Team → On duty, minus the people. tags are visitor-facing.
   const WHATS_ON = [
@@ -1905,7 +1917,7 @@
   // Committee head per duty. Null = not applicable (ticketing, crowd…). Fill in from the committee list.
   const LEADS = { vb: 'Sports head — TBC', fb: 'Sports head — TBC', ck: 'Sports head — TBC', st: 'Stage head — TBC', 'fund-pp': 'Fundraising head — TBC', 'fund-bake': 'Fundraising head — TBC', 'fund-hope': 'Fundraising head — TBC' };
   const leadFor = (id) => LEADS[id] || (id.startsWith('stall-') ? `${DUTIES[id].club} president — TBC` : null);
-  const MARQUEE = { UQISC: 1, UQSLA: 2, UQTELS: 3, UQISS: 4, UQPA: 6, UQPSA: 7, UQNC: 8, UQGS: 9, UQNAATAK: 10, UQGIDDHA: 11, UQTAS: 12 };
+  const MARQUEE = { UQISC: 1, UQSLA: 2, UQTELS: 3, UQISS: 4, UQPA: 6, UQPSA: 7, UQNC: 8, UQGS: 9, UQNAATAK: 10, UQGIDDHA: 11 };
   const CLUB_INFO = Object.fromEntries(CLUBS.map(c => [c, { full: c, about: `Marquee ${MARQUEE[c] || '—'} on Field 6.`, execs: [] }]));
   // Round names the way Sandes wants them: the last two are Semi-finals and Final, the rest are Round 1, 2…
   const roundsTotal = (n) => { let t = 1; while (n > 1) { n = Math.ceil(n / 2); t++; } return t; };
@@ -1980,7 +1992,7 @@
     const sections = WHATS_ON.map(sec => `<div><h2>${esc(sec.h)}</h2><div class="duty-list">${sec.items.map(it => row(it, sec.h)).join('')}</div></div>`).join('');
     const clubs = `<div><h2>Club stalls</h2><details class="duty-group" style="--c:${CATS.club.color}">
       <summary>${iconHtml('tent', CATS.club.color)}<span class="nm">Club marquees</span><span class="cat">${CLUBS.length} societies</span><span class="wh">Tap to see who's here</span></summary>
-      ${CLUBS.map(c => `<div class="soc-row pub tap" data-info="club:${c}" role="button" tabindex="0"><span class="ring ${CLUB_SHORT[c].length > 4 ? 'long' : ''}">${CLUB_SHORT[c]}</span><span class="nm">${c}<span class="chev">›</span></span></div>`).join('')}
+      ${CLUBS.map(c => `<div class="soc-row pub tap" data-info="club:${c}" role="button" tabindex="0"><span class="ring ${LOGO[c] ? 'has-logo' : CLUB_SHORT[c].length > 4 ? 'long' : ''}">${logoImg(c)}</span><span class="nm">${c}<span class="chev">›</span></span></div>`).join('')}
     </details></div>`;
     return sections + clubs + `<p class="fine">Setup 2–3pm and pack-up 9–10pm are all hands.</p>`;
   }
@@ -3249,7 +3261,7 @@
   // built here at the moment of asking, so "who's on volleyball" is right
   // this block and after every swap without anyone maintaining a document.
   const FEST_NOTES = `# Spice Road Experience — notes for Spicy
-The Spice Road Experience is a one-day cultural festival at the University of Queensland run by student societies: UQISC (Indian Students' Club) and its partner society UQSLA (Sri Lankan Association), with eleven clubs running marquees. It's outdoors on a sports ground from mid-afternoon into the evening: club stalls, food and fundraising stalls, volleyball, football and cricket competitions, and a performance stage. The people using this app are execs — student volunteers rostered onto duties in 30-minute blocks.
+The Spice Road Experience is a one-day cultural festival at the University of Queensland run by student societies: UQISC (Indian Students' Club) and its partner society UQSLA (Sri Lankan Association), with ten clubs running marquees. It's outdoors on a sports ground from mid-afternoon into the evening: club stalls, food and fundraising stalls, volleyball, football and cricket competitions, and a performance stage. The people using this app are execs — student volunteers rostered onto duties in 30-minute blocks.
 Organisers: Archita, Sanuka (UQSLA president), Prabhas and Thinanthanan. Sandes built the app and handles anything technical. Questions the notes don't answer should go to Sandes (there's a Message Sandes button under every answer).
 Programme: bump-in from 1:00 pm (food trucks 1:00 – 1:40, business stalls 1:50 – 2:20, club stalls 2:00), MJ's speech 2:50, doors 3:00. Football 3:00 – 6:00 on Field 7, six small pitches (16 teams, groups then semis 4:50 and final 5:30); referees are execs. Tickets are Humanitix QR codes scanned at the gate. Volleyball on the beach volleyball courts: ten teams, knockout. 3:35 – 4:15 all three courts run bracket games, then two bracket courts and one social. Games 3:35 and 3:55, semis 4:15, final 4:35, winner 5:00. Shriyans, Kartik, Shane and Devyn each play for two teams; the draw keeps their teams from playing at the same time. Performances on the stage 3:15 – 4:40 and 6:00 – 6:40. Cricket (T6, tennis ball) on Field 7, which it takes over once football finishes: four teams (UQISC, UQGS, UQSLA, Mixed Team), Devansh briefs the cricket crew at 6:10 and is on cricket for the first two games, then it's self-run. One game at a time: UQSLA v UQISC 6:30, UQGS v Mixed Team 7:00, UQSLA v UQGS 7:30, UQISC v Mixed Team 8:00. Six overs a side, seven on the field max, soft tennis balls only. 20-minute games with 10-minute changeovers; the crew swaps at 7:30. No final: top of the table after match 4 wins, announced 8:30. Raffle drawn 8:40. Bump-out 8:50 – 9:40. Food trucks (7) and business stalls (6) are on Field 6 all day, club marquees too (numbered 1 – 12). First aid: the UQIC venue manager at the First Aid marquee on Field 6. Security: Tru Security.
 Escalation: anything medical or dangerous — call 000 first, then tell an organiser. Emergency contacts are in the app under Settings → Emergency (never repeat phone numbers; point people there). Lost property, first aid, behaviour and equipment problems get logged under Settings → Log incident.`;

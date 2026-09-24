@@ -11,7 +11,7 @@ import os as _os
 REST = int(_os.environ.get('REST', '4'))   # people kept free each block
 HOUR_BLOCKS = {3: (0, 1), 4: (2, 3), 5: (4, 5), 6: (6, 7), 7: (8, 9), 8: (10, 11)}
 SOC = {'SLA': 'UQSLA', 'ISC': 'UQISC', 'TELS': 'UQTELS', 'NC': 'UQNC', 'GS': 'UQGS',
-       'PSA': 'UQPSA', 'NAATAK': 'UQNAATAK', 'PA': 'UQPA', 'TAS': 'UQTAS', 'ISS': 'UQISS',
+       'PSA': 'UQPSA', 'NAATAK': 'UQNAATAK', 'PA': 'UQPA', 'ISS': 'UQISS',
        'GIDDHA': 'UQGIDDHA', 'U': 'UQU'}
 
 # name | societies | hours on site | setup? | packup? | can't do | notes
