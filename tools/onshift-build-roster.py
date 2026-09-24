@@ -95,7 +95,7 @@ P = [
  ("Akash Racha","ISC,TELS","3,4,5,6",1,0,"fb,ck","tels-pres"),
  ("Afthab Shanavas","ISC","3,4",1,0,"fb,ck",""),
  ("Tejashwini Sivasakthi Vishaalakshi","ISC","3,4,5,6,7,8",1,1,"fb,ck",""),
- ("Sarju Koirala","NC","3,4,5,6,7,8",1,1,"fb,ck",""),
+ ("Sarju Koirala","NC","3,4,5,6,7,8",0,1,"",""),
  ("Dev Dahal","NC","3,4",1,0,"fb,ck,stage",""),
  # playing football for NC (on the football sign-up), so here for the groups too
  ("Prasant Adhikari","NC","3,4,5",0,0,"",""),
@@ -105,6 +105,10 @@ P = [
  ("Bhargavi Ganegaonkar","NAATAK","4,5,6,7,8",0,0,"fb,ck",""),
  # logistics, not a club with a stall
  ("Mathew Jimmy","U","3,4,5,6,7,8",1,1,"","logi"),
+ ("Faizah Sahaimi","ISS","3,4,5",0,0,"",""),
+ # can't referee, happy to help with the sports otherwise
+ ("Siri Chadalavada","ISC","3,4,5,6,7,8",0,1,"vb,fb,ck",""),
+ ("Powrnima Sathiamoorty","ISC","3,4,5,6",0,0,"",""),
  # head of performances and the MC; not on the exec form
  ("Kartik Karri","NC,TELS","3,4,5,6,7,8",1,1,"","perf-head"),
  # Nandos: organiser, runs logistics, head of football
@@ -285,6 +289,15 @@ for f in sorted(avail, key=lambda f: (-len(avail[f]), f)):
         b = min(opts, key=lambda i: (max(0.0, abs(i - target) - 1), load[i], abs(i - target), i))
         BREAK[f].add(b); load[b] += 1
 
+# three of Sandes's pairs only meet if we place them by hand: a shared duty
+# at 7:00 / 7:30, with breaks moved so nobody runs past 2.5 hours
+for f, i, dty in (('Divita', 9, 'fund-hope'), ('Sanuka', 9, 'fund-hope'),
+                  ('Devansh', 9, 'fund-pp'), ('Shreya B', 9, 'fund-pp'),
+                  ('Bhumik', 8, 'ck')):
+    fixed[i][f] = dty
+BREAK['Devansh'] = {3, 5, 10}
+BREAK['Bhumik'] = {5, 10}
+
 roster = []
 last = {}          # first -> duty last block, to keep runs of two
 counts = collections.Counter()
@@ -340,8 +353,9 @@ for i in range(BLOCKS):
             # with whoever's already on this duty goes first
             mates = slots[duty]
             ok.sort(key=lambda f: ((not sameRun[f].get('ck') if CK_STAY else i == 9 and (bool(sameRun[f].get('ck')) or not {10, 11} <= avail[f])) if duty == 'ck' else sameRun[f].get(duty, 0) > 0,
+                                   # with someone from your own team wherever we can
+                                   bool(mates) and not any(set(byfirst[f]["s"]) & set(byfirst[m]["s"]) for m in mates),
                                    PREF.get(f) != duty,
-                                   bool(mates) and not any(byfirst[f]["s"][k] in byfirst[m]["s"] for m in mates for k in range(len(byfirst[f]["s"]))),
                                    doneDuty[f].get(duty, 0), counts[f], run[f], f))
             f = ok[0]; pool.remove(f); slots[duty].append(f); placed.add(f)
     # everyone still standing goes on crowd & support — the festival wants
@@ -369,6 +383,44 @@ for i in range(BLOCKS):
         if d: doneDuty[f][d] += 1
     last = {x: d for d, xs in slots.items() for x in xs}
     roster.append(sorted(([d, sorted(xs)] for d, xs in slots.items() if xs), key=lambda r: r[0]))
+
+# ---- pairs Sandes wants on something together at least once -------------
+# After the day's built: for each pair not yet together, find a block where
+# both are here and move one onto the other's duty — only someone on crowd &
+# support or a spare on a busy stall, so nobody loses a break and nothing
+# essential goes short.
+PAIRS = [('Divita', 'Sanuka'), ('Akash', 'Dhriti'), ('Devansh', 'Shreya B'), ('Thihan', 'Sanupa'),
+         ('Deana', 'Diya'), ('Dhyan', 'Kavinila'), ('Mathisha', 'Nimnah'), ('Thar', 'Nandos'),
+         ('Krisha', 'Mithila'), ('Sita', 'Afthab'), ('Tejashwini', 'Afthab'), ('Bhumik', 'Shreya C'),
+         ('Bhumik', 'Aarya'), ('Aravinth', 'Tejashwini'), ('Devashri', 'Thihan'), ('Hargun', 'Kartik'),
+         ('Pritisha', 'Aarya')]
+def _rows(i): return {d: ps for d, ps in roster[i]}
+def _duty(f, i): return next((d for d, ps in roster[i] if f in ps), None)
+def _together(a, b): return any(a in ps and b in ps and not d.startswith('play-') for bl in roster for d, ps in bl)
+def _movable(f, i):
+    d = _duty(f, i)
+    if d is None or f in fixed[i]: return False
+    return d.startswith('cr-') or (d.startswith('stall-') and len(_rows(i)[d]) > 2)
+def _can_join(f, d):
+    if d in ('play-vb', 'play-fb', 'play-ck', 'perform', 'prep', 'photo-pres', 'ck-brief'): return False
+    return d == 'logi' or can(f, d)
+PAIRED, UNPAIRED = [], []
+for a, b in PAIRS:
+    if a not in avail or b not in avail: UNPAIRED.append((a, b, 'not on the roster')); continue
+    if _together(a, b): PAIRED.append((a, b, None)); continue
+    done = None
+    for i in sorted(avail[a] & avail[b]):
+        da, db = _duty(a, i), _duty(b, i)
+        for mover, other, dest in ((a, b, db), (b, a, da)):
+            if dest and _movable(mover, i) and _can_join(mover, dest):
+                src = _duty(mover, i)
+                for bl in roster[i]:
+                    if bl[0] == src: bl[1].remove(mover)
+                    if bl[0] == dest: bl[1].append(mover); bl[1].sort()
+                roster[i] = [bl for bl in roster[i] if bl[1]]
+                done = i; break
+        if done is not None: break
+    (PAIRED if done is not None else UNPAIRED).append((a, b, done) if done is not None else (a, b, 'no block where one can join the other'))
 
 # ---- setup, 2:00 – 3:00: everyone who's there gets a job ---------------
 # Football (6, 2:30 – 3:00) and volleyball (4) go to whoever refs those first
@@ -439,6 +491,9 @@ for f in avail:
         cur = cur + 1 if (x and k and x == row[k-1]) else (1 if x else 0)
         best = max(best, cur)
     longest[f] = best
+print("\nPAIRS")
+for a, b, i in PAIRED: print(f"  {a} + {b}: {'already together' if i is None else 'together at block ' + str(i)}")
+for a, b, why in UNPAIRED: print(f"  {a} + {b}: NOT PAIRED — {why}")
 print("\nLONGEST STRETCH ON ONE DUTY (logistics excluded — they float all day)")
 for f, b in sorted(longest.items(), key=lambda kv: -kv[1])[:8]:
     if 'logi' in tags[f]: continue
