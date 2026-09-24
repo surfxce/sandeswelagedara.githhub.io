@@ -91,7 +91,7 @@ def tel(f):
 # society teams' players from the roster; they're held for the quarters, semis
 # (4:00 – 4:30) and final (4:30 – 5:00). Football: NC's players through the
 # semis (5:00) and final (5:30). Cricket is fixed fixtures — nothing changes.
-i0 = app.index("    vb: [\n"); i1 = app.index("    fb: [],", i0)
+i0 = app.index("    vb: [\n"); i1 = app.index("    fb: [", i0)
 VB_TEAMS = [(m.group(2), m.group(3), re.findall(r"'([^']+)'", m.group(4)))
             for m in re.finditer(r"\{ name: ('|\")(.+?)\1,\s*(?:soc: '(\w+)',\s*)?players: \[(.*?)\] \}", app[i0:i1])]
 team_of = collections.defaultdict(list)       # exec -> [(sport, team)]
