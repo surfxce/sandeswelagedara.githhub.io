@@ -282,7 +282,7 @@ CSS = '''
   table { width: 100%; border-collapse: collapse; }
   th { text-align: left; font-size: 8.5pt; letter-spacing: .1em; text-transform: uppercase; color: #8C7B6E; padding: 0 0 2mm; }
   th:first-child { width: 31mm; }
-  td { border-top: 1px solid #DACBB2; padding: 1.7mm 0; vertical-align: top; }
+  td { border-top: 1px solid #DACBB2; padding: 1.45mm 0; vertical-align: top; }
   td.t { font-weight: 800; font-size: 10.5pt; font-variant-numeric: tabular-nums; color: #2B1A14; white-space: nowrap; padding-right: 4mm; }
   td.d b { display: block; font-size: 11.5pt; }
   td.d span { display: block; font-size: 9pt; color: #6B5347; margin-top: .4mm; }
