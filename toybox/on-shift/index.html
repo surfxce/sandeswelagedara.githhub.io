@@ -1774,7 +1774,7 @@
       const pool = PEOPLE.map(p => p.first).filter(f => !busy.has(f) && onSite(f, i)).sort();
       vacancies.forEach(v => {
         const club = (DUTIES[v.id] || {}).club;
-        const fits = f => !club || byFirst[f.toLowerCase()].s.includes(club);
+        const fits = f => !club || (byFirst[f.toLowerCase()].s.includes(club) && !(byFirst[f.toLowerCase()].x || []).includes(club));
         const j = pool.findIndex(fits);
         if (j >= 0) { const f = pool.splice(j, 1)[0]; addTo(v.id, f); cover[f] = { for: v.by, sport: v.sport }; return; }
         // nobody free: borrow from crowd & support, from the busiest zone,
@@ -1815,7 +1815,7 @@
       const n = want[key]; const isCrowd = key === 'crowd';
       const count = () => isCrowd ? crowdRows().reduce((k, r) => k + r[1].length, 0) : ((out.find(r => r[0] === key) || [0, []])[1]).length;
       const club = !isCrowd && (DUTIES[key] || {}).club;
-      const fits = (f) => !club || byFirst[f.toLowerCase()].s.includes(club);
+      const fits = (f) => !club || (byFirst[f.toLowerCase()].s.includes(club) && !(byFirst[f.toLowerCase()].x || []).includes(club));
       const place = (f) => { if (isCrowd) { const z = crowdRows().sort((a, b) => a[1].length - b[1].length || a[0].localeCompare(b[0]))[0]; if (z) z[1].push(f); else out.push(['cr-lawn', [f]]); } else { const r = out.find(x => x[0] === key); if (r) r[1].push(f); else out.push([key, [f]]); } };
       let guard = 60;
       while (count() < n && guard--) {
@@ -1843,7 +1843,10 @@
       for (const [id, ppl] of SETUP) if (ppl.includes(first)) return { id, people: ppl.filter(p => p !== first) };
       return { id:'away', people:[] };   // didn't tick setup
     }
-    if (i >= BLOCKS) return { id:'packup', people:[] };
+    if (i >= BLOCKS) {   // pack-up is for the people who ticked it on the form
+      const p = byFirst[first.toLowerCase()];
+      return PEOPLE.some(q => q.u) && p && !p.u ? { id:'away', people:[] } : { id:'packup', people:[] };
+    }
     if (!onSite(first, i)) return { id:'away', people:[] };
     const rows = rowsFor(i);
     for (const [id, ppl] of rows) if (ppl.includes(first)) {
@@ -2198,10 +2201,10 @@
     { block: -1, at: '2:45 pm', name: 'All execs: app run-through', where: 'Performance stage', note: 'Sandes walks everyone through the app, then MJ\'s speech at 2:50.', who: 'all', whoLabel: 'all execs', kind: 'brief', back: true },
     // team photos: each club at the half hour when most of its execs are here
     // and off the courts, at their own marquee. An ISC marketing exec takes
-    // them (Mathew takes ISC's so nobody from ISC misses out).
+    // them; ISC's is whoever's nearby, so nobody from ISC misses out.
     ...[['UQPA', 2, '4:05', 'Joanna'], ['UQISS', 2, '4:20', 'Joanna'], ['UQGS', 4, '5:10', 'Divita'], ['UQPSA', 4, '5:15', 'Divita'], ['UQTELS', 4, '5:20', 'Divita'],
-        ['UQSLA', 5, '5:40', 'Krisha'], ['UQISC', 7, '6:35', 'Mathew'], ['UQNAATAK', 7, '6:45', 'Shane'], ['UQNC', 7, '6:50', 'Shane']]
-      .map(([soc, block, at, by]) => ({ block, at: at + ' pm', name: soc + ' team photo', where: soc + ' marquee, Field 6', note: 'Five minutes, everyone from ' + soc + ' who\'s here.', who: { soc }, by, whoLabel: soc + ' execs', back: true })),
+        ['UQSLA', 5, '5:40', 'Krisha'], ['UQISC', 7, '6:35', null], ['UQNAATAK', 7, '6:45', 'Shane'], ['UQNC', 7, '6:50', 'Shane']]
+      .map(([soc, block, at, by]) => ({ block, at: at + ' pm', name: soc + ' team photo', where: soc + ' marquee, Field 6', note: 'Five minutes, everyone from ' + soc + ' who\'s here.' + (by ? '' : ' Grab anyone nearby to take it.'), who: { soc }, by, whoLabel: soc + ' execs', back: true })),
     { block: 6, at: '6:10 pm', name: 'Cricket briefing', where: 'Field 7, by the cricket pitches', note: 'Devansh runs through how tonight\'s cricket works and the crew sets up — first game 6:30.', who: 'ck', whoLabel: 'cricket crew' },
     // presidents only, straight after the volleyball final and before Jais
     // leaves at 5; Sandes is rostered off 4:30 – 5:00 to take it
@@ -2332,9 +2335,10 @@
     const mutedNote = (el, n) => { el.hidden = !n; el.textContent = n ? `${n} muted — change who you see under Show.` : ''; };
     if (block < 0 || block >= BLOCKS) {
       const d = DUTIES[block < 0 ? 'setup' : 'packup'];
-      $('t-free-n').textContent = 0; $('t-duty-n').textContent = PEOPLE.length;
+      const hands = PEOPLE.filter(p => assignmentFor(p.first, block).id !== 'away');
+      $('t-free-n').textContent = 0; $('t-duty-n').textContent = hands.length;
       $('t-free').innerHTML = `<span class="fine">Nobody — it's ${d.name.toLowerCase()}.</span>`;
-      $('t-duty').innerHTML = `<div class="duty-row" style="--c:${CATS.hands.color}">${dutyIcon(d)}<span class="nm">${d.name} — all hands</span><span class="cat">All hands</span><span class="wh">${esc(d.where)}</span><span class="ppl">${PEOPLE.filter(p => shown(p.first)).map(p => p.first === mine ? `<span class="me">${esc(p.n)}</span>` : esc(p.n)).join(', ')}</span></div>`;
+      $('t-duty').innerHTML = `<div class="duty-row" style="--c:${CATS.hands.color}">${dutyIcon(d)}<span class="nm">${d.name} — all hands</span><span class="cat">All hands</span><span class="wh">${esc(d.where)}</span><span class="ppl">${hands.filter(p => shown(p.first)).map(p => p.first === mine ? `<span class="me">${esc(p.n)}</span>` : esc(p.n)).join(', ')}</span></div>`;
       mutedNote($('t-free-muted'), 0); mutedNote($('t-duty-muted'), PEOPLE.filter(p => !shown(p.first)).length);
       return;
     }

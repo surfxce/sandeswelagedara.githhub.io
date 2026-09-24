@@ -75,6 +75,7 @@ people = d['people']
 BY = {kof(p): p for p in people}
 BYNAME = {p['n'].lower(): kof(p) for p in people}
 socOf = {kof(p): set(p['s']) for p in people}
+NOSTALL = {kof(p): set(p.get('x', [])) for p in people}   # stalls they asked not to be on (never a cover there either)
 onsite = lambda f, i: i in set(BY[f].get('a', range(12)))
 T = lambda i: f"{3 + i // 2}:{'00' if i % 2 == 0 else '30'}"
 span = lambda i: f'{T(i)} – {T(i + 1) if i < 11 else "9:00"}'
@@ -134,7 +135,7 @@ for i in range(12):
     pool = sorted(g for g in BY if onsite(g, i) and g not in busy)
     for cur, f, sport, team in vac:
         club = cur[6:] if cur.startswith('stall-') else None
-        fits = lambda g: not club or club in socOf[g]
+        fits = lambda g: not club or (club in socOf[g] and club not in NOSTALL.get(g, ()))
         g = next((g for g in pool if fits(g)), None)
         if g: pool.remove(g)
         else:
@@ -155,7 +156,7 @@ LOGI_ORDER = ['Nandos', 'Archita', 'Mathew', 'Sanuli', 'Devashri', 'Tanisha', 'P
 SPORT = {'vb': 'volleyball', 'fb': 'football'}
 # team photos at each club's marquee (same as MOMENTS in the app): club, block, time, photographer
 PHOTOS = [('UQPA', 2, '4:05', 'Joanna'), ('UQISS', 2, '4:20', 'Joanna'), ('UQGS', 4, '5:10', 'Divita'), ('UQPSA', 4, '5:15', 'Divita'),
-          ('UQTELS', 4, '5:20', 'Divita'), ('UQSLA', 5, '5:40', 'Krisha'), ('UQISC', 7, '6:35', 'Mathew'), ('UQNAATAK', 7, '6:45', 'Shane'), ('UQNC', 7, '6:50', 'Shane')]
+          ('UQTELS', 4, '5:20', 'Divita'), ('UQSLA', 5, '5:40', 'Krisha'), ('UQISC', 7, '6:35', None), ('UQNAATAK', 7, '6:45', 'Shane'), ('UQNC', 7, '6:50', 'Shane')]
 
 def exec_page(p, soc):
     f = kof(p); rows = []
@@ -197,7 +198,7 @@ def exec_page(p, soc):
                                        f'At each club\'s marquee, Field 6 · 5 minutes each, then back to {backto}'), [], 'moment'))
         for c, b, at, by in PHOTOS:
             if b == i and c in p['s']:
-                rows.append((at, (f'{c} team photo', f'{c} marquee, Field 6 · {by} takes it · 5 minutes, then back to {backto}'), [], 'moment'))
+                rows.append((at, (f'{c} team photo', f'{c} marquee, Field 6 · {by + " takes it" if by else "grab anyone nearby to take it"} · 5 minutes, then back to {backto}'), [], 'moment'))
         if i == 6 and f in CK and f != 'Devansh':
             rows.append(('6:10', ('Cricket briefing with Devansh', 'Field 7, by the pitches · set-up and run-through, first game 6:30'), [], 'moment'))
     rows.append(('9:00 – 10:00', ('Pack-up — all hands', 'Strike marquees, bag rubbish, return gear'), [], 'hands' if P.get(p['n'], {}).get('packup') else 'off'))
@@ -296,7 +297,7 @@ CSS = '''
   table { width: 100%; border-collapse: collapse; }
   th { text-align: left; font-size: 8.5pt; letter-spacing: .1em; text-transform: uppercase; color: #8C7B6E; padding: 0 0 2mm; }
   th:first-child { width: 31mm; }
-  td { border-top: 1px solid #DACBB2; padding: 1.25mm 0; vertical-align: top; }
+  td { border-top: 1px solid #DACBB2; padding: 1.15mm 0; vertical-align: top; }
   td.t { font-weight: 800; font-size: 10.5pt; font-variant-numeric: tabular-nums; color: #2B1A14; white-space: nowrap; padding-right: 4mm; }
   td.d b { display: block; font-size: 11.5pt; }
   td.d span { display: block; font-size: 9pt; color: #6B5347; margin-top: .4mm; }
