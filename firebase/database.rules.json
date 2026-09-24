@@ -302,6 +302,10 @@
           ".validate": false
         }
       },
+      "here": {
+        ".read": true,
+        "$first": { "$block": { ".write": true, ".validate": "newData.isBoolean()" } }
+      },
       "staffing": {
         ".read": true,
         "$block": { "$duty": { ".write": true, ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 60" } }

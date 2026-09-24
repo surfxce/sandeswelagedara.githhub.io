@@ -1636,7 +1636,7 @@
     logi: { cat:'logi', name:'Logistics', where:'Everywhere', do:'Floating. Fix what\'s broken, move gear, back up whichever team is short. Every swap request and call for help lands in your bell — take the ones nobody else has.',
           tasks:['Equipment', 'Backing up teams', 'Answering the bell'] },
     free: { cat:'free', name:'Free', where:'Enjoy the festival', do:'You\'re off this block. Grab food, catch the stage — and be back a few minutes before your next duty.' },
-    away: { cat:'away', name:'Not on site', where:'Off the ground', do:'You said you\'re not at the festival for this block, so nothing is rostered and nobody will call you for help. If that\'s changed, tell an organiser and they\'ll put you back in.' },
+    away: { cat:'away', name:'Not on site', where:'Off the ground', do:'You said you\'re not at the festival for this block, so nothing is rostered and nobody will call you for help. If you\'re here after all, tap I\'m still here and you\'ll get a duty.' },
     soon: { cat:'soon', name:'Check back soon', where:'Nothing rostered yet', do:'Nothing\'s on you for this block so far, but that can change — if a team wins through or someone needs cover, a job can land here. Check back closer to the time. If it\'s still empty when the block starts, it\'s yours.' },
     setup: { cat:'hands', name:'Setup', where:'All hands · 2:00 – 3:00 pm', do:'Everyone on deck. Marquees, tables, signage, sports gear — check in with your club lead for what to carry.',
           tasks:['Marquees', 'Tables & signage', 'Sports gear'] },
@@ -1667,7 +1667,8 @@
   // (the part after #k=). Without the key the app shows a locked screen.
   let PEOPLE = [];
   let SETUP = null;
-  let staffing = {};  // spice-road/staffing/{block}/{duty or 'crowd'} = headcount (Sandes)
+  let staffing = {};
+  let here = {};      // spice-road/here/{first}/{block} = true: "I'm still here" on a block they'd said they'd be gone  // spice-road/staffing/{block}/{duty or 'crowd'} = headcount (Sandes)
   let CONTACTS = {};  // numbers for people who aren't execs (e.g. heads from outside), by full name   // [[dutyId, [first names]]] for 2:00 – 3:00; null = everyone, all hands
   let ROSTER = [];
   const byFirst = {};
@@ -1802,6 +1803,13 @@
     // it's crowd being cut). Sorted by name, so every phone agrees.
     const want = (staffing && staffing[i]) || {};
     const crowdRows = () => out.filter(r => r[0].startsWith('cr-'));
+    // "I'm still here": anyone back on a block they weren't rostered for joins
+    // the smallest crowd & support zone
+    Object.keys(here).sort().forEach(f => {
+      if (!here[f] || !here[f][i] || !byFirst[f.toLowerCase()] || out.some(r => r[1].includes(f))) return;
+      const z = crowdRows().sort((a, b) => a[1].length - b[1].length || a[0].localeCompare(b[0]))[0];
+      if (z) z[1].push(f); else out.push(['cr-lawn', [f]]);
+    });
     // crowd goes last so a raise elsewhere (which borrows from crowd) can't undercut it
     Object.keys(want).sort((a, b) => (a === 'crowd') - (b === 'crowd') || a.localeCompare(b)).forEach(key => {
       const n = want[key]; const isCrowd = key === 'crowd';
@@ -1828,7 +1836,7 @@
   }
   const sameSociety = (a, b) => { const pa = byFirst[a.toLowerCase()], pb = byFirst[b.toLowerCase()]; return !!(pa && pb && pa.s.some(c => pb.s.includes(c))); };
   // `a` is the blocks this exec said they'd be at the festival. Missing = all day.
-  const onSite = (first, i) => { const p = byFirst[first.toLowerCase()]; return !p || !p.a || p.a.includes(i); };
+  const onSite = (first, i) => { const p = byFirst[first.toLowerCase()]; return !p || !p.a || p.a.includes(i) || !!(p && here[p.first] && here[p.first][i]); };
   function assignmentFor(first, i) {
     if (i < 0) {
       if (!SETUP) return { id:'setup', people:[] };
@@ -2186,6 +2194,14 @@
   // attends without leaving their duty. Shown as a banner on Now and in the run sheet.
   const MOMENTS = [
     // everyone rostered to umpire or score cricket at any point tonight
+    // everyone at the festival for setup: Sandes runs through the app before MJ opens at 2:50
+    { block: -1, at: '2:45 pm', name: 'All execs: app run-through', where: 'Performance stage', note: 'Sandes walks everyone through the app, then MJ\'s speech at 2:50.', who: 'all', whoLabel: 'all execs', kind: 'brief', back: true },
+    // team photos: each club at the half hour when most of its execs are here
+    // and off the courts, at their own marquee. An ISC marketing exec takes
+    // them (Mathew takes ISC's so nobody from ISC misses out).
+    ...[['UQPA', 2, '4:05', 'Joanna'], ['UQISS', 2, '4:20', 'Joanna'], ['UQGS', 4, '5:10', 'Divita'], ['UQPSA', 4, '5:15', 'Divita'], ['UQTELS', 4, '5:20', 'Divita'],
+        ['UQSLA', 5, '5:40', 'Krisha'], ['UQISC', 7, '6:35', 'Mathew'], ['UQNAATAK', 7, '6:45', 'Shane'], ['UQNC', 7, '6:50', 'Shane']]
+      .map(([soc, block, at, by]) => ({ block, at: at + ' pm', name: soc + ' team photo', where: soc + ' marquee, Field 6', note: 'Five minutes, everyone from ' + soc + ' who\'s here.', who: { soc }, by, whoLabel: soc + ' execs', back: true })),
     { block: 6, at: '6:10 pm', name: 'Cricket briefing', where: 'Field 7, by the cricket pitches', note: 'Devansh runs through how tonight\'s cricket works and the crew sets up — first game 6:30.', who: 'ck', whoLabel: 'cricket crew' },
     // presidents only, straight after the volleyball final and before Jais
     // leaves at 5; Sandes is rostered off 4:30 – 5:00 to take it
@@ -2193,12 +2209,29 @@
   ];
   // umpires and scorers only — players don't need the briefing
   const onCricket = (first) => [6, 7, 8, 9, 10].some(i => assignmentFor(first, i).id === 'ck');   // the games, not the 8:30 pack-down
-  const momentsFor = (i) => MOMENTS.filter(m => m.block === i && (m.who === 'all' || (me && (m.who === 'ck' ? onCricket(me.first) : m.who.includes(me.first)))))
-    .sort((a, b) => a.at.localeCompare(b.at));
+  const inMoment = (m, i) => !!me && (m.who === 'all' || m.by === me.first
+    || (m.who === 'ck' ? onCricket(me.first) : m.who.soc ? me.s.includes(m.who.soc) && onSite(me.first, i) : m.who.includes(me.first)));
+  const momentsFor = (i) => MOMENTS.filter(m => m.block === i && inMoment(m, i))
+    .sort((a, b) => (a.at.length - b.at.length) || a.at.localeCompare(b.at));
+  // what to show this exec: the photographer gets "take it", and moments that
+  // pull you off a duty say which duty to go back to
+  function momentText(m) {
+    const taking = me && m.by === me.first;
+    const name = taking ? 'Take the ' + m.name : m.name;
+    const cur = me ? DUTIES[assignmentFor(me.first, m.block).id] : null;
+    const back = m.back && cur && !['free', 'away'].includes(cur.cat) ? ' Then back to ' + cur.name + '.' : m.back && cur && cur.cat === 'free' ? ' Then back to your break.' : '';
+    const note = (taking ? 'Bring your phone and get everyone in. ' : '') + m.note + (m.by && !taking ? ' ' + m.by + ' takes it.' : '') + back;
+    return { name, note, label: m.kind === 'brief' ? 'All execs' : 'Photo · ' + (taking ? 'you\'re taking it' : (m.whoLabel || 'everyone')) };
+  }
   function momentHtml(m) {
-    return `<div class="moment"><span class="eyebrow">Photo · ${esc(m.whoLabel || 'everyone')}</span>${iconHtml('camera', 'var(--c-photo)', 'sm')}<span class="t">${esc(m.at)}</span><span class="d">${esc(m.name)}<small>${esc(m.where)} · ${esc(m.note)}</small></span></div>`;
+    const x = momentText(m);
+    return `<div class="moment"><span class="eyebrow">${esc(x.label)}</span>${iconHtml(m.kind === 'brief' ? 'mic' : 'camera', 'var(--c-photo)', 'sm')}<span class="t">${esc(m.at)}</span><span class="d">${esc(x.name)}<small>${esc(m.where)} · ${esc(x.note)}</small></span></div>`;
   }
 
+  function imHere(i) {
+    if (!db || !me) return;
+    ref('here/' + me.first + '/' + i).set(true).catch(() => alert('Couldn\'t reach the roster. Check your connection and try again.'));
+  }
   function renderNow() {
     if (!me) {
       $('now-card').innerHTML = `<div class="notice"><h2>You're not on today's roster yet</h2><p>No match for <b>${esc(ident.name)}</b> in <b>${esc(ident.society)}</b>. Check the spelling, or ask your club lead. You can still browse Team and What's On.</p></div>`;
@@ -2206,7 +2239,9 @@
     }
     $('runsheet').hidden = false;
     const a = assignmentFor(me.first, block);
-    $('now-card').innerHTML = dutyCard(tentative(a, block), { soon: 'soon', away: 'away' }[tentative(a, block).id] || '') + controlsHtml(a);
+    $('now-card').innerHTML = dutyCard(tentative(a, block), { soon: 'soon', away: 'away' }[tentative(a, block).id] || '') + controlsHtml(a)
+      + (a.id === 'away' && db && block >= 0 && block < BLOCKS ? `<div class="ctl-row" style="--c:${CATS.away.color}"><span></span><button type="button" class="btn-small" id="im-here">I'm still here — give me a duty</button></div>` : '');
+    if ($('im-here')) $('im-here').addEventListener('click', () => imHere(block));
     $('now-moment').innerHTML = momentsFor(block).map(momentHtml).join('');
     bindHelpControl(); bindSwapControl();
 
@@ -2220,19 +2255,22 @@
     }
 
     // Run sheet
-    $('rs').innerHTML = Array.from({ length: BLOCKS }, (_, i) => {
+    const moRow = (i) => momentsFor(i).map(m => { const x = momentText(m); return `<div class="rs-row mo" style="--c:var(--c-photo)"><span class="t">${esc(m.at.replace(' pm', ''))}</span><span class="bar"></span>${iconHtml(m.kind === 'brief' ? 'mic' : 'camera', 'var(--c-photo)', 'sm')}<span class="d">${esc(x.name)}<small>${esc(m.where)} · ${esc(x.note)}</small></span></div>`; }).join('');
+    $('rs').innerHTML = moRow(-1) + Array.from({ length: BLOCKS }, (_, i) => {
       const x = tentative(assignmentFor(me.first, i), i); const d = DUTIES[x.id];
       const w = x.people.length ? 'with ' + names(x.people) : (d.cat === 'free' || d.cat === 'soon' || d.cat === 'photo' ? '' : 'solo');
-      const mo = momentsFor(i).map(m => `<div class="rs-row mo" style="--c:var(--c-photo)"><span class="t">${esc(m.at.replace(' pm', ''))}</span><span class="bar"></span>${iconHtml('camera', 'var(--c-photo)', 'sm')}<span class="d">${esc(m.name)}<small>${esc(m.where)} · ${esc(m.whoLabel || 'everyone')}</small></span></div>`).join('');
+      const mo = moRow(i);
       // ask ahead: any block that hasn't started, on a duty you can hand over
       const lbNow = liveBlock(); const ahead = db && (lbNow === null || i > lbNow) && !['free', 'away', 'hands', 'photo', 'logi', 'soon'].includes(d.cat);
       const asked = ahead && mySwapFor(i);
       const sw = !ahead ? '' : asked ? `<span class="rs-swap asked">${asked[1].status === 'taken' ? 'Swapped' : 'Swap asked'}</span>` : `<button type="button" class="rs-swap" data-swapblock="${i}">Swap</button>`;
-      return `<div class="rs-row ${i === block ? 'now' : ''} ${d.cat === 'soon' ? 'soon' : ''} ${d.cat === 'away' ? 'away' : ''}" style="--c:${CATS[d.cat].color}">${sw}
+      const back = db && d.cat === 'away' && (lbNow === null || i >= lbNow) ? `<button type="button" class="rs-swap" data-here="${i}">I'm still here</button>` : '';
+      return `<div class="rs-row ${i === block ? 'now' : ''} ${d.cat === 'soon' ? 'soon' : ''} ${d.cat === 'away' ? 'away' : ''}" style="--c:${CATS[d.cat].color}">${sw}${back}
         <span class="t">${fmt(DAY_START + i * 30)}</span><span class="bar"></span>${dutyIcon(d, 'sm')}
         <span class="d">${esc(d.name)}<small>${esc(d.cat === 'free' ? 'Enjoy the festival' : d.cat === 'soon' ? 'Check back closer to the time' : d.cat === 'away' ? 'Not at the festival this block' : d.where + (w ? ' · ' + w : ''))}</small></span>
       </div>` + mo;
     }).join('');
+    $('rs').querySelectorAll('[data-here]').forEach(b => b.addEventListener('click', () => imHere(+b.dataset.here)));
     $('rs').querySelectorAll('[data-swapblock]').forEach(b => b.addEventListener('click', () => {
       live = false; block = +b.dataset.swapblock; render(); openSwapSheet(true);
     }));
@@ -3316,7 +3354,7 @@
   const FEST_NOTES = `# Spice Road Experience — notes for Spicy
 The Spice Road Experience is a one-day cultural festival at the University of Queensland run by student societies: UQISC (Indian Students' Club) and its partner society UQSLA (Sri Lankan Association), with ten clubs running marquees. It's outdoors on a sports ground from mid-afternoon into the evening: club stalls, food and fundraising stalls, volleyball, football and cricket competitions, and a performance stage. The people using this app are execs — student volunteers rostered onto duties in 30-minute blocks.
 Organisers: Nandos (Thirunanthanan Thirumurugan — runs logistics, head of football), Archita, Sanuka (UQSLA president) and Prabhas. Sandes built the app and handles anything technical. Questions the notes don't answer should go to Sandes (there's a Message Sandes button under every answer).
-Programme: bump-in from 1:00 pm (food trucks 1:00 – 1:40, business stalls 1:50 – 2:20, club stalls 2:00), MJ's speech 2:50, doors 3:00. Football 3:00 – 6:00 on Field 7, six small pitches (16 teams, groups then semis 4:50 and final 5:30); referees are execs. Tickets are Humanitix QR codes scanned at the gate. Volleyball on the beach volleyball courts: eleven teams, knockout (ISS v Ameya's team play-in at 3:15). 3:35 – 4:15 all three courts run bracket games, then two bracket courts and one social. Games 3:35 and 3:55, semis 4:15, final 4:35, winner 5:00. Shriyans, Kartik, Shane and Devyn each play for two teams; the draw keeps their teams from playing at the same time. Performances on the stage 4:30 – 5:05 and 5:40 – 6:10 (break in between); winners and the raffle 8:30 – 8:40. Cricket (T6, tennis ball) on Field 7, which it takes over once football finishes: four teams (UQISC, UQGS, UQSLA, Mixed Team), Devansh briefs the cricket crew at 6:10 and is on cricket for the first two games, then it's self-run. One game at a time: UQSLA v UQISC 6:30, UQGS v Mixed Team 7:00, UQSLA v UQGS 7:30, UQISC v Mixed Team 8:00. Six overs a side, seven on the field max, soft tennis balls only. 20-minute games with 10-minute changeovers; the crew swaps at 7:30. No final: top of the table after match 4 wins, announced 8:30. Raffle drawn 8:40. Bump-out 8:50 – 9:40. Food trucks (7) and business stalls (6) are on Field 6 all day, club marquees too (numbered 1 – 12). First aid: the UQIC venue manager at the First Aid marquee on Field 6. Security: Tru Security.
+Programme: bump-in from 1:00 pm (food trucks 1:00 – 1:40, business stalls 1:50 – 2:20, club stalls 2:00), all execs at the performance stage 2:45 (Sandes runs through the app), MJ's speech 2:50, doors 3:00. Team photos at each club's marquee: UQPA 4:05, UQISS 4:20, UQGS 5:10, UQPSA 5:15, UQTELS 5:20, UQSLA 5:40, UQISC 6:35, UQNAATAK 6:45, UQNC 6:50 — five minutes, then back to your duty. Football 3:00 – 6:00 on Field 7, six small pitches (16 teams, groups then semis 4:50 and final 5:30); referees are execs. Tickets are Humanitix QR codes scanned at the gate. Volleyball on the beach volleyball courts: eleven teams, knockout (ISS v Ameya's team play-in at 3:15). 3:35 – 4:15 all three courts run bracket games, then two bracket courts and one social. Games 3:35 and 3:55, semis 4:15, final 4:35, winner 5:00. Shriyans, Kartik, Shane and Devyn each play for two teams; the draw keeps their teams from playing at the same time. Performances on the stage 4:30 – 5:05 and 5:40 – 6:10 (break in between); winners and the raffle 8:30 – 8:40. Cricket (T6, tennis ball) on Field 7, which it takes over once football finishes: four teams (UQISC, UQGS, UQSLA, Mixed Team), Devansh briefs the cricket crew at 6:10 and is on cricket for the first two games, then it's self-run. One game at a time: UQSLA v UQISC 6:30, UQGS v Mixed Team 7:00, UQSLA v UQGS 7:30, UQISC v Mixed Team 8:00. Six overs a side, seven on the field max, soft tennis balls only. 20-minute games with 10-minute changeovers; the crew swaps at 7:30. No final: top of the table after match 4 wins, announced 8:30. Raffle drawn 8:40. Bump-out 8:50 – 9:40. Food trucks (7) and business stalls (6) are on Field 6 all day, club marquees too (numbered 1 – 12). First aid: the UQIC venue manager at the First Aid marquee on Field 6. Security: Tru Security.
 Escalation: anything medical or dangerous — call 000 first, then tell an organiser. Emergency contacts are in the app under Settings → Emergency (never repeat phone numbers; point people there). Lost property, first aid, behaviour and equipment problems get logged under Settings → Log incident.`;
   const strip = (html) => { const d = document.createElement('div'); d.innerHTML = html; return d.textContent; };
   function spicyNotes() {
@@ -3325,7 +3363,7 @@ Escalation: anything medical or dangerous — call 000 first, then tell an organ
     L.push('\n## Duties (what each one is, where, and who heads it)');
     Object.entries(DUTIES).forEach(([id, d]) => { if (d.cat === 'free') return; const lead = leadFor(id); L.push(`- ${d.name} [${CATS[d.cat].label}] — where: ${d.where || '—'}. ${d.do || ''}${d.tasks && d.tasks.length ? ' Tasks: ' + d.tasks.join(', ') + '.' : ''}${lead ? ' Committee head: ' + lead + '.' : ''}`); });
     L.push('\n## Stage running order\n' + STAGE_TIMES.map(x => `${tm(x.t)} — ${x.who}: ${x.what}`).join('\n'));
-    L.push('\n## Moments\n' + MOMENTS.map(m => `${m.at} (block ${m.block + 1}) — ${m.name} at ${m.where}. ${m.note} Who: ${m.who === 'all' ? 'everyone' : m.who === 'ck' ? 'everyone umpiring or scoring cricket tonight (not the players)' : m.who.join(', ')}.`).join('\n'));
+    L.push('\n## Moments\n' + MOMENTS.map(m => `${m.at} (block ${m.block + 1}) — ${m.name} at ${m.where}. ${m.note} Who: ${m.who === 'all' ? 'everyone' : m.who === 'ck' ? 'everyone umpiring or scoring cricket tonight (not the players)' : m.who.soc ? 'every ' + m.who.soc + ' exec on site then' : m.who.join(', ')}.${m.by ? ' ' + m.by + ' takes the photo.' : ''}`).join('\n'));
     L.push('\n## Emergency contacts (numbers are in the app under Settings → Emergency — never give a number)\n' + Object.values(EMG_GROUPS).flatMap(g => g.people()).map(c => `${(c.first && byFirst[c.first.toLowerCase()] || {}).n || c.n || c.first} — ${c.role}: ${c.does}`).join('\n'));
     L.push('\n## Where things are (pins on the Map tab)\n' + PINS.map(pin => `${pin.label} — ${pin.sub}`).join('\n') + '\nFootball is six small pitches on the Field 7 infield, numbered Field 1 to Field 6: two across, three down, left to right from the top (zoom right in on the map to see them).');
     L.push('\n## Things Spicy can point at (put the id in "show" when the answer is about tapping or finding one of these)\n' + Object.entries(POINTS).map(([id, pt]) => `${id} — ${pt.what}`).join('\n'));
@@ -4370,6 +4408,7 @@ If someone asks how to score a match, walk them through these steps and set "sho
     ref('photos').orderByChild('status').equalTo('pending').on('value', snap => { phPending = snap.val() || {}; renderPhotoMod(); }, () => {});
     ref('photos').orderByChild('status').equalTo('rejected').on('value', snap => { phRejected = snap.val() || {}; renderPhotoMod(); }, () => {});
     ref('config/aiReview').on('value', snap => { aiOn = snap.val() !== false; renderPhotoMod(); }, () => {});
+    ref('here').on('value', snap => { here = snap.val() || {}; rosterVersion++; if (!$('shell').hidden) render(); }, () => {});
     ref('staffing').on('value', snap => { staffing = snap.val() || {}; rosterVersion++; if (!$('shell').hidden) render(); }, () => {});
     ref('ticker').limitToLast(40).on('value', snap => { ticks = snap.val() || {}; if (scrOn) renderTicker(); if (!$('view-desk').hidden) renderTicks(); }, () => {});
     ref('incidents').limitToLast(100).on('value', snap => { incidents = snap.val() || {}; renderIncidents(); }, () => {});
