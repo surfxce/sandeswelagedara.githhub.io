@@ -429,6 +429,12 @@
   @keyframes al-fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
   @keyframes al-bell { 0% { opacity: 0; transform: scale(.6) rotate(0); } 40% { opacity: 1; transform: scale(1.08) rotate(-14deg); } 60% { transform: rotate(12deg); } 80% { transform: rotate(-6deg); } 100% { transform: none; } }
   .al-mine { margin-top: 10px; padding: 8px 12px; border-radius: 6px; background: var(--paper-2, #F3EEE3); border-left: 4px solid var(--maroon); font-size: 15px; color: var(--ink); text-align: left; }
+  .checkin-pop { position: fixed; top: 10px; left: 50%; transform: translateX(-50%); width: min(440px, calc(100vw - 20px)); z-index: 800; display: flex; align-items: center; gap: 10px; padding: 10px 10px 10px 14px; background: #fff; border: 2px solid #3E7A4A; border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,.18); font-size: 14px; color: var(--ink); }
+  .checkin-pop span { flex: 1; line-height: 1.3; } .checkin-pop b { color: #3E7A4A; }
+  .checkin-pop button { background: #3E7A4A; border-color: #3E7A4A; color: #fff; white-space: nowrap; min-height: 38px; }
+  .onb-here { display: flex; align-items: center; gap: 10px; margin: 8px 0 4px; padding: 10px 12px; border-radius: 8px; border: 2px solid #3E7A4A; background: #F0F6F1; font-size: 14px; }
+  .onb-here.done { border-style: solid; background: #fff; color: #3E7A4A; font-weight: 800; }
+  .onb-here span { flex: 1; } .onb-here button { background: #3E7A4A; border-color: #3E7A4A; color: #fff; }
   .ask-bd { position: fixed; inset: 0; background: rgba(20, 10, 6, .45); z-index: 9000; }
   .ask { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(360px, calc(100vw - 32px)); z-index: 9001; background: #fff; border-radius: 10px; padding: 18px 18px 14px; box-shadow: 0 12px 40px rgba(0,0,0,.3); border-top: 6px solid var(--maroon); }
   .ask p { margin: 0 0 14px; font-size: 16px; line-height: 1.4; color: var(--ink); white-space: pre-line; }
@@ -1125,6 +1131,7 @@
 
   <!-- Info sheet: tap a What's On card -->
   <div class="dm-backdrop" id="info-backdrop" hidden></div>
+  <div class="checkin-pop" id="checkin-pop" role="status" hidden><span><b>Please tick yourself as present</b> — this affects the roster.</span><button type="button" class="btn-small" id="checkin-go">✓ I'm here</button></div>
   <div class="ask-bd" id="ask-bd" hidden></div>
   <div class="ask" id="ask" role="alertdialog" aria-modal="true" aria-labelledby="ask-msg" hidden><p id="ask-msg"></p><div class="ask-btns"><button type="button" class="btn-small ghost" id="ask-no">Cancel</button><button type="button" class="btn-small" id="ask-ok">Yes</button></div></div>
   <section class="dm-sheet" id="info-sheet" hidden aria-label="Details">
@@ -2345,6 +2352,7 @@
 
   // Our own "are you sure?" — native confirm()/alert() are silently blocked in
   // some in-app browsers (Discord, Instagram, previews), which made buttons do nothing.
+  $('checkin-go').addEventListener('click', checkIn);
   function askYes(msg, ok = 'Yes', cancel = 'Cancel') {
     return new Promise(res => {
       const box = $('ask'), bd = $('ask-bd'); $('ask-msg').textContent = msg; $('ask-ok').textContent = ok;
@@ -2356,6 +2364,19 @@
     });
   }
   const say = (msg) => askYes(msg, 'OK', null);
+  // Roll call from the exec's side: tick yourself in. Shows on Sandes's roll call at once.
+  const dueToday = () => !!me && (me.a || [0]).length > 0;
+  const checkedIn = () => !!me && !!rollcall[me.first] && absent[me.first] == null;
+  function checkIn() {
+    if (!db || !me) return;
+    if (absent[me.first] != null) ref('absent/' + me.first).remove().catch(() => {});
+    ref('rollcall/' + me.first).set(true).then(() => renderCheckin()).catch(() => say('Couldn\'t reach the roster — check your connection and try again.'));
+  }
+  function renderCheckin() {
+    const el = $('checkin-pop'); if (!el) return;
+    const show = !!db && !!me && dueToday() && !checkedIn() && !$('shell').hidden && !tourOn;
+    el.hidden = !show;
+  }
   function imHere(i) {
     if (!db || !me) return;
     if (absent[me.first] != null) ref('absent/' + me.first).remove().catch(() => {});
@@ -2373,6 +2394,7 @@
       + (sx ? `<div class="swapped-note">⇄ Swapped with <b>${esc(full(sx.other))}</b> — this is your duty now.</div>` : '') + controlsHtml(a)
       + (a.id === 'away' && db && block >= 0 && block < BLOCKS ? `<div class="ctl-row" style="--c:${CATS.away.color}"><span></span><button type="button" class="btn-small" id="im-here">I'm still here — give me a duty</button></div>` : '');
     if ($('im-here')) $('im-here').addEventListener('click', () => imHere(block));
+    renderCheckin();
     const rc = canSim() && db ? rollcallSummary() : null;
     $('now-moment').innerHTML = (rc ? `<button type="button" class="rc-bar" id="rc-bar"><b>Roll call</b><span>${rc.here} here · ${rc.absent} absent · ${rc.unmarked} to tick</span><span class="chev">›</span></button>` : '') + momentsFor(block).map(momentHtml).join('');
     if ($('rc-bar')) $('rc-bar').addEventListener('click', () => { openInfoRaw('Roll call', ''); rcOpen = true; renderRollcall(); });
@@ -3502,7 +3524,8 @@
     const hi = t.me && me; // the welcome slide greets you with your own picture
     const mine = hi && !!pfps[me.first.toLowerCase()];
     const pick = hi ? `<div class="pfp-pick">${pfp(me.first, 72)}<div><button class="btn-small ${mine ? 'ghost' : ''}" id="onb-photo" type="button">${mine ? 'Change photo' : 'Add a photo of you'}</button><p class="fine" id="onb-photo-msg">${mine ? 'Looking good.' : 'So people can find you on the day.'}</p></div></div>` : '';
-    $('onb-slide').innerHTML = `${hi ? '' : iconHtml(t.icon, t.color)}<h2>${hi ? 'Hi ' + esc(me.first) : t.h}</h2>${pick}<p>${t.p}</p>${t.alerts ? `<div class="btns" style="margin-top:6px">${'Notification' in window && Notification.permission === 'default' ? '<button class="btn-small" id="onb-alerts" type="button" style="width:100%;height:auto;padding:10px 14px;line-height:1.3;white-space:normal">Turn on notifications when the block changes</button>' : ''}</div><p class="fine" id="onb-alerts-msg">${esc(alertsState())}</p>` : ''}${t.last ? `<div class="btns" style="margin-top:6px"><button class="btn-small" id="onb-spicy" type="button">Ask Spicy</button><button class="btn-small ghost" id="onb-msg" type="button">Message Sandes</button><button class="btn-small ghost" id="onb-man" type="button">Open the manual</button></div>` : ''}`;
+    const here = hi && db ? (checkedIn() ? `<div class="onb-here done">✓ You're ticked in as present — thanks.</div>` : `<div class="onb-here"><span><b>Here today?</b> Tick yourself in — the roster works around whoever's actually here.</span><button type="button" class="btn-small" id="onb-here">✓ I'm here</button></div>`) : '';
+    $('onb-slide').innerHTML = `${hi ? '' : iconHtml(t.icon, t.color)}<h2>${hi ? 'Hi ' + esc(me.first) : t.h}</h2>${here}${pick}<p>${t.p}</p>${t.alerts ? `<div class="btns" style="margin-top:6px">${'Notification' in window && Notification.permission === 'default' ? '<button class="btn-small" id="onb-alerts" type="button" style="width:100%;height:auto;padding:10px 14px;line-height:1.3;white-space:normal">Turn on notifications when the block changes</button>' : ''}</div><p class="fine" id="onb-alerts-msg">${esc(alertsState())}</p>` : ''}${t.last ? `<div class="btns" style="margin-top:6px"><button class="btn-small" id="onb-spicy" type="button">Ask Spicy</button><button class="btn-small ghost" id="onb-msg" type="button">Message Sandes</button><button class="btn-small ghost" id="onb-man" type="button">Open the manual</button></div>` : ''}`;
     $('onb-dots').innerHTML = TOUR.map((_, i) => `<i class="${i === tourIdx ? 'on' : ''}"></i>`).join('');
     $('onb-prev').hidden = tourIdx === 0; $('onb-next').textContent = tourIdx === TOUR.length - 1 ? 'Done' : 'Next';
     const msg = $('onb-msg'); if (msg) msg.addEventListener('click', () => { endTour(); if (me && me.first !== 'Sandes') openDm('Sandes'); });
@@ -3510,11 +3533,12 @@
     const sp = $('onb-spicy'); if (sp) sp.addEventListener('click', () => { endTour(); openSpicy(true); });
     const al = $('onb-alerts'); if (al) al.addEventListener('click', async () => { await turnOnAlerts(); renderTour(); });
     const ph = $('onb-photo'); if (ph) ph.addEventListener('click', () => pickPhoto('onb-photo-msg'));
+    const hb = $('onb-here'); if (hb) hb.addEventListener('click', () => { checkIn(); setTimeout(renderTour, 400); });
     if (t.prep) t.prep();
     requestAnimationFrame(() => requestAnimationFrame(placeTour));
   }
   function stepTour(d) { const cur = TOUR[tourIdx]; if (cur.after) cur.after(); tourIdx += d; renderTour(); }
-  function startTour() { tourIdx = 0; tourOn = true; tourSaved = { live, block }; $('onb').hidden = false; renderTour(); }
+  function startTour() { tourIdx = 0; tourOn = true; tourSaved = { live, block }; $('onb').hidden = false; renderCheckin(); renderTour(); }
   function endTour() {
     if (pointStep) {   // a Spicy pointer: put things back, but don't touch the tour's "seen" flag
       const back = pointStep.back; if (pointStep.after) pointStep.after(); pointStep = null; tourOn = false; $('onb').hidden = true;
@@ -3522,7 +3546,7 @@
       if (back) openSpicy(true);   // came from Spicy: back to the conversation
       return;
     }
-    const cur = TOUR[tourIdx]; if (cur && cur.after) cur.after(); tourOn = false; $('onb').hidden = true; closeSheets();
+    const cur = TOUR[tourIdx]; if (cur && cur.after) cur.after(); tourOn = false; $('onb').hidden = true; closeSheets(); renderCheckin();
     if (tourSaved) { live = tourSaved.live; block = tourSaved.block; tourSaved = null; if (!$('shell').hidden) render(); }
     showView(me ? 'now' : 'team'); if (!demoMode) { try { localStorage.setItem(ONB_LS, '1'); } catch {} }
   }
@@ -4759,7 +4783,7 @@ If someone asks how to score a match, walk them through these steps and set "sho
     ref('photos').orderByChild('status').equalTo('rejected').on('value', snap => { phRejected = snap.val() || {}; renderPhotoMod(); }, () => {});
     ref('config/aiReview').on('value', snap => { aiOn = snap.val() !== false; renderPhotoMod(); }, () => {});
     ref('absent').on('value', snap => { absent = snap.val() || {}; rosterVersion++; if (!$('shell').hidden) render(); if (rcOpen) renderRollcall(); }, () => {});
-    ref('rollcall').on('value', snap => { rollcall = snap.val() || {}; if (!$('shell').hidden) render(); if (rcOpen) renderRollcall(); }, () => {});
+    ref('rollcall').on('value', snap => { rollcall = snap.val() || {}; if (!$('shell').hidden) render(); if (rcOpen) renderRollcall(); renderCheckin(); if (tourOn && !pointStep && tourIdx === 0) renderTour(); }, () => {});
     ref('here').on('value', snap => { here = snap.val() || {}; rosterVersion++; if (!$('shell').hidden) render(); }, () => {});
     ref('staffing').on('value', snap => { staffing = snap.val() || {}; rosterVersion++; if (!$('shell').hidden) render(); }, () => {});
     ref('ticker').limitToLast(40).on('value', snap => { ticks = snap.val() || {}; if (scrOn) renderTicker(); if (!$('view-desk').hidden) renderTicks(); }, () => {});
