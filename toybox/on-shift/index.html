@@ -2095,7 +2095,7 @@
   // Approximate timetable from the bracket: matches run back to back per sport, byes take no slot.
   function timetableHtml(sport) {
     if (ROBIN[sport] && ROBIN[sport].groups) { const cfg = ROBIN[sport]; const ko = robinKO(sport);
-      return `<div class="round">${cfg.rounds.map((pairs, k) => pairs.map(([a, b], i) => `<div class="tt"><span class="t">${esc(cfg.times[k])}</span><span class="tm won" style="grid-column:2/-1;text-align:left">${esc(a)} v ${esc(b)}<small>Field ${i + 1} · Group ${groupOf(sport, a)}</small></span></div>`).join('')).join('')}${ko.semis.map((m, i) => `<div class="tt"><span class="t">${esc(cfg.semiTime)}</span><span class="tm won" style="grid-column:2/-1;text-align:left">Semi-final: ${esc(m.a || 'Winner ' + cfg.semis[i][0])} v ${esc(m.b || 'Winner ' + cfg.semis[i][1])}</span></div>`).join('')}<div class="tt"><span class="t">${esc(cfg.finalTime)}</span><span class="tm won" style="grid-column:2/-1;text-align:left">Final: ${esc(ko.final.a || 'Semi 1 winner')} v ${esc(ko.final.b || 'Semi 2 winner')}</span></div></div><p class="fine">${esc(cfg.note)}</p>`; }
+      return `<div class="round">${cfg.rounds.map((pairs, k) => pairs.map(([a, b], i) => `<div class="tt"><span class="t">${esc(cfg.times[k])}</span><span class="tm won" style="grid-column:2/-1;text-align:left">${esc(a)} v ${esc(b)}<small>Field ${i + 1} · Group ${groupOf(sport, a)}</small></span></div>`).join('')).join('')}${ko.semis.map((m, i) => `<div class="tt"><span class="t">${esc(cfg.semiTime)}</span><span class="tm won" style="grid-column:2/-1;text-align:left">Semi-final: ${esc(m.a || (cfg.seeded ? '' : 'Winner ') + cfg.semis[i][0])} v ${esc(m.b || (cfg.seeded ? '' : 'Winner ') + cfg.semis[i][1])}</span></div>`).join('')}<div class="tt"><span class="t">${esc(cfg.finalTime)}</span><span class="tm won" style="grid-column:2/-1;text-align:left">Final: ${esc(ko.final.a || 'Semi 1 winner')} v ${esc(ko.final.b || 'Semi 2 winner')}</span></div></div><p class="fine">${esc(cfg.note)}</p>`; }
     if (ROBIN[sport]) { const cfg = ROBIN[sport]; return `<div class="round">${cfg.rounds.map((pairs, k) => pairs.map(([a, b]) => `<div class="tt"><span class="t">${esc(cfg.times[k])}</span><span class="tm won" style="grid-column:2/-1;text-align:left">${esc(a)} v ${esc(b)}</span></div>`).join('')).join('')}${cfg.finalTime ? `<div class="tt"><span class="t">${esc(cfg.finalTime)}</span><span class="tm won" style="grid-column:2/-1;text-align:left">Final — top two on the table</span></div>` : ''}</div><p class="fine">One game at a time on Field 7. 20-minute games, 10-minute changeovers. Win 2, tie 1; top of the table after match 4 wins. Winner announced 8:30.</p>`; }
     const br = bracketFor(sport);
     if (!br || !br.rounds || !br.rounds[0]) return '<p class="fine">No bracket set up for this yet — check back closer to the time.</p>';
@@ -2929,11 +2929,11 @@
       { name: "Ameya's team", players: ['Ameya Eldhose', 'Elvin Binoy', 'Charan', 'Dhruvesh Vinaikumar', 'Devyn Ramos', 'Aravind KB', 'Jaydip Zalavadiya'] },
       { name: 'Solos',        players: ['Uday', 'Jai Bhatia', 'Sam Klaassen', 'Priyansh', 'Tanveer Salaria', 'Anshraj Srivatava', 'Matvi Jani'] },
     ],
-    // From the football committee's sheet. The "combined" lists are split by the
-    // club in their notes column, to match the fixtures. Solo teams, UQIC,
-    // UQAPS, UQISS and UQNAATAK: players to come.
+    // From the football committee's final sheet. The "combined" lists are split
+    // by the club in their notes column, to match the fixtures. Solo 1 is
+    // Adrian's team. Solos 2–4, UQIC, UQAPS, UQISS and UQNAATAK fill on the day.
     fb: [
-      { name: 'UQSLA',    soc: 'UQSLA',  players: ['Hiruna', 'Deneth Perera', 'Muhammad Rassool', 'Sam Klaassen', 'Senith Ranasinghe', 'Dhruvesh Vinaikumar', 'Ashane', 'Pamod Thinura', 'Akira'] },
+      { name: 'UQSLA',    soc: 'UQSLA',  players: ['Hiruna', 'Ashane', 'Pamod Thinura', 'Sam Klaassen', 'Senith Ranasinghe', 'Dhruvesh Vinaikumar', 'Ridwaan', 'Deneth Perera', 'Muhammad Rassool', 'Akira'] },
       { name: 'UQISS',    soc: 'UQISS',  players: [] },
       { name: 'UQTELS',   soc: 'UQTELS', players: ['Hemish Srikanth', 'Lochan', 'Hitesh Paritala', 'Chika', 'Ede Warneke'] },
       { name: 'UQPA',     soc: 'UQPA',   players: ['Manveer', 'Joban Kahlon', 'Ashish Tripathi'] },
@@ -2944,8 +2944,8 @@
       { name: 'UQGS',     soc: 'UQGS',   players: ['Naman Oza', 'Krish', 'Jaydeep Gohel', 'Nikhil Khatri', 'Samarth Patel', 'Ronak Ashara', 'Shahzeb Hussain'] },
       { name: 'UQAPS',    players: [] },
       { name: 'UQPSA',    soc: 'UQPSA',  players: ['Abdullah Tariq', 'Ali Abbasi', 'Aban Shahzad', 'Muzamil Rafiq', 'Ronak Ashara', 'Shahzeb Hussain'] },
-      { name: 'UQTAS',    players: ['Soorya Ammanur Madapoosi', 'Muheen Siva', 'Aksharan S'] },
-      { name: 'Solo 1',   players: [] }, { name: 'Solo 2', players: [] }, { name: 'Solo 3', players: [] }, { name: 'Solo 4', players: [] },
+      { name: 'UQTAS',    players: ['Soorya Ammanur Madapoosi', 'Muheen Siva', 'Aksharan S', 'Kirithisan Rameshkumar'] },
+      { name: 'Solo 1',   players: ['Adrian', 'Anshu', 'Aarjan', 'Nakul', 'Shauyon', 'Aryan', 'Kent', 'Zedrick'] },   // Adrian's team { name: 'Solo 2', players: [] }, { name: 'Solo 3', players: [] }, { name: 'Solo 4', players: [] },
     ],
     // Four teams, from the cricket committee's sheet. Execs: Mathisha and
     // Thihan (UQSLA), Rushi (UQGS), Prabhjot (UQPA, for the Mixed Team).
@@ -2973,17 +2973,25 @@
         [['UQSLA', 'UQPA'], ['UQISS', 'UQTELS'], ['UQISC', 'UQNAATAK'], ['UQIC', 'UQNC'], ['Solo 1', 'Solo 2'], ['Solo 3', 'Solo 4']],
         [['UQSLA', 'UQTELS'], ['UQPA', 'UQISS'], ['UQISC', 'UQNC'], ['UQNAATAK', 'UQIC'], ['UQGS', 'UQPSA'], ['UQTAS', 'UQAPS']]],
       times: ['3:00 pm', '3:25 pm', '3:50 pm', '4:15 pm'], rests: ['A', 'B', 'C', 'D'], win: 3,
-      semis: [['A', 'C'], ['B', 'D']], semiTime: '4:50 pm', finalTime: '5:30 pm',
-      note: 'Field 7, six small pitches. 22-minute games, 3-minute changeovers. Win 3, draw 1; group winners go through. Knockout draws go to penalties — add one to the shootout winner\'s score.' },
+      seeded: true, semis: [['Seed 1', 'Seed 4'], ['Seed 2', 'Seed 3']], semiTime: '4:50 pm', finalTime: '5:30 pm',
+      note: 'Field 7, six small pitches. Group games 22 minutes with 3-minute changeovers; win 3, draw 1. The four group winners are seeded by points, then goal difference, then goals scored: Seed 1 v Seed 4 and Seed 2 v Seed 3. Semis and final are 30 minutes (15-minute halves). Knockout draws go to penalties — add one to the shootout winner\'s score.' },
     ck: { rounds: [[['UQSLA', 'UQISC']], [['UQGS', 'Mixed Team']], [['UQSLA', 'UQGS']], [['UQISC', 'Mixed Team']]], times: ['6:30 pm', '7:00 pm', '7:30 pm', '8:00 pm'], finalTime: null } };
   // group tables and who's through, from the scores (football)
   const groupOf = (sport, name) => { const g = (ROBIN[sport] || {}).groups || {}; return Object.keys(g).find(k => g[k].includes(name)) || ''; };
   const koWinner = (m) => { const sc = m && m.m && matches[m.m]; return sc && sc.status !== 'live' && sc.sa !== sc.sb ? (sc.sa > sc.sb ? m.a : m.b) : null; };
   function robinKO(sport) {
     const cfg = ROBIN[sport]; const br = brackets[sport] || {}; const G = cfg.rounds.length;
-    const tops = {}; Object.entries(cfg.groups || {}).forEach(([g, names]) => { const t = robinTable(sport, names); tops[g] = t.every(r => r.p >= names.length - 1) ? t[0].name : null; });
+    const tops = {}, winners = [];
+    Object.entries(cfg.groups || {}).forEach(([g, names]) => { const t = robinTable(sport, names); const done = t.every(r => r.p >= names.length - 1); tops[g] = done ? t[0].name : null; winners.push(done ? { g, ...t[0] } : null); });
     const saved = (k, i) => ((br.rounds || [])[k] || [])[i] || {};
-    const semis = (cfg.semis || []).map(([x, y], i) => { const s = saved(G, i); return { a: s.a || tops[x], b: s.b || tops[y], w: s.w || null, m: s.m || null }; });
+    // seeded (the committee's sheet): once every group is done, rank the winners
+    // by points, goal difference, goals scored — 1 v 4, 2 v 3
+    let pairs;
+    if (cfg.seeded) {
+      const s = winners.every(Boolean) ? winners.slice().sort((a, b) => b.pts - a.pts || b.diff - a.diff || b.rf - a.rf || a.g.localeCompare(b.g)) : null;
+      pairs = s ? [[s[0].name, s[3].name], [s[1].name, s[2].name]] : [[null, null], [null, null]];
+    } else pairs = (cfg.semis || []).map(([x, y]) => [tops[x], tops[y]]);
+    const semis = pairs.map(([a, b], i) => { const s = saved(G, i); return { a: s.a || a, b: s.b || b, w: s.w || null, m: s.m || null }; });
     const f = saved(G + 1, 0);
     return { tops, semis, final: { a: f.a || koWinner(semis[0]), b: f.b || koWinner(semis[1]), w: f.w || null, m: f.m || null } };
   }
@@ -4637,7 +4645,7 @@ If someone asks how to score a match, walk them through these steps and set "sho
       else { const wn = sc.sa > sc.sb ? m.a : m.b, ln = sc.sa > sc.sb ? m.b : m.a; rows[wn].w++; rows[ln].l++; }
     }));
     return Object.entries(rows).map(([name, x]) => ({ name, ...x, pts: x.w * (cfg.win || 2) + x.t, diff: x.rf - x.ra }))
-      .sort((a, b) => b.pts - a.pts || b.diff - a.diff || a.name.localeCompare(b.name));
+      .sort((a, b) => b.pts - a.pts || b.diff - a.diff || b.rf - a.rf || a.name.localeCompare(b.name));   // points, goal difference, goals scored
   }
   function robinCard(sport, editable) {
     const cfg = ROBIN[sport]; const br = brackets[sport] || { rounds: [] }; const color = CATS.sport.color; const d = DUTIES[sport] || {};
@@ -4670,7 +4678,7 @@ If someone asks how to score a match, walk them through these steps and set "sho
       const G = cfg.rounds.length; const ko = robinKO(sport);
       const grp = cfg.rounds.map((pairs, k) => { const saved = (br.rounds || [])[k] || [];
         return `<div class="round"><h4>${esc(cfg.times[k])} — Group ${esc(cfg.rests[k])} rests</h4><div class="games">${pairs.map(([a, b], i) => cell(saved[i] || { a, b, w: null, m: null }, k, i, `Field ${i + 1} · Group ${groupOf(sport, a)}`)).join('')}</div></div>`; }).join('');
-      const semis = `<div class="round"><h4>${esc(cfg.semiTime)} — Semi-finals</h4><div class="games">${ko.semis.map((m, i) => cell(m, G, i, `Winner ${cfg.semis[i][0]} v winner ${cfg.semis[i][1]}`)).join('')}</div></div>`;
+      const semis = `<div class="round"><h4>${esc(cfg.semiTime)} — Semi-finals</h4><div class="games">${ko.semis.map((m, i) => cell(m, G, i, cfg.seeded ? `${cfg.semis[i][0]} v ${cfg.semis[i][1]}` : `Winner ${cfg.semis[i][0]} v winner ${cfg.semis[i][1]}`)).join('')}</div></div>`;
       const fin = `<div class="round"><h4>${esc(cfg.finalTime)} — Final</h4><div class="games">${cell(ko.final, G + 1, 0, 'Semi-final winners')}</div></div>`;
       const tables = Object.entries(cfg.groups).map(([g, names]) => { const t = robinTable(sport, names);
         return `<div><h4 style="margin:6px 0 4px">Group ${g}</h4><table class="rgrid robin"><tr><th>Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>Pts</th><th>GD</th></tr>${t.map((r, i) => `<tr class="${i === 0 && r.p ? 'top' : ''}"><td>${esc(r.name)}</td><td>${r.p}</td><td>${r.w}</td><td>${r.t}</td><td>${r.l}</td><td>${r.pts}</td><td>${r.diff > 0 ? '+' : ''}${r.diff}</td></tr>`).join('')}</table></div>`; }).join('');
