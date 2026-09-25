@@ -1650,7 +1650,7 @@
           tasks:['Scorekeeping', 'Rotating teams', 'Ball bag'] },
     'fb-score': { cat:'sport', icon:'football', name:'Football scores', where:'Field 7 sideline — results desk', do:'Get every result the moment a game ends: from the ref, into the committee\'s score sheet, and into the app (Scores tab → Football → tap the match, + for each goal, End match) so the public page and the group tables are right. The semi-final draw comes from your sheet.',
           tasks:['Results from refs', 'Score sheet', 'App scores'] },
-    fb: { cat:'sport', name:'Football', where:'Field 7 (the main oval)', do:'One referee per pitch — you\'re on one of Field 1 – 6 on the infield. Group games are 22 minutes plus a 3-minute changeover, starting 3:00, 3:25, 3:50 and 4:15; then semis 4:50 – 5:20 (two games, two refs) and the final 5:30 – 6:00 (one ref). Blow up on time, and tell the results desk the score the second it ends.',
+    fb: { cat:'sport', name:'Football', where:'Field 7 (the main oval)', do:'One referee per pitch on Fields 1 – 4 of the infield; anyone spare runs the clock and the sideline. Every game is 30 minutes (two 15-minute halves): group games start 3:00, 3:35 and 4:10; then semis 4:50 – 5:20 (two games, two refs) and the final 5:30 – 6:00 (one ref). Blow up on time, and tell the results desk the score the second it ends.',
           tasks:['Refereeing', 'Sideline clear', 'Team swaps'] },
     ck: { cat:'sport', icon:'cricket', name:'Cricket', where:'Field 7, after the football', do:'Four of you: bowler\'s-end umpire, square-leg umpire, scorer and a helper. Set up and brief the teams from 6:10, then one 20-minute game at a time with a 10-minute changeover: UQSLA v UQISC 6:30, UQGS v Mixed Team 7:00, UQSLA v UQGS 7:30, UQISC v Mixed Team 8:00. Crews swap at 7:30. Six overs a side, seven on the field max, soft tennis balls only. Score it in the app; the scorer works out the winner 8:20 – 8:30, announced 8:30, then pack down.',
           tasks:['Umpiring', 'Getting people off the field', 'Spectators behind cones'] },
@@ -2022,7 +2022,7 @@
   // Same cards as Team → On duty, minus the people. tags are visitor-facing.
   const WHATS_ON = [
     { h: 'Sports', items: [
-      { cat: 'sport', info: 'sport:fb', name: 'Football',   where: 'Field 7',                 blurb: '16 teams in four groups on six pitches, then semi-finals and a final. 3:00 – 6:00 pm.', tags: ['Six pitches', 'Groups 3:00 – 4:40', 'Semis 4:50', 'Final 5:30'] },
+      { cat: 'sport', info: 'sport:fb', name: 'Football',   where: 'Field 7',                 blurb: '12 teams in four groups of three on four pitches, then semi-finals and a final. 30-minute games, 3:00 – 6:00 pm.', tags: ['Four pitches', 'Groups 3:00 – 4:45', 'Semis 4:50', 'Final 5:30'] },
       { cat: 'sport', icon: 'volleyball', info: 'sport:vb', name: 'Volleyball', where: 'Beach volleyball courts', blurb: 'Eleven teams, knockout: all three first-round games at 3:15, quarter-finals 3:35 and 3:55, semis 3:55 and 4:15, then the final and the bronze-medal match side by side at 4:35. Winners on the performance stage at 5:05.', tags: ['First round 3:15', 'Final 4:35', 'Winners 5:05'] },
       { cat: 'sport', icon: 'cricket', info: 'sport:ck', name: 'Cricket',    where: 'Field 7',                 blurb: 'Four teams — UQSLA, UQISC, UQGS and a Mixed Team. Round robin, one game every half hour from 6:30: six overs a side, seven on the field, soft tennis balls. Bring your own gear if you have it.', tags: ['6:30 – 8:20', '4 matches', 'Winner 8:30'] },
     ]},
@@ -2929,23 +2929,21 @@
       { name: "Ameya's team", players: ['Ameya Eldhose', 'Elvin Binoy', 'Charan', 'Dhruvesh Vinaikumar', 'Devyn Ramos', 'Aravind KB', 'Jaydip Zalavadiya'] },
       { name: 'Solos',        players: ['Uday', 'Jai Bhatia', 'Sam Klaassen', 'Priyansh', 'Tanveer Salaria', 'Anshraj Srivatava', 'Matvi Jani'] },
     ],
-    // From the football committee's final sheet. The "combined" lists are split
-    // by the club in their notes column, to match the fixtures. Solo 1 is
-    // Adrian's team. Solos 2–4, UQIC, UQAPS, UQISS and UQNAATAK fill on the day.
+    // 12 teams, 4 groups of 3 (Sanuli, festival morning). Group D and UQNAATAK
+    // have no players yet — they fill on the day or drop out.
     fb: [
       { name: 'UQSLA',    soc: 'UQSLA',  players: ['Hiruna', 'Ashane', 'Pamod Thinura', 'Sam Klaassen', 'Senith Ranasinghe', 'Dhruvesh Vinaikumar', 'Ridwaan', 'Deneth Perera', 'Muhammad Rassool', 'Akira'] },
-      { name: 'UQISS',    soc: 'UQISS',  players: [] },
-      { name: 'UQTELS',   soc: 'UQTELS', players: ['Hemish Srikanth', 'Lochan', 'Hitesh Paritala', 'Chika', 'Ede Warneke'] },
-      { name: 'UQPA',     soc: 'UQPA',   players: ['Manveer', 'Joban Kahlon', 'Ashish Tripathi'] },
-      { name: 'UQISC',    soc: 'UQISC',  players: ['Delvin Shibu', 'Rhythm Pandya', 'Faizan Ahmad', 'Nakul Gireesh', 'Karthik', 'Priyansh', 'Ahan', 'Ishan Singh'] },
-      { name: 'UQIC',     players: [] },
-      { name: 'UQNC',     soc: 'UQNC',   players: ['Prayush Adhikari', 'Aravinth Renganathan', 'Bhumik Sarma', 'Prasant Adhikari', 'Kabhishek Shanthakumar'] },
-      { name: 'UQNAATAK', soc: 'UQNAATAK', players: [] },
       { name: 'UQGS',     soc: 'UQGS',   players: ['Naman Oza', 'Krish', 'Jaydeep Gohel', 'Nikhil Khatri', 'Samarth Patel', 'Ronak Ashara', 'Shahzeb Hussain'] },
+      { name: 'UQTELS',   soc: 'UQTELS', players: ['Hemish Srikanth', 'Lochan', 'Hitesh Paritala', 'Chika', 'Ede Warneke'] },
+      { name: 'UQISC',    soc: 'UQISC',  players: ['Delvin Shibu', 'Rhythm Pandya', 'Faizan Ahmad', 'Nakul Gireesh', 'Karthik', 'Priyansh', 'Ahan', 'Ishan Singh'] },
+      { name: 'UQPSA',    soc: 'UQPSA',  players: ['Abdullah Tariq', 'Ali Abbasi', 'Aban Shahzad', 'Muzamil Rafiq'] },
+      { name: "Adrian's Team", players: ['Adrian', 'Anshu', 'Aarjan', 'Nakul', 'Shauyon', 'Aryan', 'Kent', 'Zedrick'] },
+      { name: 'UQNC',     soc: 'UQNC',   players: ['Prayush Adhikari', 'Aravinth Renganathan', 'Bhumik Sarma', 'Prasant Adhikari', 'Kabhishek Shanthakumar'] },
+      { name: 'UQPA/UQTAS', players: ['Manveer', 'Joban Kahlon', 'Ashish Tripathi', 'Soorya Ammanur Madapoosi', 'Muheen Siva', 'Aksharan S', 'Kirithisan Rameshkumar'] },
+      { name: 'UQNAATAK', soc: 'UQNAATAK', players: [] },
+      { name: 'UQISS',    soc: 'UQISS',  players: [] },
       { name: 'UQAPS',    players: [] },
-      { name: 'UQPSA',    soc: 'UQPSA',  players: ['Abdullah Tariq', 'Ali Abbasi', 'Aban Shahzad', 'Muzamil Rafiq', 'Ronak Ashara', 'Shahzeb Hussain'] },
-      { name: 'UQTAS',    players: ['Soorya Ammanur Madapoosi', 'Muheen Siva', 'Aksharan S', 'Kirithisan Rameshkumar'] },
-      { name: 'Solo 1',   players: ['Adrian', 'Anshu', 'Aarjan', 'Nakul', 'Shauyon', 'Aryan', 'Kent', 'Zedrick'] },   // Adrian's team { name: 'Solo 2', players: [] }, { name: 'Solo 3', players: [] }, { name: 'Solo 4', players: [] },
+      { name: 'UQIC',     players: [] },
     ],
     // Four teams, from the cricket committee's sheet. Execs: Mathisha and
     // Thihan (UQSLA), Rushi (UQGS), Prabhjot (UQPA, for the Mixed Team).
@@ -2966,15 +2964,16 @@
     // Football, from the committee's six-field schedule: four groups of four,
     // each game on its own field (the pair's position = the field), one group
     // resting each slot. Group winners go through: semis 4:50, final 5:30.
-    fb: { groups: { A: ['UQSLA', 'UQISS', 'UQTELS', 'UQPA'], B: ['UQISC', 'UQIC', 'UQNC', 'UQNAATAK'], C: ['UQGS', 'UQAPS', 'UQPSA', 'UQTAS'], D: ['Solo 1', 'Solo 2', 'Solo 3', 'Solo 4'] },
+    fb: { groups: { A: ['UQSLA', 'UQGS', 'UQTELS'], B: ['UQISC', 'UQPSA', "Adrian's Team"], C: ['UQNC', 'UQPA/UQTAS', 'UQNAATAK'], D: ['UQISS', 'UQAPS', 'UQIC'] },
+      // one game per group per slot on Fields 1–4; each team sits out one slot
+      // (SLA and ISC at 3:00 and NC at 3:35, for their volleyball)
       rounds: [
-        [['UQISC', 'UQIC'], ['UQNC', 'UQNAATAK'], ['UQGS', 'UQAPS'], ['UQPSA', 'UQTAS'], ['Solo 1', 'Solo 4'], ['Solo 2', 'Solo 3']],
-        [['UQSLA', 'UQISS'], ['UQTELS', 'UQPA'], ['UQGS', 'UQTAS'], ['UQAPS', 'UQPSA'], ['Solo 1', 'Solo 3'], ['Solo 4', 'Solo 2']],
-        [['UQSLA', 'UQPA'], ['UQISS', 'UQTELS'], ['UQISC', 'UQNAATAK'], ['UQIC', 'UQNC'], ['Solo 1', 'Solo 2'], ['Solo 3', 'Solo 4']],
-        [['UQSLA', 'UQTELS'], ['UQPA', 'UQISS'], ['UQISC', 'UQNC'], ['UQNAATAK', 'UQIC'], ['UQGS', 'UQPSA'], ['UQTAS', 'UQAPS']]],
-      times: ['3:00 pm', '3:25 pm', '3:50 pm', '4:15 pm'], rests: ['A', 'B', 'C', 'D'], win: 3,
+        [['UQGS', 'UQTELS'], ['UQPSA', "Adrian's Team"], ['UQNC', 'UQPA/UQTAS'], ['UQISS', 'UQAPS']],
+        [['UQSLA', 'UQGS'], ['UQISC', 'UQPSA'], ['UQPA/UQTAS', 'UQNAATAK'], ['UQAPS', 'UQIC']],
+        [['UQSLA', 'UQTELS'], ['UQISC', "Adrian's Team"], ['UQNC', 'UQNAATAK'], ['UQISS', 'UQIC']]],
+      times: ['3:00 pm', '3:35 pm', '4:10 pm'], rests: null, win: 3, spareRunnerUp: true,
       seeded: true, semis: [['Seed 1', 'Seed 4'], ['Seed 2', 'Seed 3']], semiTime: '4:50 pm', finalTime: '5:30 pm',
-      note: 'Field 7, six small pitches. Group games 22 minutes with 3-minute changeovers; win 3, draw 1. The four group winners are seeded by points, then goal difference, then goals scored: Seed 1 v Seed 4 and Seed 2 v Seed 3. Semis and final are 30 minutes (15-minute halves). Knockout draws go to penalties — add one to the shootout winner\'s score.' },
+      note: 'Field 7, Fields 1–4. Every game is 30 minutes (two 15-minute halves); group slots start 3:00, 3:35 and 4:10. Groups of three: win 3, draw 1. The four group winners are seeded by points, goal difference, goals scored — Seed 1 v Seed 4, Seed 2 v Seed 3. If a group doesn\'t play (Group D has no confirmed teams), the best second-placed team takes its place. A team not there at kick-off loses 3–0. Knockout draws go to penalties, three each then sudden death — add one to the shootout winner\'s score.' },
     ck: { rounds: [[['UQSLA', 'UQISC']], [['UQGS', 'Mixed Team']], [['UQSLA', 'UQGS']], [['UQISC', 'Mixed Team']]], times: ['6:30 pm', '7:00 pm', '7:30 pm', '8:00 pm'], finalTime: null } };
   // group tables and who's through, from the scores (football)
   const groupOf = (sport, name) => { const g = (ROBIN[sport] || {}).groups || {}; return Object.keys(g).find(k => g[k].includes(name)) || ''; };
@@ -2988,7 +2987,18 @@
     // by points, goal difference, goals scored — 1 v 4, 2 v 3
     let pairs;
     if (cfg.seeded) {
-      const s = winners.every(Boolean) ? winners.slice().sort((a, b) => b.pts - a.pts || b.diff - a.diff || b.rf - a.rf || a.g.localeCompare(b.g)) : null;
+      let ws = winners;
+      if (cfg.spareRunnerUp && !ws.every(Boolean)) {
+        // a group with no games played while every other group is finished:
+        // the best second-placed team takes its semi-final place
+        const G2 = Object.entries(cfg.groups); const played = (names) => robinTable(sport, names).some(r => r.p > 0);
+        const idle = G2.filter(([g, names], i) => !winners[i] && !played(names));
+        if (idle.length && winners.filter(Boolean).length + idle.length === G2.length) {
+          const seconds = G2.filter((_, i) => winners[i]).map(([g, names]) => ({ g, ...robinTable(sport, names)[1] })).sort((a, b) => b.pts - a.pts || b.diff - a.diff || b.rf - a.rf);
+          ws = winners.filter(Boolean).concat(seconds.slice(0, idle.length));
+        }
+      }
+      const s = ws.length === 4 && ws.every(Boolean) ? ws.slice().sort((a, b) => b.pts - a.pts || b.diff - a.diff || b.rf - a.rf || a.g.localeCompare(b.g)) : null;
       pairs = s ? [[s[0].name, s[3].name], [s[1].name, s[2].name]] : [[null, null], [null, null]];
     } else pairs = (cfg.semis || []).map(([x, y]) => [tops[x], tops[y]]);
     const semis = pairs.map(([a, b], i) => { const s = saved(G, i); return { a: s.a || a, b: s.b || b, w: s.w || null, m: s.m || null }; });
@@ -3572,7 +3582,7 @@
   const FEST_NOTES = `# Spice Road Experience — notes for Spicy
 The Spice Road Experience is a one-day cultural festival at the University of Queensland run by student societies: UQISC (Indian Students' Club) and its partner society UQSLA (Sri Lankan Association), with ten clubs running marquees. It's outdoors on a sports ground from mid-afternoon into the evening: club stalls, food and fundraising stalls, volleyball, football and cricket competitions, and a performance stage. The people using this app are execs — student volunteers rostered onto duties in 30-minute blocks.
 Organisers: Nandos (Thirunanthanan Thirumurugan — runs logistics, head of football), Archita, Sanuka (UQSLA president) and Prabhas. Sandes built the app and handles anything technical. Questions the notes don't answer should go to Sandes (there's a Message Sandes button under every answer).
-Programme: bump-in from 1:00 pm (food trucks 1:00 – 1:40, business stalls 1:50 – 2:20, club stalls 2:00), all execs at the performance stage 2:45 (Sandes runs through the app), MJ's speech 2:50, doors 3:00. Team photos at each club's marquee: UQPA 4:05, UQISS 4:20, UQGS 5:10, UQPSA 5:15, UQTELS 5:20, UQSLA 5:40, UQISC 6:35, UQNAATAK 6:45, UQNC 6:50 — five minutes, then back to your duty. Football 3:00 – 6:00 on Field 7, six small pitches (16 teams, groups then semis 4:50 and final 5:30); referees are execs. Tickets are Humanitix QR codes scanned at the gate. Volleyball on the beach volleyball courts: eleven teams, knockout: all three first-round games at 3:15 (Ameya's team v UQISS, UQSLA v UQISC, Sargun's team v Solos), three quarter-finals at 3:35, the fourth (Shriyans's v Aum's) and a semi at 3:55, the other semi 4:15. 15-minute games with 5 minutes between: all three first-round games at 3:15, quarter-finals 3:35 and 3:55, semis 3:55 and 4:15, final and bronze-medal match (semi losers) side by side at 4:35, winners announced on the performance stage at 5:05. Shriyans, Kartik, Shane and Devyn each play for two teams; the draw keeps their teams from playing at the same time. Performances on the stage 4:30 – 5:05 and 5:40 – 6:10 (break in between); winners and the raffle 8:30 – 8:40. Cricket (T6, tennis ball) on Field 7, which it takes over once football finishes: four teams (UQISC, UQGS, UQSLA, Mixed Team), Devansh briefs the cricket crew at 6:10 and is on cricket for the first two games, then it's self-run. One game at a time: UQSLA v UQISC 6:30, UQGS v Mixed Team 7:00, UQSLA v UQGS 7:30, UQISC v Mixed Team 8:00. Six overs a side, seven on the field max, soft tennis balls only. 20-minute games with 10-minute changeovers; the crew swaps at 7:30. No final: top of the table after match 4 wins, announced 8:30. Raffle drawn 8:40. Bump-out 8:50 – 9:40. Food trucks (7) and business stalls (6) are on Field 6 all day, club marquees too (numbered 1 – 12). First aid: the UQIC venue manager at the First Aid marquee on Field 6. Security: Tru Security.
+Programme: bump-in from 1:00 pm (food trucks 1:00 – 1:40, business stalls 1:50 – 2:20, club stalls 2:00), all execs at the performance stage 2:45 (Sandes runs through the app), MJ's speech 2:50, doors 3:00. Team photos at each club's marquee: UQPA 4:05, UQISS 4:20, UQGS 5:10, UQPSA 5:15, UQTELS 5:20, UQSLA 5:40, UQISC 6:35, UQNAATAK 6:45, UQNC 6:50 — five minutes, then back to your duty. Football 3:00 – 6:00 on Field 7, four small pitches (12 teams in four groups of three, 30-minute games at 3:00, 3:35 and 4:10, then seeded semis 4:50 and final 5:30); referees are execs. Tickets are Humanitix QR codes scanned at the gate. Volleyball on the beach volleyball courts: eleven teams, knockout: all three first-round games at 3:15 (Ameya's team v UQISS, UQSLA v UQISC, Sargun's team v Solos), three quarter-finals at 3:35, the fourth (Shriyans's v Aum's) and a semi at 3:55, the other semi 4:15. 15-minute games with 5 minutes between: all three first-round games at 3:15, quarter-finals 3:35 and 3:55, semis 3:55 and 4:15, final and bronze-medal match (semi losers) side by side at 4:35, winners announced on the performance stage at 5:05. Shriyans, Kartik, Shane and Devyn each play for two teams; the draw keeps their teams from playing at the same time. Performances on the stage 4:30 – 5:05 and 5:40 – 6:10 (break in between); winners and the raffle 8:30 – 8:40. Cricket (T6, tennis ball) on Field 7, which it takes over once football finishes: four teams (UQISC, UQGS, UQSLA, Mixed Team), Devansh briefs the cricket crew at 6:10 and is on cricket for the first two games, then it's self-run. One game at a time: UQSLA v UQISC 6:30, UQGS v Mixed Team 7:00, UQSLA v UQGS 7:30, UQISC v Mixed Team 8:00. Six overs a side, seven on the field max, soft tennis balls only. 20-minute games with 10-minute changeovers; the crew swaps at 7:30. No final: top of the table after match 4 wins, announced 8:30. Raffle drawn 8:40. Bump-out 8:50 – 9:40. Food trucks (7) and business stalls (6) are on Field 6 all day, club marquees too (numbered 1 – 12). First aid: the UQIC venue manager at the First Aid marquee on Field 6. Security: Tru Security.
 Escalation: anything medical or dangerous — call 000 first, then tell an organiser. Emergency contacts are in the app under Settings → Emergency (never repeat phone numbers; point people there). Lost property, first aid, behaviour and equipment problems get logged under Settings → Log incident.`;
   const strip = (html) => { const d = document.createElement('div'); d.innerHTML = html; return d.textContent; };
   function spicyNotes() {
@@ -4677,7 +4687,7 @@ If someone asks how to score a match, walk them through these steps and set "sho
     if (cfg.groups) {
       const G = cfg.rounds.length; const ko = robinKO(sport);
       const grp = cfg.rounds.map((pairs, k) => { const saved = (br.rounds || [])[k] || [];
-        return `<div class="round"><h4>${esc(cfg.times[k])} — Group ${esc(cfg.rests[k])} rests</h4><div class="games">${pairs.map(([a, b], i) => cell(saved[i] || { a, b, w: null, m: null }, k, i, `Field ${i + 1} · Group ${groupOf(sport, a)}`)).join('')}</div></div>`; }).join('');
+        return `<div class="round"><h4>${esc(cfg.times[k])} — ${cfg.rests ? 'Group ' + esc(cfg.rests[k]) + ' rests' : 'Slot ' + (k + 1)}</h4><div class="games">${pairs.map(([a, b], i) => cell(saved[i] || { a, b, w: null, m: null }, k, i, `Field ${i + 1} · Group ${groupOf(sport, a)}`)).join('')}</div></div>`; }).join('');
       const semis = `<div class="round"><h4>${esc(cfg.semiTime)} — Semi-finals</h4><div class="games">${ko.semis.map((m, i) => cell(m, G, i, cfg.seeded ? `${cfg.semis[i][0]} v ${cfg.semis[i][1]}` : `Winner ${cfg.semis[i][0]} v winner ${cfg.semis[i][1]}`)).join('')}</div></div>`;
       const fin = `<div class="round"><h4>${esc(cfg.finalTime)} — Final</h4><div class="games">${cell(ko.final, G + 1, 0, 'Semi-final winners')}</div></div>`;
       const tables = Object.entries(cfg.groups).map(([g, names]) => { const t = robinTable(sport, names);
