@@ -1899,7 +1899,7 @@
       let o = ppl.slice();
       taken.forEach(sw => {
         if (sw.duty === id && o.includes(sw.from)) { o = o.filter(p => p !== sw.from && p !== sw.to); o.push(sw.to); }
-        else if (o.includes(sw.to)) { o = o.filter(p => p !== sw.to); if (id !== 'logi' && !o.includes(sw.from)) o.push(sw.from); }   // the requester takes the taker's old duty — unless the taker was logistics, then they're just free
+        else if (o.includes(sw.to)) { o = o.filter(p => p !== sw.to); if (id !== 'logi' && !(sw.auto && swapMode(sw) === 'free') && !o.includes(sw.from)) o.push(sw.from); }   // the requester takes the taker's old duty — unless the taker was logistics, then they're just free
       });
       return [id, o];
     });
@@ -2391,7 +2391,7 @@
     const a = assignmentFor(me.first, block);
     const sx = swapOf(me.first, block);
     $('now-card').innerHTML = dutyCard(tentative(a, block), ({ soon: 'soon', away: 'away' }[tentative(a, block).id] || '') + (sx ? ' swapped' : ''))
-      + (sx ? `<div class="swapped-note">⇄ Swapped with <b>${esc(full(sx.other))}</b> — this is your duty now.</div>` : '') + controlsHtml(a)
+      + (sx ? `<div class="swapped-note">⇄ Swapped with <b>${esc(full(sx.other))}</b> — this is your duty now.${sx.sw.auto ? ' Nobody took the request within 5 minutes, so the app picked you from crowd & support / free execs.' : ''}</div>` : '') + controlsHtml(a)
       + (a.id === 'away' && db && block >= 0 && block < BLOCKS ? `<div class="ctl-row" style="--c:${CATS.away.color}"><span></span><button type="button" class="btn-small" id="im-here">I'm still here — give me a duty</button></div>` : '');
     if ($('im-here')) $('im-here').addEventListener('click', () => imHere(block));
     renderCheckin();
@@ -4465,6 +4465,45 @@ If someone asks how to score a match, walk them through these steps and set "sho
         say(`✓ Swap confirmed — ${range(sw.block)}.\n\nYou're now on ${d.name || sw.duty} (${d.where || ''}). ${gave}\n\nIt's on both your rosters now, marked with a dashed line.`);
       });
   }
+  // ---- Auto-resolve: a swap or call for help nobody's answered in 5 minutes ----
+  // Every phone runs this; the pick is the same everywhere and a transaction
+  // makes sure only one phone commits it. Swaps: someone on crowd & support
+  // (or on a break) who can do the duty takes it. Help: one more on that duty,
+  // pulled from crowd first, then breaks (the staffing override does the pick).
+  const AUTO_MS = 5 * 60 * 1000;
+  function autoPick(sw) {
+    const i = sw.block; const rows = rowsFor(i); const d = DUTIES[sw.duty] || {}; const club = d.club;
+    const dutyOf = (f) => (rows.find(([, ppl]) => ppl.includes(f)) || [null])[0];
+    const asksFromCrowd = sw.duty.startsWith('cr-');
+    const pool = PEOPLE.map(p => p.first).filter(f => f !== sw.from && onSite(f, i) && canDo(f, sw.duty) && !(sw.declines || {})[f] && !swapOf(f, i)
+        && (!club || (byFirst[f.toLowerCase()].s.includes(club) && !(byFirst[f.toLowerCase()].x || []).includes(club)))
+        && (!sw.duty.startsWith('play-') || sameSociety(f, sw.from)))
+      .map(f => ({ f, d: dutyOf(f) }))
+      .filter(x => asksFromCrowd ? !x.d : (!x.d || x.d.startsWith('cr-')));
+    // crowd first (nobody loses a break), then the lightest day
+    pool.sort((a, b) => (a.d ? 0 : 1) - (b.d ? 0 : 1) || baseLoad(a.f) - baseLoad(b.f) || a.f.localeCompare(b.f));
+    return pool.length ? pool[0].f : null;
+  }
+  function autoResolve() {
+    if (!db || !me || !ROSTER.length) return;
+    const lb = liveBlock(); const t = Date.now();
+    const current = (x) => x.status === 'open' && t - (x.t || 0) >= AUTO_MS && (lb === null || x.block >= lb) && stillOn(x);
+    Object.entries(swaps).forEach(([id, sw]) => {
+      if (!current(sw)) return;
+      const f = autoPick(sw); if (!f) return;
+      ref('swaps/' + id).transaction(cur => { if (!cur || cur.status !== 'open') return; cur.status = 'taken'; cur.to = f; cur.tt = Date.now(); cur.auto = true; return cur; }, () => {});
+    });
+    Object.entries(helps).forEach(([id, h]) => {
+      if (!current(h)) return;
+      const key = h.duty.startsWith('cr-') ? 'crowd' : h.duty;
+      const rows = rowsFor(h.block);
+      const have = key === 'crowd' ? rows.filter(r => r[0].startsWith('cr-')).reduce((k, r) => k + r[1].length, 0) : ((rows.find(r => r[0] === key) || [0, []])[1]).length;
+      ref('help/' + id).transaction(cur => { if (!cur || cur.status !== 'open') return; cur.status = 'closed'; cur.tt = Date.now(); cur.auto = true; return cur; }, (err, committed) => {
+        if (committed) ref('staffing/' + h.block + '/' + key).transaction(v => Math.min(60, Math.max(v || 0, have + 1)));
+      });
+    });
+  }
+  setInterval(autoResolve, 30000);
   const swapMode = (sw) => sw.mode || ((DUTIES[sw.duty] || {}).cat === 'play' ? 'team' : 'free');
   const swapsForMe = () => Object.entries(swaps).filter(([, sw]) => {
     if (!me || sw.status !== 'open' || sw.from === me.first || (sw.declines || {})[me.first] || !stillOn(sw)) return false;
@@ -4496,7 +4535,7 @@ If someone asks how to score a match, walk them through these steps and set "sho
       const verb = mode === 'team' ? 'needs a sub for' : mode === 'duty' ? `would rather be on <b>${esc(wantNames(sw))}</b> than` : mode === 'any' ? 'wants a swap out of' : 'wants a break from';
       const acts = role === 'take'
         ? `<div class="acts"><button type="button" class="yes" data-take="${id}">${TICK} ${play ? 'Sub me in' : onDuty ? 'Swap with me' : "I'll take it"}</button><button type="button" class="no" data-decline="${id}">${CROSS} Not me</button></div>`
-        : sw.status === 'taken' ? `<span class="state ok">${esc(sw.to)} ${play ? 'subbed in' : onDuty ? 'swapped in' : 'took it'}</span>`
+        : sw.status === 'taken' ? `<span class="state ok">${esc(sw.to)} ${play ? 'subbed in' : onDuty ? 'swapped in' : 'took it'}${sw.auto ? ' · picked automatically' : ''}</span>`
         : `<span class="state">Open — waiting for ${waitingFor}</span>`;
       return `<div class="swap" style="--c:${color}">${dutyIcon(d, 'sm')}<span class="who-txt"><b>${esc(sw.from)}</b> ${verb} <b>${esc(d.name || sw.duty)}</b>${play ? ` <span class="fine">· ${esc((byFirst[sw.from.toLowerCase()] || {s: []}).s.join(' · '))} team</span>` : ''}</span><span class="when">${range(sw.block)} · ${esc(d.where || '')}</span>${trade}${acts}</div>`;
     };

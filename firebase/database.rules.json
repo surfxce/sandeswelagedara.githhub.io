@@ -120,6 +120,9 @@
           },
           "want": {
             ".validate": "newData.isString() && newData.val().length <= 200"
+          },
+          "auto": {
+            ".validate": "newData.isBoolean()"
           }
         }
       },
@@ -158,6 +161,9 @@
           },
           "$other": {
             ".validate": false
+          },
+          "auto": {
+            ".validate": "newData.isBoolean()"
           }
         }
       },
