@@ -1,11 +1,9 @@
 // Offline shell for the Spice Road Experience.
 // The page and its assets are cached so the app opens with no signal; the
 // page itself is network-first so a deploy is picked up as soon as there is
-// signal. Firebase traffic is never cached (it has its own live channel).
-const CACHE = 'spice-road-v1';
-const SHELL = ['./', './index.html', './map.jpg', './roster.enc', './manifest.json', './icon-192.png', './icon-512.png',
-  'https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js',
-  'https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js'];
+// signal. (The festival's over — the page no longer talks to a database.)
+const CACHE = 'spice-road-v2';
+const SHELL = ['./', './index.html', './map.jpg', './roster.enc', './manifest.json', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting())); });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
