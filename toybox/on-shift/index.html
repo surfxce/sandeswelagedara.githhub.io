@@ -430,7 +430,7 @@
   @keyframes al-bell { 0% { opacity: 0; transform: scale(.6) rotate(0); } 40% { opacity: 1; transform: scale(1.08) rotate(-14deg); } 60% { transform: rotate(12deg); } 80% { transform: rotate(-6deg); } 100% { transform: none; } }
   .ask-bd { position: fixed; inset: 0; background: rgba(20, 10, 6, .45); z-index: 9000; }
   .ask { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(360px, calc(100vw - 32px)); z-index: 9001; background: #fff; border-radius: 10px; padding: 18px 18px 14px; box-shadow: 0 12px 40px rgba(0,0,0,.3); border-top: 6px solid var(--maroon); }
-  .ask p { margin: 0 0 14px; font-size: 16px; line-height: 1.4; color: var(--ink); }
+  .ask p { margin: 0 0 14px; font-size: 16px; line-height: 1.4; color: var(--ink); white-space: pre-line; }
   .ask-btns { display: flex; justify-content: flex-end; gap: 8px; } .ask-btns button { min-height: 40px; padding: 0 16px; }
   .rc-bar { display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 14px; margin: 0 0 8px; border: 1.5px solid var(--line); border-left: 6px solid #3E7A4A; border-radius: 6px; background: #fff; font-size: 14px; color: var(--ink-2); text-align: left; }
   .rc-bar b { color: var(--ink); } .rc-bar .chev { margin-left: auto; color: var(--ink-3); }
@@ -693,6 +693,10 @@
   .duty-card.away { background: #F6F3EC; box-shadow: none; }
   .duty-card.away .duty-name, .duty-card.away .duty-where, .duty-card.away .duty-do { color: var(--ink-3); }
   .rs-row .bar { width: 8px; height: 100%; min-height: 36px; border-radius: 2px; background: var(--c); }
+  .rs-row.swapped .bar { background: repeating-linear-gradient(to bottom, var(--c) 0 7px, transparent 7px 12px); }
+  .rs-row .sw-tag { display: block; margin-top: 2px; font-weight: 800; color: var(--maroon); }
+  .duty-card.swapped { border-left-style: dashed; }
+  .swapped-note { margin: -2px 0 8px; padding: 8px 12px; background: #fff; border: 1.5px dashed var(--maroon); border-radius: 6px; font-size: 14px; color: var(--ink-2); }
   .rs-row .d { font-weight: 700; font-size: 16px; line-height: 1.25; }
   .rs-row .d small { display: block; font-weight: 500; color: var(--ink-2); font-size: 14px; }
 
@@ -2363,7 +2367,9 @@
     }
     $('runsheet').hidden = false;
     const a = assignmentFor(me.first, block);
-    $('now-card').innerHTML = dutyCard(tentative(a, block), { soon: 'soon', away: 'away' }[tentative(a, block).id] || '') + controlsHtml(a)
+    const sx = swapOf(me.first, block);
+    $('now-card').innerHTML = dutyCard(tentative(a, block), ({ soon: 'soon', away: 'away' }[tentative(a, block).id] || '') + (sx ? ' swapped' : ''))
+      + (sx ? `<div class="swapped-note">⇄ Swapped with <b>${esc(full(sx.other))}</b> — this is your duty now.</div>` : '') + controlsHtml(a)
       + (a.id === 'away' && db && block >= 0 && block < BLOCKS ? `<div class="ctl-row" style="--c:${CATS.away.color}"><span></span><button type="button" class="btn-small" id="im-here">I'm still here — give me a duty</button></div>` : '');
     if ($('im-here')) $('im-here').addEventListener('click', () => imHere(block));
     const rc = canSim() && db ? rollcallSummary() : null;
@@ -2388,12 +2394,13 @@
       const mo = moRow(i);
       // ask ahead: any block that hasn't started, on a duty you can hand over
       const lbNow = liveBlock(); const ahead = db && (lbNow === null || i > lbNow) && !['free', 'away', 'hands', 'photo', 'logi', 'soon'].includes(d.cat);
-      const asked = ahead && mySwapFor(i);
+      const asked = ahead && (mySwapFor(i) || (swapOf(me.first, i) ? [null, { status: 'taken' }] : null));
       const sw = !ahead ? '' : asked ? `<span class="rs-swap asked">${asked[1].status === 'taken' ? 'Swapped' : 'Swap asked'}</span>` : `<button type="button" class="rs-swap" data-swapblock="${i}">Swap</button>`;
       const back = db && d.cat === 'away' && (lbNow === null || i >= lbNow) ? `<button type="button" class="rs-swap" data-here="${i}">I'm still here</button>` : '';
-      return `<div class="rs-row ${i === block ? 'now' : ''} ${d.cat === 'soon' ? 'soon' : ''} ${d.cat === 'away' ? 'away' : ''}" style="--c:${CATS[d.cat].color}">${sw}${back}
+      const sx = swapOf(me.first, i);
+      return `<div class="rs-row ${i === block ? 'now' : ''} ${d.cat === 'soon' ? 'soon' : ''} ${d.cat === 'away' ? 'away' : ''} ${sx ? 'swapped' : ''}" style="--c:${CATS[d.cat].color}">${sw}${back}
         <span class="t">${fmt(DAY_START + i * 30)}</span><span class="bar"></span>${dutyIcon(d, 'sm')}
-        <span class="d">${esc(d.name)}<small>${esc(d.cat === 'free' ? 'Enjoy the festival' : d.cat === 'soon' ? 'Check back closer to the time' : d.cat === 'away' ? 'Not at the festival this block' : d.where + (w ? ' · ' + w : ''))}</small></span>
+        <span class="d">${esc(d.name)}<small>${esc(d.cat === 'free' ? 'Enjoy the festival' : d.cat === 'soon' ? 'Check back closer to the time' : d.cat === 'away' ? 'Not at the festival this block' : d.where + (w ? ' · ' + w : ''))}${sx ? `<span class="sw-tag">⇄ Swapped with ${esc(sx.other)}</span>` : ''}</small></span>
       </div>` + mo;
     }).join('');
     $('rs').querySelectorAll('[data-here]').forEach(b => b.addEventListener('click', () => imHere(+b.dataset.here)));
@@ -3274,8 +3281,7 @@
   $('al-yes').addEventListener('click', () => {
     const a = alertNow; if (!a) return;
     if (a.kind === 'help') { ref('help/' + a.id + '/responders/' + me.first).set(true); closeAlert(); return; }
-    ref('swaps/' + a.id).transaction(sw => { if (!sw || sw.status !== 'open') return; sw.status = 'taken'; sw.to = me.first; sw.tt = Date.now(); return sw; },
-      (err, committed) => { if (!committed) say('Someone else got there first.'); });
+    takeSwap(a.id);
     closeAlert();
   });
 
@@ -4390,6 +4396,26 @@ If someone asks how to score a match, walk them through these steps and set "sho
     const wd = document.querySelector('[data-withdraw]');
     if (wd) wd.addEventListener('click', () => ref('swaps/' + wd.dataset.withdraw).update({ status: 'withdrawn' }));
   }
+  // the swap this exec is in at a block (either side), if it still lines up with the roster
+  function swapOf(first, i) {
+    if (!(i >= 0 && i < BLOCKS)) return null;
+    const sw = Object.values(swaps).find(x => x.status === 'taken' && x.block === i && x.to && (x.from === first || x.to === first)
+      && ROSTER[i].some(([id, ppl]) => id === x.duty && ppl.includes(x.from)));
+    return sw ? { sw, other: sw.from === first ? sw.to : sw.from } : null;
+  }
+  // taking a swap: say plainly that it went through, and what changed
+  function takeSwap(id) {
+    const sw0 = swaps[id]; const i = sw0 ? sw0.block : null;
+    const mine = i != null ? DUTIES[assignmentFor(me.first, i).id] : null;
+    ref('swaps/' + id).transaction(sw => { if (!sw || sw.status !== 'open') return; sw.status = 'taken'; sw.to = me.first; sw.tt = Date.now(); return sw; },
+      (err, committed, snap) => {
+        if (err) { say('Couldn\'t reach the roster — check your connection and try again.'); return; }
+        if (!committed) { say('Someone else got there first.'); return; }
+        const sw = snap.val(); const d = DUTIES[sw.duty] || {};
+        const gave = mine && !['free', 'away'].includes(mine.cat) ? `${sw.from} takes your ${mine.name}.` : `${sw.from} gets a break.`;
+        say(`✓ Swap confirmed — ${range(sw.block)}.\n\nYou're now on ${d.name || sw.duty} (${d.where || ''}). ${gave}\n\nIt's on both your rosters now, marked with a dashed line.`);
+      });
+  }
   const swapMode = (sw) => sw.mode || ((DUTIES[sw.duty] || {}).cat === 'play' ? 'team' : 'free');
   const swapsForMe = () => Object.entries(swaps).filter(([, sw]) => {
     if (!me || sw.status !== 'open' || sw.from === me.first || (sw.declines || {})[me.first] || !stillOn(sw)) return false;
@@ -4425,8 +4451,7 @@ If someone asks how to score a match, walk them through these steps and set "sho
     };
     el.innerHTML = (open.map(x => card(x, 'take')).join('') + mine.map(x => card(x, 'mine')).join('')) || '<p class="fine">No swap requests right now.</p>';
     el.querySelectorAll('[data-take]').forEach(b => b.addEventListener('click', () => {
-      ref('swaps/' + b.dataset.take).transaction(sw => { if (!sw || sw.status !== 'open') return; sw.status = 'taken'; sw.to = me.first; sw.tt = Date.now(); return sw; },
-        (err, committed) => { if (!committed) say('Someone else got there first.'); });
+      takeSwap(b.dataset.take);
     }));
     el.querySelectorAll('[data-decline]').forEach(b => b.addEventListener('click', () => ref('swaps/' + b.dataset.decline + '/declines/' + me.first).set(true)));
   }
