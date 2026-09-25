@@ -428,6 +428,7 @@
   @keyframes al-in { from { opacity: 0; } to { opacity: 1; } }
   @keyframes al-fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
   @keyframes al-bell { 0% { opacity: 0; transform: scale(.6) rotate(0); } 40% { opacity: 1; transform: scale(1.08) rotate(-14deg); } 60% { transform: rotate(12deg); } 80% { transform: rotate(-6deg); } 100% { transform: none; } }
+  .al-mine { margin-top: 10px; padding: 8px 12px; border-radius: 6px; background: var(--paper-2, #F3EEE3); border-left: 4px solid var(--maroon); font-size: 15px; color: var(--ink); text-align: left; }
   .ask-bd { position: fixed; inset: 0; background: rgba(20, 10, 6, .45); z-index: 9000; }
   .ask { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(360px, calc(100vw - 32px)); z-index: 9001; background: #fff; border-radius: 10px; padding: 18px 18px 14px; box-shadow: 0 12px 40px rgba(0,0,0,.3); border-top: 6px solid var(--maroon); }
   .ask p { margin: 0 0 14px; font-size: 16px; line-height: 1.4; color: var(--ink); white-space: pre-line; }
@@ -3199,6 +3200,7 @@
   const stillOn = (x) => { const i = x.block; if (!(i >= 0 && i < BLOCKS)) return false; const base = ROSTER[i].find(([id]) => id === x.duty); return !!(base && base[1].includes(x.from)) || assignmentFor(x.from, i).id === x.duty; };
   const helpsForMe = () => Object.entries(helps).filter(([, h]) => {
     if (!me || h.status !== 'open' || h.from === me.first || !stillOn(h) || (h.declines || {})[me.first] || (h.responders || {})[me.first]) return false;
+    if (!canDo(me.first, h.duty)) return false;
     if (isLogi(me.first, h.block)) return true;
     const club = (DUTIES[h.duty] || {}).club;
     return isFree(me.first, h.block) && (!club || me.s.includes(club));
@@ -3262,10 +3264,14 @@
       $('al-yes').textContent = play ? 'Sub me in' : onDuty ? 'Swap with them' : "I'll take it";
     }
     $('al-where').innerHTML = `<span class="red">${esc(d.name || x.duty)}</span> · ${esc(d.where || '')}`;
+    const mineA = assignmentFor(me.first, x.block); const mineD = DUTIES[mineA.id] || {};
+    const mineLine = !mineD.cat || mineD.cat === 'free' ? `At that time you're <b>on a break</b>.`
+      : mineD.cat === 'away' ? `You're <b>not rostered</b> then.`
+      : `At that time you're on <b>${esc(mineD.name)}</b> · ${esc(mineD.where || '')}${mineA.people.length ? ' · with ' + esc(names(mineA.people)) : ''}.`;
     let detail = range(x.block);
     if (a.kind === 'swap') { const myA = assignmentFor(me.first, x.block); const myD = DUTIES[myA.id] || {}; if (myD.cat && myD.cat !== 'free') detail += ` · you'd take theirs, ${esc(x.from)} ${myD.cat === 'logi' ? 'gets a break' : 'takes your ' + esc(myD.name)}`; }
     else { const coming = Object.keys(x.responders || {}); if (coming.length) detail += ` · ${esc(names(coming))} already coming`; }
-    $('al-detail').innerHTML = detail;
+    $('al-detail').innerHTML = detail + `<div class="al-mine">${mineLine}</div>`;
     $('al-more').textContent = more ? `${more} more waiting in the bell` : '';
     $('alert-full').hidden = false;
     if (Date.now() - lastBuzz > 8000) { lastBuzz = Date.now(); try { navigator.vibrate && navigator.vibrate([250, 120, 250, 120, 400]); } catch {} }
@@ -4406,6 +4412,7 @@ If someone asks how to score a match, walk them through these steps and set "sho
   // taking a swap: say plainly that it went through, and what changed
   function takeSwap(id) {
     const sw0 = swaps[id]; const i = sw0 ? sw0.block : null;
+    if (sw0 && !canDo(me.first, sw0.duty)) { say(`You said you can't do ${(DUTIES[sw0.duty] || {}).name || sw0.duty} — leave this one for someone else.`); return; }
     const mine = i != null ? DUTIES[assignmentFor(me.first, i).id] : null;
     ref('swaps/' + id).transaction(sw => { if (!sw || sw.status !== 'open') return; sw.status = 'taken'; sw.to = me.first; sw.tt = Date.now(); return sw; },
       (err, committed, snap) => {
@@ -4419,8 +4426,10 @@ If someone asks how to score a match, walk them through these steps and set "sho
   const swapMode = (sw) => sw.mode || ((DUTIES[sw.duty] || {}).cat === 'play' ? 'team' : 'free');
   const swapsForMe = () => Object.entries(swaps).filter(([, sw]) => {
     if (!me || sw.status !== 'open' || sw.from === me.first || (sw.declines || {})[me.first] || !stillOn(sw)) return false;
+    if (!canDo(me.first, sw.duty)) return false;   // you said you can't referee / score that sport
     if (isLogi(me.first, sw.block)) return true;   // logistics can take anything, anywhere
     const mode = swapMode(sw); const myId = assignmentFor(me.first, sw.block).id; const myCat = (DUTIES[myId] || {}).cat;
+    if (mode !== 'free' && !canDo(sw.from, myId)) return false;   // …and they'd be taking yours
     // stalls belong to a society: the taker must be in the requester's stall's society, and
     // the requester must be in the taker's stall's society (they'd be swapping onto it)
     const reqStall = (DUTIES[sw.duty] || {}).club, myStall = (DUTIES[myId] || {}).club;
