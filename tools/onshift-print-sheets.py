@@ -35,7 +35,7 @@ for line in src.split('\n'):
 
 DUTY = {
   'vb': ('Volleyball referee', 'Beach volleyball courts'),
-  'fb': ('Football referee', 'Field 7 infield — one of Field 1–6'),
+  'fb': ('Football referee', 'Field 7 infield — one of Fields 1–4; spare refs run the clock'),
   'fb-score': ('Football scores', 'Field 7 sideline, results desk'),
   'ck': ('Cricket', 'Field 7 — umpire, leg umpire or scorer, one game at a time'),
   'tk': ('Ticketing', 'Main entry gate — scan Humanitix QR codes'),
