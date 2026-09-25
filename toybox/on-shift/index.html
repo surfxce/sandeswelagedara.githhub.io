@@ -7,8 +7,6 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Spice Road">
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+SC:wght@500;600;700&family=Atkinson+Hyperlegible+Next:wght@400;500;700;800&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
 <style>
@@ -149,6 +147,15 @@
     padding: 10px 16px; border: 1.5px solid rgba(245, 239, 227, .55); border-radius: 22px; background: rgba(43, 26, 20, .32);
   }
   .scroll-cue svg { width: 18px; height: 18px; }
+  /* archive: the hero is a thank-you splash that fills the screen */
+  .entry { min-height: 100dvh; }
+  .entry .entry-inner { flex: 1; justify-content: center; }
+  .entry .lockup { margin-top: 0; }
+  .lockup p.thanks { font-family: var(--display); font-weight: 600; font-size: 24px; line-height: 1.2; max-width: 22ch; margin-top: 22px; opacity: 1; }
+  .lockup p.when { font-size: 13px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; opacity: .75; }
+  .scroll-cue { font-family: inherit; cursor: pointer; }
+  #public { display: none; }
+  .archive-note { background: var(--paper-2); color: var(--ink-2); font-size: 13px; line-height: 1.35; padding: 8px 16px; border-bottom: 1px solid var(--line); text-align: center; }
 
   /* ---------- Public page below the hero ---------- */
   .public { background: var(--paper); padding-bottom: calc(var(--tab-h) + env(safe-area-inset-bottom)); }
@@ -317,8 +324,6 @@
   .tt .pfp { margin-right: 6px; }
   .dm-head .nm { display: inline-flex; align-items: center; gap: 10px; }
   .dm-head .dm-acts { display: inline-flex; align-items: center; gap: 12px; flex: 0 0 auto; }
-  .dm-call { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; background: var(--maroon); color: var(--cream); text-decoration: none; flex: 0 0 auto; }
-  .dm-call svg { width: 17px; height: 17px; }
   .emg-top { display: flex; align-items: center; gap: 10px; }
   .emg-top > div { display: grid; gap: 2px; }
   /* Spicy */
@@ -1082,16 +1087,14 @@
       <div class="lockup">
         <div class="eyebrow-serif">UQSLA × UQISC</div>
         <h1>Spice Road<small>FESTIVAL</small></h1>
-        <p>Stalls, sports, and a stage — 3 till 9 pm on the festival ground.</p>
+        <p class="thanks">Thank you for attending the Spice Road Festival.</p>
+        <p>We hope you enjoyed it!</p>
+        <p class="when">Friday 25 September 2026</p>
       </div>
 
       <div class="hero-actions">
-        <a class="scroll-cue" href="#public-on" id="scroll-cue" aria-label="See what's on">
-          <span>What's on</span>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 10l6 6 6-6"/></svg>
-        </a>
-        <button class="exec-btn" id="exec-login" type="button">
-          <span>Exec login</span>
+        <button class="scroll-cue" id="exec-login" type="button">
+          <span>See how the exec app looked</span>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
         </button>
       </div>
@@ -1170,6 +1173,7 @@
 
   <!-- ======== SHELL ======== -->
   <div class="shell" id="shell" hidden>
+    <div class="archive-note">A look back — Sandes's app as it was on festival day. Nothing here is live.</div>
     <header class="topbar">
       <div class="wordmark">Spice Road<small>Experience</small></div>
       <button class="deskbtn" id="deskbtn" type="button" hidden aria-label="Organiser desk" title="Organiser desk"><span class="bell-n" id="desk-n" hidden></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1M9 10h6M9 14h6M9 18h3"/></svg></button>
@@ -1184,7 +1188,7 @@
         <span id="who-pfp"></span>
         <span class="nm" id="who-name">—</span>
         <span class="soc" id="who-soc"></span>
-        <button type="button" id="switch">Switch</button>
+        <button type="button" id="switch">Exit</button>
       </div>
     </header>
 
@@ -1279,7 +1283,7 @@
 
     <!-- ADMIN (see ADMIN_LOGIN) — everyone's roster, nothing else -->
     <section class="view" id="view-admin" role="tabpanel" hidden>
-      <div class="desk-head"><h2 class="sec" style="margin:0">Admin · everyone's roster</h2><span class="fine" id="ad-live"></span></div>
+      <div class="desk-head"><h2 class="sec" style="margin:0">Admin · everyone's roster</h2><span class="fine" id="ad-live"></span><button class="linkbtn" id="ad-back" type="button" hidden>Back</button></div>
       <div class="counts">
         <div class="count" style="--c: var(--c-sport)"><div class="n" id="ad-people">0</div><div class="l">Execs</div></div>
         <div class="count" style="--c: var(--tan)"><div class="n" id="ad-swaps">0</div><div class="l">Swaps (open / done)</div></div>
@@ -1299,6 +1303,7 @@
     <!-- DESK (organisers) -->
     <section class="view" id="view-desk" role="tabpanel" hidden>
       <div class="desk-head"><h2 class="sec" style="margin:0">Organiser desk</h2><button class="linkbtn" id="desk-close" type="button">Back</button></div>
+      <button class="btn-small" id="desk-grid" type="button">Everyone's roster — the full grid</button>
       <div class="counts">
         <div class="count" style="--c: var(--c-sport)"><div class="n" id="d-duty-n">0</div><div class="l">On duty</div></div>
         <div class="count" style="--c: var(--c-free)"><div class="n" id="d-free-n">0</div><div class="l">Free</div></div>
@@ -1310,16 +1315,15 @@
       <div><h2 class="sec">Live matches</h2><div class="match-list" id="d-live"></div></div>
       <div><h2 class="sec">Photos <span class="fine" id="d-photo-counts"></span></h2>
         <div class="set-row" style="padding:8px 0 10px">
-          <div class="txt"><b>AI review</b><span id="ai-state">Public uploads are checked by Gemini: on-topic and safe → straight to the screen; rejected → held below for you; unsure → waiting.</span></div>
-          <button class="toggle" id="ai-toggle" type="button" role="switch" aria-checked="false" aria-label="AI review"></button>
+          <div class="txt"><b>AI review</b><span id="ai-state">On the day, Gemini checked every upload. It's unhooked now — the festival's over.</span></div>
+          <button class="toggle" id="ai-toggle" type="button" role="switch" aria-checked="false" aria-label="AI review" hidden></button>
         </div>
         <h3 class="sec-sm">Waiting for you</h3>
         <div class="photo-mod" id="d-pending"></div>
         <details class="more" style="margin-top:8px"><summary>Auto-rejected — review</summary><div class="photo-mod" id="d-rejected"></div></details>
         <details class="more" style="margin-top:8px"><summary>On the screen — take one down</summary><div class="photo-mod" id="d-approved"></div></details>
       </div>
-      <div><h2 class="sec">Shout-outs <span class="fine">— word list, then Gemini; remove anything that slipped through</span></h2><div class="swap-list" id="d-ticks"></div></div>
-      <div><h2 class="sec">Spicy questions <span class="fine">— what execs are asking; red = it couldn't answer</span></h2><div class="swap-list" id="d-spicy"></div></div>
+      <div><h2 class="sec">Shout-outs <span class="fine">— what went up on the big screen</span></h2><div class="swap-list" id="d-ticks"></div></div>
       <div><h2 class="sec">Incidents</h2><div class="swap-list" id="d-inc"></div></div>
       <div><h2 class="sec">Post a notice</h2>
         <form class="bcast-form" id="desk-notice" autocomplete="off">
@@ -1438,8 +1442,8 @@
       </div>
       <div class="set-row" id="set-photo-row" style="align-items:center"></div>
       <div class="set-row" id="set-switch-row" hidden>
-        <div class="txt"><b>Signed in as <span id="set-who">—</span></b><span>Saved on this phone.</span></div>
-        <button class="btn-small ghost" id="set-switch" type="button">Switch</button>
+        <div class="txt"><b>Viewing as <span id="set-who">—</span></b><span>A look back at festival day.</span></div>
+        <button class="btn-small ghost" id="set-switch" type="button">Exit</button>
       </div>
       <div class="set-row">
         <div class="txt"><b>Log incident</b><span>First aid, lost property, behaviour, equipment. Timestamped, organisers see it.</span></div>
@@ -1471,7 +1475,7 @@
         <button class="step" id="sim-next" type="button" aria-label="Next block">›</button>
       </div>
       <div class="set-row emg-row">
-        <div class="txt"><b>Emergency</b><span>000, then the organisers — one tap each.</span></div>
+        <div class="txt"><b>Emergency</b><span>000, then the organisers.</span></div>
         <button class="btn-small emg" id="set-emg" type="button">Open</button>
       </div>
     </section>
@@ -1567,7 +1571,7 @@
     <!-- DM sheet: tap any name to open -->
     <div class="dm-backdrop" id="dm-backdrop" hidden></div>
     <section class="dm-sheet" id="dm-sheet" hidden aria-label="Message">
-      <div class="dm-head"><span class="nm" id="dm-who">—</span><span class="dm-acts"><a class="dm-call" id="dm-call" href="#" hidden>Call</a><button class="linkbtn" id="dm-close" type="button">Close</button></span></div>
+      <div class="dm-head"><span class="nm" id="dm-who">—</span><span class="dm-acts"><button class="linkbtn" id="dm-close" type="button">Close</button></span></div>
       <div class="dm-thread" id="dm-thread"></div>
       <div class="dm-canned" id="dm-canned"></div>
       <form class="bcast-form" id="dm-form" autocomplete="off">
@@ -1728,11 +1732,10 @@
   let here = {};
   let absent = {};    // spice-road/absent/{first} = first block they're missing from (roll call, Sandes)
   let rollcall = {};  // spice-road/rollcall/{first} = true once ticked in      // spice-road/here/{first}/{block} = true: "I'm still here" on a block they'd said they'd be gone  // spice-road/staffing/{block}/{duty or 'crowd'} = headcount (Sandes)
-  let CONTACTS = {};  // numbers for people who aren't execs (e.g. heads from outside), by full name   // [[dutyId, [first names]]] for 2:00 – 3:00; null = everyone, all hands
   let ROSTER = [];
   const byFirst = {};
   function setRoster(data) {
-    PEOPLE = data.people; ROSTER = data.roster; SETUP = data.setup || null; CONTACTS = data.contacts || {}; rosterVersion++; renderTeams();
+    PEOPLE = data.people; ROSTER = data.roster; SETUP = data.setup || null; rosterVersion++; renderTeams();
     for (const k in byFirst) delete byFirst[k];
     // everyone's key is their first name; two people sharing one get "k" from
     // the roster ("Shreya B", "Shreya C")
@@ -2183,7 +2186,9 @@
     window.scrollTo(0, 0);
     requestAnimationFrame(() => { drawMap($('map-login')); $('f-name').focus(); });
   }
-  $('exec-login').addEventListener('click', showLogin);
+  // archive: no login — the button opens Sandes's own view
+  function viewArchive() { ident = { name: 'Sandes', society: 'UQISC' }; loadRoster().then(ok => { if (ok) enter(); else say('Couldn\'t load the roster — try again.'); }); }
+  $('exec-login').addEventListener('click', viewArchive);
   $('login-back').addEventListener('click', showPublic);
 
   // Execs only: the name + society must match the roster exactly, or the admin login.
@@ -2217,12 +2222,7 @@
     try { localStorage.setItem('onshift.identity', JSON.stringify(ident)); } catch {}
     enter();
   });
-  $('switch').addEventListener('click', () => {
-    try { localStorage.removeItem('onshift.identity'); } catch {}
-    ident = null; me = null;
-    $('f-name').value = ''; sel.value = '';
-    showLogin();
-  });
+  $('switch').addEventListener('click', () => { closeSheets(); ident = null; me = null; showPublic(); });
 
   function enter() {
     adminMode = isAdminLogin(ident.name, ident.society);
@@ -2236,8 +2236,6 @@
     const lb = liveBlock();
     live = lb !== null; block = live ? lb : 0;
     renderFilter();
-    let onboarded = false; try { onboarded = localStorage.getItem(ONB_LS) === '1'; } catch {}
-    if ((!onboarded || demoMode) && !adminMode) setTimeout(startTour, 400);
     $('bcast-form').hidden = !(db && isAdmin()); $('deskbtn').hidden = !(db && isAdmin()); renderPhotoMod();
     const eb = $('ph-exec-by'); if (eb && !eb.value) eb.value = me ? me.first : ident.name;
     const tb = $('tk-exec-by'); if (tb && !tb.value) tb.value = me ? me.first : ident.name;
@@ -2865,16 +2863,13 @@
   if (document.fonts && document.fonts.load) document.fonts.load('600 12px "Cormorant SC"').then(redraw, redraw); else redraw();
   window.addEventListener('resize', () => { redraw(); const pb = $('public-brackets'); if (pb) drawBracketLines(pb); if (scrOn) bandFill(); });
 
-  // ---------- Live (Firebase Realtime Database) ----------
-  // Shared state that has to survive a phone handover: scores and broadcasts.
-  // The config below is a public identifier, not a secret — the database
-  // rules are what limit reads and writes to spice-road/{scores,broadcasts}.
-  const FB = {
-    apiKey: "AIzaSyDccaS8cqcM4f_HDPg-OfW4Haazt3T5_so",
-    authDomain: "silk-road-88f1c.firebaseapp.com",
-    databaseURL: "https://silk-road-88f1c-default-rtdb.asia-southeast1.firebasedatabase.app",
-    projectId: "silk-road-88f1c",
-  };
+  // ---------- Archive: festival day, frozen ----------
+  // The festival's over and the live database is switched off. What was on it
+  // at the end of the day (scores, brackets, accepted swaps, roll call,
+  // headcounts, shout-outs — no messages, photos, incidents or phone numbers)
+  // is saved right here, and a tiny stand-in answers the same calls the live
+  // one did. Anything you change stays on this page and is gone on reload.
+  const ARCHIVE = {"scores":{"-P2M2AQCEnFbQm1eQNaI":{"a":"UQISC","b":"UQSLA","by":"Sandes","ended":1790314825373,"sa":18,"sb":16,"sport":"vb","status":"done","t":1790314330141},"-P2M2MvWi1Sk6neYHmzY":{"a":"UQNC","b":"UQGS","by":"Tejashwini","ended":1790316580739,"sa":3,"sb":2,"sport":"fb","status":"done","t":1790314381285},"-P2M2lEMYhguZFTx7lXW":{"a":"UQPSA","b":"Adrians","by":"Tejashwini","sa":2,"sb":0,"sport":"fb","status":"done","t":1790314484950,"ended":1790314484950},"-P2M2wzcLMGM8Fris-QQ":{"a":"UQPSA","b":"Adrian's Team","by":"Mekayil","ended":1790316915676,"sa":3,"sb":1,"sport":"fb","status":"done","t":1790314533191},"-P2M2yT0oFFTeXw0SS6Y":{"a":"UQNC + UQPA","b":"UQISS","by":"Mathew","ended":1790315145695,"sa":12,"sb":15,"sport":"vb","status":"done","t":1790314539105},"-P2M4SKGOCqznJaNZrZZ":{"a":"Sargun's team","b":"Solos","by":"Sandes","ended":1790321964898,"sa":0,"sb":0,"sport":"vb","status":"done","t":1790314927684},"-P2M5JzjdVnRzPlDO1FQ":{"a":"UQISC","b":"Luhara's team","by":"Sandes","ended":1790315920495,"sa":12,"sb":15,"sport":"vb","status":"done","t":1790315155683},"-P2M6is_mUrHVkc1igBZ":{"a":"Shriyans's team","b":"NC + PA","by":"Sandes","ended":1790316633391,"sa":19,"sb":28,"sport":"vb","status":"done","t":1790315523845},"-P2MApx4dSbkRDkoJI5D":{"a":"UQISC","b":"UQNC","by":"Tejashwini","ended":1790319128766,"sa":5,"sb":2,"sport":"fb","status":"done","t":1790316601489},"-P2MBvinmrRzdmB-UrbE":{"a":"Luhara's team","b":"Team QUT","by":"Mathew","ended":1790317546170,"sa":13,"sb":15,"sport":"vb","status":"done","t":1790316887171},"-P2MCb_B5G_4j9IpqGZv":{"a":"Aum","b":"ISS","by":"Heshan","ended":1790318001033,"sa":19,"sb":15,"sport":"vb","status":"done","t":1790317066824},"-P2MCnPAJjClmWTSdk2r":{"a":"UQPA/UQTAS","b":"UQNAATAK","by":"Mekayil","sa":0,"sb":0,"sport":"fb","status":"done","t":1790317115219,"ended":1790317115219},"-P2MGHoh19qO-njpBTPI":{"a":"ISS","b":"Luhara","by":"Sandes","ended":1790321961276,"sa":31,"sb":20,"sport":"vb","status":"done","t":1790318030406},"-P2MGMY2n7-XLF-SIt4Z":{"a":"PA","b":"QUT","by":"Heshan","ended":1790318612742,"sa":12,"sb":15,"sport":"vb","status":"done","t":1790318049710},"-P2MK_Obkbb7tnERnrxq":{"a":"UQISC","b":"UQGS","by":"Aravinth","sa":9,"sb":1,"sport":"vb","status":"done","t":1790319155077,"ended":1790319155077},"-P2MUCbMrcCEeHO8VaH9":{"a":"uqisc","b":"Uqpsa","by":"Shane","sa":4,"sb":0,"sport":"fb","status":"done","t":1790321679128,"ended":1790321679128}},"brackets":{"fb":{"rounds":[[{"a":"UQGS","b":"UQTELS"},{"a":"UQPSA","b":"Adrian's Team","m":"-P2M2wzcLMGM8Fris-QQ","w":"UQPSA"},{"a":"UQNC","b":"UQPA/UQTAS"},{"a":"UQISS","b":"UQAPS"}],[{"a":"UQSLA","b":"UQGS"},{"a":"UQISC","b":"UQPSA"},{"a":"UQPA/UQTAS","b":"UQNAATAK"},{"a":"UQAPS","b":"UQIC"}],[{"a":"UQSLA","b":"UQTELS"},{"a":"UQISC","b":"Adrian's Team"},{"a":"UQNC","b":"UQNAATAK"},{"a":"UQISS","b":"UQIC"}]],"t":1790314533452,"teams":["UQSLA","UQGS","UQTELS","UQISC","UQPSA","Adrian's Team","UQNC","UQPA/UQTAS","UQNAATAK","UQISS","UQAPS","UQIC"]},"vb":{"rounds":[[{"a":"Luhara's team","b":"Team QUT","m":"-P2MBvinmrRzdmB-UrbE","w":"Team QUT"}]],"t":1790316880043,"teams":["Luhara's team","Team QUT"]}},"swaps":{"-P2Ih-ChtRNEfENM1yR9":{"block":2,"duty":"fb-score","from":"Arzuh","mode":"duty","status":"taken","t":1790258185287,"to":"Mithila","tt":1790260914444,"want":"stall-UQISC"},"-P2Ih1oOXCZBkHiL0qpy":{"block":0,"duty":"fb","from":"Arzuh","mode":"duty","status":"taken","t":1790258195956,"to":"Tejashwini","tt":1790269975124,"want":"stall-UQISC"},"-P2JLPpsf7c61NYDtfSf":{"block":3,"duty":"cr-lawn","from":"Heshan","mode":"duty","status":"taken","t":1790269042232,"to":"Sandes","tt":1790298326010,"want":"vb"},"-P2JMFoJljn7ZAszB--S":{"auto":true,"block":1,"duty":"fb","from":"Heshan","mode":"duty","status":"taken","t":1790269263333,"to":"Vinuki","tt":1790313608346,"want":"vb"},"-P2L7fpKQZbJPPJXAkKo":{"auto":true,"block":2,"duty":"cr-gen","from":"Sandes","mode":"duty","status":"taken","t":1790298996234,"to":"Alexis","tt":1790313608361,"want":"stall-UQISC"},"-P2LKfD92GAUu7aT50BC":{"auto":true,"block":1,"duty":"vb","from":"Afthab","mode":"duty","status":"taken","t":1790302401604,"to":"Sritam","tt":1790313608367,"want":"tk"},"-P2LZ0d77_6DsHaXqwiu":{"auto":true,"block":2,"duty":"cr-food","from":"Shriyans","mode":"free","status":"taken","t":1790306163548,"to":"Faizah","tt":1790313608371},"-P2LZ7ZIc0S61PF4SuO2":{"auto":true,"block":1,"duty":"play-vb","from":"Shriyans","mode":"duty","status":"taken","t":1790306191929,"to":"Raziel","tt":1790314106619,"want":"cr-food,cr-gate"},"-P2LZWgroC6e2AcuGWql":{"block":3,"duty":"fb","from":"Roshni","mode":"free","status":"taken","t":1790306294797,"to":"Mathisha","tt":1790313286893},"-P2LgJDfS9JT9SkBKfAy":{"auto":true,"block":0,"duty":"fb","from":"Tejashwini","mode":"duty","status":"taken","t":1790308336773,"to":"Christopher","tt":1790313608374,"want":"stall-UQISC"},"-P2LszyR4gcQe7qGrZCW":{"block":5,"duty":"fb","from":"Thar","mode":"any","status":"taken","t":1790311661895,"to":"Thihan","tt":1790311667008},"-P2Lszykp71iWcqQCypc":{"block":5,"duty":"cr-food","from":"Thihan","mode":"any","status":"taken","t":1790311661697,"to":"Thar","tt":1790311667460},"-P2LvthKZpgwgegSE2LE":{"auto":true,"block":1,"duty":"play-vb","from":"Sarju","mode":"team","status":"taken","t":1790312422552,"to":"Shreya C","tt":1790313608377},"-P2Lxx-kZJLF0HueCTmr":{"block":0,"duty":"play-vb","from":"Krisha","mode":"team","status":"taken","t":1790312960285,"to":"Ragesh","tt":1790313487153},"-P2M5WB-dX3gpdH6jMtp":{"block":2,"duty":"fb","from":"Mithila","mode":"free","status":"taken","t":1790315205570,"to":"Mathew","tt":1790315213135},"-P2M5_IF80efN-9Y43BS":{"auto":true,"block":2,"duty":"fb","from":"Ragesh","mode":"free","status":"taken","t":1790315222447,"to":"Gayashi","tt":1790315539645}},"staffing":{"2":{"fb":7}},"absent":{"Vinuki":1},"rollcall":{"Akash":true,"Amal":true,"Archita":true,"Avinab":true,"Deana":true,"Devashri":true,"Divita":true,"Faizah":true,"Gayashi":true,"Hargun":true,"Hasara":true,"Hasini":true,"Heshan":true,"Ishan":true,"Jais":true,"Jasmine":true,"Joanna":true,"Kaamya":true,"Kartheeka":true,"Kartik":true,"Krisha":true,"Mathew":true,"Matvi":true,"Mehulpreet":true,"Nimnah":true,"Powrnima":true,"Pritisha":true,"Ragesh":true,"Raziel":true,"Rishi":true,"Sandes":true,"Sanuka":true,"Sanuli":true,"Sarju":true,"Shalet":true,"Shane":true,"Shavini":true,"Shriyans":true,"Siri":true,"Sita":true,"Sujal":true,"Tanisha":true,"Tejashwini":true,"Thanabammini":true,"Thar":true,"Thihan":true},"here":{"Christopher":{"0":true,"5":true,"10":true,"11":true},"Deana":{"8":true},"Gayashi":{"9":true},"Hargun":{"10":true,"11":true},"Leron":{"6":true},"Prasant":{"6":true,"7":true,"8":true,"9":true,"10":true,"11":true},"Swornim":{"8":true,"9":true}},"sim":{"on":false,"block":0,"t":1790179238831},"ticker":{"-P1eKBHawDNj_pTgbx3Q":{"by":"Sandes","ok":true,"t":1789564077442,"text":"The biggest celebration of South Asian culture UQ has ever seen!"},"-P25ZS5QNQtpF1TP3Up4":{"by":"Sandes","ok":true,"t":1790037840504,"text":"up UQSLA"},"-P25ZbYG8oEvUB9DB4_v":{"by":"Sandes","ok":true,"t":1790037883310,"text":"Yaya love this fest"}}};
   const ADMINS = ['Sandes', 'Archita', 'Sanuka'];   // organisers — their posts get a tag (UI only)
   const SPORTS = { vb: 'Volleyball', fb: 'Football', ck: 'Cricket' };
   // How to score each sport, for a ref who's never done it. Standard rules,
@@ -3026,13 +3021,41 @@
   // the bracket form's tick list: the listed teams for that sport (pre-ticked), then the clubs
   const renderPick = () => { const sp = $('b-sport').value; const names = [...new Set([...(TEAMS[sp] || []).map(t => t.name), ...CLUBS])]; $('b-pick').innerHTML = names.map(c => `<label><input type="checkbox" value="${esc(c)}" ${(TEAMS[sp] || []).some(t => t.name === c) ? 'checked' : ''}>${esc(c)}</label>`).join(''); };
   renderPick(); $('b-sport').addEventListener('change', renderPick);
-  let db = null;
-  try { firebase.initializeApp(FB); db = firebase.database();
-    // testing only: on this computer, ?emu points the app at a local copy of the database
-    if (/^(localhost|127\.0\.0\.1)$/.test(location.hostname) && new URLSearchParams(location.search).has('emu')) db.useEmulator('127.0.0.1', 9000);
-  } catch (e) { db = null; }
+  function localDb(root) {
+    const parts = (p) => p.split('/').filter(Boolean);
+    const copy = (v) => v == null ? null : JSON.parse(JSON.stringify(v));
+    const read = (p) => { let o = root; for (const k of parts(p)) { if (o == null || typeof o !== 'object') return null; o = o[k]; } return o === undefined ? null : o; };
+    const write = (p, v) => {
+      const ks = parts(p); let o = root;
+      ks.slice(0, -1).forEach(k => { if (o[k] == null || typeof o[k] !== 'object') o[k] = {}; o = o[k]; });
+      if (v == null) delete o[ks[ks.length - 1]]; else o[ks[ks.length - 1]] = copy(v);
+      queue();
+    };
+    // like the real thing, a listener only hears about it when its data changed
+    const subs = []; let queued = false;
+    const queue = () => { if (queued) return; queued = true; setTimeout(() => { queued = false; subs.slice().forEach(emit); }, 0); };
+    const emit = (sub) => { const v = sub.q(read(sub.path)); const js = JSON.stringify(v); if (js === sub.last) return; sub.last = js; sub.fn({ val: () => copy(v), key: parts(sub.path).pop() }); };
+    let n = 0;
+    const query = (path, q) => ({
+      limitToLast: (k) => query(path, (v) => { v = q(v); if (!v) return v; const ks = Object.keys(v).sort().slice(-k); return ks.length ? Object.fromEntries(ks.map(x => [x, v[x]])) : null; }),
+      orderByChild: (c) => ({ equalTo: (want) => query(path, (v) => { v = q(v); if (!v) return v; const ks = Object.keys(v).filter(x => v[x] && v[x][c] === want); return ks.length ? Object.fromEntries(ks.map(x => [x, v[x]])) : null; }) }),
+      on: (ev, fn) => { const sub = { path, q, fn, last: undefined }; subs.push(sub); setTimeout(() => emit(sub), 0); return fn; },
+      off: (ev, fn) => { for (let i = subs.length - 1; i >= 0; i--) if (subs[i].path === path && (!fn || subs[i].fn === fn)) subs.splice(i, 1); },
+      get: () => Promise.resolve({ val: () => copy(q(read(path))) }),
+    });
+    const ref = (path) => Object.assign(query(path, v => v), {
+      key: parts(path).pop(),
+      set: (v) => { write(path, v); return Promise.resolve(); },
+      remove: () => { write(path, null); return Promise.resolve(); },
+      update: (o) => { Object.entries(o).forEach(([k, v]) => write(path + '/' + k, v)); return Promise.resolve(); },
+      push: (v) => { const key = '-~' + Date.now().toString(36) + (n++).toString(36).padStart(3, '0'); if (v !== undefined) write(path + '/' + key, v); const r = ref(path + '/' + key); const done = Promise.resolve({ key }); r.then = done.then.bind(done); r.catch = done.catch.bind(done); return r; },
+      transaction: (fn, cb) => { const v = fn(copy(read(path))); if (v !== undefined) write(path, v); if (cb) setTimeout(() => cb(null, v !== undefined, { val: () => copy(read(path)) }), 0); return Promise.resolve({ committed: v !== undefined }); },
+    });
+    return { ref };
+  }
+  const db = localDb({ 'spice-road': ARCHIVE });
   const ref = (path) => db.ref('spice-road/' + path);
-  const now = () => firebase.database.ServerValue.TIMESTAMP;
+  const now = () => Date.now();
   const clock = (t) => new Date(t).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
   const unavailable = (el, what) => { el.innerHTML = `<p class="fine">Live ${what} unavailable — check your connection.</p>`; };
 
@@ -3349,7 +3372,6 @@
   function openDm(other) {
     if (!db || !me || !other || other === me.first) return;
     dmOpen = other; $('dm-who').innerHTML = pfp(other, 44) + '<span>Message ' + esc(full(other)) + '</span>';
-    const tel = (byFirst[other.toLowerCase()] || {}).t; const call = $('dm-call');
     call.hidden = !tel; if (tel) { call.href = 'tel:' + tel.replace(/\s/g, ''); call.title = tel; call.setAttribute('aria-label', 'Call ' + full(other)); call.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>'; }
     $('dm-canned').innerHTML = CANNED.map(t => `<button type="button" data-canned="${esc(t)}">${esc(t)}</button>`).join('');
     $('dm-canned').querySelectorAll('button').forEach(b => b.addEventListener('click', () => sendDm(b.dataset.canned)));
@@ -3420,7 +3442,6 @@
       ] },
   };
   let emgTab = 'logi';
-  const PHONE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg>';
   function renderEmg() {
     const g = EMG_GROUPS[emgTab];
     document.querySelectorAll('[data-emg]').forEach(b => b.setAttribute('aria-selected', String(b.dataset.emg === emgTab)));
@@ -3428,9 +3449,9 @@
     const lb = liveBlock(); const nowI = lb !== null && lb >= 0 && lb < BLOCKS ? lb : null;
     $('emg-grid').innerHTML = g.people().map(c => {
       const p = c.first ? byFirst[c.first.toLowerCase()] : null; const name = p ? p.n : (c.n || c.first);
-      const tel = (p && p.t) || CONTACTS[name]; const now = p && nowI !== null ? assignmentFor(p.first, nowI) : null;
+      const now = p && nowI !== null ? assignmentFor(p.first, nowI) : null;
       const where = now ? (now.id === 'away' ? 'Not here right now' : `Now: ${(DUTIES[now.id] || {}).name || now.id}`) : '';
-      return `<div class="emg"><div class="emg-top">${pfp(name, 44)}<div><span class="nm">${esc(name)}</span><span class="role">${esc(c.role)}</span><span class="does">${esc(c.does)}${where ? ` · <b>${esc(where)}</b>` : ''}</span></div></div>${tel ? `<a class="call" href="tel:${tel.replace(/\s/g, '')}" aria-label="Call ${esc(name)}">${PHONE}</a>` : ''}</div>`;
+      return `<div class="emg"><div class="emg-top">${pfp(name, 44)}<div><span class="nm">${esc(name)}</span><span class="role">${esc(c.role)}</span><span class="does">${esc(c.does)}${where ? ` · <b>${esc(where)}</b>` : ''}</span></div></div></div>`;
     }).join('');
   }
   function openEmg(open) {
@@ -3459,7 +3480,7 @@
     { icon: 'sparkle', color: 'var(--tan)',      t: 'Spicy', k: 'spicy ask question help bot chat ai assistant who do i talk to where is', p: 'Settings → <b>Spicy</b>. Ask anything — what your duty involves, who\'s on what right now, how a part of the app works. It answers from the roster and this manual, points you to a person when there is one, and says so when it doesn\'t know. When the answer is a button or a place in the app, tap <b>Show me</b> and Spicy spotlights it on screen. Every answer has a <b>Message Sandes</b> button.' },
     { icon: 'mic',     color: 'var(--c-stage)',  t: 'Notifications', k: 'notifications notify buzz alert block changes turn on off', p: 'Offered once, in the welcome tour: a buzz when your block changes, and when your duty changes because a team won. Friday only, only while the app is open, and nothing after the festival. Missed it? Allow notifications for sandeswelagedara.com in your browser\'s site settings. On iPhone it only works from the Home Screen app.' },
     { icon: 'box',     color: 'var(--c-hands)',  t: 'Settings', k: 'settings gear emergency spicy incident photo', p: 'The gear. <b>Spicy</b> (ask it anything), this manual, <b>Log incident</b> (first aid, lost property, behaviour, equipment — timestamped for the organisers), and the red <b>Emergency</b> button with who to call.' },
-    { icon: 'heart',   color: '#B23A2E',         t: 'Emergency', k: 'emergency call phone number urgent 000 organiser help', p: 'Settings → <b>Emergency</b>. A big <b>Call 000</b> button, then every organiser with a Call button next to their name. Anything medical or dangerous: <b>000 first</b>.' },
+    { icon: 'heart',   color: '#B23A2E',         t: 'Emergency', k: 'emergency call phone number urgent 000 organiser help', p: 'Settings → <b>Emergency</b>. A big <b>Call 000</b> button, then every organiser and what they look after. Anything medical or dangerous: <b>000 first</b>.' },
   ];
   function renderManual(q) {
     q = (q || '').trim().toLowerCase();
@@ -3727,17 +3748,8 @@ If someone asks how to score a match, walk them through these steps and set "sho
       Object.assign(item, { pending: false }, patch); renderSpicy();
       if (item.show && POINTS[item.show] && !$('spicy-sheet').hidden) { openSpicy(false); startPoint(item.show, item.a, true); }
     };
-    if (!db) { done({ a: 'No connection right now — message Sandes instead.', sure: false, err: true }); return; }
-    // asked before by anyone this block, and not personal? same answer, no
-    // round trip. Keyed by block so "who's on volleyball" never goes stale.
-    const lb = liveBlock(); const blk = lb !== null ? lb : block;
-    try { const c = (await ref(`spicy-cache/${spicyKey(q)}-${blk}`).get()).val(); if (c && c.a && Date.now() - (c.t || 0) < 86400000) { done({ a: c.a, sure: true, cached: true, show: c.show || '' }); return; } } catch {}
-    const hist = spicyThread.filter(x => x !== item && x.a && !x.err && !x.pending).slice(-3).map(x => `Q: ${x.q}\nA: ${x.a}`).join('\n').slice(0, 4000);
-    const row = ref('spicy').push();
-    const timer = setTimeout(() => { if (item.pending) { row.off(); done({ a: 'Spicy\'s not answering right now — message Sandes.', sure: false, err: true }); } }, 40000);
-    row.on('value', snap => { const v = snap.val(); if (v && v.a) { clearTimeout(timer); row.off(); done({ a: v.a, sure: v.sure !== false, show: v.show || '' }); } });
-    try { await row.set({ q, by: me.first, soc: me.s[0], blk, notes: spicyNotes().slice(0, 40000), hist, t: now() }); }
-    catch (e) { clearTimeout(timer); row.off(); done({ a: 'Couldn\'t send that one.', sure: false, err: true }); }
+    // Spicy is unhooked: no AI, no database — the festival's over
+    setTimeout(() => done({ a: 'Oh, the festival is over — thank you so much! 🌶️', sure: true }), 700);
   }
   $('spicy-form').addEventListener('submit', (e) => { e.preventDefault(); const q = $('spicy-text').value; $('spicy-text').value = ''; askSpicy(q); });
   $('set-spicy').addEventListener('click', () => { openSettings(false); openSpicy(true); });
@@ -3745,9 +3757,6 @@ If someone asks how to score a match, walk them through these steps and set "sho
   // organisers see what's being asked (and what Spicy couldn't answer)
   function renderSpicyDesk() {
     const el = $('d-spicy'); if (!el) return;
-    if (db && isAdmin() && !spicyListening) { spicyListening = true; ref('spicy').limitToLast(50).on('value', snap => { spicyRows = snap.val() || {}; renderSpicyDesk(); }, () => {}); }
-    const ids = Object.keys(spicyRows).sort((a, b) => (spicyRows[b].t || 0) - (spicyRows[a].t || 0));
-    el.innerHTML = ids.length ? ids.map(i => { const x = spicyRows[i]; const bad = x.a && x.sure === false; return `<div class="check" style="--c:${bad ? '#B23A2E' : 'var(--tan)'}"><b>${esc(x.by || '?')} <span class="fine">· ${x.t ? clock(x.t) : ''}</span></b><div>${esc(x.q)}</div><div class="fine">${x.a ? esc(x.a) : 'Waiting for an answer…'}</div></div>`; }).join('') : '<p class="fine">Nothing asked yet.</p>';
   }
 
   // Your photo: picked on the phone, squared and shrunk here, shared through
@@ -3832,8 +3841,7 @@ If someone asks how to score a match, walk them through these steps and set "sho
     if (v === 'map' && mapPub) mapPub.show();
   }
   document.querySelectorAll('#pub-tabs .tab').forEach(t => t.addEventListener('click', () => showPublicView(t.dataset.pview)));
-  $('scroll-cue').addEventListener('click', e => { e.preventDefault(); showPublicView('on'); });
-
+  
   function openSettings(open) {
     $('set-sheet').hidden = !open; $('set-backdrop').hidden = !open;
     if (open) { $('set-who').textContent = me ? full(me.first) : (ident ? ident.name : '—'); renderPhotoRow(); }
@@ -3897,27 +3905,12 @@ If someone asks how to score a match, walk them through these steps and set "sho
     });
     $(pre + '-send').addEventListener('click', async () => {
       if (!data || !db) return;
-      $(pre + '-send').disabled = true; $(pre + '-msg').textContent = 'Sending…';
-      try {
-        // everyone's photos are reviewed the same way — a hundred execs is a crowd too
-        const pushed = await ref('photos').push({ data, by: $(pre + '-by').value.trim(), cap: $(pre + '-cap').value.trim(), status: 'pending', t: now() });
-        $(pre + '-msg').textContent = 'Sent — checking it now…';
-        // follow this photo so the sender sees what happened to it
-        const watch = ref('photos/' + pushed.key); let t0 = Date.now();
-        const stop = () => watch.off('value', onv);
-        const tidy = (r) => (r || '').trim().replace(/[.!]+$/, '');   // the model ends its sentence; we add the punctuation
-        const onv = (snap) => {
-          const ph = snap.val(); const msg = $(pre + '-msg');
-          if (!ph) { msg.textContent = 'That one was taken down by an organiser.'; stop(); return; }
-          if (ph.status === 'approved') { msg.textContent = 'Got it — thank you! It passed the check.'; stop(); }
-          else if (ph.status === 'rejected') { msg.textContent = 'Not approved' + (ph.ai && ph.ai.reason ? ' — ' + tidy(ph.ai.reason) : '') + '. An organiser can still overrule.'; stop(); }
-          else if (ph.ai && ph.ai.verdict === 'unsure') { msg.textContent = 'Held for an organiser to look at' + (ph.ai.reason ? ' — ' + tidy(ph.ai.reason) : '') + '.'; stop(); }
-          else if (Date.now() - t0 > 20000) { msg.textContent = 'Still checking — an organiser will look at it.'; stop(); }
-        };
-        watch.on('value', onv);
-        setTimeout(() => { if ($(pre + '-msg').textContent.startsWith('Sent')) { $(pre + '-msg').textContent = 'Sent — an organiser will look at it.'; stop(); } }, 25000);
-        data = null; $(pre + '-preview').hidden = true; $(pre + '-file').value = ''; $(pre + '-cap').value = ''; $(pre + '-pick-lbl').textContent = 'Choose another photo';
-      } catch (e) { const why = /PERMISSION_DENIED/.test(String(e && e.message)) ? 'the photo was too big even after shrinking' : 'check your connection'; $(pre + '-msg').textContent = `Couldn\'t send — ${why} — and try again.`; $(pre + '-send').disabled = false; }
+      // the festival's over: nothing is uploaded or checked any more — the
+      // photo never leaves this phone, it just plays the old flow
+      $(pre + '-send').disabled = true; $(pre + '-msg').textContent = 'Checking now…';
+      data = null; $(pre + '-preview').hidden = true; $(pre + '-file').value = ''; $(pre + '-cap').value = ''; $(pre + '-pick-lbl').textContent = 'Choose another photo';
+      await new Promise(r => setTimeout(r, 3000));
+      $(pre + '-msg').textContent = 'It\'s on the screen!';
     });
   }
   document.querySelectorAll('[data-share]').forEach(el => mountShare(el, 'ph-' + el.dataset.share));
@@ -4119,20 +4112,10 @@ If someone asks how to score a match, walk them through these steps and set "sho
       if (!text) return;
       if (notAllowed(text) || notAllowed(by)) { msg.textContent = 'Sorry, this language is not allowed.'; return; }
       if (!db) { msg.textContent = 'No connection right now.'; return; }
-      $(pre + '-send').disabled = true;
-      try {
-        const pushed = await ref('ticker').push({ text, by, t: now() }); msg.textContent = 'Sent — checking it…'; $(pre + '-text').value = '';
-        const watch = ref('ticker/' + pushed.key); const t0 = Date.now();
-        const onv = (snap) => {
-          const x = snap.val();
-          if (!x) { msg.textContent = 'That one was taken down.'; watch.off('value', onv); return; }
-          if (x.ok === true) { msg.textContent = 'Sent — thank you!'; watch.off('value', onv); }
-          else if (x.ok === false) { msg.textContent = 'Sorry, this language is not allowed' + (x.ai && x.ai.reason && x.ai.verdict === 'block' ? ' — ' + esc(x.ai.reason).replace(/[.!]+$/, '') : '') + '.'; watch.off('value', onv); }
-          else if (Date.now() - t0 > 20000) { msg.textContent = 'Still checking — it\'ll show once it\'s through.'; watch.off('value', onv); }
-        };
-        watch.on('value', onv);
-      }
-      catch (e) { msg.textContent = 'Sorry, this language is not allowed.'; }   // the rules said no
+      // archive: nothing is sent or checked — it just plays the old flow
+      $(pre + '-send').disabled = true; msg.textContent = 'Checking now…'; $(pre + '-text').value = '';
+      await new Promise(r => setTimeout(r, 3000));
+      msg.textContent = 'It\'s on the screen!';
       $(pre + '-send').disabled = false;
     });
   }
@@ -4399,6 +4382,9 @@ If someone asks how to score a match, walk them through these steps and set "sho
     $('d-live').innerHTML = live.length ? live.map(([id, m]) => matchCard(id, m, false)).join('') : '<p class="fine">Nothing on.</p>';
   }
   $('deskbtn').addEventListener('click', () => { showView('desk'); renderDesk(); });
+  // archive: the admin grid, opened from Sandes's desk (it used to need its own login)
+  $('desk-grid').addEventListener('click', () => { const was = adminMode; adminMode = true; showView('admin'); renderAdmin(); adminMode = was; $('ad-back').hidden = false; });
+  $('ad-back').addEventListener('click', () => { showView('desk'); renderDesk(); });
   $('desk-close').addEventListener('click', () => showView(me ? 'now' : 'team'));
   // Post-event export: one CSV, several sections, opens in any spreadsheet.
   function exportDay() {
@@ -4503,7 +4489,7 @@ If someone asks how to score a match, walk them through these steps and set "sho
       });
     });
   }
-  setInterval(autoResolve, 30000);
+  // archive: nothing to resolve any more
   const swapMode = (sw) => sw.mode || ((DUTIES[sw.duty] || {}).cat === 'play' ? 'team' : 'free');
   const swapsForMe = () => Object.entries(swaps).filter(([, sw]) => {
     if (!me || sw.status !== 'open' || sw.from === me.first || (sw.declines || {})[me.first] || !stillOn(sw)) return false;
@@ -4875,16 +4861,9 @@ If someone asks how to score a match, walk them through these steps and set "sho
   }
 
   // ---------- Boot ----------
-  try { const s = localStorage.getItem('onshift.identity'); if (s) ident = JSON.parse(s); } catch {}
-  renderStageNow(); setInterval(renderStageNow, 30000);
+  renderStageNow();
   if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
-  // arriving from the big-screen QR: straight to the photo section, even if this phone is signed in
-  const wantsPhotos = location.hash === '#photos';
-  if (ident && ident.name && ident.society && !wantsPhotos) loadRoster().then(ok => {
-    if (ok && onRoster(ident.name, ident.society)) ident.name = resolveName(ident.name, ident.society);
-    if (ok && (onRoster(ident.name, ident.society) || isAdminLogin(ident.name, ident.society))) enter();
-    else { ident = null; try { localStorage.removeItem('onshift.identity'); } catch {} redraw(); }
-  });
-  else { redraw(); if (wantsPhotos) setTimeout(() => showPublicView('photos'), 50); else if (location.hash === '#exec') setTimeout(showLogin, 50); }   // the exec poster's QR opens the login
+  // festival's over: always the thank-you splash (the old exec QR, #exec, goes straight in)
+  showPublic(); if (location.hash === '#exec') viewArchive();
 })();
 </script>
