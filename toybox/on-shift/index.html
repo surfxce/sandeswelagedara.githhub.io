@@ -2732,6 +2732,7 @@
     let locWanted = true; try { locWanted = localStorage.getItem('onshift.locOff') !== '1'; } catch {}
     async function autoLocate() {
       if (!locWanted || watchId !== null || !m.sat || satEl.hidden || !navigator.geolocation) return;
+      if (!root.getClientRects().length) return;   // only once the Map tab is actually on screen — never on page load
       try { const st = await navigator.permissions.query({ name: 'geolocation' }); if (st.state === 'denied') return; } catch {}
       startLocate();
     }
