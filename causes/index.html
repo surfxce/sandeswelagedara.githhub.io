@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Photos — Sandes Welagedara</title>
-<meta name="description" content="Photos — Sandes Welagedara, Brisbane.">
+<title>Causes — Sandes Welagedara</title>
+<meta name="description" content="Causes Sandes Welagedara cares about.">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,11 +19,11 @@
   <a href="../" class="nav-logo">SW</a>
   <ul class="nav-links" id="navLinks">
     <li><a href="../cv/" data-nav="cv">cv / resume</a></li>
-    <li><a href="./" data-nav="photos">photos</a></li>
+    <li><a href="../photos/" data-nav="photos">photos</a></li>
     <li><a href="../blog/" data-nav="blog">blog</a></li>
     <li><a href="../projects/" data-nav="projects">projects</a></li>
     <li><a href="../toybox/" data-nav="toybox">toybox</a></li>
-    <li><a href="../causes/" data-nav="causes">causes</a></li>
+    <li><a href="./" data-nav="causes">causes</a></li>
   </ul>
   <button class="nav-burger" id="burgerBtn" aria-label="Open menu" aria-expanded="false">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
@@ -35,11 +35,11 @@
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 6l12 12M18 6L6 18"/></svg>
   </button>
   <a href="../cv/" data-nav="cv">cv / resume</a>
-  <a href="./" data-nav="photos">photos</a>
+  <a href="../photos/" data-nav="photos">photos</a>
   <a href="../blog/" data-nav="blog">blog</a>
   <a href="../projects/" data-nav="projects">projects</a>
-  <a href="../toybox/">toybox</a>
-  <a href="../causes/">causes</a>
+  <a href="../toybox/" data-nav="toybox">toybox</a>
+  <a href="./" data-nav="causes">causes</a>
 </div>
 
 <!-- ============ HERO ============ -->
@@ -47,45 +47,29 @@
   <div class="aura"><span class="orb"></span><span class="orb"></span><span class="orb"></span></div>
   <div class="wrap" style="position:relative; z-index:2;">
     <a href="../" class="crumb">← back home</a>
-    <p class="section-eyebrow"><span class="orb-chip" style="background:var(--fern)"></span>photos</p>
-    <h1 class="section-title" style="font-size:clamp(2.6rem,7vw,4.6rem);">A wall of them</h1>
+    <p class="section-eyebrow"><span class="orb-chip" style="background:var(--fern)"></span>causes</p>
+    <h1 class="section-title" style="font-size:clamp(2.6rem,7vw,4.6rem);">Causes</h1>
     <p class="section-note" style="margin-top:1rem; max-width:52ch;">
-      Since Instagram killed profile posts.
+      Here are the causes I care about — not exhaustive.
     </p>
   </div>
 </header>
 
-<!-- ============ GRID ============ -->
+<!-- ============ CAUSES ============ -->
 <section class="section section-paper" style="padding-top:20px;">
   <div class="wrap">
-    <p class="section-note" id="photoEmpty" style="display:none; margin-bottom:1.4rem;">
-      Nothing up yet — add photos to <code>assets/photos/</code> and list them in
-      <code>assets/js/photos.js</code>. These tiles are placeholders.
-    </p>
-    <div class="photo-grid" id="photoGrid"></div>
+    <div class="explore-grid" style="grid-template-columns:repeat(auto-fill,minmax(230px,1fr));">
+
+      <a class="explore-card" href="https://www.parliament.qld.gov.au/Work-of-the-Assembly/Petitions/petition-details/4685-26">
+        <span class="num">01</span>
+        <h3>Stop the Western Downs data centre</h3>
+        <p>A Queensland Parliament petition against the proposed Western Downs Digital Park data centre, over its water and power use, noise, traffic, and the farmland it would take. Open to Queensland residents until 1 March 2027.</p>
+        <span class="go">sign the petition →</span>
+      </a>
+
+    </div>
   </div>
 </section>
-
-<!-- ============ LIGHTBOX ============ -->
-<div class="lightbox" id="lightbox">
-  <div class="lightbox-inner">
-    <button class="lightbox-close" id="lbClose" aria-label="Close">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 6l12 12M18 6L6 18"/></svg>
-    </button>
-    <img id="lbImg" alt="">
-    <div class="lightbox-fallback" id="lbFallback"></div>
-    <div class="lightbox-text">
-      <h3 class="lightbox-title" id="lbTitle"></h3>
-      <p class="lightbox-cap" id="lbCap"></p>
-    </div>
-    <button class="lightbox-btn lightbox-prev" id="lbPrev" aria-label="Previous">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M15 5l-7 7 7 7"/></svg>
-    </button>
-    <button class="lightbox-btn lightbox-next" id="lbNext" aria-label="Next">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 5l7 7-7 7"/></svg>
-    </button>
-  </div>
-</div>
 
 <!-- ============ FOOTER ============ -->
 <footer>
@@ -103,9 +87,8 @@
 </footer>
 
 <script src="../assets/js/site.js?v=20260913a"></script>
-<script src="../assets/js/photos.js?v=20260913a"></script>
 <script>
-  SW.initNav({ page: 'photos' });
+  SW.initNav({ page: 'causes' });
   document.getElementById('year').textContent = '© ' + new Date().getFullYear();
 </script>
 </body>
