@@ -79,6 +79,13 @@
         <span class="go">run the test →</span>
       </a>
 
+      <a class="explore-card" href="https://github.com/surfxce/letslockin">
+        <span class="num">04</span>
+        <h3>Let's Lock In</h3>
+        <p>Nudges you to do long-answer questions after every lecture, keeps bringing them back with spaced repetition, and steers you to the high-yield topics you're weakest at, using patterns in past papers.</p>
+        <span class="go">in the works · see the repo →</span>
+      </a>
+
       <!-- one more tile is added here by the script below, but only after a
            particular sequence of keys. It is not in the markup on purpose. -->
 
@@ -128,7 +135,7 @@
       a.className = 'explore-card toy-secret' + (animate ? ' toy-secret-in' : '');
       a.href = atob(TARGET);
       a.innerHTML = `
-        <span class="num">03</span>
+        <span class="num">${String(grid.querySelectorAll('.explore-card').length + 1).padStart(2, '0')}</span>
         <h3>freaky website</h3>
         <p>A kiss is a 1. A felony is a 100. You still get a score out of 100 — and there's a wheel.</p>
         <span class="go">if you insist →</span>`;
