@@ -49,7 +49,7 @@ const CV_DATA = [
        it's a candidacy, not a role held. Delete the flag once it's decided. */
     group:'volunteering', id:'uqsla', start:2027, end:null, prospective:true,
     title:'VP of Events', org:'UQ Sri Lankan Association (UQSLA)',
-    date:'2027', tint:CV_TINTS.wheat, cover:'../assets/cv/uqsla-vp-events.jpg',
+    date:'2027', tint:CV_TINTS.wheat, cover:'../assets/cv/uqsla-vp-events.jpg?v=2',
     blurb:'I’m running for VP of Events at UQSLA.',
     tags:['Events','Leadership','Committee'],
     detail:[
