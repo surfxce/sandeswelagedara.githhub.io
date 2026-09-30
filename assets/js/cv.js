@@ -16,9 +16,12 @@
      date     free text, shown above the card
      blurb    one line, shown on the BACK of the flip card
      detail   array shown in the expanded panel. A string is a paragraph;
-              {list:[...]} renders as a numbered list.
+              {list:[...]} renders as a numbered list; {button:'text',
+              href:'url'} renders a pill button.
      tags     small chips under the description
      tint     CSS background for the cover + placeholder art
+     cover    optional photo for the top of the expanded panel (sits over
+              the tint). Path relative to the cv page, e.g. "../assets/cv/x.jpg"
      courses  optional [{term, items:[...]}] — renders as a course list
      moments  optional key events. Each flips to reveal its write-up.
      prospective  optional. true = not confirmed yet (a candidacy, an offer):
@@ -46,7 +49,7 @@ const CV_DATA = [
        it's a candidacy, not a role held. Delete the flag once it's decided. */
     group:'volunteering', id:'uqsla', start:2027, end:null, prospective:true,
     title:'VP of Events', org:'UQ Sri Lankan Association (UQSLA)',
-    date:'2027', tint:CV_TINTS.wheat,
+    date:'2027', tint:CV_TINTS.wheat, cover:'../assets/cv/uqsla-vp-events.jpg',
     blurb:'I’m running for VP of Events at UQSLA.',
     tags:['Events','Leadership','Committee'],
     detail:[
@@ -60,7 +63,8 @@ const CV_DATA = [
         'Ensuring Suits n Sarees enjoys a decent amount of growth in attendees whilst guaranteeing an excellent experience for all.'
       ]},
       'I’m grateful to all my friends at the clubs I’ve worked with, who’ve shown me the ins and outs of event planning and organisation. Special shout out to my VPs who’ve inspired me to take this next step.',
-      'Details of the AGM will be announced soon.'
+      'The AGM is on Wednesday 14 October.',
+      { button:'Read my manifesto', href:'vp-events-manifesto/' }
     ],
     moments:[]
   },
@@ -390,6 +394,7 @@ function momentsHTML(item){
 function detailBlock(p){
   if(typeof p === 'string') return `<p class="detail-desc">${p}</p>`;
   if(p && p.list) return `<ol class="detail-ol">${p.list.map(li => `<li>${li}</li>`).join('')}</ol>`;
+  if(p && p.button) return `<p><a class="detail-btn" href="${p.href}">${p.button} <span aria-hidden="true">→</span></a></p>`;
   return '';
 }
 
@@ -414,6 +419,7 @@ function openDetail(item, triggerEl){
     <div class="detail-scroll">
       <div class="detail-cover">
         <span class="tint" style="background:${item.tint}"></span>
+        ${item.cover ? `<img class="cover-photo" src="${item.cover}" alt="" onerror="this.remove()">` : ''}
         <p class="label">${item.title}</p>
       </div>
       <div class="detail-body">
