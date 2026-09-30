@@ -340,6 +340,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible{
 
 .detail-cover{ height:min(34vh,240px); position:relative; }
 .detail-cover .tint{ position:absolute; inset:0; }
+.detail-cover .cover-photo{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center 55%; }
 /* scrim under the cover title — the lighter tints (wheat, fern) don't carry
    white text on their own, and the tint varies per entry */
 .detail-cover::after{ content:''; position:absolute; inset:0; z-index:1; pointer-events:none; background:linear-gradient(0deg, rgba(35,40,31,.58), transparent 62%); }
@@ -347,6 +348,16 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible{
 .detail-body{ padding:1.7rem 1.9rem 2.6rem; }
 .detail-org{ font-family:var(--label); font-size:0.78rem; opacity:0.72; margin-bottom:.3rem; }
 .detail-desc{ font-size:1rem; line-height:1.7; opacity:1; margin-top:.9rem; max-width:64ch; }
+.detail-btn{
+  display:inline-flex; align-items:center; gap:.45rem; margin-top:1.3rem;
+  padding:.7rem 1.35rem; border-radius:999px; border:1px solid var(--line);
+  background:var(--paper-2); color:var(--moss); text-decoration:none;
+  font-family:var(--label); font-size:0.86rem; letter-spacing:.03em;
+  transition:transform .3s var(--ease), background .3s var(--ease), color .3s var(--ease), border-color .3s var(--ease);
+}
+/* same green lift as the profile icons on the home page */
+.detail-btn:hover{ transform:translateY(-3px); background:var(--moss); color:var(--paper); border-color:var(--moss); }
+.detail-btn:focus-visible{ outline:2px solid var(--moss); outline-offset:3px; }
 .detail-tags{ display:flex; flex-wrap:wrap; gap:.45rem; margin-top:1.1rem; }
 
 /* course lists inside the education panels */
