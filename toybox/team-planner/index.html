@@ -99,16 +99,42 @@
   .toolbar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
   .yearline { font-family: var(--display); font-size: 22px; margin: 0 0 12px; color: var(--ink-2); }
   .yearline b { color: var(--ink); font-weight: 600; }
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px; }
+  /* the pyramid: President on top, then the T3 row, then the T5 row */
+  .pyramid { position: relative; display: grid; gap: 14px; justify-items: center; padding: 20px 0 6px; margin-bottom: 26px; }
+  .pyramid::before { content: ''; position: absolute; inset: 0 2%; background: var(--card-2); clip-path: polygon(50% 0, 100% 100%, 0 100%); z-index: 0; }
+  .prow { position: relative; z-index: 1; display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; width: 100%; }
+  .box.top { flex: 0 1 190px; min-width: 150px; min-height: 0; text-align: center; box-shadow: 0 4px 14px rgba(44, 51, 39, .08); }
+  .box.top h4 { justify-content: center; }
+  .box.top h4 .n { display: none; }
+  .box.top .bubs { justify-content: center; }
+  .oversees { font-size: 12px; color: var(--ink-2); margin: 8px 0 0; line-height: 1.3; }
+  /* teams: tall columns, hanging under whoever they report to */
+  .team { --colw: 158px; display: flex; flex-wrap: wrap; justify-content: center; gap: 26px 22px; align-items: flex-start; }
+  .branch { display: flex; flex-direction: column; align-items: center; max-width: 100%; }
+  .bhead { position: relative; font-size: 13px; line-height: 1.3; color: var(--ink-2); background: var(--card); border: 1px solid var(--line); border-left: 4px solid var(--c); border-radius: 10px; padding: 6px 12px; margin-bottom: 10px; text-align: center; max-width: 100%; }
+  .bhead b { color: var(--ink); }
+  .bhead::after { content: ''; position: absolute; left: 50%; top: 100%; width: 2px; height: 10px; background: var(--c); }
+  .cols { position: relative; display: flex; gap: 12px; align-items: flex-start; padding-top: 10px; }
+  .cols.multi::before { content: ''; position: absolute; top: 0; left: calc(var(--colw) / 2); right: calc(var(--colw) / 2); height: 2px; background: var(--c); }
+  .box.col { position: relative; width: var(--colw); min-height: 230px; }
+  .box.col::before { content: ''; position: absolute; left: 50%; top: -14px; width: 2px; height: 10px; background: var(--branch, transparent); }
+  .box.col h4 { font-size: 18px; }
+  .box.col .bubs { flex-direction: column; flex-wrap: nowrap; align-items: center; gap: 12px; }
+  /* bottom: not placed yet | out, one box split by a dotted line */
+  .limbo { display: grid; grid-template-columns: 1fr 1fr; margin-top: 30px; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+  .limbo .box { border: 0; border-radius: 0; margin: 0; min-height: 130px; }
+  .limbo .box.tray { background: var(--card-2); }
+  .limbo .box + .box { border-left: 2px dashed var(--line-2); }
+  .limbo .box.over { box-shadow: inset 0 0 0 3px var(--c); transform: none; }
   .box { background: var(--card); border: 1px solid var(--line); border-top: 4px solid var(--c); border-radius: 14px; padding: 12px 12px 14px; min-height: 140px; transition: box-shadow .2s, transform .2s, border-color .2s; }
   .box h4 { margin: 0 0 10px; display: flex; align-items: baseline; gap: 8px; font-family: var(--display); font-weight: 600; font-size: 20px; line-height: 1.2; }
   .box h4 .n { font-family: var(--sans); font-size: 12px; font-weight: 600; color: var(--ink-3); margin-left: auto; }
   .box .empty { font-size: 13px; color: var(--ink-3); margin: 6px 0 0; }
   .bubs { display: flex; flex-wrap: wrap; gap: 12px 10px; }
   .box.over { box-shadow: 0 0 0 3px var(--c), var(--shadow); transform: translateY(-2px); }
-  .box.out { --c: #9a978f; background: var(--out); border-color: transparent; border-top-color: #9a978f; margin-top: 14px; }
+  .box.out { --c: #9a978f; background: var(--out); }
   .box.out h4 { color: var(--out-ink); }
-  .box.tray { --c: var(--moss); border-style: dashed; border-top-style: solid; margin-bottom: 14px; background: var(--card-2); }
+  .box.tray { --c: var(--moss); }
 
   /* ---------- bubbles ---------- */
   .bub { --size: 70px; width: 84px; border: 0; background: none; padding: 0; display: flex; flex-direction: column; align-items: center; gap: 4px; touch-action: pan-y; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; color: inherit; }
@@ -157,6 +183,9 @@
   .mini.del:hover { background: var(--danger); border-color: var(--danger); color: var(--card); }
   .mini:disabled { opacity: .3; pointer-events: none; }
   .moves { display: flex; gap: 2px; }
+  .div-opts { grid-column: 2 / -1; display: flex; flex-wrap: wrap; gap: 8px 14px; font-size: 13px; color: var(--ink-2); }
+  .div-opts label { display: inline-flex; align-items: center; gap: 6px; }
+  .div-opts select { width: auto; padding: 5px 8px; font-size: 14px; border-radius: 8px; }
   .div-row.fixed { grid-template-columns: 14px 1fr auto; color: var(--out-ink); }
   .add-row { display: flex; gap: 8px; margin-top: 14px; }
   .add-row input { flex: 1; }
@@ -167,7 +196,11 @@
 
   /* phones: two divisions across, slightly smaller bubbles */
   @media (max-width: 480px) {
-    .grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .team { --colw: 134px; gap: 22px 12px; }
+    .cols { gap: 8px; }
+    .box.top { flex-basis: 150px; min-width: 128px; }
+    .limbo { grid-template-columns: 1fr; }
+    .limbo .box + .box { border-left: 0; border-top: 2px dashed var(--line-2); }
     .box { padding: 10px 8px 12px; min-height: 120px; }
     .box h4 { font-size: 17px; }
     .bubs { gap: 10px 6px; }
@@ -215,7 +248,7 @@
       <label class="field"><span>Divisions</span><textarea id="new-divs" placeholder="President&#10;Treasurer&#10;Events&#10;Marketing&#10;Charity"></textarea></label>
     </div>
   </div>
-  <p class="fine" style="margin:4px 0 14px">There's always an <b>Out</b> division too, for anyone graduating, leaving, or not on the team that year. No need to list it.</p>
+  <p class="fine" style="margin:4px 0 14px">There's always an <b>Out</b> division too, for anyone graduating, leaving, or not on the team that year. No need to list it. President, Secretary, Treasurer and the VPs go in the pyramid at the top by themselves, and a team like Events reports to the VP with the same name. You can change both under Divisions.</p>
   <div class="actions">
     <button class="btn primary" id="build" type="button">Build the team →</button>
     <button class="btn" id="example" type="button">Try an example</button>
@@ -233,10 +266,8 @@
     <button class="btn small danger" id="btn-reset" type="button">Start over</button>
   </div>
   <p class="yearline" id="yearline"></p>
-  <div id="tray"></div>
-  <div class="grid" id="grid"></div>
-  <div id="outbox"></div>
-  <p class="fine" style="margin-top:16px">Drag a bubble to move someone (on a phone, hold it first). Tap a bubble to add a photo or change their details. Saved in this browser only.</p>
+  <div id="chart"></div>
+  <p class="fine" style="margin-top:16px">Drag a bubble to move someone (on a phone, hold it first). Tap a bubble to add a photo or change their details. Set who sits in the pyramid and who each team reports to under Divisions. Saved in this browser only.</p>
 </main>
 
 <div class="scrim" id="scrim" hidden></div>
@@ -276,8 +307,31 @@
   const colorOf = (id) => ACCENTS[Math.max(0, divIndex(id)) % ACCENTS.length];
   const divName = (id) => { const d = S.divisions.find(x => x.id === id); return d ? d.name : ''; };
   const placeName = (p) => p === 'out' ? 'Out' : p == null ? '' : divName(p);
+  // where a division sits: 1 = top of the pyramid, 2 = T3 row, 3 = T5 row, 0 = a team column
+  function guessLevel(name) {
+    const t = norm(name);
+    if (/^(president|chair|chairperson)$/.test(t)) return 1;
+    if (/^(vice[- ]?president|vp|secretary|treasurer)$/.test(t)) return 2;
+    if (/\bvp\b|vice[- ]?president|\bhead of\b|\bdirector\b/.test(t)) return 3;
+    return 0;
+  }
+  // a team reports to the pyramid role that names it: Events → VP Events
+  function guessBoss(d) {
+    if (d.level) return null;
+    const word = norm(d.name).replace(/s$/, '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    if (word.length < 3) return null;
+    const re = new RegExp('\\b' + word);
+    const b = S.divisions.find(x => x.level && x.id !== d.id && re.test(norm(x.name)));
+    return b ? b.id : null;
+  }
+  const listJoin = (a) => a.length < 2 ? a.join('') : a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1];
   // anyone sitting in a division that isn't running that year goes back to "not placed"
   function tidy() {
+    S.divisions.forEach(d => { if (d.level == null) d.level = guessLevel(d.name); });
+    S.divisions.forEach(d => {
+      if (d.reportsTo === undefined) d.reportsTo = guessBoss(d);
+      if (d.level || (d.reportsTo && !S.divisions.some(b => b.id === d.reportsTo && b.level))) d.reportsTo = null;
+    });
     S.execs.forEach(e => {
       e.why = e.why || { old: '', new: '' };
       YEARS.forEach(y => { const p = e[y]; if (p && p !== 'out' && !S.divisions.some(d => d.id === p && d[y])) e[y] = null; });
@@ -323,7 +377,8 @@
     const names = []; [...dv.old, ...dv.new].forEach(n => { if (!names.some(x => norm(x) === norm(n))) names.push(n); });
     const divisions = names.map(n => {
       const had = S.divisions.find(d => norm(d.name) === norm(n));
-      return { id: had ? had.id : uid(), name: n, old: dv.old.some(d => norm(d) === norm(n)), new: dv.new.some(d => norm(d) === norm(n)) };
+      return { id: had ? had.id : uid(), name: n, old: dv.old.some(d => norm(d) === norm(n)), new: dv.new.some(d => norm(d) === norm(n)),
+        level: had ? had.level : guessLevel(n), reportsTo: had ? had.reportsTo : undefined };
     });
     const idFor = (y, n) => { const d = divisions.find(d => norm(d.name) === norm(n) && d[y]); return d ? d.id : null; };
     // execs: everyone on either list, matched by name; photos and placements carry over
@@ -354,10 +409,10 @@
     });
   }
   const EXAMPLE = {
-    oldExecs: 'Amara Perera — President\nBen Kwan — Vice President\nChloe Singh — Treasurer\nDev Patel — Sponsorship\nEsha Rao — Events\nFarhan Ali — Events\nGita Shah — Marketing\nHugo Chen — Marketing\nIsla Brown — Secretary',
-    newExecs: 'Amara Perera — Events\nChloe Singh — President\nDev Patel — Treasurer\nEsha Rao — Events\nGita Shah — Marketing\nHugo Chen — Vice President\nIsla Brown — Secretary\nJai Mehta — Sponsorship\nKiran Das — Charity\nLena Fox',
-    oldDivs: 'President\nVice President\nSecretary\nTreasurer\nSponsorship\nEvents\nMarketing',
-    newDivs: 'President\nVice President\nSecretary\nTreasurer\nSponsorship\nEvents\nMarketing\nCharity',
+    oldExecs: 'Amara Perera — President\nBen Kwan — Secretary\nChloe Singh — Treasurer\nDev Patel — VP Events\nEsha Rao — VP Marketing\nFarhan Ali — Events\nGita Shah — Events\nHugo Chen — Events\nIsla Brown — Marketing\nJai Mehta — Marketing\nKiran Das — Sponsorship\nLena Fox — Merch',
+    newExecs: 'Chloe Singh — President\nBen Kwan — Secretary\nKiran Das — Treasurer\nDev Patel — VP Events\nGita Shah — VP Marketing\nAmara Perera — Events\nHugo Chen — Events\nMaya Rose — Events\nIsla Brown — Marketing\nJai Mehta — Marketing\nPriya Nair — Marketing\nNikhil Rao — Sponsorship\nLena Fox — Merch\nOmar Aziz — Charity',
+    oldDivs: 'President\nSecretary\nTreasurer\nVP Events\nVP Marketing\nEvents\nMarketing\nSponsorship\nMerch',
+    newDivs: 'President\nSecretary\nTreasurer\nVP Events\nVP Marketing\nEvents\nMarketing\nSponsorship\nMerch\nCharity',
   };
   $('example').addEventListener('click', () => {
     $('club').value = 'Example Society';
@@ -367,7 +422,12 @@
   $('build').addEventListener('click', () => {
     if (!applyLists()) return;
     // the example's leavers get a reason, to show what it looks like
-    if ($('club').value === 'Example Society') S.execs.forEach(e => { if (e.name === 'Ben Kwan') e.why.new = 'Graduating'; if (e.name === 'Farhan Ali') e.why.new = 'On exchange'; });
+    if ($('club').value === 'Example Society') {
+      S.execs.forEach(e => { if (e.name === 'Esha Rao') e.why.new = 'Graduating'; if (e.name === 'Farhan Ali') e.why.new = 'On exchange'; });
+      const dn = (n) => S.divisions.find(d => d.name === n);
+      if (dn('Sponsorship') && dn('Treasurer')) dn('Sponsorship').reportsTo = dn('Treasurer').id;
+      if (dn('Charity') && dn('Secretary')) dn('Charity').reportsTo = dn('Secretary').id;
+    }
     save(); showBoard();
   });
   $('to-board').addEventListener('click', showBoard);
@@ -413,14 +473,38 @@
     document.querySelectorAll('.seg [data-view]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.view === v)));
     $('yearline').innerHTML = v === 'old' ? '<b>The old team</b> — how it was' : '<b>The new team</b> — how it is now';
     const sorted = (list) => list.slice().sort((a, b) => a.name.localeCompare(b.name));
-    const unplaced = sorted(S.execs.filter(e => e[v] == null));
-    $('tray').innerHTML = unplaced.length ? `<section class="box tray" data-drop="_none"><h4>Not placed yet <span class="n">${unplaced.length}</span></h4><div class="bubs">${unplaced.map(e => bubble(e, 'var(--moss)')).join('')}</div></section>` : '';
-    $('grid').innerHTML = S.divisions.filter(d => d[v]).map(d => {
-      const ppl = sorted(S.execs.filter(e => e[v] === d.id)); const c = colorOf(d.id);
-      return `<section class="box" style="--c:${c}" data-drop="${d.id}"><h4>${esc(d.name)} <span class="n">${ppl.length || ''}</span></h4><div class="bubs">${ppl.map(e => bubble(e, c)).join('')}</div>${ppl.length ? '' : '<p class="empty">Drag execs here</p>'}</section>`;
-    }).join('') || `<p class="fine">No divisions in the ${LABEL[v].toLowerCase()} team yet — add some under Divisions.</p>`;
-    const outs = sorted(S.execs.filter(e => e[v] === 'out'));
-    $('outbox').innerHTML = `<section class="box out" data-drop="out"><h4>Out <span class="n">${outs.length || ''}</span></h4><div class="bubs">${outs.map(e => bubble(e, '#9a978f')).join('')}</div>${outs.length ? '' : '<p class="empty">Graduating, leaving, or not on the team this year</p>'}</section>`;
+    const people = (id) => sorted(S.execs.filter(e => e[v] === id));
+    const act = S.divisions.filter(d => d[v]);
+    const box = (d, cls, branchColor) => {
+      const ppl = people(d.id), c = colorOf(d.id);
+      const kids = d.level ? act.filter(x => !x.level && x.reportsTo === d.id).map(x => x.name) : [];
+      return `<section class="box ${cls}" style="--c:${c}${branchColor ? ';--branch:' + branchColor : ''}" data-drop="${d.id}"><h4>${esc(d.name)} <span class="n">${ppl.length || ''}</span></h4>
+        <div class="bubs">${ppl.map(e => bubble(e, c)).join('')}</div>${ppl.length ? '' : `<p class="empty">${d.level ? 'Vacant' : 'Drag execs here'}</p>`}
+        ${kids.length ? `<p class="oversees">Responsible for ${esc(listJoin(kids))}</p>` : ''}</section>`;
+    };
+    // the pyramid, top down
+    const rows = [1, 2, 3].map(l => act.filter(d => d.level === l)).filter(r => r.length);
+    const pyramid = rows.length ? `<div class="pyramid">${rows.map(r => `<div class="prow">${r.map(d => box(d, 'top')).join('')}</div>`).join('')}</div>` : '';
+    // teams, grouped under the role they report to: the T5 row's teams first
+    // (usually the big ones, like Events and Marketing), then T3, then the top
+    const team = act.filter(d => !d.level), bosses = rows.flat().sort((a, b) => b.level - a.level);
+    const groups = bosses.map(b => ({ boss: b, divs: team.filter(t => t.reportsTo === b.id) })).filter(g => g.divs.length);
+    const loose = team.filter(t => !bosses.some(b => b.id === t.reportsTo));
+    const branch = (boss, divs) => {
+      const c = boss ? colorOf(boss.id) : 'var(--line-2)';
+      const who = boss ? people(boss.id).map(shortName) : [];
+      const head = boss ? `Reports to <b>${esc(boss.name)}</b> · ${who.length ? esc(listJoin(who)) : 'vacant'}` : (bosses.length ? 'Reports to no one' : '');
+      return `<div class="branch" style="--c:${c}">${head ? `<div class="bhead">${head}</div>` : ''}<div class="cols ${divs.length > 1 && head ? 'multi' : ''}">${divs.map(d => box(d, 'col', head ? c : '')).join('')}</div></div>`;
+    };
+    const teams = team.length ? `<div class="team">${groups.map(g => branch(g.boss, g.divs)).join('')}${loose.length ? branch(null, loose) : ''}</div>` : '';
+    const none = act.length ? '' : `<p class="fine">No divisions in the ${LABEL[v].toLowerCase()} team yet — add some under Divisions.</p>`;
+    // the bottom: not placed yet | out
+    const unplaced = sorted(S.execs.filter(e => e[v] == null)), outs = people('out');
+    const limbo = `<div class="limbo">
+      <section class="box tray" data-drop="_none"><h4>Not placed yet <span class="n">${unplaced.length || ''}</span></h4><div class="bubs">${unplaced.map(e => bubble(e, 'var(--moss)')).join('')}</div>${unplaced.length ? '' : '<p class="empty">Everyone\'s placed</p>'}</section>
+      <section class="box out" data-drop="out"><h4>Out <span class="n">${outs.length || ''}</span></h4><div class="bubs">${outs.map(e => bubble(e, '#9a978f')).join('')}</div>${outs.length ? '' : '<p class="empty">Graduating, leaving, or not on the team this year</p>'}</section>
+    </div>`;
+    $('chart').innerHTML = pyramid + teams + none + limbo;
   }
   // switching Old ↔ New: bubbles glide from their old box to their new one
   function renderMoving() {
@@ -584,6 +668,20 @@
       html += `<h3>Divisions</h3><ul class="lines">${dl.map(l => `<li>${l}</li>`).join('')}</ul>`;
       text += '\nDivisions\n' + dl.map(l => '• ' + l.replace(/<[^>]+>/g, '')).join('\n') + '\n';
     }
+    // whose responsibility each team is now, and whether that changed
+    const firsts = (id, y) => S.execs.filter(e => e[y] === id).map(e => e.name.split(/\s+/)[0]);
+    const poss = (names) => names.length ? `<b>${esc(listJoin(names))}</b>'s` : 'nobody\'s yet';
+    const resp = S.divisions.filter(d => !d.level && d.new && d.reportsTo).map(d => {
+      const b = S.divisions.find(x => x.id === d.reportsTo); if (!b) return null;
+      const now = firsts(b.id, 'new'), was = d.old && b.old ? firsts(b.id, 'old') : null;
+      if (!d.old) return { mute: false, h: `<b>${esc(d.name)}</b> is new, and ${poss(now)} responsibility (${esc(b.name)}).` };
+      if (was && was.join() === now.join()) return { mute: true, h: `<b>${esc(d.name)}</b> stays ${poss(now)} responsibility (${esc(b.name)}).` };
+      return { mute: false, h: `<b>${esc(d.name)}</b> is now ${poss(now)} responsibility (${esc(b.name)})${was ? `, was ${poss(was)}` : ''}.` };
+    }).filter(Boolean).sort((a, b) => a.mute - b.mute);
+    if (resp.length) {
+      html += `<h3>Who's responsible</h3><ul class="lines">${resp.map(r => `<li${r.mute ? ' class="mute"' : ''}>${r.h}</li>`).join('')}</ul>`;
+      text += '\nWho\'s responsible\n' + resp.map(r => '• ' + r.h.replace(/<[^>]+>/g, '')).join('\n') + '\n';
+    }
     if (pending.length) html += `<h3>Not placed yet · ${pending.length}</h3><ul class="lines">${pending.map(e => `<li class="mute"><b>${esc(e.name)}</b> isn't placed in the ${e.old == null && e.new == null ? 'old or new' : e.old == null ? 'old' : 'new'} team yet.</li>`).join('')}</ul>`;
     if (!html) html = '<p class="fine">Nothing to compare yet — place people in both teams first.</p>';
     html += `<div class="actions" style="margin-top:18px"><button class="btn small" id="copy-changes" type="button">Copy as text</button></div>`;
@@ -602,8 +700,12 @@
         <div class="yr">${YEARS.map(y => `<label><input type="checkbox" data-yr="${y}" ${d[y] ? 'checked' : ''}>${LABEL[y]}</label>`).join('')}</div>
         <div class="moves"><button class="mini" type="button" data-up ${i ? '' : 'disabled'} aria-label="Move up">↑</button><button class="mini" type="button" data-down ${i < S.divisions.length - 1 ? '' : 'disabled'} aria-label="Move down">↓</button></div>
         <button class="mini del" type="button" data-del aria-label="Delete ${esc(d.name)}">×</button>
+        <div class="div-opts">
+          <label>Sits in <select data-level>${[[1, 'Pyramid · top'], [2, 'Pyramid · T3 row'], [3, 'Pyramid · T5 row'], [0, 'Team column']].map(([k, t]) => `<option value="${k}" ${d.level === k ? 'selected' : ''}>${t}</option>`).join('')}</select></label>
+          ${d.level ? '' : `<label>Reports to <select data-boss><option value="">No one</option>${S.divisions.filter(b => b.level).map(b => `<option value="${b.id}" ${d.reportsTo === b.id ? 'selected' : ''}>${esc(b.name)}</option>`).join('')}</select></label>`}
+        </div>
       </div>`).join('');
-    openSheet('Divisions', `<p class="fine" style="margin-top:0">Turn a division on or off for each year. A new division might only run this year.</p>
+    openSheet('Divisions', `<p class="fine" style="margin-top:0">Turn a division on or off for each year. A new division might only run this year. Pyramid roles sit at the top; a team column hangs under the role it reports to, or under no one.</p>
       ${rows}<div class="div-row fixed" style="--c:#9a978f"><span class="sw"></span><span>Out</span><span class="fine">Always there</span></div>
       <form class="add-row" id="add-div"><input type="text" id="add-div-name" maxlength="40" placeholder="Add a division"><button class="btn small primary" type="submit">Add</button></form>
       <p class="fine">A new division starts on for the ${LABEL[S.view].toLowerCase()} team. Tick the other year if it ran then too.</p>`, render);
@@ -616,16 +718,22 @@
         if (!cb.checked) { const n = S.execs.filter(e => e[y] === d.id).length; S.execs.forEach(e => { if (e[y] === d.id) e[y] = null; }); if (n) toast(`${n} ${n === 1 ? 'person' : 'people'} from ${d.name} moved to “Not placed yet” in the ${LABEL[y].toLowerCase()} team.`); }
         save();
       }));
+      row.querySelector('[data-level]').addEventListener('change', (ev) => {
+        d.level = +ev.target.value; if (d.level) d.reportsTo = null; else d.reportsTo = guessBoss(d);
+        tidy(); save(); divisionsSheet();
+      });
+      const boss = row.querySelector('[data-boss]');
+      if (boss) boss.addEventListener('change', () => { d.reportsTo = boss.value || null; save(); });
       row.querySelector('[data-up]').addEventListener('click', () => { const i = divIndex(d.id); [S.divisions[i - 1], S.divisions[i]] = [S.divisions[i], S.divisions[i - 1]]; save(); divisionsSheet(); });
       row.querySelector('[data-down]').addEventListener('click', () => { const i = divIndex(d.id); [S.divisions[i + 1], S.divisions[i]] = [S.divisions[i], S.divisions[i + 1]]; save(); divisionsSheet(); });
       const del = row.querySelector('[data-del]');
-      twoTap(del, '✓', () => { S.execs.forEach(e => YEARS.forEach(y => { if (e[y] === d.id) e[y] = null; })); S.divisions = S.divisions.filter(x => x !== d); save(); divisionsSheet(); });
+      twoTap(del, '✓', () => { S.execs.forEach(e => YEARS.forEach(y => { if (e[y] === d.id) e[y] = null; })); S.divisions = S.divisions.filter(x => x !== d); tidy(); save(); divisionsSheet(); });
     });
     $('add-div').addEventListener('submit', (ev) => {
       ev.preventDefault(); const n = $('add-div-name').value.trim(); if (!n) return;
       if (norm(n) === 'out') { toast('Out is always there already.'); return; }
       if (S.divisions.some(d => norm(d.name) === norm(n))) { toast('There\'s already a division with that name.'); return; }
-      S.divisions.push({ id: uid(), name: n, old: S.view === 'old', new: S.view === 'new' }); save(); divisionsSheet();
+      const nd = { id: uid(), name: n, old: S.view === 'old', new: S.view === 'new', level: guessLevel(n) }; S.divisions.push(nd); nd.reportsTo = guessBoss(nd); save(); divisionsSheet();
       setTimeout(() => { const i = $('add-div-name'); if (i) i.focus(); }, 0);
     });
   }
