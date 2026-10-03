@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Team Planner</title>
+<meta name="description" content="Plan a club or society committee: last year's execs, this year's, and who moved where.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* the main site's palette: paper, moss, clay, wheat */
+  :root {
+    --bg: #f4efe2;
+    --card: #fbf8f0;
+    --card-2: #ece5d4;
+    --ink: #2c3327;
+    --ink-2: rgba(44, 51, 39, .72);
+    --ink-3: rgba(44, 51, 39, .5);
+    --line: rgba(61, 48, 32, .16);
+    --line-2: rgba(61, 48, 32, .3);
+    --moss: #4a6146;
+    --on-moss: #f4efe2;
+    --out: #e4e1da;
+    --out-ink: #6b6a66;
+    --danger: #a0412d;
+    --shadow: 0 10px 30px rgba(44, 51, 39, .14);
+    --display: 'EB Garamond', Georgia, serif;
+    --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #1b1f19; --card: #242a21; --card-2: #2d3429; --ink: #ece6d6; --ink-2: rgba(236, 230, 214, .74); --ink-3: rgba(236, 230, 214, .5);
+      --line: rgba(236, 230, 214, .14); --line-2: rgba(236, 230, 214, .28); --moss: #8fae7f; --on-moss: #1b1f19;
+      --out: #34372f; --out-ink: #a9a89f; --danger: #e08b74; --shadow: 0 10px 30px rgba(0, 0, 0, .45);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #1b1f19; --card: #242a21; --card-2: #2d3429; --ink: #ece6d6; --ink-2: rgba(236, 230, 214, .74); --ink-3: rgba(236, 230, 214, .5);
+    --line: rgba(236, 230, 214, .14); --line-2: rgba(236, 230, 214, .28); --moss: #8fae7f; --on-moss: #1b1f19;
+    --out: #34372f; --out-ink: #a9a89f; --danger: #e08b74; --shadow: 0 10px 30px rgba(0, 0, 0, .45);
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--sans); line-height: 1.5; min-height: 100vh; }
+  button, input, select, textarea { font: inherit; color: inherit; }
+  button { cursor: pointer; }
+  [hidden] { display: none !important; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 16px; }
+
+  /* ---------- top bar ---------- */
+  .top { position: sticky; top: 0; z-index: 20; background: color-mix(in srgb, var(--bg) 92%, transparent); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
+  .top .wrap { display: flex; align-items: center; gap: 12px; min-height: 64px; padding-top: 8px; padding-bottom: 8px; }
+  .back { color: var(--ink-2); text-decoration: none; font-size: 14px; white-space: nowrap; }
+  .back:hover { color: var(--ink); }
+  .ttl { flex: 1; min-width: 0; }
+  .ttl h1 { font-family: var(--display); font-weight: 500; font-size: 26px; line-height: 1.1; margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ttl p { margin: 0; font-size: 12px; color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .right { display: flex; align-items: center; gap: 8px; }
+  .icon-btn { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line-2); background: var(--card); display: grid; place-items: center; transition: background .25s, color .25s, border-color .25s, transform .25s; }
+  .icon-btn:hover { background: var(--moss); color: var(--on-moss); border-color: var(--moss); transform: translateY(-2px); }
+  .icon-btn svg { width: 19px; height: 19px; }
+  .seg { display: inline-flex; padding: 3px; border-radius: 999px; background: var(--card-2); border: 1px solid var(--line); }
+  .seg button { border: 0; background: none; padding: 7px 16px; border-radius: 999px; font-size: 14px; font-weight: 600; color: var(--ink-2); transition: background .25s, color .25s; }
+  .seg button[aria-pressed="true"] { background: var(--moss); color: var(--on-moss); }
+
+  /* ---------- buttons ---------- */
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 18px; border-radius: 999px; border: 1px solid var(--line-2); background: var(--card); font-size: 14px; font-weight: 600; transition: background .25s, color .25s, border-color .25s, transform .25s; }
+  .btn:hover { background: var(--moss); color: var(--on-moss); border-color: var(--moss); transform: translateY(-2px); }
+  .btn.primary { background: var(--moss); color: var(--on-moss); border-color: var(--moss); }
+  .btn.primary:hover { filter: brightness(1.08); }
+  .btn.small { padding: 7px 13px; font-size: 13px; }
+  .btn.danger { color: var(--danger); }
+  .btn.danger:hover { background: var(--danger); color: var(--card); border-color: var(--danger); }
+  .linkbtn { border: 0; background: none; color: var(--moss); font-weight: 600; padding: 4px; }
+
+  /* ---------- setup ---------- */
+  .setup { padding: 28px 0 60px; }
+  .setup h2 { font-family: var(--display); font-weight: 500; font-size: 34px; margin: 0 0 6px; }
+  .lead { color: var(--ink-2); max-width: 60ch; margin: 0 0 22px; }
+  .field { display: grid; gap: 6px; margin-bottom: 16px; }
+  .field > span { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2); }
+  .field small { font-weight: 400; letter-spacing: 0; text-transform: none; }
+  input[type="text"], select, textarea { width: 100%; background: var(--card); border: 1px solid var(--line-2); border-radius: 10px; padding: 10px 12px; font-size: 16px; }
+  textarea { min-height: 190px; resize: vertical; line-height: 1.55; }
+  input:focus, select:focus, textarea:focus { outline: 2px solid var(--moss); outline-offset: 1px; }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .col { background: var(--card-2); border: 1px solid var(--line); border-radius: 16px; padding: 16px; }
+  .col h3 { font-family: var(--display); font-weight: 500; font-size: 24px; margin: 0 0 12px; }
+  .hint { font-size: 13px; color: var(--ink-2); background: var(--card); border: 1px dashed var(--line-2); border-radius: 12px; padding: 10px 12px; margin: 0 0 18px; }
+  .hint code { font-family: inherit; font-weight: 700; color: var(--ink); }
+  .actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 8px; }
+  .err { color: var(--danger); font-size: 14px; margin: 0; }
+  @media (max-width: 720px) { .cols { grid-template-columns: 1fr; } .ttl h1 { font-size: 21px; } .back span { display: none; } }
+
+  /* ---------- board ---------- */
+  .board { padding: 18px 0 70px; }
+  .toolbar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+  .yearline { font-family: var(--display); font-size: 22px; margin: 0 0 12px; color: var(--ink-2); }
+  .yearline b { color: var(--ink); font-weight: 600; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px; }
+  .box { background: var(--card); border: 1px solid var(--line); border-top: 4px solid var(--c); border-radius: 14px; padding: 12px 12px 14px; min-height: 140px; transition: box-shadow .2s, transform .2s, border-color .2s; }
+  .box h4 { margin: 0 0 10px; display: flex; align-items: baseline; gap: 8px; font-family: var(--display); font-weight: 600; font-size: 20px; line-height: 1.2; }
+  .box h4 .n { font-family: var(--sans); font-size: 12px; font-weight: 600; color: var(--ink-3); margin-left: auto; }
+  .box .empty { font-size: 13px; color: var(--ink-3); margin: 6px 0 0; }
+  .bubs { display: flex; flex-wrap: wrap; gap: 12px 10px; }
+  .box.over { box-shadow: 0 0 0 3px var(--c), var(--shadow); transform: translateY(-2px); }
+  .box.out { --c: #9a978f; background: var(--out); border-color: transparent; border-top-color: #9a978f; margin-top: 14px; }
+  .box.out h4 { color: var(--out-ink); }
+  .box.tray { --c: var(--moss); border-style: dashed; border-top-style: solid; margin-bottom: 14px; background: var(--card-2); }
+
+  /* ---------- bubbles ---------- */
+  .bub { --size: 70px; width: 84px; border: 0; background: none; padding: 0; display: flex; flex-direction: column; align-items: center; gap: 4px; touch-action: pan-y; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; color: inherit; }
+  .ball { width: var(--size); height: var(--size); border-radius: 50%; display: grid; place-items: center; overflow: hidden; background: color-mix(in srgb, var(--c) 20%, var(--card)); border: 2px solid var(--c); text-align: center; padding: 6px; transition: transform .2s; }
+  .bub:hover .ball { transform: scale(1.05); }
+  .bub:focus-visible { outline: none; }
+  .bub:focus-visible .ball { outline: 3px solid var(--moss); outline-offset: 2px; }
+  .ball .nm { font-weight: 700; line-height: 1.1; overflow-wrap: anywhere; }
+  .ball img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .bub.has-photo .ball { padding: 0; }
+  .bub .lbl { font-size: 13px; font-weight: 600; line-height: 1.15; text-align: center; max-width: 84px; overflow-wrap: anywhere; }
+  .bub .cap { font-size: 11px; line-height: 1.2; color: var(--ink-2); text-align: center; max-width: 84px; overflow-wrap: anywhere; }
+  .out .ball { background: color-mix(in srgb, #9a978f 22%, var(--out)); border-color: #9a978f; }
+  .out .bub .cap { color: var(--out-ink); }
+  .bub.lifting { opacity: .3; }
+  .ghost { position: fixed; left: 0; top: 0; z-index: 100; pointer-events: none; transform-origin: center; }
+  .ghost .ball { box-shadow: var(--shadow); transform: scale(1.12); }
+  body.dragging, body.dragging * { cursor: grabbing !important; }
+
+  /* ---------- sheet ---------- */
+  .scrim { position: fixed; inset: 0; z-index: 40; background: rgba(20, 22, 18, .42); }
+  .sheet { position: fixed; z-index: 50; left: 50%; bottom: 0; transform: translateX(-50%); width: min(640px, 100%); max-height: 88vh; display: flex; flex-direction: column; background: var(--card); border: 1px solid var(--line); border-radius: 20px 20px 0 0; box-shadow: var(--shadow); }
+  @media (min-width: 720px) { .sheet { bottom: auto; top: 50%; transform: translate(-50%, -50%); border-radius: 20px; } }
+  .sheet-head { display: flex; align-items: center; gap: 10px; padding: 16px 18px 10px; border-bottom: 1px solid var(--line); }
+  .sheet-head h2 { flex: 1; margin: 0; font-family: var(--display); font-weight: 500; font-size: 26px; line-height: 1.15; }
+  .sheet-body { padding: 14px 18px 22px; overflow-y: auto; }
+  .sheet-body h3 { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2); margin: 18px 0 8px; }
+  .sheet-body h3:first-child { margin-top: 0; }
+  .lines { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+  .lines li { background: var(--card-2); border-radius: 10px; padding: 9px 12px; font-size: 15px; }
+  .lines li.mute { color: var(--ink-2); }
+  .fine { font-size: 13px; color: var(--ink-3); }
+  .exec-top { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; }
+  .exec-top .bub { --size: 92px; width: auto; pointer-events: none; }
+  .exec-top .btns { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .div-row { display: grid; grid-template-columns: 14px 1fr auto auto auto; gap: 8px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); }
+  .div-row .sw { width: 14px; height: 14px; border-radius: 50%; background: var(--c); }
+  .div-row input[type="text"] { padding: 7px 10px; font-size: 15px; }
+  .yr { display: flex; gap: 4px; }
+  .yr label { display: inline-flex; align-items: center; gap: 4px; font-size: 13px; font-weight: 600; padding: 5px 9px; border-radius: 999px; border: 1px solid var(--line-2); cursor: pointer; user-select: none; }
+  .yr label:has(input:checked) { background: var(--moss); color: var(--on-moss); border-color: var(--moss); }
+  .yr input { position: absolute; opacity: 0; pointer-events: none; }
+  .mini { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--line-2); background: var(--card); font-size: 14px; line-height: 1; padding: 0; }
+  .mini:hover { background: var(--moss); color: var(--on-moss); border-color: var(--moss); }
+  .mini.del:hover { background: var(--danger); border-color: var(--danger); color: var(--card); }
+  .mini:disabled { opacity: .3; pointer-events: none; }
+  .moves { display: flex; gap: 2px; }
+  .div-row.fixed { grid-template-columns: 14px 1fr auto; color: var(--out-ink); }
+  .add-row { display: flex; gap: 8px; margin-top: 14px; }
+  .add-row input { flex: 1; }
+  .who-list { display: flex; flex-wrap: wrap; gap: 8px; }
+  .who-list button { border: 1px solid var(--line-2); background: var(--card-2); border-radius: 999px; padding: 6px 12px; font-size: 14px; }
+  .who-list button:hover { background: var(--moss); color: var(--on-moss); border-color: var(--moss); }
+  @media (max-width: 560px) { .div-row { grid-template-columns: 14px 1fr; } .div-row .yr, .div-row .moves, .div-row .del { grid-column: 2; } .div-row .tail { grid-column: 2; display: flex; gap: 8px; align-items: center; } }
+
+  /* phones: two divisions across, slightly smaller bubbles */
+  @media (max-width: 480px) {
+    .grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .box { padding: 10px 8px 12px; min-height: 120px; }
+    .box h4 { font-size: 17px; }
+    .bubs { gap: 10px 6px; }
+    .bub { --size: 58px; width: 66px; }
+    .bub .lbl, .bub .cap { max-width: 66px; }
+    .seg button { padding: 7px 12px; }
+  }
+  .toast { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); z-index: 120; background: var(--ink); color: var(--bg); padding: 10px 16px; border-radius: 12px; font-size: 14px; max-width: calc(100% - 32px); box-shadow: var(--shadow); }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="back" href="../">← <span>toybox</span></a>
+    <div class="ttl"><h1 id="title">Team Planner</h1><p id="subtitle">Clubs and societies</p></div>
+    <div class="right" id="board-ctrls" hidden>
+      <button class="icon-btn" id="btn-changes" type="button" aria-label="What changed" title="What changed">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
+      </button>
+      <div class="seg" role="group" aria-label="Which team">
+        <button type="button" data-view="old" aria-pressed="false">Old</button>
+        <button type="button" data-view="new" aria-pressed="true">New</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ======== SETUP: the lists ======== -->
+<main class="setup wrap" id="setup">
+  <h2>Who's on the team?</h2>
+  <p class="lead">List last year's committee and this year's, and the divisions each year had. Anyone on both lists is the same person. Anyone on only one list starts in <b>Out</b> for the other year.</p>
+  <label class="field"><span>Club or society <small>(optional)</small></span><input type="text" id="club" maxlength="60" placeholder="e.g. UQSLA"></label>
+  <p class="hint">One per line. To place someone straight away, add their division after a dash: <code>Priya — Events</code>. Otherwise you'll drag them in on the next screen.</p>
+  <div class="cols">
+    <div class="col">
+      <h3>Old team</h3>
+      <label class="field"><span>Execs</span><textarea id="old-execs" placeholder="Amara — President&#10;Ben — Treasurer&#10;Chloe"></textarea></label>
+      <label class="field"><span>Divisions</span><textarea id="old-divs" placeholder="President&#10;Treasurer&#10;Events&#10;Marketing"></textarea></label>
+    </div>
+    <div class="col">
+      <h3>New team</h3>
+      <label class="field"><span>Execs</span><textarea id="new-execs" placeholder="Amara — Events&#10;Chloe — President&#10;Dev"></textarea></label>
+      <label class="field"><span>Divisions</span><textarea id="new-divs" placeholder="President&#10;Treasurer&#10;Events&#10;Marketing&#10;Charity"></textarea></label>
+    </div>
+  </div>
+  <p class="fine" style="margin:4px 0 14px">There's always an <b>Out</b> division too, for anyone graduating, leaving, or not on the team that year. No need to list it.</p>
+  <div class="actions">
+    <button class="btn primary" id="build" type="button">Build the team →</button>
+    <button class="btn" id="example" type="button">Try an example</button>
+    <button class="btn" id="to-board" type="button" hidden>Back to the board</button>
+    <p class="err" id="setup-err" hidden></p>
+  </div>
+</main>
+
+<!-- ======== BOARD ======== -->
+<main class="board wrap" id="board" hidden>
+  <div class="toolbar">
+    <button class="btn small" id="btn-divs" type="button">Divisions</button>
+    <button class="btn small" id="btn-execs" type="button">Execs</button>
+    <button class="btn small" id="btn-lists" type="button">Edit the lists</button>
+    <button class="btn small danger" id="btn-reset" type="button">Start over</button>
+  </div>
+  <p class="yearline" id="yearline"></p>
+  <div id="tray"></div>
+  <div class="grid" id="grid"></div>
+  <div id="outbox"></div>
+  <p class="fine" style="margin-top:16px">Drag a bubble to move someone (on a phone, hold it first). Tap a bubble to add a photo or change their details. Saved in this browser only.</p>
+</main>
+
+<div class="scrim" id="scrim" hidden></div>
+<section class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title" hidden>
+  <div class="sheet-head"><h2 id="sheet-title"></h2><button class="linkbtn" id="sheet-close" type="button">Close</button></div>
+  <div class="sheet-body" id="sheet-body"></div>
+</section>
+<input type="file" id="photo-input" accept="image/*" hidden>
+<datalist id="why-list"><option value="Graduating"><option value="Leaving"><option value="Taking a break"><option value="On exchange"><option value="Wasn't on the team"></datalist>
+
+<script>
+(() => {
+  const LS = 'teamPlanner.v1';
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const uid = () => Math.random().toString(36).slice(2, 10);
+  const norm = (s) => String(s).trim().toLowerCase().replace(/\s+/g, ' ');
+  const YEARS = ['old', 'new'];
+  const LABEL = { old: 'Old', new: 'New' };
+  const OTHER = { old: 'new', new: 'old' };
+  const NOT_YET = "Wasn't on the team";
+  // division colours, in order; Out is always grey
+  const ACCENTS = ['#4a6146', '#a8623c', '#c2a25c', '#6d4f34', '#7d9a6d', '#8a5a7a', '#3f6f7a', '#b0574f', '#5b6b9a', '#9a7b3c'];
+
+  // ---------- state ----------
+  // execs[].old / .new: a division id, 'out', or null (not placed yet)
+  // execs[].why: { old, new } — why they're out that year, if they are
+  const blank = () => ({ club: '', divisions: [], execs: [], view: 'new', built: false });
+  let S = blank();
+  try { const s = JSON.parse(localStorage.getItem(LS)); if (s && Array.isArray(s.execs) && Array.isArray(s.divisions)) S = Object.assign(blank(), s); } catch {}
+  let saveWarned = false;
+  function save() {
+    try { localStorage.setItem(LS, JSON.stringify(S)); }
+    catch (e) { if (!saveWarned) { saveWarned = true; toast('This browser is out of room to save (photos take space). Changes stay until you close the tab.'); } }
+  }
+  const divIndex = (id) => S.divisions.findIndex(d => d.id === id);
+  const colorOf = (id) => ACCENTS[Math.max(0, divIndex(id)) % ACCENTS.length];
+  const divName = (id) => { const d = S.divisions.find(x => x.id === id); return d ? d.name : ''; };
+  const placeName = (p) => p === 'out' ? 'Out' : p == null ? '' : divName(p);
+  // anyone sitting in a division that isn't running that year goes back to "not placed"
+  function tidy() {
+    S.execs.forEach(e => {
+      e.why = e.why || { old: '', new: '' };
+      YEARS.forEach(y => { const p = e[y]; if (p && p !== 'out' && !S.divisions.some(d => d.id === p && d[y])) e[y] = null; });
+    });
+  }
+
+  // ---------- small helpers ----------
+  let toastTimer = null;
+  function toast(msg) {
+    let t = document.querySelector('.toast'); if (!t) { t = document.createElement('div'); t.className = 'toast'; t.setAttribute('role', 'status'); document.body.append(t); }
+    t.textContent = msg; t.hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.hidden = true; }, 3200);
+  }
+  // a destructive button asks twice: first tap arms it, second tap does it
+  function twoTap(btn, label, fn) {
+    let armed = false, timer = null; const orig = btn.textContent;
+    btn.addEventListener('click', () => {
+      if (!armed) { armed = true; btn.textContent = label; timer = setTimeout(() => { armed = false; btn.textContent = orig; }, 3000); return; }
+      clearTimeout(timer); armed = false; btn.textContent = orig; fn();
+    });
+  }
+  // short names on the bubbles: first name, plus an initial if two people share it
+  function shortName(e) {
+    const parts = e.name.trim().split(/\s+/), first = parts[0];
+    const twins = S.execs.filter(x => x !== e && norm(x.name.split(/\s+/)[0]) === norm(first)).length;
+    return twins && parts[1] ? `${first} ${parts[1][0]}.` : first;
+  }
+
+  // ---------- setup: parse the lists ----------
+  const lines = (txt) => txt.split('\n').map(l => l.trim()).filter(Boolean);
+  // "Priya — Events", "Priya - Events", "Priya: Events" → name + division
+  function parseExecs(txt) {
+    return lines(txt).map(l => { const m = l.match(/^(.+?)\s*(?:\s[—–-]\s|:)\s*(.+)$/); return m ? { name: m[1].trim(), div: m[2].trim() } : { name: l, div: '' }; });
+  }
+  function applyLists() {
+    const err = $('setup-err'); err.hidden = true;
+    const ex = { old: parseExecs($('old-execs').value), new: parseExecs($('new-execs').value) };
+    const dv = { old: lines($('old-divs').value), new: lines($('new-divs').value) };
+    if (!ex.old.length && !ex.new.length) { err.textContent = 'Add at least one exec.'; err.hidden = false; return false; }
+    // a division named next to an exec counts as running that year
+    YEARS.forEach(y => ex[y].forEach(x => { if (x.div && norm(x.div) !== 'out' && !dv[y].some(d => norm(d) === norm(x.div))) dv[y].push(x.div); }));
+    YEARS.forEach(y => { dv[y] = dv[y].filter(d => norm(d) !== 'out'); });
+    // divisions: old order first, then anything new; existing ones keep their id
+    const names = []; [...dv.old, ...dv.new].forEach(n => { if (!names.some(x => norm(x) === norm(n))) names.push(n); });
+    const divisions = names.map(n => {
+      const had = S.divisions.find(d => norm(d.name) === norm(n));
+      return { id: had ? had.id : uid(), name: n, old: dv.old.some(d => norm(d) === norm(n)), new: dv.new.some(d => norm(d) === norm(n)) };
+    });
+    const idFor = (y, n) => { const d = divisions.find(d => norm(d.name) === norm(n) && d[y]); return d ? d.id : null; };
+    // execs: everyone on either list, matched by name; photos and placements carry over
+    const people = []; [...ex.old, ...ex.new].forEach(x => { if (!people.some(p => norm(p) === norm(x.name))) people.push(x.name); });
+    const execs = people.map(name => {
+      const had = S.execs.find(e => norm(e.name) === norm(name));
+      const e = { id: had ? had.id : uid(), name, photo: had ? had.photo || '' : '', why: Object.assign({ old: '', new: '' }, had && had.why), old: null, new: null };
+      YEARS.forEach(y => {
+        const row = ex[y].find(x => norm(x.name) === norm(name));
+        if (!row) { e[y] = 'out'; if (y === 'old' && !e.why.old) e.why.old = NOT_YET; return; }
+        if (e.why[y] === NOT_YET) e.why[y] = '';
+        if (row.div) { e[y] = norm(row.div) === 'out' ? 'out' : idFor(y, row.div); return; }
+        const prev = had && had[y];
+        const prevName = prev && prev !== 'out' ? divName(prev) : '';
+        e[y] = prevName ? idFor(y, prevName) : null;
+      });
+      return e;
+    });
+    S.divisions = divisions; S.execs = execs; S.club = $('club').value.trim(); S.built = true;
+    tidy(); save(); return true;
+  }
+  // the lists as text, so "Edit the lists" round-trips
+  function fillLists() {
+    $('club').value = S.club || '';
+    YEARS.forEach(y => {
+      $(y + '-execs').value = S.execs.filter(e => e[y] !== 'out').map(e => e[y] ? `${e.name} — ${divName(e[y])}` : e.name).join('\n');
+      $(y + '-divs').value = S.divisions.filter(d => d[y]).map(d => d.name).join('\n');
+    });
+  }
+  const EXAMPLE = {
+    oldExecs: 'Amara Perera — President\nBen Kwan — Vice President\nChloe Singh — Treasurer\nDev Patel — Sponsorship\nEsha Rao — Events\nFarhan Ali — Events\nGita Shah — Marketing\nHugo Chen — Marketing\nIsla Brown — Secretary',
+    newExecs: 'Amara Perera — Events\nChloe Singh — President\nDev Patel — Treasurer\nEsha Rao — Events\nGita Shah — Marketing\nHugo Chen — Vice President\nIsla Brown — Secretary\nJai Mehta — Sponsorship\nKiran Das — Charity\nLena Fox',
+    oldDivs: 'President\nVice President\nSecretary\nTreasurer\nSponsorship\nEvents\nMarketing',
+    newDivs: 'President\nVice President\nSecretary\nTreasurer\nSponsorship\nEvents\nMarketing\nCharity',
+  };
+  $('example').addEventListener('click', () => {
+    $('club').value = 'Example Society';
+    $('old-execs').value = EXAMPLE.oldExecs; $('new-execs').value = EXAMPLE.newExecs;
+    $('old-divs').value = EXAMPLE.oldDivs; $('new-divs').value = EXAMPLE.newDivs;
+  });
+  $('build').addEventListener('click', () => {
+    if (!applyLists()) return;
+    // the example's leavers get a reason, to show what it looks like
+    if ($('club').value === 'Example Society') S.execs.forEach(e => { if (e.name === 'Ben Kwan') e.why.new = 'Graduating'; if (e.name === 'Farhan Ali') e.why.new = 'On exchange'; });
+    save(); showBoard();
+  });
+  $('to-board').addEventListener('click', showBoard);
+
+  // ---------- screens ----------
+  function showSetup() {
+    $('setup').hidden = false; $('board').hidden = true; $('board-ctrls').hidden = true;
+    $('to-board').hidden = !S.built; $('setup-err').hidden = true;
+    $('title').textContent = S.club || 'Team Planner'; $('subtitle').textContent = 'Clubs and societies';
+    if (S.built) fillLists();
+    window.scrollTo(0, 0);
+  }
+  function showBoard() {
+    $('setup').hidden = true; $('board').hidden = false; $('board-ctrls').hidden = false;
+    window.scrollTo(0, 0); render();
+  }
+
+  // ---------- the board ----------
+  function caption(e, v) {
+    const o = e.old, n = e.new;
+    if (v === 'new') {
+      if (n === 'out') return e.why.new || (o && o !== 'out' ? 'was ' + divName(o) : '');
+      if (o === 'out') return 'new';
+      if (o && n && o !== n) return 'from ' + divName(o);
+    } else {
+      if (o === 'out') return e.why.old || '';
+      if (n === 'out') return '→ out';
+      if (o && n && o !== n) return '→ ' + divName(n);
+    }
+    return '';
+  }
+  function bubble(e, color, cap = true) {
+    const label = shortName(e), c = cap ? caption(e, S.view) : '';
+    const fs = label.length <= 6 ? .21 : label.length <= 9 ? .18 : .15;   // × the bubble size, so phones scale too
+    return `<button class="bub ${e.photo ? 'has-photo' : ''}" type="button" data-id="${e.id}" style="--c:${color}" title="${esc(e.name)}">
+      <span class="ball">${e.photo ? `<img src="${e.photo}" alt="">` : `<span class="nm" style="font-size:calc(var(--size) * ${fs})">${esc(label)}</span>`}</span>
+      ${e.photo ? `<span class="lbl">${esc(label)}</span>` : ''}${c ? `<span class="cap">${esc(c)}</span>` : ''}</button>`;
+  }
+  function render() {
+    const v = S.view;
+    $('title').textContent = S.club || 'Team Planner';
+    $('subtitle').textContent = `${S.execs.filter(e => e.old && e.old !== 'out').length} execs before · ${S.execs.filter(e => e.new && e.new !== 'out').length} now`;
+    document.querySelectorAll('.seg [data-view]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.view === v)));
+    $('yearline').innerHTML = v === 'old' ? '<b>The old team</b> — how it was' : '<b>The new team</b> — how it is now';
+    const sorted = (list) => list.slice().sort((a, b) => a.name.localeCompare(b.name));
+    const unplaced = sorted(S.execs.filter(e => e[v] == null));
+    $('tray').innerHTML = unplaced.length ? `<section class="box tray" data-drop="_none"><h4>Not placed yet <span class="n">${unplaced.length}</span></h4><div class="bubs">${unplaced.map(e => bubble(e, 'var(--moss)')).join('')}</div></section>` : '';
+    $('grid').innerHTML = S.divisions.filter(d => d[v]).map(d => {
+      const ppl = sorted(S.execs.filter(e => e[v] === d.id)); const c = colorOf(d.id);
+      return `<section class="box" style="--c:${c}" data-drop="${d.id}"><h4>${esc(d.name)} <span class="n">${ppl.length || ''}</span></h4><div class="bubs">${ppl.map(e => bubble(e, c)).join('')}</div>${ppl.length ? '' : '<p class="empty">Drag execs here</p>'}</section>`;
+    }).join('') || `<p class="fine">No divisions in the ${LABEL[v].toLowerCase()} team yet — add some under Divisions.</p>`;
+    const outs = sorted(S.execs.filter(e => e[v] === 'out'));
+    $('outbox').innerHTML = `<section class="box out" data-drop="out"><h4>Out <span class="n">${outs.length || ''}</span></h4><div class="bubs">${outs.map(e => bubble(e, '#9a978f')).join('')}</div>${outs.length ? '' : '<p class="empty">Graduating, leaving, or not on the team this year</p>'}</section>`;
+  }
+  // switching Old ↔ New: bubbles glide from their old box to their new one
+  function renderMoving() {
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const before = {}; if (!reduce) document.querySelectorAll('#board .bub').forEach(b => { before[b.dataset.id] = b.getBoundingClientRect(); });
+    render();
+    if (reduce) return;
+    document.querySelectorAll('#board .bub').forEach(b => {
+      const r0 = before[b.dataset.id]; const r1 = b.getBoundingClientRect();
+      if (!r0) { b.animate([{ opacity: 0, transform: 'scale(.6)' }, { opacity: 1, transform: 'none' }], { duration: 320, easing: 'ease-out' }); return; }
+      const dx = r0.left - r1.left, dy = r0.top - r1.top; if (!dx && !dy) return;
+      b.animate([{ transform: `translate(${dx}px, ${dy}px)` }, { transform: 'none' }], { duration: 520, easing: 'cubic-bezier(.2,.8,.2,1)' });
+    });
+  }
+  document.querySelectorAll('.seg [data-view]').forEach(b => b.addEventListener('click', () => { if (S.view === b.dataset.view) return; S.view = b.dataset.view; save(); renderMoving(); }));
+
+  // ---------- drag and drop (mouse straight away; touch after a short hold) ----------
+  let press = null, drag = null;
+  const board = $('board');
+  board.addEventListener('pointerdown', (ev) => {
+    const b = ev.target.closest('.bub'); if (!b || ev.button !== 0) return;
+    press = { id: b.dataset.id, el: b, x: ev.clientX, y: ev.clientY, touch: ev.pointerType !== 'mouse', moved: false, held: false, timer: null };
+    if (press.touch) press.timer = setTimeout(() => { if (press && !press.moved) { press.held = true; startDrag(press.x, press.y); if (navigator.vibrate) navigator.vibrate(12); } }, 260);
+  });
+  document.addEventListener('pointermove', (ev) => {
+    if (!press) return;
+    const d = Math.hypot(ev.clientX - press.x, ev.clientY - press.y);
+    if (drag) { moveDrag(ev.clientX, ev.clientY); return; }
+    if (press.touch) { if (d > 10) { clearTimeout(press.timer); press.moved = true; } press.x = ev.clientX; press.y = ev.clientY; return; }   // finger moved first: it's a scroll
+    if (d > 6) { startDrag(ev.clientX, ev.clientY); moveDrag(ev.clientX, ev.clientY); }
+  });
+  document.addEventListener('pointerup', (ev) => {
+    if (!press) return; clearTimeout(press.timer);
+    const p = press; press = null;
+    if (drag) { endDrag(ev.clientX, ev.clientY); return; }
+    if (!p.moved && !p.held) openExec(p.id);
+  });
+  document.addEventListener('pointercancel', () => { if (press) clearTimeout(press.timer); press = null; if (drag) cancelDrag(); });
+  // while dragging on a phone, the page mustn't scroll underneath
+  document.addEventListener('touchmove', (ev) => { if (drag) ev.preventDefault(); }, { passive: false });
+  board.addEventListener('contextmenu', (ev) => { if (ev.target.closest('.bub')) ev.preventDefault(); });
+  board.addEventListener('keydown', (ev) => { const b = ev.target.closest('.bub'); if (b && (ev.key === 'Enter' || ev.key === ' ')) { ev.preventDefault(); openExec(b.dataset.id); } });
+  // a click that ends a mouse drag shouldn't also open the sheet (pointerup already handled it)
+  board.addEventListener('click', (ev) => { if (ev.target.closest('.bub')) ev.preventDefault(); });
+
+  function startDrag(x, y) {
+    const el = press.el; const r = el.getBoundingClientRect();
+    const g = el.cloneNode(true); g.classList.add('ghost'); g.style.width = r.width + 'px';
+    document.body.append(g); el.classList.add('lifting'); document.body.classList.add('dragging');
+    drag = { id: press.id, el, ghost: g, ox: x - r.left, oy: y - r.top, over: null };
+    moveDrag(x, y);
+  }
+  function moveDrag(x, y) {
+    drag.ghost.style.transform = `translate(${x - drag.ox}px, ${y - drag.oy}px)`;
+    const t = document.elementFromPoint(x, y); const box = t && t.closest('[data-drop]');
+    if (box !== drag.over) { if (drag.over) drag.over.classList.remove('over'); drag.over = box; if (box) box.classList.add('over'); }
+    // near the top or bottom edge: scroll so far-away divisions can be reached
+    if (y < 90) window.scrollBy(0, -14); else if (y > innerHeight - 70) window.scrollBy(0, 14);
+  }
+  function cancelDrag() {
+    if (!drag) return; drag.ghost.remove(); drag.el.classList.remove('lifting'); if (drag.over) drag.over.classList.remove('over');
+    document.body.classList.remove('dragging'); drag = null;
+  }
+  function endDrag(x, y) {
+    const id = drag.id, box = drag.over; cancelDrag();
+    if (!box) return;
+    const e = S.execs.find(e => e.id === id); if (!e) return;
+    const k = box.dataset.drop; const to = k === '_none' ? null : k;
+    if (e[S.view] === to) return;
+    e[S.view] = to; if (to !== 'out' && e.why[S.view] === NOT_YET) e.why[S.view] = '';
+    save(); renderMoving();
+  }
+
+  // ---------- sheet ----------
+  let sheetOnClose = null;
+  function openSheet(title, html, onClose) {
+    $('sheet-title').textContent = title; $('sheet-body').innerHTML = html; $('sheet-body').scrollTop = 0;
+    $('sheet').hidden = false; $('scrim').hidden = false; sheetOnClose = onClose || null;
+  }
+  function closeSheet() { $('sheet').hidden = true; $('scrim').hidden = true; const f = sheetOnClose; sheetOnClose = null; if (f) f(); }
+  $('sheet-close').addEventListener('click', closeSheet); $('scrim').addEventListener('click', closeSheet);
+  document.addEventListener('keydown', (ev) => { if (ev.key === 'Escape' && !$('sheet').hidden) closeSheet(); });
+
+  // one person: photo, name, where they sit each year, why they're out
+  let photoFor = null;
+  function placeOptions(y, cur) {
+    const opts = [['', 'Not placed yet'], ...S.divisions.filter(d => d[y]).map(d => [d.id, d.name]), ['out', 'Out']];
+    return opts.map(([val, txt]) => `<option value="${val}" ${String(cur == null ? '' : cur) === val ? 'selected' : ''}>${esc(txt)}</option>`).join('');
+  }
+  function openExec(id) {
+    const e = S.execs.find(x => x.id === id); if (!e) return;
+    const c = e[S.view] && e[S.view] !== 'out' ? colorOf(e[S.view]) : e[S.view] === 'out' ? '#9a978f' : 'var(--moss)';
+    openSheet(e.name, `
+      <div class="exec-top">${bubble(e, c, false).replace('<button', '<div').replace('</button>', '</div>')}
+        <div class="btns"><button class="btn small" id="x-photo" type="button">${e.photo ? 'Change photo' : 'Add a photo'}</button>${e.photo ? '<button class="linkbtn" id="x-nophoto" type="button">Remove photo</button>' : ''}</div></div>
+      <label class="field"><span>Name</span><input type="text" id="x-name" maxlength="60" value="${esc(e.name)}"></label>
+      <div class="two">${YEARS.map(y => `<label class="field"><span>${LABEL[y]} team</span><select id="x-${y}">${placeOptions(y, e[y])}</select></label>`).join('')}</div>
+      <div class="two" id="x-why-row" ${YEARS.some(y => e[y] === 'out') ? '' : 'hidden'}>${YEARS.map(y => `<label class="field" id="x-why-${y}-wrap" ${e[y] === 'out' ? '' : 'style="visibility:hidden"'}><span>Why out (${LABEL[y].toLowerCase()})</span><input type="text" id="x-why-${y}" list="why-list" maxlength="40" value="${esc(e.why[y])}" placeholder="e.g. Graduating"></label>`).join('')}</div>
+      <ul class="lines"><li id="x-line">${sentence(e) || esc(e.name) + ' isn\'t placed in both teams yet.'}</li></ul>
+      <div class="actions" style="margin-top:16px"><button class="btn small danger" id="x-del" type="button">Remove ${esc(shortName(e))}</button></div>`, render);
+    $('x-photo').addEventListener('click', () => { photoFor = e.id; $('photo-input').value = ''; $('photo-input').click(); });
+    if ($('x-nophoto')) $('x-nophoto').addEventListener('click', () => { e.photo = ''; save(); openExec(e.id); });
+    $('x-name').addEventListener('change', () => { const n = $('x-name').value.trim(); if (n) { e.name = n; $('sheet-title').textContent = n; save(); } refreshLine(e); });
+    YEARS.forEach(y => {
+      $('x-' + y).addEventListener('change', () => {
+        const v = $('x-' + y).value; e[y] = v === '' ? null : v;
+        if (v !== 'out' && e.why[y] === NOT_YET) { e.why[y] = ''; $('x-why-' + y).value = ''; }
+        $('x-why-' + y + '-wrap').style.visibility = v === 'out' ? '' : 'hidden'; $('x-why-row').hidden = !YEARS.some(k => e[k] === 'out'); save(); refreshLine(e);
+      });
+      $('x-why-' + y).addEventListener('input', () => { e.why[y] = $('x-why-' + y).value.trim(); save(); refreshLine(e); });
+    });
+    twoTap($('x-del'), 'Tap again to remove', () => { S.execs = S.execs.filter(x => x !== e); save(); closeSheet(); });
+  }
+  const refreshLine = (e) => { const li = $('x-line'); if (li) li.innerHTML = sentence(e) || esc(e.name) + ' isn\'t placed in both teams yet.'; };
+
+  // photos: cropped square and shrunk, so a whole committee fits in browser storage
+  async function squarePhoto(file) {
+    let src;
+    try { src = await createImageBitmap(file, { imageOrientation: 'from-image' }); }
+    catch { src = await new Promise((ok, bad) => { const i = new Image(); i.onload = () => ok(i); i.onerror = bad; i.src = URL.createObjectURL(file); }); }
+    const w = src.width, h = src.height, s = Math.min(w, h), out = 200;
+    const c = document.createElement('canvas'); c.width = c.height = out;
+    c.getContext('2d').drawImage(src, (w - s) / 2, (h - s) / 2, s, s, 0, 0, out, out);
+    return c.toDataURL('image/jpeg', 0.82);
+  }
+  $('photo-input').addEventListener('change', async () => {
+    const f = $('photo-input').files[0]; const e = S.execs.find(x => x.id === photoFor); if (!f || !e) return;
+    try { e.photo = await squarePhoto(f); save(); openExec(e.id); }
+    catch { toast(/heic|heif/i.test(f.type || f.name) ? 'This browser can\'t open HEIC photos — try a screenshot of it, or a JPG.' : 'Couldn\'t open that photo — try another.'); }
+  });
+
+  // ---------- what changed ----------
+  function sentence(e) {
+    const o = e.old, n = e.new, b = (s) => `<b>${esc(s)}</b>`;
+    if (o == null || n == null) return '';
+    if (o === 'out' && n === 'out') return '';
+    if (o === 'out') return `${b(e.name)} joins under ${b(divName(n))}${e.why.old && e.why.old !== NOT_YET ? ` (last year: ${esc(e.why.old.toLowerCase())})` : ''}.`;
+    if (n === 'out') return `${b(e.name)} is out${e.why.new ? ` (${esc(e.why.new.toLowerCase())})` : ''}, from ${b(divName(o))}.`;
+    if (o === n) return `${b(e.name)} stays in ${b(divName(n))}.`;
+    return `${b(e.name)} is now under ${b(divName(n))}, from ${b(divName(o))}.`;
+  }
+  function changesSheet() {
+    const order = (e) => { const p = e.new && e.new !== 'out' ? divIndex(e.new) : 999; return p * 1000 + (e.old && e.old !== 'out' ? divIndex(e.old) : 999); };
+    const list = S.execs.slice().sort((a, b) => order(a) - order(b) || a.name.localeCompare(b.name));
+    const groups = [
+      ['Moved', list.filter(e => e.old && e.new && e.old !== 'out' && e.new !== 'out' && e.old !== e.new)],
+      ['Joined', list.filter(e => e.old === 'out' && e.new && e.new !== 'out')],
+      ['Out', list.filter(e => e.new === 'out' && e.old && e.old !== 'out')],
+      ['Same place', list.filter(e => e.old && e.old !== 'out' && e.old === e.new)],
+    ];
+    const pending = list.filter(e => e.old == null || e.new == null);
+    const added = S.divisions.filter(d => d.new && !d.old).map(d => d.name), dropped = S.divisions.filter(d => d.old && !d.new).map(d => d.name);
+    let html = '', text = (S.club ? S.club + ' — ' : '') + 'what changed\n';
+    groups.forEach(([h, ppl]) => {
+      if (!ppl.length) return;
+      html += `<h3>${h} · ${ppl.length}</h3><ul class="lines">${ppl.map(e => `<li${h === 'Same place' ? ' class="mute"' : ''}>${sentence(e)}</li>`).join('')}</ul>`;
+      text += `\n${h}\n` + ppl.map(e => '• ' + sentence(e).replace(/<[^>]+>/g, '')).join('\n') + '\n';
+    });
+    if (added.length || dropped.length) {
+      const dl = [...added.map(n => `<b>${esc(n)}</b> is new this year.`), ...dropped.map(n => `<b>${esc(n)}</b> isn't running this year.`)];
+      html += `<h3>Divisions</h3><ul class="lines">${dl.map(l => `<li>${l}</li>`).join('')}</ul>`;
+      text += '\nDivisions\n' + dl.map(l => '• ' + l.replace(/<[^>]+>/g, '')).join('\n') + '\n';
+    }
+    if (pending.length) html += `<h3>Not placed yet · ${pending.length}</h3><ul class="lines">${pending.map(e => `<li class="mute"><b>${esc(e.name)}</b> isn't placed in the ${e.old == null && e.new == null ? 'old or new' : e.old == null ? 'old' : 'new'} team yet.</li>`).join('')}</ul>`;
+    if (!html) html = '<p class="fine">Nothing to compare yet — place people in both teams first.</p>';
+    html += `<div class="actions" style="margin-top:18px"><button class="btn small" id="copy-changes" type="button">Copy as text</button></div>`;
+    openSheet('What changed', html);
+    $('copy-changes').addEventListener('click', async () => {
+      try { await navigator.clipboard.writeText(text.trim()); toast('Copied — paste it anywhere.'); } catch { toast('Couldn\'t copy in this browser.'); }
+    });
+  }
+  $('btn-changes').addEventListener('click', changesSheet);
+
+  // ---------- divisions: on/off per year, rename, reorder, add, delete ----------
+  function divisionsSheet() {
+    const rows = S.divisions.map((d, i) => `
+      <div class="div-row" data-id="${d.id}" style="--c:${ACCENTS[i % ACCENTS.length]}">
+        <span class="sw"></span><input type="text" value="${esc(d.name)}" maxlength="40" data-rename aria-label="Division name">
+        <div class="yr">${YEARS.map(y => `<label><input type="checkbox" data-yr="${y}" ${d[y] ? 'checked' : ''}>${LABEL[y]}</label>`).join('')}</div>
+        <div class="moves"><button class="mini" type="button" data-up ${i ? '' : 'disabled'} aria-label="Move up">↑</button><button class="mini" type="button" data-down ${i < S.divisions.length - 1 ? '' : 'disabled'} aria-label="Move down">↓</button></div>
+        <button class="mini del" type="button" data-del aria-label="Delete ${esc(d.name)}">×</button>
+      </div>`).join('');
+    openSheet('Divisions', `<p class="fine" style="margin-top:0">Turn a division on or off for each year. A new division might only run this year.</p>
+      ${rows}<div class="div-row fixed" style="--c:#9a978f"><span class="sw"></span><span>Out</span><span class="fine">Always there</span></div>
+      <form class="add-row" id="add-div"><input type="text" id="add-div-name" maxlength="40" placeholder="Add a division"><button class="btn small primary" type="submit">Add</button></form>
+      <p class="fine">A new division starts on for the ${LABEL[S.view].toLowerCase()} team. Tick the other year if it ran then too.</p>`, render);
+    const body = $('sheet-body');
+    body.querySelectorAll('.div-row[data-id]').forEach(row => {
+      const d = S.divisions.find(x => x.id === row.dataset.id);
+      row.querySelector('[data-rename]').addEventListener('change', (ev) => { const n = ev.target.value.trim(); if (n && norm(n) !== 'out') { d.name = n; save(); } else ev.target.value = d.name; });
+      row.querySelectorAll('[data-yr]').forEach(cb => cb.addEventListener('change', () => {
+        const y = cb.dataset.yr; d[y] = cb.checked;
+        if (!cb.checked) { const n = S.execs.filter(e => e[y] === d.id).length; S.execs.forEach(e => { if (e[y] === d.id) e[y] = null; }); if (n) toast(`${n} ${n === 1 ? 'person' : 'people'} from ${d.name} moved to “Not placed yet” in the ${LABEL[y].toLowerCase()} team.`); }
+        save();
+      }));
+      row.querySelector('[data-up]').addEventListener('click', () => { const i = divIndex(d.id); [S.divisions[i - 1], S.divisions[i]] = [S.divisions[i], S.divisions[i - 1]]; save(); divisionsSheet(); });
+      row.querySelector('[data-down]').addEventListener('click', () => { const i = divIndex(d.id); [S.divisions[i + 1], S.divisions[i]] = [S.divisions[i], S.divisions[i + 1]]; save(); divisionsSheet(); });
+      const del = row.querySelector('[data-del]');
+      twoTap(del, '✓', () => { S.execs.forEach(e => YEARS.forEach(y => { if (e[y] === d.id) e[y] = null; })); S.divisions = S.divisions.filter(x => x !== d); save(); divisionsSheet(); });
+    });
+    $('add-div').addEventListener('submit', (ev) => {
+      ev.preventDefault(); const n = $('add-div-name').value.trim(); if (!n) return;
+      if (norm(n) === 'out') { toast('Out is always there already.'); return; }
+      if (S.divisions.some(d => norm(d.name) === norm(n))) { toast('There\'s already a division with that name.'); return; }
+      S.divisions.push({ id: uid(), name: n, old: S.view === 'old', new: S.view === 'new' }); save(); divisionsSheet();
+      setTimeout(() => { const i = $('add-div-name'); if (i) i.focus(); }, 0);
+    });
+  }
+  $('btn-divs').addEventListener('click', divisionsSheet);
+
+  // ---------- execs: add someone, or open anyone ----------
+  function execsSheet() {
+    const list = S.execs.slice().sort((a, b) => a.name.localeCompare(b.name));
+    openSheet('Execs', `<form class="add-row" id="add-exec" style="margin-top:0"><input type="text" id="add-exec-name" maxlength="60" placeholder="Add someone"><button class="btn small primary" type="submit">Add</button></form>
+      <p class="fine">New people start in “Not placed yet” for both teams. Drag them where they belong, or tap their name to set it here.</p>
+      <h3>Everyone · ${list.length}</h3><div class="who-list">${list.map(e => `<button type="button" data-open="${e.id}">${esc(e.name)}</button>`).join('')}</div>`, render);
+    $('sheet-body').querySelectorAll('[data-open]').forEach(b => b.addEventListener('click', () => openExec(b.dataset.open)));
+    $('add-exec').addEventListener('submit', (ev) => {
+      ev.preventDefault(); const n = $('add-exec-name').value.trim(); if (!n) return;
+      if (S.execs.some(e => norm(e.name) === norm(n))) { toast('Someone with that name is already on the list.'); return; }
+      S.execs.push({ id: uid(), name: n, photo: '', why: { old: '', new: '' }, old: null, new: null }); save(); execsSheet();
+      setTimeout(() => { const i = $('add-exec-name'); if (i) i.focus(); }, 0);
+    });
+  }
+  $('btn-execs').addEventListener('click', execsSheet);
+  $('btn-lists').addEventListener('click', showSetup);
+  twoTap($('btn-reset'), 'Tap again — this erases everything', () => {
+    S = blank(); save(); ['club', 'old-execs', 'new-execs', 'old-divs', 'new-divs'].forEach(id => { $(id).value = ''; }); showSetup();
+  });
+
+  // ---------- start ----------
+  tidy();
+  if (S.built) showBoard(); else showSetup();
+})();
+</script>
+</body>
+</html>
