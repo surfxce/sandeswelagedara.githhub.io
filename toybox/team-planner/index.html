@@ -172,6 +172,8 @@
   .out .ball { background: color-mix(in srgb, #9a978f 22%, var(--out)); border-color: #9a978f; }
   .out .bub .cap { color: var(--out-ink); }
   .bub.lifting { opacity: .3; }
+  .bub.just-added .ball { animation: pop .7s cubic-bezier(.2, .8, .2, 1.4); box-shadow: 0 0 0 4px color-mix(in srgb, var(--moss) 30%, transparent); }
+  @keyframes pop { from { transform: scale(.4); opacity: 0; } to { transform: none; opacity: 1; } }
   .ghost { position: fixed; left: 0; top: 0; z-index: 100; pointer-events: none; transform-origin: center; }
   .ghost .ball { box-shadow: var(--shadow); transform: scale(1.12); }
   body.dragging, body.dragging * { cursor: grabbing !important; }
@@ -431,10 +433,11 @@
     }
     return '';
   }
+  let justAdded = null;   // the exec added a moment ago gets a little pop
   function bubble(e, color, cap = true) {
     const label = shortName(e), c = cap ? caption(e, S.view) : '';
     const fs = label.length <= 6 ? .21 : label.length <= 9 ? .18 : .15;   // × the bubble size, so phones scale too
-    return `<button class="bub ${e.photo ? 'has-photo' : ''}" type="button" data-id="${e.id}" style="--c:${color}" title="${esc(e.name)}">
+    return `<button class="bub ${e.photo ? 'has-photo' : ''} ${e.id === justAdded ? 'just-added' : ''}" type="button" data-id="${e.id}" style="--c:${color}" title="${esc(e.name)}">
       <span class="ball">${e.photo ? `<img src="${e.photo}" alt="">` : `<span class="nm" style="font-size:calc(var(--size) * ${fs})">${esc(label)}</span>`}</span>
       ${e.photo ? `<span class="lbl">${esc(label)}</span>` : ''}${c ? `<span class="cap">${esc(c)}</span>` : ''}</button>`;
   }
@@ -482,7 +485,8 @@
     const looseHtml = loose.length ? `<div class="loose">${roles.length ? '<p class="loose-h">Teams that report to no one</p>' : ''}<div class="loose-row">${loose.map(teamBox).join('')}</div></div>` : '';
     const none = act.length ? '' : `<div class="empty-note"><p>No roles or teams in the ${LABEL[v].toLowerCase()} team yet.</p><div class="actions" style="justify-content:center"><button class="btn small primary" type="button" data-open-sheet="roles">Add roles</button><button class="btn small" type="button" data-open-sheet="teams">Add teams</button></div></div>`;
     // the bottom: not placed yet | out
-    const unplaced = sorted(S.execs.filter(e => e[v] == null)), outs = people('out');
+    // newest first, so whoever you just added is right at the front
+    const unplaced = S.execs.filter(e => e[v] == null).reverse(), outs = people('out');
     const limbo = `<div class="limbo">
       <section class="box tray" data-drop="_none"><h4>Not placed yet <span class="n">${unplaced.length || ''}</span></h4><div class="bubs">${unplaced.map(e => bubble(e, 'var(--moss)')).join('')}</div>${unplaced.length ? '' : '<p class="empty">Everyone\'s placed</p>'}</section>
       <section class="box out" data-drop="out"><h4>Out <span class="n">${outs.length || ''}</span></h4><div class="bubs">${outs.map(e => bubble(e, '#9a978f')).join('')}</div>${outs.length ? '' : '<p class="empty">Graduating, leaving, or not on the team this year</p>'}</section>
@@ -792,7 +796,7 @@
       const name = $('a-name').value.trim(); if (!name) { $('a-name').focus(); return; }
       if (S.execs.some(e => norm(e.name) === norm(name))) { toast('Someone with that name is already on the list.'); return; }
       const e = { id: uid(), name, photo: '', why: { old: '', new: '' }, old: null, new: null };
-      S.execs.push(e); save(); render();
+      S.execs.push(e); save(); justAdded = e.id; render(); setTimeout(() => { if (justAdded === e.id) justAdded = null; }, 1500);
       $('a-name').value = ''; $('a-msg').textContent = `Added ${shortName(e)}. Add another, or close.`; $('a-name').focus();
     };
     $('a-add').addEventListener('click', add);
