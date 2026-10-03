@@ -55,7 +55,12 @@
   .back { color: var(--ink-2); text-decoration: none; font-size: 14px; white-space: nowrap; }
   .back:hover { color: var(--ink); }
   .ttl { flex: 1; min-width: 0; }
-  .ttl h1 { font-family: var(--display); font-weight: 500; font-size: 26px; line-height: 1.1; margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ttl { flex: 1; min-width: 0; }
+  /* the society's name: looks like a heading, turns into a box on hover */
+  .ttl input.title-in { display: block; width: 100%; max-width: 26ch; font-family: var(--display); font-weight: 500; font-size: 26px; line-height: 1.2; color: var(--ink); background: transparent; border: 1px dashed transparent; border-radius: 8px; padding: 0 6px; margin-left: -7px; text-overflow: ellipsis; transition: background .2s, border-color .2s; }
+  .title-in::placeholder { color: var(--ink-3); }
+  .ttl input.title-in:hover { border-color: var(--line-2); background: var(--card); }
+  .ttl input.title-in:focus { outline: none; border-style: solid; border-color: var(--moss); background: var(--card); }
   .ttl p { margin: 0; font-size: 12px; color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .right { display: flex; align-items: center; gap: 8px; }
   .icon-btn { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line-2); background: var(--card); display: grid; place-items: center; transition: background .25s, color .25s, border-color .25s, transform .25s; }
@@ -83,7 +88,7 @@
   .field > span { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2); }
   .field small { font-weight: 400; letter-spacing: 0; text-transform: none; }
   input[type="text"], select, textarea { width: 100%; background: var(--card); border: 1px solid var(--line-2); border-radius: 10px; padding: 10px 12px; font-size: 16px; }
-  textarea { min-height: 190px; resize: vertical; line-height: 1.55; }
+  textarea { min-height: 150px; resize: vertical; line-height: 1.55; }
   input:focus, select:focus, textarea:focus { outline: 2px solid var(--moss); outline-offset: 1px; }
   .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
   .col { background: var(--card-2); border: 1px solid var(--line); border-radius: 16px; padding: 16px; }
@@ -92,34 +97,51 @@
   .hint code { font-family: inherit; font-weight: 700; color: var(--ink); }
   .actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 8px; }
   .err { color: var(--danger); font-size: 14px; margin: 0; }
-  @media (max-width: 720px) { .cols { grid-template-columns: 1fr; } .ttl h1 { font-size: 21px; } .back span { display: none; } }
+  @media (max-width: 720px) { .cols { grid-template-columns: 1fr; } .back span { display: none; } .ttl input.title-in { font-size: 21px; } }
 
   /* ---------- board ---------- */
   .board { padding: 18px 0 70px; }
   .toolbar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
   .yearline { font-family: var(--display); font-size: 22px; margin: 0 0 12px; color: var(--ink-2); }
   .yearline b { color: var(--ink); font-weight: 600; }
-  /* the pyramid: President on top, then the T3 row, then the T5 row */
-  .pyramid { position: relative; display: grid; gap: 14px; justify-items: center; padding: 20px 0 6px; margin-bottom: 26px; }
-  .pyramid::before { content: ''; position: absolute; inset: 0 2%; background: var(--card-2); clip-path: polygon(50% 0, 100% 100%, 0 100%); z-index: 0; }
-  .prow { position: relative; z-index: 1; display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; width: 100%; }
-  .box.top { flex: 0 1 190px; min-width: 150px; min-height: 0; text-align: center; box-shadow: 0 4px 14px rgba(44, 51, 39, .08); }
-  .box.top h4 { justify-content: center; }
-  .box.top h4 .n { display: none; }
-  .box.top .bubs { justify-content: center; }
-  .oversees { font-size: 12px; color: var(--ink-2); margin: 8px 0 0; line-height: 1.3; }
-  /* teams: tall columns, hanging under whoever they report to */
-  .team { --colw: 158px; display: flex; flex-wrap: wrap; justify-content: center; gap: 26px 22px; align-items: flex-start; }
-  .branch { display: flex; flex-direction: column; align-items: center; max-width: 100%; }
-  .bhead { position: relative; font-size: 13px; line-height: 1.3; color: var(--ink-2); background: var(--card); border: 1px solid var(--line); border-left: 4px solid var(--c); border-radius: 10px; padding: 6px 12px; margin-bottom: 10px; text-align: center; max-width: 100%; }
-  .bhead b { color: var(--ink); }
-  .bhead::after { content: ''; position: absolute; left: 50%; top: 100%; width: 2px; height: 10px; background: var(--c); }
-  .cols { position: relative; display: flex; gap: 12px; align-items: flex-start; padding-top: 10px; }
-  .cols.multi::before { content: ''; position: absolute; top: 0; left: calc(var(--colw) / 2); right: calc(var(--colw) / 2); height: 2px; background: var(--c); }
-  .box.col { position: relative; width: var(--colw); min-height: 230px; }
-  .box.col::before { content: ''; position: absolute; left: 50%; top: -14px; width: 2px; height: 10px; background: var(--branch, transparent); }
+  /* the arch: the most senior role in the middle and highest, the rest
+     stepping down either side; each role's teams hang straight below it */
+  .arch { overflow-x: auto; padding-bottom: 6px; }
+  .arch-inner { --step: 58px; --stemw: 172px; position: relative; display: flex; align-items: flex-start; gap: 18px; width: max-content; margin: 0 auto; padding: 4px 6px 0; }
+  .links { position: absolute; left: 0; top: 0; pointer-events: none; z-index: 0; overflow: visible; }
+  .links line { stroke: var(--ink-3); stroke-width: 2; }
+  .stem { position: relative; z-index: 1; width: var(--stemw); margin-top: calc(var(--depth) * var(--step)); display: flex; flex-direction: column; align-items: stretch; }
+  .role { --size: 84px; display: flex; flex-direction: column; align-items: center; border-radius: 16px; padding: 2px 4px 6px; transition: box-shadow .2s, background .2s; }
+  .role-name { margin: 0 0 6px; font-family: var(--display); font-weight: 600; font-size: 19px; line-height: 1.15; text-align: center; }
+  .role-bubs { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; min-height: var(--size); }
+  .role .bub { --size: 84px; width: 100px; }
+  .role .bub .lbl, .role .bub .cap { max-width: 100px; }
+  .vacant { width: var(--size); height: var(--size); border-radius: 50%; border: 2px dashed var(--c); background: var(--bg); display: grid; place-items: center; font-size: 12px; color: var(--ink-3); }
+  .role.over { background: color-mix(in srgb, var(--c) 14%, transparent); box-shadow: 0 0 0 3px var(--c); }
+  .hang { position: relative; display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+  .hang::before { content: ''; position: absolute; left: 50%; top: -14px; width: 2px; height: 14px; background: var(--c); }
+  .box.col { width: 100%; min-height: 200px; }
   .box.col h4 { font-size: 18px; }
   .box.col .bubs { flex-direction: column; flex-wrap: nowrap; align-items: center; gap: 12px; }
+  .loose { margin-top: 34px; }
+  .loose-h { text-align: center; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); margin: 0 0 10px; }
+  .loose-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 16px; }
+  .loose-row .box.col { width: 172px; }
+  /* phones: the arch becomes a list, most senior first */
+  @media (max-width: 640px) {
+    .arch { overflow: visible; }
+    .arch-inner { flex-direction: column; width: auto; gap: 16px; padding: 0; }
+    .links { display: none; }
+    .stem { order: var(--rank); width: 100%; margin-top: 0; }
+    .role { --size: 64px; align-items: flex-start; background: var(--card); border: 1px solid var(--line); border-left: 4px solid var(--c); padding: 10px 12px; }
+    .role-bubs { justify-content: flex-start; }
+    .role .bub { --size: 64px; width: 80px; }
+    .hang { margin: 10px 0 0 22px; padding-left: 12px; border-left: 2px solid var(--c); }
+    .hang::before { display: none; }
+    .box.col { min-height: 0; }
+    .box.col .bubs { flex-direction: row; flex-wrap: wrap; justify-content: flex-start; }
+    .loose-row .box.col { width: 100%; }
+  }
   /* bottom: not placed yet | out, one box split by a dotted line */
   .limbo { display: grid; grid-template-columns: 1fr 1fr; margin-top: 30px; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
   .limbo .box { border: 0; border-radius: 0; margin: 0; min-height: 130px; }
@@ -186,6 +208,8 @@
   .div-opts { grid-column: 2 / -1; display: flex; flex-wrap: wrap; gap: 8px 14px; font-size: 13px; color: var(--ink-2); }
   .div-opts label { display: inline-flex; align-items: center; gap: 6px; }
   .div-opts select { width: auto; padding: 5px 8px; font-size: 14px; border-radius: 8px; }
+  .rank { width: 24px; height: 24px; border-radius: 50%; background: var(--c); color: #fff; font-size: 12px; font-weight: 700; display: grid; place-items: center; }
+  .div-row.role-row { grid-template-columns: 24px 1fr auto auto auto; }
   .div-row.fixed { grid-template-columns: 14px 1fr auto; color: var(--out-ink); }
   .add-row { display: flex; gap: 8px; margin-top: 14px; }
   .add-row input { flex: 1; }
@@ -194,11 +218,8 @@
   .who-list button:hover { background: var(--moss); color: var(--on-moss); border-color: var(--moss); }
   @media (max-width: 560px) { .div-row { grid-template-columns: 14px 1fr; } .div-row .yr, .div-row .moves, .div-row .del { grid-column: 2; } .div-row .tail { grid-column: 2; display: flex; gap: 8px; align-items: center; } }
 
-  /* phones: two divisions across, slightly smaller bubbles */
+  /* phones: slightly smaller bubbles */
   @media (max-width: 480px) {
-    .team { --colw: 134px; gap: 22px 12px; }
-    .cols { gap: 8px; }
-    .box.top { flex-basis: 150px; min-width: 128px; }
     .limbo { grid-template-columns: 1fr; }
     .limbo .box + .box { border-left: 0; border-top: 2px dashed var(--line-2); }
     .box { padding: 10px 8px 12px; min-height: 120px; }
@@ -217,7 +238,7 @@
 <header class="top">
   <div class="wrap">
     <a class="back" href="../">← <span>toybox</span></a>
-    <div class="ttl"><h1 id="title">Team Planner</h1><p id="subtitle">Clubs and societies</p></div>
+    <div class="ttl"><input class="title-in" id="title" type="text" maxlength="60" placeholder="Your society's name" aria-label="Club or society name" spellcheck="false" autocomplete="off"><p id="subtitle">Team Planner</p></div>
     <div class="right" id="board-ctrls" hidden>
       <button class="icon-btn" id="btn-changes" type="button" aria-label="What changed" title="What changed">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
@@ -233,22 +254,24 @@
 <!-- ======== SETUP: the lists ======== -->
 <main class="setup wrap" id="setup">
   <h2>Who's on the team?</h2>
-  <p class="lead">List last year's committee and this year's, and the divisions each year had. Anyone on both lists is the same person. Anyone on only one list starts in <b>Out</b> for the other year.</p>
+  <p class="lead">List last year's committee and this year's. <b>Roles</b> are the leadership (your T3, T5, T8…), most senior first. <b>Teams</b> are groups like Events or Marketing. Anyone on both exec lists is the same person; anyone on only one starts in <b>Out</b> for the other year.</p>
   <label class="field"><span>Club or society <small>(optional)</small></span><input type="text" id="club" maxlength="60" placeholder="e.g. UQSLA"></label>
-  <p class="hint">One per line. To place someone straight away, add their division after a dash: <code>Priya — Events</code>. Otherwise you'll drag them in on the next screen.</p>
+  <p class="hint">One per line. To place someone straight away, add their role or team after a dash: <code>Priya — Events</code>. Otherwise you'll drag them in on the next screen.</p>
   <div class="cols">
     <div class="col">
       <h3>Old team</h3>
-      <label class="field"><span>Execs</span><textarea id="old-execs" placeholder="Amara — President&#10;Ben — Treasurer&#10;Chloe"></textarea></label>
-      <label class="field"><span>Divisions</span><textarea id="old-divs" placeholder="President&#10;Treasurer&#10;Events&#10;Marketing"></textarea></label>
+      <label class="field"><span>Execs</span><textarea id="old-execs" placeholder="Amara — President&#10;Ben — Treasurer&#10;Chloe — Events"></textarea></label>
+      <label class="field"><span>Roles <small>(most senior first)</small></span><textarea id="old-roles" placeholder="President&#10;Secretary&#10;Treasurer&#10;VP Events&#10;VP Marketing"></textarea></label>
+      <label class="field"><span>Teams</span><textarea id="old-teams" placeholder="Events&#10;Marketing&#10;Sponsorship"></textarea></label>
     </div>
     <div class="col">
       <h3>New team</h3>
       <label class="field"><span>Execs</span><textarea id="new-execs" placeholder="Amara — Events&#10;Chloe — President&#10;Dev"></textarea></label>
-      <label class="field"><span>Divisions</span><textarea id="new-divs" placeholder="President&#10;Treasurer&#10;Events&#10;Marketing&#10;Charity"></textarea></label>
+      <label class="field"><span>Roles <small>(most senior first)</small></span><textarea id="new-roles" placeholder="President&#10;Secretary&#10;Treasurer&#10;VP Events&#10;VP Marketing&#10;Welfare Officer"></textarea></label>
+      <label class="field"><span>Teams</span><textarea id="new-teams" placeholder="Events&#10;Marketing&#10;Sponsorship&#10;Charity"></textarea></label>
     </div>
   </div>
-  <p class="fine" style="margin:4px 0 14px">There's always an <b>Out</b> division too, for anyone graduating, leaving, or not on the team that year. No need to list it. President, Secretary, Treasurer and the VPs go in the pyramid at the top by themselves, and a team like Events reports to the VP with the same name. You can change both under Divisions.</p>
+  <p class="fine" style="margin:4px 0 14px">There's always an <b>Out</b> box too, for anyone graduating, leaving, or not on the team that year. No need to list it. A team reports to the role that names it (Events → VP Events); change that under Teams.</p>
   <div class="actions">
     <button class="btn primary" id="build" type="button">Build the team →</button>
     <button class="btn" id="example" type="button">Try an example</button>
@@ -260,14 +283,15 @@
 <!-- ======== BOARD ======== -->
 <main class="board wrap" id="board" hidden>
   <div class="toolbar">
-    <button class="btn small" id="btn-divs" type="button">Divisions</button>
+    <button class="btn small" id="btn-roles" type="button">Roles</button>
+    <button class="btn small" id="btn-teams" type="button">Teams</button>
     <button class="btn small" id="btn-execs" type="button">Execs</button>
     <button class="btn small" id="btn-lists" type="button">Edit the lists</button>
     <button class="btn small danger" id="btn-reset" type="button">Start over</button>
   </div>
   <p class="yearline" id="yearline"></p>
   <div id="chart"></div>
-  <p class="fine" style="margin-top:16px">Drag a bubble to move someone (on a phone, hold it first). Tap a bubble to add a photo or change their details. Set who sits in the pyramid and who each team reports to under Divisions. Saved in this browser only.</p>
+  <p class="fine" style="margin-top:16px">Drag a bubble to move someone (on a phone, hold it first). Tap a bubble to add a photo or change their details. Click the name at the top to rename your society. Saved in this browser only.</p>
 </main>
 
 <div class="scrim" id="scrim" hidden></div>
@@ -287,7 +311,6 @@
   const norm = (s) => String(s).trim().toLowerCase().replace(/\s+/g, ' ');
   const YEARS = ['old', 'new'];
   const LABEL = { old: 'Old', new: 'New' };
-  const OTHER = { old: 'new', new: 'old' };
   const NOT_YET = "Wasn't on the team";
   // division colours, in order; Out is always grey
   const ACCENTS = ['#4a6146', '#a8623c', '#c2a25c', '#6d4f34', '#7d9a6d', '#8a5a7a', '#3f6f7a', '#b0574f', '#5b6b9a', '#9a7b3c'];
@@ -307,31 +330,41 @@
   const colorOf = (id) => ACCENTS[Math.max(0, divIndex(id)) % ACCENTS.length];
   const divName = (id) => { const d = S.divisions.find(x => x.id === id); return d ? d.name : ''; };
   const placeName = (p) => p === 'out' ? 'Out' : p == null ? '' : divName(p);
-  // where a division sits: 1 = top of the pyramid, 2 = T3 row, 3 = T5 row, 0 = a team column
-  function guessLevel(name) {
-    const t = norm(name);
-    if (/^(president|chair|chairperson)$/.test(t)) return 1;
-    if (/^(vice[- ]?president|vp|secretary|treasurer)$/.test(t)) return 2;
-    if (/\bvp\b|vice[- ]?president|\bhead of\b|\bdirector\b/.test(t)) return 3;
-    return 0;
-  }
-  // a team reports to the pyramid role that names it: Events → VP Events
+  // a division is a role (leadership: President, Treasurer, VP Events…, ranked
+  // by its order) or a team (Events, Marketing…) that can report to a role
+  const isRole = (d) => d && d.kind === 'role';
+  const roleish = (name) => /^(president|chair|chairperson|secretary|treasurer|vp|vice[- ]?president)$|\bvp\b|vice[- ]?president|\bhead of\b|\bdirector\b|\bofficer\b/.test(norm(name));
+  // a team reports to the role that names it: Events → VP Events
   function guessBoss(d) {
-    if (d.level) return null;
+    if (isRole(d)) return null;
     const word = norm(d.name).replace(/s$/, '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     if (word.length < 3) return null;
     const re = new RegExp('\\b' + word);
-    const b = S.divisions.find(x => x.level && x.id !== d.id && re.test(norm(x.name)));
+    const b = S.divisions.find(x => isRole(x) && re.test(norm(x.name)));
     return b ? b.id : null;
   }
   const listJoin = (a) => a.length < 2 ? a.join('') : a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1];
-  // anyone sitting in a division that isn't running that year goes back to "not placed"
+  // two ordered lists → one, keeping each list's own order (for ranks that shift between years)
+  function mergeOrder(a, b) {
+    const out = a.slice(), has = (n) => out.findIndex(x => norm(x) === norm(n));
+    b.forEach((n, i) => {
+      if (has(n) > -1) return;
+      const prev = b.slice(0, i).reverse().find(p => has(p) > -1);
+      out.splice(prev ? has(prev) + 1 : 0, 0, n);
+    });
+    return out;
+  }
+  // tidy up after any change (and upgrade plans saved by the earlier version)
   function tidy() {
-    S.divisions.forEach(d => { if (d.level == null) d.level = guessLevel(d.name); });
+    const legacy = S.divisions.some(d => !d.kind);
+    S.divisions.forEach(d => { if (!d.kind) d.kind = d.level ? 'role' : d.level === 0 ? 'team' : roleish(d.name) ? 'role' : 'team'; });
+    if (legacy) { const lv = (d) => isRole(d) ? (d.level || 9) : 99; S.divisions = S.divisions.map((d, i) => [d, i]).sort((a, b) => lv(a[0]) - lv(b[0]) || a[1] - b[1]).map(x => x[0]); }
+    S.divisions.forEach(d => { delete d.level; });
     S.divisions.forEach(d => {
       if (d.reportsTo === undefined) d.reportsTo = guessBoss(d);
-      if (d.level || (d.reportsTo && !S.divisions.some(b => b.id === d.reportsTo && b.level))) d.reportsTo = null;
+      if (isRole(d) || (d.reportsTo && !S.divisions.some(b => b.id === d.reportsTo && isRole(b)))) d.reportsTo = null;
     });
+    // anyone in a role or team that isn't running that year goes back to "not placed"
     S.execs.forEach(e => {
       e.why = e.why || { old: '', new: '' };
       YEARS.forEach(y => { const p = e[y]; if (p && p !== 'out' && !S.divisions.some(d => d.id === p && d[y])) e[y] = null; });
@@ -368,18 +401,21 @@
   function applyLists() {
     const err = $('setup-err'); err.hidden = true;
     const ex = { old: parseExecs($('old-execs').value), new: parseExecs($('new-execs').value) };
-    const dv = { old: lines($('old-divs').value), new: lines($('new-divs').value) };
+    const rl = { old: lines($('old-roles').value), new: lines($('new-roles').value) };
+    const tm = { old: lines($('old-teams').value), new: lines($('new-teams').value) };
     if (!ex.old.length && !ex.new.length) { err.textContent = 'Add at least one exec.'; err.hidden = false; return false; }
-    // a division named next to an exec counts as running that year
-    YEARS.forEach(y => ex[y].forEach(x => { if (x.div && norm(x.div) !== 'out' && !dv[y].some(d => norm(d) === norm(x.div))) dv[y].push(x.div); }));
-    YEARS.forEach(y => { dv[y] = dv[y].filter(d => norm(d) !== 'out'); });
-    // divisions: old order first, then anything new; existing ones keep their id
-    const names = []; [...dv.old, ...dv.new].forEach(n => { if (!names.some(x => norm(x) === norm(n))) names.push(n); });
-    const divisions = names.map(n => {
+    const listed = (y, n) => [...rl[y], ...tm[y]].some(d => norm(d) === norm(n));
+    // a role or team named next to an exec counts as running that year
+    YEARS.forEach(y => ex[y].forEach(x => { if (x.div && norm(x.div) !== 'out' && !listed(y, x.div)) (roleish(x.div) ? rl : tm)[y].push(x.div); }));
+    YEARS.forEach(y => { rl[y] = rl[y].filter(d => norm(d) !== 'out'); tm[y] = tm[y].filter(d => norm(d) !== 'out' && !rl[y].some(r => norm(r) === norm(d))); });
+    const roleNames = mergeOrder(rl.old, rl.new);
+    const teamNames = mergeOrder(tm.old, tm.new).filter(n => !roleNames.some(r => norm(r) === norm(n)));
+    const make = (n, kind, src) => {
       const had = S.divisions.find(d => norm(d.name) === norm(n));
-      return { id: had ? had.id : uid(), name: n, old: dv.old.some(d => norm(d) === norm(n)), new: dv.new.some(d => norm(d) === norm(n)),
-        level: had ? had.level : guessLevel(n), reportsTo: had ? had.reportsTo : undefined };
-    });
+      return { id: had ? had.id : uid(), name: n, kind, old: src.old.some(d => norm(d) === norm(n)), new: src.new.some(d => norm(d) === norm(n)),
+        reportsTo: kind === 'team' && had && had.kind === 'team' ? had.reportsTo : undefined };
+    };
+    const divisions = [...roleNames.map(n => make(n, 'role', rl)), ...teamNames.map(n => make(n, 'team', tm))];
     const idFor = (y, n) => { const d = divisions.find(d => norm(d.name) === norm(n) && d[y]); return d ? d.id : null; };
     // execs: everyone on either list, matched by name; photos and placements carry over
     const people = []; [...ex.old, ...ex.new].forEach(x => { if (!people.some(p => norm(p) === norm(x.name))) people.push(x.name); });
@@ -405,19 +441,23 @@
     $('club').value = S.club || '';
     YEARS.forEach(y => {
       $(y + '-execs').value = S.execs.filter(e => e[y] !== 'out').map(e => e[y] ? `${e.name} — ${divName(e[y])}` : e.name).join('\n');
-      $(y + '-divs').value = S.divisions.filter(d => d[y]).map(d => d.name).join('\n');
+      $(y + '-roles').value = S.divisions.filter(d => d[y] && isRole(d)).map(d => d.name).join('\n');
+      $(y + '-teams').value = S.divisions.filter(d => d[y] && !isRole(d)).map(d => d.name).join('\n');
     });
   }
   const EXAMPLE = {
     oldExecs: 'Amara Perera — President\nBen Kwan — Secretary\nChloe Singh — Treasurer\nDev Patel — VP Events\nEsha Rao — VP Marketing\nFarhan Ali — Events\nGita Shah — Events\nHugo Chen — Events\nIsla Brown — Marketing\nJai Mehta — Marketing\nKiran Das — Sponsorship\nLena Fox — Merch',
-    newExecs: 'Chloe Singh — President\nBen Kwan — Secretary\nKiran Das — Treasurer\nDev Patel — VP Events\nGita Shah — VP Marketing\nAmara Perera — Events\nHugo Chen — Events\nMaya Rose — Events\nIsla Brown — Marketing\nJai Mehta — Marketing\nPriya Nair — Marketing\nNikhil Rao — Sponsorship\nLena Fox — Merch\nOmar Aziz — Charity',
-    oldDivs: 'President\nSecretary\nTreasurer\nVP Events\nVP Marketing\nEvents\nMarketing\nSponsorship\nMerch',
-    newDivs: 'President\nSecretary\nTreasurer\nVP Events\nVP Marketing\nEvents\nMarketing\nSponsorship\nMerch\nCharity',
+    newExecs: 'Chloe Singh — President\nBen Kwan — Secretary\nKiran Das — Treasurer\nDev Patel — VP Events\nGita Shah — VP Marketing\nOmar Aziz — Welfare Officer\nAmara Perera — Events\nHugo Chen — Events\nMaya Rose — Events\nIsla Brown — Marketing\nJai Mehta — Marketing\nPriya Nair — Marketing\nNikhil Rao — Sponsorship\nLena Fox — Merch\nSara Lim — Charity',
+    oldRoles: 'President\nSecretary\nTreasurer\nVP Events\nVP Marketing',
+    newRoles: 'President\nSecretary\nTreasurer\nVP Events\nVP Marketing\nWelfare Officer',
+    oldTeams: 'Events\nMarketing\nSponsorship\nMerch',
+    newTeams: 'Events\nMarketing\nSponsorship\nMerch\nCharity',
   };
   $('example').addEventListener('click', () => {
-    $('club').value = 'Example Society';
+    $('club').value = 'Example Society'; $('title').value = 'Example Society';
     $('old-execs').value = EXAMPLE.oldExecs; $('new-execs').value = EXAMPLE.newExecs;
-    $('old-divs').value = EXAMPLE.oldDivs; $('new-divs').value = EXAMPLE.newDivs;
+    $('old-roles').value = EXAMPLE.oldRoles; $('new-roles').value = EXAMPLE.newRoles;
+    $('old-teams').value = EXAMPLE.oldTeams; $('new-teams').value = EXAMPLE.newTeams;
   });
   $('build').addEventListener('click', () => {
     if (!applyLists()) return;
@@ -426,17 +466,21 @@
       S.execs.forEach(e => { if (e.name === 'Esha Rao') e.why.new = 'Graduating'; if (e.name === 'Farhan Ali') e.why.new = 'On exchange'; });
       const dn = (n) => S.divisions.find(d => d.name === n);
       if (dn('Sponsorship') && dn('Treasurer')) dn('Sponsorship').reportsTo = dn('Treasurer').id;
-      if (dn('Charity') && dn('Secretary')) dn('Charity').reportsTo = dn('Secretary').id;
+      if (dn('Charity') && dn('President')) dn('Charity').reportsTo = dn('President').id;
     }
     save(); showBoard();
   });
   $('to-board').addEventListener('click', showBoard);
+  // the name at the top is a text box: hover shows it, type to rename
+  $('title').addEventListener('input', () => { S.club = $('title').value.trim(); $('club').value = $('title').value; save(); });
+  $('title').addEventListener('keydown', (ev) => { if (ev.key === 'Enter' || ev.key === 'Escape') $('title').blur(); });
+  $('club').addEventListener('input', () => { $('title').value = $('club').value; });
 
   // ---------- screens ----------
   function showSetup() {
     $('setup').hidden = false; $('board').hidden = true; $('board-ctrls').hidden = true;
     $('to-board').hidden = !S.built; $('setup-err').hidden = true;
-    $('title').textContent = S.club || 'Team Planner'; $('subtitle').textContent = 'Clubs and societies';
+    $('title').value = S.club || ''; $('subtitle').textContent = 'Team Planner';
     if (S.built) fillLists();
     window.scrollTo(0, 0);
   }
@@ -466,46 +510,67 @@
       <span class="ball">${e.photo ? `<img src="${e.photo}" alt="">` : `<span class="nm" style="font-size:calc(var(--size) * ${fs})">${esc(label)}</span>`}</span>
       ${e.photo ? `<span class="lbl">${esc(label)}</span>` : ''}${c ? `<span class="cap">${esc(c)}</span>` : ''}</button>`;
   }
+  let archCount = -1;
   function render() {
     const v = S.view;
-    $('title').textContent = S.club || 'Team Planner';
-    $('subtitle').textContent = `${S.execs.filter(e => e.old && e.old !== 'out').length} execs before · ${S.execs.filter(e => e.new && e.new !== 'out').length} now`;
+    if (document.activeElement !== $('title')) $('title').value = S.club || '';
+    $('subtitle').textContent = `Team Planner · ${S.execs.filter(e => e.old && e.old !== 'out').length} execs before · ${S.execs.filter(e => e.new && e.new !== 'out').length} now`;
     document.querySelectorAll('.seg [data-view]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.view === v)));
     $('yearline').innerHTML = v === 'old' ? '<b>The old team</b> — how it was' : '<b>The new team</b> — how it is now';
     const sorted = (list) => list.slice().sort((a, b) => a.name.localeCompare(b.name));
     const people = (id) => sorted(S.execs.filter(e => e[v] === id));
     const act = S.divisions.filter(d => d[v]);
-    const box = (d, cls, branchColor) => {
+    const roles = act.filter(isRole), teams = act.filter(d => !isRole(d));
+    const teamBox = (d) => {
       const ppl = people(d.id), c = colorOf(d.id);
-      const kids = d.level ? act.filter(x => !x.level && x.reportsTo === d.id).map(x => x.name) : [];
-      return `<section class="box ${cls}" style="--c:${c}${branchColor ? ';--branch:' + branchColor : ''}" data-drop="${d.id}"><h4>${esc(d.name)} <span class="n">${ppl.length || ''}</span></h4>
-        <div class="bubs">${ppl.map(e => bubble(e, c)).join('')}</div>${ppl.length ? '' : `<p class="empty">${d.level ? 'Vacant' : 'Drag execs here'}</p>`}
-        ${kids.length ? `<p class="oversees">Responsible for ${esc(listJoin(kids))}</p>` : ''}</section>`;
+      return `<section class="box col" style="--c:${c}" data-drop="${d.id}"><h4>${esc(d.name)} <span class="n">${ppl.length || ''}</span></h4>
+        <div class="bubs">${ppl.map(e => bubble(e, c)).join('')}</div>${ppl.length ? '' : '<p class="empty">Drag execs here</p>'}</section>`;
     };
-    // the pyramid, top down
-    const rows = [1, 2, 3].map(l => act.filter(d => d.level === l)).filter(r => r.length);
-    const pyramid = rows.length ? `<div class="pyramid">${rows.map(r => `<div class="prow">${r.map(d => box(d, 'top')).join('')}</div>`).join('')}</div>` : '';
-    // teams, grouped under the role they report to: the T5 row's teams first
-    // (usually the big ones, like Events and Marketing), then T3, then the top
-    const team = act.filter(d => !d.level), bosses = rows.flat().sort((a, b) => b.level - a.level);
-    const groups = bosses.map(b => ({ boss: b, divs: team.filter(t => t.reportsTo === b.id) })).filter(g => g.divs.length);
-    const loose = team.filter(t => !bosses.some(b => b.id === t.reportsTo));
-    const branch = (boss, divs) => {
-      const c = boss ? colorOf(boss.id) : 'var(--line-2)';
-      const who = boss ? people(boss.id).map(shortName) : [];
-      const head = boss ? `Reports to <b>${esc(boss.name)}</b> · ${who.length ? esc(listJoin(who)) : 'vacant'}` : (bosses.length ? 'Reports to no one' : '');
-      return `<div class="branch" style="--c:${c}">${head ? `<div class="bhead">${head}</div>` : ''}<div class="cols ${divs.length > 1 && head ? 'multi' : ''}">${divs.map(d => box(d, 'col', head ? c : '')).join('')}</div></div>`;
+    // a stem: the role on top, the teams that report to it hanging below
+    const stem = (r, rank) => {
+      const ppl = people(r.id), c = colorOf(r.id), mine = teams.filter(t => t.reportsTo === r.id);
+      return `<div class="stem" style="--c:${c};--depth:${Math.ceil(rank / 2)};--rank:${rank}" data-rank="${rank}">
+        <section class="role" data-drop="${r.id}"><p class="role-name">${esc(r.name)}</p><div class="role-bubs">${ppl.length ? ppl.map(e => bubble(e, c)).join('') : '<span class="vacant">Vacant</span>'}</div></section>
+        ${mine.length ? `<div class="hang">${mine.map(teamBox).join('')}</div>` : ''}</div>`;
     };
-    const teams = team.length ? `<div class="team">${groups.map(g => branch(g.boss, g.divs)).join('')}${loose.length ? branch(null, loose) : ''}</div>` : '';
-    const none = act.length ? '' : `<p class="fine">No divisions in the ${LABEL[v].toLowerCase()} team yet — add some under Divisions.</p>`;
+    // rank 0 in the middle; 1 to its left, 2 to its right, 3 further left…
+    const order = []; roles.forEach((r, i) => { if (i % 2) order.unshift([r, i]); else order.push([r, i]); });
+    const arch = roles.length ? `<div class="arch" id="arch"><div class="arch-inner"><svg class="links" aria-hidden="true"></svg>${order.map(([r, i]) => stem(r, i)).join('')}</div></div>` : '';
+    const loose = teams.filter(t => !roles.some(r => r.id === t.reportsTo));
+    const looseHtml = loose.length ? `<div class="loose">${roles.length ? '<p class="loose-h">Teams that report to no one</p>' : ''}<div class="loose-row">${loose.map(teamBox).join('')}</div></div>` : '';
+    const none = act.length ? '' : `<p class="fine">No roles or teams in the ${LABEL[v].toLowerCase()} team yet — add some under Roles and Teams.</p>`;
     // the bottom: not placed yet | out
     const unplaced = sorted(S.execs.filter(e => e[v] == null)), outs = people('out');
     const limbo = `<div class="limbo">
       <section class="box tray" data-drop="_none"><h4>Not placed yet <span class="n">${unplaced.length || ''}</span></h4><div class="bubs">${unplaced.map(e => bubble(e, 'var(--moss)')).join('')}</div>${unplaced.length ? '' : '<p class="empty">Everyone\'s placed</p>'}</section>
       <section class="box out" data-drop="out"><h4>Out <span class="n">${outs.length || ''}</span></h4><div class="bubs">${outs.map(e => bubble(e, '#9a978f')).join('')}</div>${outs.length ? '' : '<p class="empty">Graduating, leaving, or not on the team this year</p>'}</section>
     </div>`;
-    $('chart').innerHTML = pyramid + teams + none + limbo;
+    const prev = $('arch'), keep = prev && roles.length === archCount ? prev.scrollLeft : null;
+    $('chart').innerHTML = arch + looseHtml + none + limbo;
+    // wider than the screen: centre on the most senior role (again whenever roles are added or
+    // removed), otherwise keep wherever you'd scrolled to
+    const a = $('arch'); archCount = roles.length; if (a) a.scrollLeft = keep != null ? keep : (a.scrollWidth - a.clientWidth) / 2;
+    requestAnimationFrame(drawLinks);
   }
+  // lines between the role circles: each role links to the next one up its side
+  const RING = 42;   // half the role circle
+  function drawLinks() {
+    const inner = document.querySelector('.arch-inner'); if (!inner) return;
+    const svg = inner.querySelector('.links');
+    if (matchMedia('(max-width: 640px)').matches) { svg.innerHTML = ''; return; }
+    const base = inner.getBoundingClientRect(), pts = {};
+    inner.querySelectorAll('.stem').forEach(st => {
+      const rb = st.querySelector('.role-bubs').getBoundingClientRect();
+      pts[st.dataset.rank] = { x: rb.left + rb.width / 2 - base.left, y: rb.top - base.top + RING };
+    });
+    svg.setAttribute('width', inner.scrollWidth); svg.setAttribute('height', inner.scrollHeight);
+    svg.innerHTML = Object.keys(pts).map(Number).filter(i => i > 0).map(i => {
+      const a = pts[i], b = pts[i <= 2 ? 0 : i - 2]; if (!b) return '';
+      return `<line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}"/>`;
+    }).join('');
+  }
+  addEventListener('resize', () => requestAnimationFrame(drawLinks));
+  if (document.fonts) document.fonts.ready.then(() => drawLinks());
   // switching Old ↔ New: bubbles glide from their old box to their new one
   function renderMoving() {
     const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -563,6 +628,8 @@
     if (box !== drag.over) { if (drag.over) drag.over.classList.remove('over'); drag.over = box; if (box) box.classList.add('over'); }
     // near the top or bottom edge: scroll so far-away divisions can be reached
     if (y < 90) window.scrollBy(0, -14); else if (y > innerHeight - 70) window.scrollBy(0, 14);
+    const arch = $('arch');
+    if (arch && arch.scrollWidth > arch.clientWidth) { const r = arch.getBoundingClientRect(); if (y > r.top && y < r.bottom) { if (x < r.left + 50) arch.scrollLeft -= 14; else if (x > r.right - 50) arch.scrollLeft += 14; } }
   }
   function cancelDrag() {
     if (!drag) return; drag.ghost.remove(); drag.el.classList.remove('lifting'); if (drag.over) drag.over.classList.remove('over');
@@ -591,8 +658,10 @@
   // one person: photo, name, where they sit each year, why they're out
   let photoFor = null;
   function placeOptions(y, cur) {
-    const opts = [['', 'Not placed yet'], ...S.divisions.filter(d => d[y]).map(d => [d.id, d.name]), ['out', 'Out']];
-    return opts.map(([val, txt]) => `<option value="${val}" ${String(cur == null ? '' : cur) === val ? 'selected' : ''}>${esc(txt)}</option>`).join('');
+    const opt = (val, txt) => `<option value="${val}" ${String(cur == null ? '' : cur) === val ? 'selected' : ''}>${esc(txt)}</option>`;
+    const grp = (label, ds) => ds.length ? `<optgroup label="${label}">${ds.map(d => opt(d.id, d.name)).join('')}</optgroup>` : '';
+    const act = S.divisions.filter(d => d[y]);
+    return opt('', 'Not placed yet') + grp('Roles', act.filter(isRole)) + grp('Teams', act.filter(d => !isRole(d))) + opt('out', 'Out');
   }
   function openExec(id) {
     const e = S.execs.find(x => x.id === id); if (!e) return;
@@ -665,13 +734,13 @@
     });
     if (added.length || dropped.length) {
       const dl = [...added.map(n => `<b>${esc(n)}</b> is new this year.`), ...dropped.map(n => `<b>${esc(n)}</b> isn't running this year.`)];
-      html += `<h3>Divisions</h3><ul class="lines">${dl.map(l => `<li>${l}</li>`).join('')}</ul>`;
-      text += '\nDivisions\n' + dl.map(l => '• ' + l.replace(/<[^>]+>/g, '')).join('\n') + '\n';
+      html += `<h3>Roles and teams</h3><ul class="lines">${dl.map(l => `<li>${l}</li>`).join('')}</ul>`;
+      text += '\nRoles and teams\n' + dl.map(l => '• ' + l.replace(/<[^>]+>/g, '')).join('\n') + '\n';
     }
     // whose responsibility each team is now, and whether that changed
     const firsts = (id, y) => S.execs.filter(e => e[y] === id).map(e => e.name.split(/\s+/)[0]);
     const poss = (names) => names.length ? `<b>${esc(listJoin(names))}</b>'s` : 'nobody\'s yet';
-    const resp = S.divisions.filter(d => !d.level && d.new && d.reportsTo).map(d => {
+    const resp = S.divisions.filter(d => !isRole(d) && d.new && d.reportsTo).map(d => {
       const b = S.divisions.find(x => x.id === d.reportsTo); if (!b) return null;
       const now = firsts(b.id, 'new'), was = d.old && b.old ? firsts(b.id, 'old') : null;
       if (!d.old) return { mute: false, h: `<b>${esc(d.name)}</b> is new, and ${poss(now)} responsibility (${esc(b.name)}).` };
@@ -692,52 +761,77 @@
   }
   $('btn-changes').addEventListener('click', changesSheet);
 
-  // ---------- divisions: on/off per year, rename, reorder, add, delete ----------
-  function divisionsSheet() {
-    const rows = S.divisions.map((d, i) => `
-      <div class="div-row" data-id="${d.id}" style="--c:${ACCENTS[i % ACCENTS.length]}">
-        <span class="sw"></span><input type="text" value="${esc(d.name)}" maxlength="40" data-rename aria-label="Division name">
-        <div class="yr">${YEARS.map(y => `<label><input type="checkbox" data-yr="${y}" ${d[y] ? 'checked' : ''}>${LABEL[y]}</label>`).join('')}</div>
-        <div class="moves"><button class="mini" type="button" data-up ${i ? '' : 'disabled'} aria-label="Move up">↑</button><button class="mini" type="button" data-down ${i < S.divisions.length - 1 ? '' : 'disabled'} aria-label="Move down">↓</button></div>
-        <button class="mini del" type="button" data-del aria-label="Delete ${esc(d.name)}">×</button>
-        <div class="div-opts">
-          <label>Sits in <select data-level>${[[1, 'Pyramid · top'], [2, 'Pyramid · T3 row'], [3, 'Pyramid · T5 row'], [0, 'Team column']].map(([k, t]) => `<option value="${k}" ${d.level === k ? 'selected' : ''}>${t}</option>`).join('')}</select></label>
-          ${d.level ? '' : `<label>Reports to <select data-boss><option value="">No one</option>${S.divisions.filter(b => b.level).map(b => `<option value="${b.id}" ${d.reportsTo === b.id ? 'selected' : ''}>${esc(b.name)}</option>`).join('')}</select></label>`}
-        </div>
-      </div>`).join('');
-    openSheet('Divisions', `<p class="fine" style="margin-top:0">Turn a division on or off for each year. A new division might only run this year. Pyramid roles sit at the top; a team column hangs under the role it reports to, or under no one.</p>
-      ${rows}<div class="div-row fixed" style="--c:#9a978f"><span class="sw"></span><span>Out</span><span class="fine">Always there</span></div>
-      <form class="add-row" id="add-div"><input type="text" id="add-div-name" maxlength="40" placeholder="Add a division"><button class="btn small primary" type="submit">Add</button></form>
-      <p class="fine">A new division starts on for the ${LABEL[S.view].toLowerCase()} team. Tick the other year if it ran then too.</p>`, render);
-    const body = $('sheet-body');
-    body.querySelectorAll('.div-row[data-id]').forEach(row => {
-      const d = S.divisions.find(x => x.id === row.dataset.id);
-      row.querySelector('[data-rename]').addEventListener('change', (ev) => { const n = ev.target.value.trim(); if (n && norm(n) !== 'out') { d.name = n; save(); } else ev.target.value = d.name; });
-      row.querySelectorAll('[data-yr]').forEach(cb => cb.addEventListener('change', () => {
-        const y = cb.dataset.yr; d[y] = cb.checked;
-        if (!cb.checked) { const n = S.execs.filter(e => e[y] === d.id).length; S.execs.forEach(e => { if (e[y] === d.id) e[y] = null; }); if (n) toast(`${n} ${n === 1 ? 'person' : 'people'} from ${d.name} moved to “Not placed yet” in the ${LABEL[y].toLowerCase()} team.`); }
-        save();
-      }));
-      row.querySelector('[data-level]').addEventListener('change', (ev) => {
-        d.level = +ev.target.value; if (d.level) d.reportsTo = null; else d.reportsTo = guessBoss(d);
-        tidy(); save(); divisionsSheet();
-      });
-      const boss = row.querySelector('[data-boss]');
-      if (boss) boss.addEventListener('change', () => { d.reportsTo = boss.value || null; save(); });
-      row.querySelector('[data-up]').addEventListener('click', () => { const i = divIndex(d.id); [S.divisions[i - 1], S.divisions[i]] = [S.divisions[i], S.divisions[i - 1]]; save(); divisionsSheet(); });
-      row.querySelector('[data-down]').addEventListener('click', () => { const i = divIndex(d.id); [S.divisions[i + 1], S.divisions[i]] = [S.divisions[i], S.divisions[i + 1]]; save(); divisionsSheet(); });
-      const del = row.querySelector('[data-del]');
-      twoTap(del, '✓', () => { S.execs.forEach(e => YEARS.forEach(y => { if (e[y] === d.id) e[y] = null; })); S.divisions = S.divisions.filter(x => x !== d); tidy(); save(); divisionsSheet(); });
-    });
+  // ---------- roles and teams: shared bits ----------
+  // move a role or team up/down among its own kind
+  function shift(d, dir) {
+    const same = S.divisions.filter(x => x.kind === d.kind), i = same.indexOf(d), other = same[i + dir]; if (!other) return;
+    const a = divIndex(d.id), b = divIndex(other.id); [S.divisions[a], S.divisions[b]] = [S.divisions[b], S.divisions[a]];
+  }
+  const yearToggles = (d) => `<div class="yr">${YEARS.map(y => `<label><input type="checkbox" data-yr="${y}" ${d[y] ? 'checked' : ''}>${LABEL[y]}</label>`).join('')}</div>`;
+  function wireRow(row, d, again) {
+    row.querySelector('[data-rename]').addEventListener('change', (ev) => { const n = ev.target.value.trim(); if (n && norm(n) !== 'out') { d.name = n; save(); } else ev.target.value = d.name; });
+    row.querySelectorAll('[data-yr]').forEach(cb => cb.addEventListener('change', () => {
+      const y = cb.dataset.yr; d[y] = cb.checked;
+      if (!cb.checked) { const n = S.execs.filter(e => e[y] === d.id).length; S.execs.forEach(e => { if (e[y] === d.id) e[y] = null; }); if (n) toast(`${n} ${n === 1 ? 'person' : 'people'} from ${d.name} moved to “Not placed yet” in the ${LABEL[y].toLowerCase()} team.`); }
+      save();
+    }));
+    row.querySelector('[data-up]').addEventListener('click', () => { shift(d, -1); save(); again(); });
+    row.querySelector('[data-down]').addEventListener('click', () => { shift(d, 1); save(); again(); });
+    twoTap(row.querySelector('[data-del]'), '✓', () => { S.execs.forEach(e => YEARS.forEach(y => { if (e[y] === d.id) e[y] = null; })); S.divisions = S.divisions.filter(x => x !== d); tidy(); save(); again(); });
+  }
+  function wireAdd(kind, again) {
     $('add-div').addEventListener('submit', (ev) => {
       ev.preventDefault(); const n = $('add-div-name').value.trim(); if (!n) return;
       if (norm(n) === 'out') { toast('Out is always there already.'); return; }
-      if (S.divisions.some(d => norm(d.name) === norm(n))) { toast('There\'s already a division with that name.'); return; }
-      const nd = { id: uid(), name: n, old: S.view === 'old', new: S.view === 'new', level: guessLevel(n) }; S.divisions.push(nd); nd.reportsTo = guessBoss(nd); save(); divisionsSheet();
-      setTimeout(() => { const i = $('add-div-name'); if (i) i.focus(); }, 0);
+      if (S.divisions.some(d => norm(d.name) === norm(n))) { toast('There\'s already a role or team with that name.'); return; }
+      const nd = { id: uid(), name: n, kind, old: S.view === 'old', new: S.view === 'new', reportsTo: null };
+      // a new role goes after the last role, so roles stay together
+      if (kind === 'role') { const last = S.divisions.map(isRole).lastIndexOf(true); S.divisions.splice(last + 1, 0, nd); } else { S.divisions.push(nd); nd.reportsTo = guessBoss(nd); }
+      save(); again(); setTimeout(() => { const i = $('add-div-name'); if (i) i.focus(); }, 0);
     });
   }
-  $('btn-divs').addEventListener('click', divisionsSheet);
+
+  // ---------- roles: the leadership, most senior first ----------
+  function rolesSheet() {
+    const roles = S.divisions.filter(isRole);
+    const rows = roles.map((d, i) => `
+      <div class="div-row role-row" data-id="${d.id}" style="--c:${colorOf(d.id)}">
+        <span class="rank" title="Rank ${i + 1}">${i + 1}</span><input type="text" value="${esc(d.name)}" maxlength="40" data-rename aria-label="Role name">
+        ${yearToggles(d)}
+        <div class="moves"><button class="mini" type="button" data-up ${i ? '' : 'disabled'} aria-label="More senior">↑</button><button class="mini" type="button" data-down ${i < roles.length - 1 ? '' : 'disabled'} aria-label="Less senior">↓</button></div>
+        <button class="mini del" type="button" data-del aria-label="Delete ${esc(d.name)}">×</button>
+      </div>`).join('');
+    openSheet(roles.length ? `Roles · T${roles.length}` : 'Roles', `<p class="fine" style="margin-top:0">Your leadership, most senior first. Number 1 sits in the middle of the arch; the rest step down either side. Add as many as your society has: a T3, T5, T8 or T10.</p>
+      ${rows || '<p class="fine">No roles yet.</p>'}
+      <form class="add-row" id="add-div"><input type="text" id="add-div-name" maxlength="40" placeholder="Add a role, e.g. Welfare Officer"><button class="btn small primary" type="submit">Add role</button></form>
+      <p class="fine">A new role starts on for the ${LABEL[S.view].toLowerCase()} team. Tick the other year if it existed then too.</p>`, render);
+    $('sheet-body').querySelectorAll('.div-row[data-id]').forEach(row => wireRow(row, S.divisions.find(x => x.id === row.dataset.id), rolesSheet));
+    wireAdd('role', rolesSheet);
+  }
+  $('btn-roles').addEventListener('click', rolesSheet);
+
+  // ---------- teams: each can report to a role, or to no one ----------
+  function teamsSheet() {
+    const teams = S.divisions.filter(d => !isRole(d)), roles = S.divisions.filter(isRole);
+    const rows = teams.map((d, i) => `
+      <div class="div-row" data-id="${d.id}" style="--c:${colorOf(d.id)}">
+        <span class="sw"></span><input type="text" value="${esc(d.name)}" maxlength="40" data-rename aria-label="Team name">
+        ${yearToggles(d)}
+        <div class="moves"><button class="mini" type="button" data-up ${i ? '' : 'disabled'} aria-label="Move up">↑</button><button class="mini" type="button" data-down ${i < teams.length - 1 ? '' : 'disabled'} aria-label="Move down">↓</button></div>
+        <button class="mini del" type="button" data-del aria-label="Delete ${esc(d.name)}">×</button>
+        <div class="div-opts"><label>Reports to <select data-boss><option value="">No one</option>${roles.map(b => `<option value="${b.id}" ${d.reportsTo === b.id ? 'selected' : ''}>${esc(b.name)}</option>`).join('')}</select></label></div>
+      </div>`).join('');
+    openSheet('Teams', `<p class="fine" style="margin-top:0">Each team hangs under the role it reports to. Some report to no one, like Merch.</p>
+      ${rows || '<p class="fine">No teams yet.</p>'}<div class="div-row fixed" style="--c:#9a978f"><span class="sw"></span><span>Out</span><span class="fine">Always there</span></div>
+      <form class="add-row" id="add-div"><input type="text" id="add-div-name" maxlength="40" placeholder="Add a team, e.g. Charity"><button class="btn small primary" type="submit">Add team</button></form>
+      <p class="fine">A new team starts on for the ${LABEL[S.view].toLowerCase()} team. Tick the other year if it ran then too.</p>`, render);
+    $('sheet-body').querySelectorAll('.div-row[data-id]').forEach(row => {
+      const d = S.divisions.find(x => x.id === row.dataset.id); wireRow(row, d, teamsSheet);
+      const boss = row.querySelector('[data-boss]'); boss.addEventListener('change', () => { d.reportsTo = boss.value || null; save(); });
+    });
+    wireAdd('team', teamsSheet);
+  }
+  $('btn-teams').addEventListener('click', teamsSheet);
 
   // ---------- execs: add someone, or open anyone ----------
   function execsSheet() {
@@ -756,7 +850,7 @@
   $('btn-execs').addEventListener('click', execsSheet);
   $('btn-lists').addEventListener('click', showSetup);
   twoTap($('btn-reset'), 'Tap again — this erases everything', () => {
-    S = blank(); save(); ['club', 'old-execs', 'new-execs', 'old-divs', 'new-divs'].forEach(id => { $(id).value = ''; }); showSetup();
+    S = blank(); save(); ['club', 'title', 'old-execs', 'new-execs', 'old-roles', 'new-roles', 'old-teams', 'new-teams'].forEach(id => { $(id).value = ''; }); showSetup();
   });
 
   // ---------- start ----------
