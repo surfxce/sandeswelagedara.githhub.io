@@ -100,7 +100,7 @@
   @media (max-width: 720px) { .cols { grid-template-columns: 1fr; } .back span { display: none; } .ttl input.title-in { font-size: 21px; } }
 
   /* ---------- board ---------- */
-  .board { padding: 18px 16px 70px; }
+  .board { padding: 18px 16px 110px; }   /* room under the last box for the + button */
   .board.wrap { max-width: 1440px; }   /* the arch gets the whole width on a big screen, so it shrinks less */
   .toolbar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
   .yearline { font-family: var(--display); font-size: 22px; margin: 0 0 12px; color: var(--ink-2); }
@@ -229,7 +229,24 @@
     .bub .lbl, .bub .cap { max-width: 66px; }
     .seg button { padding: 7px 12px; }
   }
-  .toast { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); z-index: 120; background: var(--ink); color: var(--bg); padding: 10px 16px; border-radius: 12px; font-size: 14px; max-width: calc(100% - 32px); box-shadow: var(--shadow); }
+  /* the + in the corner */
+  .fab { position: fixed; right: 22px; bottom: 22px; z-index: 30; width: 60px; height: 60px; border-radius: 50%; border: 0; background: var(--moss); color: var(--on-moss); display: grid; place-items: center; box-shadow: var(--shadow); transition: transform .25s, filter .25s; }
+  .fab:hover { transform: translateY(-3px) scale(1.04); filter: brightness(1.08); }
+  .fab svg { width: 26px; height: 26px; }
+  /* first visit: a faint empty arch with a big + at the top */
+  .ghost-stem .vacant { border-color: var(--line-2); background: var(--bg); }
+  .first-add { width: 84px; height: 84px; border-radius: 50%; border: 2px dashed var(--moss); background: var(--card); color: var(--moss); display: grid; place-items: center; transition: background .25s, color .25s, transform .25s; }
+  .first-add:hover { background: var(--moss); color: var(--on-moss); transform: scale(1.05); }
+  .first-add svg { width: 30px; height: 30px; }
+  .first-label { margin: 10px 0 0; font-family: var(--display); font-size: 21px; text-align: center; white-space: nowrap; }
+  .empty-note { text-align: center; color: var(--ink-2); margin: 30px 0 0; }
+  @media (max-width: 640px) { .ghost-stem:not([data-rank="0"]) { display: none; } .ghost-stem .role { align-items: center; background: none; border: 0; } }
+  /* the add form: "new role or team?" */
+  .kind { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 13px; color: var(--ink-2); margin: -8px 0 14px; }
+  .kind button { border: 1px solid var(--line-2); background: var(--card); border-radius: 999px; padding: 4px 12px; font-size: 13px; font-weight: 600; }
+  .kind button[aria-pressed="true"] { background: var(--moss); color: var(--on-moss); border-color: var(--moss); }
+  .added { color: var(--moss); font-weight: 600; font-size: 14px; }
+  .toast { position: fixed; left: 50%; bottom: 96px; transform: translateX(-50%); z-index: 120; background: var(--ink); color: var(--bg); padding: 10px 16px; border-radius: 12px; font-size: 14px; max-width: calc(100% - 32px); box-shadow: var(--shadow); }
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
 </head>
@@ -239,7 +256,7 @@
   <div class="wrap">
     <a class="back" href="../">← <span>toybox</span></a>
     <div class="ttl"><input class="title-in" id="title" type="text" maxlength="60" placeholder="Your society's name" aria-label="Club or society name" spellcheck="false" autocomplete="off"><p id="subtitle">Team Planner</p></div>
-    <div class="right" id="board-ctrls" hidden>
+    <div class="right" id="board-ctrls">
       <button class="icon-btn" id="btn-changes" type="button" aria-label="What changed" title="What changed">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
       </button>
@@ -251,48 +268,19 @@
   </div>
 </header>
 
-<!-- ======== SETUP: the lists ======== -->
-<main class="setup wrap" id="setup">
-  <h2>Who's on the team?</h2>
-  <p class="lead">List last year's committee and this year's. <b>Roles</b> are the leadership (your T3, T5, T8…), most senior first. <b>Teams</b> are groups like Events or Marketing. Anyone on both exec lists is the same person; anyone on only one starts in <b>Out</b> for the other year.</p>
-  <label class="field"><span>Club or society <small>(optional)</small></span><input type="text" id="club" maxlength="60" placeholder="e.g. UQSLA"></label>
-  <p class="hint">One per line. To place someone straight away, add their role or team after a dash: <code>Priya — Events</code>. Otherwise you'll drag them in on the next screen.</p>
-  <div class="cols">
-    <div class="col">
-      <h3>Old team</h3>
-      <label class="field"><span>Execs</span><textarea id="old-execs" placeholder="Amara — President&#10;Ben — Treasurer&#10;Chloe — Events"></textarea></label>
-      <label class="field"><span>Roles <small>(most senior first)</small></span><textarea id="old-roles" placeholder="President&#10;Secretary&#10;Treasurer&#10;VP Events&#10;VP Marketing"></textarea></label>
-      <label class="field"><span>Teams</span><textarea id="old-teams" placeholder="Events&#10;Marketing&#10;Sponsorship"></textarea></label>
-    </div>
-    <div class="col">
-      <h3>New team</h3>
-      <label class="field"><span>Execs</span><textarea id="new-execs" placeholder="Amara — Events&#10;Chloe — President&#10;Dev"></textarea></label>
-      <label class="field"><span>Roles <small>(most senior first)</small></span><textarea id="new-roles" placeholder="President&#10;Secretary&#10;Treasurer&#10;VP Events&#10;VP Marketing&#10;Welfare Officer"></textarea></label>
-      <label class="field"><span>Teams</span><textarea id="new-teams" placeholder="Events&#10;Marketing&#10;Sponsorship&#10;Charity"></textarea></label>
-    </div>
-  </div>
-  <p class="fine" style="margin:4px 0 14px">There's always an <b>Out</b> box too, for anyone graduating, leaving, or not on the team that year. No need to list it. A team reports to the role that names it (Events → VP Events); change that under Teams.</p>
-  <div class="actions">
-    <button class="btn primary" id="build" type="button">Build the team →</button>
-    <button class="btn" id="example" type="button">Try an example</button>
-    <button class="btn" id="to-board" type="button" hidden>Back to the board</button>
-    <p class="err" id="setup-err" hidden></p>
-  </div>
-</main>
-
 <!-- ======== BOARD ======== -->
-<main class="board wrap" id="board" hidden>
+<main class="board wrap" id="board">
   <div class="toolbar">
     <button class="btn small" id="btn-roles" type="button">Roles</button>
     <button class="btn small" id="btn-teams" type="button">Teams</button>
     <button class="btn small" id="btn-execs" type="button">Execs</button>
-    <button class="btn small" id="btn-lists" type="button">Edit the lists</button>
     <button class="btn small danger" id="btn-reset" type="button">Start over</button>
   </div>
   <p class="yearline" id="yearline"></p>
   <div id="chart"></div>
-  <p class="fine" style="margin-top:16px">Drag a bubble to move someone (on a phone, hold it first). Tap a bubble to add a photo or change their details. Click the name at the top to rename your society. Saved in this browser only.</p>
+  <p class="fine" id="board-help" style="margin-top:16px">Add execs with the + in the corner. Drag a bubble to move someone (on a phone, hold it first). Tap a bubble to add a photo or change their details. Click the name at the top to rename your society. Saved in this browser only.</p>
 </main>
+<button class="fab" id="fab" type="button" aria-label="Add an exec" title="Add an exec"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
 
 <div class="scrim" id="scrim" hidden></div>
 <section class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title" hidden>
@@ -300,6 +288,7 @@
   <div class="sheet-body" id="sheet-body"></div>
 </section>
 <input type="file" id="photo-input" accept="image/*" hidden>
+<datalist id="place-list"></datalist>
 <datalist id="why-list"><option value="Graduating"><option value="Leaving"><option value="Taking a break"><option value="On exchange"><option value="Wasn't on the team"></datalist>
 
 <script>
@@ -318,7 +307,7 @@
   // ---------- state ----------
   // execs[].old / .new: a division id, 'out', or null (not placed yet)
   // execs[].why: { old, new } — why they're out that year, if they are
-  const blank = () => ({ club: '', divisions: [], execs: [], view: 'new', built: false });
+  const blank = () => ({ club: '', divisions: [], execs: [], view: 'new' });
   let S = blank();
   try { const s = JSON.parse(localStorage.getItem(LS)); if (s && Array.isArray(s.execs) && Array.isArray(s.divisions)) S = Object.assign(blank(), s); } catch {}
   let saveWarned = false;
@@ -334,6 +323,16 @@
   // by its order) or a team (Events, Marketing…) that can report to a role
   const isRole = (d) => d && d.kind === 'role';
   const roleish = (name) => /^(president|chair|chairperson|secretary|treasurer|vp|vice[- ]?president)$|\bvp\b|vice[- ]?president|\bhead of\b|\bdirector\b|\bofficer\b/.test(norm(name));
+  // usual seniority, for slotting in a role made on the fly (you can reorder under Roles)
+  function seniority(name) {
+    const t = norm(name);
+    if (/^(president|chair|chairperson)$|co-?president/.test(t)) return 0;
+    if (/^(vice[- ]?president|vp)$/.test(t)) return 1;
+    if (/secretary/.test(t) && !/social/.test(t)) return 2;
+    if (/treasurer/.test(t)) return 3;
+    if (/\bvp\b|vice[- ]?president|\bdirector\b|\bhead of\b/.test(t)) return 4;
+    return 5;
+  }
   // a team reports to the role that names it: Events → VP Events
   function guessBoss(d) {
     if (isRole(d)) return null;
@@ -392,60 +391,29 @@
     return twins && parts[1] ? `${first} ${parts[1][0]}.` : first;
   }
 
-  // ---------- setup: parse the lists ----------
+  // ---------- the example: built from simple lists ----------
   const lines = (txt) => txt.split('\n').map(l => l.trim()).filter(Boolean);
-  // "Priya — Events", "Priya - Events", "Priya: Events" → name + division
+  // "Priya — Events" → name + role/team
   function parseExecs(txt) {
     return lines(txt).map(l => { const m = l.match(/^(.+?)\s*(?:\s[—–-]\s|:)\s*(.+)$/); return m ? { name: m[1].trim(), div: m[2].trim() } : { name: l, div: '' }; });
   }
-  function applyLists() {
-    const err = $('setup-err'); err.hidden = true;
-    const ex = { old: parseExecs($('old-execs').value), new: parseExecs($('new-execs').value) };
-    const rl = { old: lines($('old-roles').value), new: lines($('new-roles').value) };
-    const tm = { old: lines($('old-teams').value), new: lines($('new-teams').value) };
-    if (!ex.old.length && !ex.new.length) { err.textContent = 'Add at least one exec.'; err.hidden = false; return false; }
-    const listed = (y, n) => [...rl[y], ...tm[y]].some(d => norm(d) === norm(n));
-    // a role or team named next to an exec counts as running that year
-    YEARS.forEach(y => ex[y].forEach(x => { if (x.div && norm(x.div) !== 'out' && !listed(y, x.div)) (roleish(x.div) ? rl : tm)[y].push(x.div); }));
-    YEARS.forEach(y => { rl[y] = rl[y].filter(d => norm(d) !== 'out'); tm[y] = tm[y].filter(d => norm(d) !== 'out' && !rl[y].some(r => norm(r) === norm(d))); });
-    const roleNames = mergeOrder(rl.old, rl.new);
-    const teamNames = mergeOrder(tm.old, tm.new).filter(n => !roleNames.some(r => norm(r) === norm(n)));
-    const make = (n, kind, src) => {
-      const had = S.divisions.find(d => norm(d.name) === norm(n));
-      return { id: had ? had.id : uid(), name: n, kind, old: src.old.some(d => norm(d) === norm(n)), new: src.new.some(d => norm(d) === norm(n)),
-        reportsTo: kind === 'team' && had && had.kind === 'team' ? had.reportsTo : undefined };
-    };
-    const divisions = [...roleNames.map(n => make(n, 'role', rl)), ...teamNames.map(n => make(n, 'team', tm))];
-    const idFor = (y, n) => { const d = divisions.find(d => norm(d.name) === norm(n) && d[y]); return d ? d.id : null; };
-    // execs: everyone on either list, matched by name; photos and placements carry over
-    const people = []; [...ex.old, ...ex.new].forEach(x => { if (!people.some(p => norm(p) === norm(x.name))) people.push(x.name); });
-    const execs = people.map(name => {
-      const had = S.execs.find(e => norm(e.name) === norm(name));
-      const e = { id: had ? had.id : uid(), name, photo: had ? had.photo || '' : '', why: Object.assign({ old: '', new: '' }, had && had.why), old: null, new: null };
-      YEARS.forEach(y => {
-        const row = ex[y].find(x => norm(x.name) === norm(name));
-        if (!row) { e[y] = 'out'; if (y === 'old' && !e.why.old) e.why.old = NOT_YET; return; }
-        if (e.why[y] === NOT_YET) e.why[y] = '';
-        if (row.div) { e[y] = norm(row.div) === 'out' ? 'out' : idFor(y, row.div); return; }
-        const prev = had && had[y];
-        const prevName = prev && prev !== 'out' ? divName(prev) : '';
-        e[y] = prevName ? idFor(y, prevName) : null;
-      });
+  function buildFrom(L) {
+    const ex = { old: parseExecs(L.oldExecs), new: parseExecs(L.newExecs) };
+    const rl = { old: lines(L.oldRoles), new: lines(L.newRoles) }, tm = { old: lines(L.oldTeams), new: lines(L.newTeams) };
+    const roleNames = mergeOrder(rl.old, rl.new), teamNames = mergeOrder(tm.old, tm.new);
+    const make = (n, kind, src) => ({ id: uid(), name: n, kind, old: src.old.includes(n), new: src.new.includes(n), reportsTo: undefined });
+    S.divisions = [...roleNames.map(n => make(n, 'role', rl)), ...teamNames.map(n => make(n, 'team', tm))];
+    const idFor = (y, n) => { const d = S.divisions.find(d => norm(d.name) === norm(n) && d[y]); return d ? d.id : null; };
+    const people = []; [...ex.old, ...ex.new].forEach(x => { if (!people.includes(x.name)) people.push(x.name); });
+    S.execs = people.map(name => {
+      const e = { id: uid(), name, photo: '', why: { old: '', new: '' }, old: null, new: null };
+      YEARS.forEach(y => { const row = ex[y].find(x => x.name === name); if (!row) { e[y] = 'out'; if (y === 'old') e.why.old = NOT_YET; } else e[y] = row.div ? idFor(y, row.div) : null; });
       return e;
     });
-    S.divisions = divisions; S.execs = execs; S.club = $('club').value.trim(); S.built = true;
-    tidy(); save(); return true;
-  }
-  // the lists as text, so "Edit the lists" round-trips
-  function fillLists() {
-    $('club').value = S.club || '';
-    YEARS.forEach(y => {
-      $(y + '-execs').value = S.execs.filter(e => e[y] !== 'out').map(e => e[y] ? `${e.name} — ${divName(e[y])}` : e.name).join('\n');
-      $(y + '-roles').value = S.divisions.filter(d => d[y] && isRole(d)).map(d => d.name).join('\n');
-      $(y + '-teams').value = S.divisions.filter(d => d[y] && !isRole(d)).map(d => d.name).join('\n');
-    });
+    S.club = L.club; tidy();
   }
   const EXAMPLE = {
+    club: 'Example Society',
     oldExecs: 'Amara Perera — President\nBen Kwan — Secretary\nChloe Singh — Treasurer\nDev Patel — VP Events\nEsha Rao — VP Marketing\nFarhan Ali — Events\nGita Shah — Events\nHugo Chen — Events\nIsla Brown — Marketing\nJai Mehta — Marketing\nKiran Das — Sponsorship\nLena Fox — Merch',
     newExecs: 'Chloe Singh — President\nBen Kwan — Secretary\nKiran Das — Treasurer\nDev Patel — VP Events\nGita Shah — VP Marketing\nOmar Aziz — Welfare Officer\nAmara Perera — Events\nHugo Chen — Events\nMaya Rose — Events\nIsla Brown — Marketing\nJai Mehta — Marketing\nPriya Nair — Marketing\nNikhil Rao — Sponsorship\nLena Fox — Merch\nSara Lim — Charity',
     oldRoles: 'President\nSecretary\nTreasurer\nVP Events\nVP Marketing',
@@ -453,41 +421,16 @@
     oldTeams: 'Events\nMarketing\nSponsorship\nMerch',
     newTeams: 'Events\nMarketing\nSponsorship\nMerch\nCharity',
   };
-  $('example').addEventListener('click', () => {
-    $('club').value = 'Example Society'; $('title').value = 'Example Society';
-    $('old-execs').value = EXAMPLE.oldExecs; $('new-execs').value = EXAMPLE.newExecs;
-    $('old-roles').value = EXAMPLE.oldRoles; $('new-roles').value = EXAMPLE.newRoles;
-    $('old-teams').value = EXAMPLE.oldTeams; $('new-teams').value = EXAMPLE.newTeams;
-  });
-  $('build').addEventListener('click', () => {
-    if (!applyLists()) return;
-    // the example's leavers get a reason, to show what it looks like
-    if ($('club').value === 'Example Society') {
-      S.execs.forEach(e => { if (e.name === 'Esha Rao') e.why.new = 'Graduating'; if (e.name === 'Farhan Ali') e.why.new = 'On exchange'; });
-      const dn = (n) => S.divisions.find(d => d.name === n);
-      if (dn('Sponsorship') && dn('Treasurer')) dn('Sponsorship').reportsTo = dn('Treasurer').id;
-      if (dn('Charity') && dn('President')) dn('Charity').reportsTo = dn('President').id;
-    }
-    save(); showBoard();
-  });
-  $('to-board').addEventListener('click', showBoard);
+  function loadExample() {
+    buildFrom(EXAMPLE);
+    S.execs.forEach(e => { if (e.name === 'Esha Rao') e.why.new = 'Graduating'; if (e.name === 'Farhan Ali') e.why.new = 'On exchange'; });
+    const dn = (n) => S.divisions.find(d => d.name === n);
+    dn('Sponsorship').reportsTo = dn('Treasurer').id; dn('Charity').reportsTo = dn('President').id;
+    save(); renderMoving();
+  }
   // the name at the top is a text box: hover shows it, type to rename
-  $('title').addEventListener('input', () => { S.club = $('title').value.trim(); $('club').value = $('title').value; save(); });
+  $('title').addEventListener('input', () => { S.club = $('title').value.trim(); save(); });
   $('title').addEventListener('keydown', (ev) => { if (ev.key === 'Enter' || ev.key === 'Escape') $('title').blur(); });
-  $('club').addEventListener('input', () => { $('title').value = $('club').value; });
-
-  // ---------- screens ----------
-  function showSetup() {
-    $('setup').hidden = false; $('board').hidden = true; $('board-ctrls').hidden = true;
-    $('to-board').hidden = !S.built; $('setup-err').hidden = true;
-    $('title').value = S.club || ''; $('subtitle').textContent = 'Team Planner';
-    if (S.built) fillLists();
-    window.scrollTo(0, 0);
-  }
-  function showBoard() {
-    $('setup').hidden = true; $('board').hidden = false; $('board-ctrls').hidden = false;
-    window.scrollTo(0, 0); render();
-  }
 
   // ---------- the board ----------
   function caption(e, v) {
@@ -510,8 +453,23 @@
       <span class="ball">${e.photo ? `<img src="${e.photo}" alt="">` : `<span class="nm" style="font-size:calc(var(--size) * ${fs})">${esc(label)}</span>`}</span>
       ${e.photo ? `<span class="lbl">${esc(label)}</span>` : ''}${c ? `<span class="cap">${esc(c)}</span>` : ''}</button>`;
   }
+  // first visit: a faint arch with a big + where the top role goes
+  function renderEmpty() {
+    const stems = [0, 1, 2, 3, 4].map(i => `<div class="stem ghost-stem" style="--c:var(--line-2);--depth:${Math.ceil(i / 2)};--rank:${i}" data-rank="${i}">
+      <section class="role"><p class="role-name">&nbsp;</p><div class="role-bubs">${i ? '<span class="vacant"></span>' : '<button class="first-add" id="first-add" type="button" aria-label="Add your first exec"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>'}</div>
+      ${i ? '' : '<p class="first-label">Add your first exec</p>'}</section></div>`);
+    const order = []; stems.forEach((h, i) => { if (i % 2) order.unshift(h); else order.push(h); });
+    $('chart').innerHTML = `<div class="arch" id="arch"><div class="arch-inner"><svg class="links" aria-hidden="true"></svg>${order.join('')}</div></div>
+      <p class="empty-note">Or <button class="linkbtn" id="try-example" type="button">try an example</button> to see how it works.</p>`;
+    $('first-add').addEventListener('click', () => openAdd());
+    $('try-example').addEventListener('click', loadExample);
+    fitArch();
+  }
   function render() {
     const v = S.view;
+    const empty = !S.execs.length && !S.divisions.length;
+    document.querySelector('.toolbar').hidden = empty; $('yearline').hidden = empty; $('board-help').hidden = empty; $('board-ctrls').hidden = empty;
+    if (empty) { if (document.activeElement !== $('title')) $('title').value = S.club || ''; $('subtitle').textContent = 'Team Planner'; document.querySelectorAll('.seg [data-view]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.view === v))); renderEmpty(); return; }
     if (document.activeElement !== $('title')) $('title').value = S.club || '';
     $('subtitle').textContent = `Team Planner · ${S.execs.filter(e => e.old && e.old !== 'out').length} execs before · ${S.execs.filter(e => e.new && e.new !== 'out').length} now`;
     document.querySelectorAll('.seg [data-view]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.view === v)));
@@ -537,7 +495,7 @@
     const arch = roles.length ? `<div class="arch" id="arch"><div class="arch-inner"><svg class="links" aria-hidden="true"></svg>${order.map(([r, i]) => stem(r, i)).join('')}</div></div>` : '';
     const loose = teams.filter(t => !roles.some(r => r.id === t.reportsTo));
     const looseHtml = loose.length ? `<div class="loose">${roles.length ? '<p class="loose-h">Teams that report to no one</p>' : ''}<div class="loose-row">${loose.map(teamBox).join('')}</div></div>` : '';
-    const none = act.length ? '' : `<p class="fine">No roles or teams in the ${LABEL[v].toLowerCase()} team yet — add some under Roles and Teams.</p>`;
+    const none = act.length ? '' : `<p class="fine">No roles or teams in the ${LABEL[v].toLowerCase()} team yet. Add an exec with the + and give them one, or add some under Roles and Teams.</p>`;
     // the bottom: not placed yet | out
     const unplaced = sorted(S.execs.filter(e => e[v] == null)), outs = people('out');
     const limbo = `<div class="limbo">
@@ -836,29 +794,81 @@
   }
   $('btn-teams').addEventListener('click', teamsSheet);
 
-  // ---------- execs: add someone, or open anyone ----------
+  // ---------- add an exec: name, this year, last year ----------
+  // a role or team that doesn't exist yet is made on the spot; you pick which it is
+  function openAdd() {
+    const kindPick = (y) => `<div class="kind" id="a-${y}-kind" hidden><span>“<b></b>” is new. It's a</span><button type="button" data-k="role">Role</button><button type="button" data-k="team">Team</button></div>`;
+    openSheet('Add an exec', `
+      <label class="field"><span>Name</span><input type="text" id="a-name" maxlength="60" placeholder="e.g. Priya Nair" autocomplete="off"></label>
+      <label class="field"><span>This year</span><input type="text" id="a-new" list="place-list" maxlength="40" placeholder="Their role or team, e.g. President or Events" autocomplete="off"></label>
+      ${kindPick('new')}
+      <label class="field"><span>Last year <small>(leave blank if they weren't on the team)</small></span><input type="text" id="a-old" list="place-list" maxlength="40" placeholder="e.g. Sponsorship" autocomplete="off"></label>
+      ${kindPick('old')}
+      <div class="actions"><button class="btn primary" id="a-add" type="button">Add exec</button><span class="added" id="a-msg"></span></div>
+      <p class="fine">Tap their bubble afterwards to add a photo.</p>`, render);
+    fillPlaces();
+    const kinds = {};
+    YEARS.forEach(y => {
+      const inp = $('a-' + y), box = $('a-' + y + '-kind');
+      const show = () => {
+        const v = inp.value.trim(), exists = !v || norm(v) === 'out' || S.divisions.some(d => norm(d.name) === norm(v));
+        box.hidden = exists; if (exists) return;
+        box.querySelector('b').textContent = v;
+        if (!kinds[y + ':' + norm(v)]) kinds[y + ':' + norm(v)] = roleish(v) ? 'role' : 'team';
+        box.querySelectorAll('[data-k]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.k === kinds[y + ':' + norm(v)])));
+      };
+      inp.addEventListener('input', show);
+      box.querySelectorAll('[data-k]').forEach(b => b.addEventListener('click', () => { kinds[y + ':' + norm(inp.value.trim())] = b.dataset.k; show(); }));
+    });
+    const add = () => {
+      const name = $('a-name').value.trim(); if (!name) { $('a-name').focus(); return; }
+      if (S.execs.some(e => norm(e.name) === norm(name))) { toast('Someone with that name is already on the list.'); return; }
+      const e = { id: uid(), name, photo: '', why: { old: '', new: '' }, old: null, new: null };
+      YEARS.forEach(y => {
+        const v = $('a-' + y).value.trim();
+        if (!v) { if (y === 'old') { e.old = 'out'; e.why.old = NOT_YET; } return; }   // blank last year = new to the team
+        if (norm(v) === 'out') { e[y] = 'out'; return; }
+        let d = S.divisions.find(d => norm(d.name) === norm(v));
+        if (!d) {
+          d = { id: uid(), name: v, kind: kinds[y + ':' + norm(v)] || (roleish(v) ? 'role' : 'team'), old: false, new: false, reportsTo: null };
+          if (isRole(d)) {
+            // in among the roles by seniority: a President goes above a VP added earlier
+            const below = S.divisions.findIndex(x => isRole(x) && seniority(x.name) > seniority(d.name));
+            const last = S.divisions.map(isRole).lastIndexOf(true);
+            S.divisions.splice(below > -1 ? below : last + 1, 0, d);
+          } else { S.divisions.push(d); d.reportsTo = guessBoss(d); }
+          // an existing team that names this new role now reports to it
+          S.divisions.forEach(t => { if (!isRole(t) && !t.reportsTo && isRole(d)) t.reportsTo = guessBoss(t); });
+        }
+        d[y] = true; e[y] = d.id;
+      });
+      S.execs.push(e); tidy(); save(); render();
+      // ready for the next one
+      ['a-name', 'a-new', 'a-old'].forEach(id => { $(id).value = ''; }); YEARS.forEach(y => { $('a-' + y + '-kind').hidden = true; });
+      $('a-msg').textContent = `Added ${shortName(e)}. Add another, or close.`; fillPlaces(); $('a-name').focus();
+    };
+    $('a-add').addEventListener('click', add);
+    ['a-name', 'a-new', 'a-old'].forEach(id => $(id).addEventListener('keydown', (ev) => { if (ev.key === 'Enter') { ev.preventDefault(); add(); } }));
+    setTimeout(() => $('a-name').focus(), 50);
+  }
+  // suggestions for the role/team boxes: everything that exists, plus Out
+  function fillPlaces() { $('place-list').innerHTML = [...S.divisions.map(d => d.name), 'Out'].map(n => `<option value="${esc(n)}">`).join(''); }
+  $('fab').addEventListener('click', () => openAdd());
+
+  // ---------- execs: everyone, tap to open ----------
   function execsSheet() {
     const list = S.execs.slice().sort((a, b) => a.name.localeCompare(b.name));
-    openSheet('Execs', `<form class="add-row" id="add-exec" style="margin-top:0"><input type="text" id="add-exec-name" maxlength="60" placeholder="Add someone"><button class="btn small primary" type="submit">Add</button></form>
-      <p class="fine">New people start in “Not placed yet” for both teams. Drag them where they belong, or tap their name to set it here.</p>
-      <h3>Everyone · ${list.length}</h3><div class="who-list">${list.map(e => `<button type="button" data-open="${e.id}">${esc(e.name)}</button>`).join('')}</div>`, render);
+    openSheet('Execs', `<div class="actions" style="margin-top:0"><button class="btn small primary" id="x-add" type="button">+ Add an exec</button></div>
+      <h3>Everyone · ${list.length}</h3>${list.length ? `<div class="who-list">${list.map(e => `<button type="button" data-open="${e.id}">${esc(e.name)}</button>`).join('')}</div>` : '<p class="fine">No one yet.</p>'}`, render);
     $('sheet-body').querySelectorAll('[data-open]').forEach(b => b.addEventListener('click', () => openExec(b.dataset.open)));
-    $('add-exec').addEventListener('submit', (ev) => {
-      ev.preventDefault(); const n = $('add-exec-name').value.trim(); if (!n) return;
-      if (S.execs.some(e => norm(e.name) === norm(n))) { toast('Someone with that name is already on the list.'); return; }
-      S.execs.push({ id: uid(), name: n, photo: '', why: { old: '', new: '' }, old: null, new: null }); save(); execsSheet();
-      setTimeout(() => { const i = $('add-exec-name'); if (i) i.focus(); }, 0);
-    });
+    $('x-add').addEventListener('click', () => openAdd());
   }
   $('btn-execs').addEventListener('click', execsSheet);
-  $('btn-lists').addEventListener('click', showSetup);
-  twoTap($('btn-reset'), 'Tap again — this erases everything', () => {
-    S = blank(); save(); ['club', 'title', 'old-execs', 'new-execs', 'old-roles', 'new-roles', 'old-teams', 'new-teams'].forEach(id => { $(id).value = ''; }); showSetup();
-  });
+  twoTap($('btn-reset'), 'Tap again — this erases everything', () => { S = blank(); save(); $('title').value = ''; render(); });
 
   // ---------- start ----------
   tidy();
-  if (S.built) showBoard(); else showSetup();
+  render();
 })();
 </script>
 </body>
