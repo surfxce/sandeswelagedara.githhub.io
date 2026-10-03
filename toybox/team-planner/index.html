@@ -100,15 +100,16 @@
   @media (max-width: 720px) { .cols { grid-template-columns: 1fr; } .back span { display: none; } .ttl input.title-in { font-size: 21px; } }
 
   /* ---------- board ---------- */
-  .board { padding: 18px 0 70px; }
+  .board { padding: 18px 16px 70px; }
+  .board.wrap { max-width: 1440px; }   /* the arch gets the whole width on a big screen, so it shrinks less */
   .toolbar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
   .yearline { font-family: var(--display); font-size: 22px; margin: 0 0 12px; color: var(--ink-2); }
   .yearline b { color: var(--ink); font-weight: 600; }
   /* the arch: the most senior role in the middle and highest, the rest
      stepping down either side; each role's teams hang straight below it */
-  .arch { overflow-x: auto; padding-bottom: 6px; }
+  .arch { padding-bottom: 6px; }
   .arch-inner { --step: 58px; --stemw: 172px; position: relative; display: flex; align-items: flex-start; gap: 18px; width: max-content; margin: 0 auto; padding: 4px 6px 0; }
-  .links { position: absolute; left: 0; top: 0; pointer-events: none; z-index: 0; overflow: visible; }
+  .links { position: absolute; left: 0; top: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; overflow: visible; }
   .links line { stroke: var(--ink-3); stroke-width: 2; }
   .stem { position: relative; z-index: 1; width: var(--stemw); margin-top: calc(var(--depth) * var(--step)); display: flex; flex-direction: column; align-items: stretch; }
   .role { --size: 84px; display: flex; flex-direction: column; align-items: center; border-radius: 16px; padding: 2px 4px 6px; transition: box-shadow .2s, background .2s; }
@@ -129,7 +130,6 @@
   .loose-row .box.col { width: 172px; }
   /* phones: the arch becomes a list, most senior first */
   @media (max-width: 640px) {
-    .arch { overflow: visible; }
     .arch-inner { flex-direction: column; width: auto; gap: 16px; padding: 0; }
     .links { display: none; }
     .stem { order: var(--rank); width: 100%; margin-top: 0; }
@@ -510,7 +510,6 @@
       <span class="ball">${e.photo ? `<img src="${e.photo}" alt="">` : `<span class="nm" style="font-size:calc(var(--size) * ${fs})">${esc(label)}</span>`}</span>
       ${e.photo ? `<span class="lbl">${esc(label)}</span>` : ''}${c ? `<span class="cap">${esc(c)}</span>` : ''}</button>`;
   }
-  let archCount = -1;
   function render() {
     const v = S.view;
     if (document.activeElement !== $('title')) $('title').value = S.club || '';
@@ -545,12 +544,16 @@
       <section class="box tray" data-drop="_none"><h4>Not placed yet <span class="n">${unplaced.length || ''}</span></h4><div class="bubs">${unplaced.map(e => bubble(e, 'var(--moss)')).join('')}</div>${unplaced.length ? '' : '<p class="empty">Everyone\'s placed</p>'}</section>
       <section class="box out" data-drop="out"><h4>Out <span class="n">${outs.length || ''}</span></h4><div class="bubs">${outs.map(e => bubble(e, '#9a978f')).join('')}</div>${outs.length ? '' : '<p class="empty">Graduating, leaving, or not on the team this year</p>'}</section>
     </div>`;
-    const prev = $('arch'), keep = prev && roles.length === archCount ? prev.scrollLeft : null;
     $('chart').innerHTML = arch + looseHtml + none + limbo;
-    // wider than the screen: centre on the most senior role (again whenever roles are added or
-    // removed), otherwise keep wherever you'd scrolled to
-    const a = $('arch'); archCount = roles.length; if (a) a.scrollLeft = keep != null ? keep : (a.scrollWidth - a.clientWidth) / 2;
-    requestAnimationFrame(drawLinks);
+    fitArch();
+  }
+  // one page, no side-scrolling: a wide committee (a T8, a T10) shrinks to fit the width
+  function fitArch() {
+    const a = $('arch'); if (!a) return; const inner = a.firstElementChild;
+    inner.style.zoom = 1;
+    const z = matchMedia('(max-width: 640px)').matches ? 1 : Math.min(1, a.clientWidth / inner.offsetWidth);
+    inner.style.zoom = z;
+    drawLinks();
   }
   // lines between the role circles: each role links to the next one up its side
   const RING = 42;   // half the role circle
@@ -558,19 +561,20 @@
     const inner = document.querySelector('.arch-inner'); if (!inner) return;
     const svg = inner.querySelector('.links');
     if (matchMedia('(max-width: 640px)').matches) { svg.innerHTML = ''; return; }
-    const base = inner.getBoundingClientRect(), pts = {};
+    // measured in the arch's own coordinates (offsets, not screen positions), so the lines
+    // land on the circles whatever it's been shrunk to
+    const pts = {};
     inner.querySelectorAll('.stem').forEach(st => {
-      const rb = st.querySelector('.role-bubs').getBoundingClientRect();
-      pts[st.dataset.rank] = { x: rb.left + rb.width / 2 - base.left, y: rb.top - base.top + RING };
+      const rb = st.querySelector('.role-bubs');
+      pts[st.dataset.rank] = { x: st.offsetLeft + rb.offsetLeft + rb.offsetWidth / 2, y: st.offsetTop + rb.offsetTop + RING };
     });
-    svg.setAttribute('width', inner.scrollWidth); svg.setAttribute('height', inner.scrollHeight);
     svg.innerHTML = Object.keys(pts).map(Number).filter(i => i > 0).map(i => {
       const a = pts[i], b = pts[i <= 2 ? 0 : i - 2]; if (!b) return '';
       return `<line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}"/>`;
     }).join('');
   }
-  addEventListener('resize', () => requestAnimationFrame(drawLinks));
-  if (document.fonts) document.fonts.ready.then(() => drawLinks());
+  addEventListener('resize', () => requestAnimationFrame(fitArch));
+  if (document.fonts) document.fonts.ready.then(() => fitArch());
   // switching Old ↔ New: bubbles glide from their old box to their new one
   function renderMoving() {
     const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -628,8 +632,7 @@
     if (box !== drag.over) { if (drag.over) drag.over.classList.remove('over'); drag.over = box; if (box) box.classList.add('over'); }
     // near the top or bottom edge: scroll so far-away divisions can be reached
     if (y < 90) window.scrollBy(0, -14); else if (y > innerHeight - 70) window.scrollBy(0, 14);
-    const arch = $('arch');
-    if (arch && arch.scrollWidth > arch.clientWidth) { const r = arch.getBoundingClientRect(); if (y > r.top && y < r.bottom) { if (x < r.left + 50) arch.scrollLeft -= 14; else if (x > r.right - 50) arch.scrollLeft += 14; } }
+
   }
   function cancelDrag() {
     if (!drag) return; drag.ghost.remove(); drag.el.classList.remove('lifting'); if (drag.over) drag.over.classList.remove('over');
