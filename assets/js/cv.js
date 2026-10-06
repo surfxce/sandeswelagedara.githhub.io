@@ -22,6 +22,8 @@
      tint     CSS background for the cover + placeholder art
      cover    optional photo for the top of the expanded panel (sits over
               the tint). Path relative to the cv page, e.g. "../assets/cv/x.jpg"
+     coverPos optional: which part of the cover photo to keep in the strip,
+              e.g. '50% 40%' (default is the centre, a little low)
      courses  optional [{term, items:[...]}] — renders as a course list
      moments  optional key events. Each flips to reveal its write-up.
      prospective  optional. true = not confirmed yet (a candidacy, an offer):
@@ -71,6 +73,7 @@ const CV_DATA = [
   {
     group:'volunteering', id:'uqisc', start:2026, end:null, title:'Operations Executive',
     org:'Indian Students Club (UQISC)', date:'2026 —', tint:CV_TINTS.clay,
+    cover:'../assets/cv/uqisc-operations.jpg', coverPos:'50% 40%',
     blurb:'Planning, organising, and running a whole range of events, from Dosti to Indian Ball.',
     tags:['Operations','Event planning','Sponsorships','Teamwork'],
     detail:[
@@ -419,7 +422,7 @@ function openDetail(item, triggerEl){
     <div class="detail-scroll">
       <div class="detail-cover">
         <span class="tint" style="background:${item.tint}"></span>
-        ${item.cover ? `<img class="cover-photo" src="${item.cover}" alt="" onerror="this.remove()">` : ''}
+        ${item.cover ? `<img class="cover-photo" src="${item.cover}" alt=""${item.coverPos ? ` style="object-position:${item.coverPos}"` : ''} onerror="this.remove()">` : ''}
         <p class="label">${item.title}</p>
       </div>
       <div class="detail-body">
