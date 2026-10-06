@@ -89,6 +89,7 @@ const CV_DATA = [
   {
     group:'volunteering', id:'uqlit', start:2026, end:null, title:'Socials Executive',
     org:'Ladies in Technology (UQLIT)', date:'2026 —', tint:CV_TINTS.bark,
+    cover:'../assets/cv/uqlit-socials.jpg', coverPos:'50% 32%',
     blurb:'Facilitating novel experiences for young women in computer science, software engineering, IT and more.',
     tags:['Event planning','Community','Content'],
     detail:[
