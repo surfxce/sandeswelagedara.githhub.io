@@ -28,6 +28,8 @@
      moments  optional key events. Each flips to reveal its write-up.
      prospective  optional. true = not confirmed yet (a candidacy, an offer):
               draws the card dashed and the timeline dot hollow.
+     struck   optional. true = strikes through the title (a candidacy that
+              didn't go through).
 
    ADDING PHOTOS
      Drop files in assets/cv/ and list them in a moment's `photos`.
@@ -47,26 +49,13 @@ const CV_TINTS = {
 const CV_DATA = [
   /* ---------------- VOLUNTEERING ---------------- */
   {
-    /* prospective:true draws the card dashed and the timeline dot hollow —
-       it's a candidacy, not a role held. Delete the flag once it's decided. */
-    group:'volunteering', id:'uqsla', start:2027, end:null, prospective:true,
+    /* a candidacy that didn't go through: dashed card, hollow dot, title struck out */
+    group:'volunteering', id:'uqsla', start:2027, end:null, prospective:true, struck:true,
     title:'VP of Events', org:'UQ Sri Lankan Association (UQSLA)',
-    date:'2027', tint:CV_TINTS.wheat, cover:'../assets/cv/uqsla-vp-events.jpg?v=2',
-    blurb:'I’m running for VP of Events at UQSLA.',
-    tags:['Events','Leadership','Committee'],
+    date:'2027', tint:CV_TINTS.wheat,
+    blurb:'I ran for VP of Events at UQSLA.',
     detail:[
-      'After stints in the Nepalese Club, Indian Students Club and Ladies in Technology, I’m excited to announce I will be running for VP of Events at UQ Sri Lankan Association. After garnering a combined 2.5 years of executive experience across a diverse range of clubs and societies, I am equipped to handle this new and exciting chapter.',
-      'I would propose a few changes if I was elected as VP.',
-      { list:[
-        'UQ SLA needs a presence at Market Day in Semester 2.',
-        'More events in Semester 2, like doing a 2nd Sarong Party, or bringing back Ceylon Soiree.',
-        'Maintaining fruitful relationships with other South Asian societies, which means expanding Fright Night, Silk Road Festival, and End of Semester Party.',
-        'Pushing for an open bar tab at events other than Suits n Sarees, to deliver greater value to our members.',
-        'Ensuring Suits n Sarees enjoys a decent amount of growth in attendees whilst guaranteeing an excellent experience for all.'
-      ]},
-      'I’m grateful to all my friends at the clubs I’ve worked with, who’ve shown me the ins and outs of event planning and organisation. Special shout out to my VPs who’ve inspired me to take this next step.',
-      'The AGM is on Wednesday 14 October.',
-      { button:'Read my manifesto', href:'vp-events-manifesto/' }
+      'Thank you to everyone who came to support me in my bid to be the next VP of Events at UQSLA. While I did not get the role, I wish the best of luck to the rest of the UQSLA team. Here’s to 2027.'
     ],
     moments:[]
   },
@@ -309,7 +298,7 @@ function buildTimeline(){
           <div class="flip-inner">
             <div class="flip-face front">
               <p class="flip-org">${item.org}</p>
-              <h3 class="flip-title">${item.title}</h3>
+              <h3 class="flip-title">${item.struck ? `<s>${item.title}</s>` : item.title}</h3>
               <p class="flip-hint">click to expand →</p>
             </div>
             <div class="flip-face back">
@@ -424,7 +413,7 @@ function openDetail(item, triggerEl){
       <div class="detail-cover">
         <span class="tint" style="background:${item.tint}"></span>
         ${item.cover ? `<img class="cover-photo" src="${item.cover}" alt=""${item.coverPos ? ` style="object-position:${item.coverPos}"` : ''} onerror="this.remove()">` : ''}
-        <p class="label">${item.title}</p>
+        <p class="label">${item.struck ? `<s>${item.title}</s>` : item.title}</p>
       </div>
       <div class="detail-body">
         <p class="detail-org">${item.org} &middot; ${item.date}</p>
