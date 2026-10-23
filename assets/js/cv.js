@@ -50,7 +50,7 @@ const CV_DATA = [
   /* ---------------- VOLUNTEERING ---------------- */
   {
     group:'volunteering', id:'uqpa', start:2027, end:null, title:'Treasurer',
-    org:'UQ Punjabi Association (UQPA)', date:'2027', tint:CV_TINTS.wheat,
+    org:'Punjabi Association (UQPA)', date:'2027', tint:CV_TINTS.wheat,
     cover:'../assets/cv/uqpa-treasurer.jpg', coverPos:'50% 33%',
     blurb:'Treasurer of the UQ Punjabi Association for 2027.',
     tags:['Finance','Budgeting','Committee'],
