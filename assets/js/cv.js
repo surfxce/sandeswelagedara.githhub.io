@@ -49,13 +49,13 @@ const CV_TINTS = {
 const CV_DATA = [
   /* ---------------- VOLUNTEERING ---------------- */
   {
-    /* a candidacy that didn't go through: dashed card, hollow dot, title struck out */
-    group:'volunteering', id:'uqsla', start:2027, end:null, prospective:true, struck:true,
-    title:'VP of Events', org:'UQ Sri Lankan Association (UQSLA)',
-    date:'2027', tint:CV_TINTS.wheat,
-    blurb:'I ran for VP of Events at UQSLA.',
+    group:'volunteering', id:'uqpa', start:2027, end:null, title:'Treasurer',
+    org:'UQ Punjabi Association (UQPA)', date:'2027', tint:CV_TINTS.wheat,
+    cover:'../assets/cv/uqpa-treasurer.jpg', coverPos:'50% 33%',
+    blurb:'Treasurer of the UQ Punjabi Association for 2027.',
+    tags:['Finance','Budgeting','Committee'],
     detail:[
-      'Thank you to everyone who came to support me in my bid to be the next VP of Events at UQSLA. While I did not get the role, I wish the best of luck to the rest of the UQSLA team. Here’s to 2027.'
+      'I’ve been elected Treasurer of the UQ Punjabi Association (UQPA) for 2027, looking after the society’s finances as part of the new committee.'
     ],
     moments:[]
   },
