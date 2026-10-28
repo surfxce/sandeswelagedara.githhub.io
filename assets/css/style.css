@@ -596,6 +596,51 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible{
 }
 
 /* ============================================================
+   SOCIALS — Instagram embeds (socials/)
+   ============================================================ */
+/* embed.js gives every iframe min-width:326px as an inline style. On a 320px
+   phone the grid column is narrower than that, so the min-width yields to the
+   grid — without the override the page grows a sideways scroll on the
+   smallest screens. The radius matches the site's cards (Instagram's own is
+   a much sharper 3px). */
+.social-grid{ margin-top:2.5rem; display:grid; gap:1.3rem 1.1rem; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); align-items:start; }
+.ig-embed{ margin:0; }
+.ig-embed iframe{ display:block; width:100% !important; min-width:0 !important; max-width:100%; border-radius:12px !important; }
+
+/* pre-embed.js state: the blockquote's fallback link, visible only in the
+   window before embed.js runs (or if it never loads at all — socials.js
+   replaces it with .ig-fallback shortly after in that case) */
+.ig-embed blockquote{ margin:0; }
+.ig-embed blockquote a{
+  display:flex; align-items:center; justify-content:center; aspect-ratio:4/5;
+  border:1px solid var(--line); border-radius:14px; background:var(--paper-2);
+  font-family:var(--label); font-size:.8rem; text-align:center; padding:1rem;
+}
+
+/* the card swapped in when an embed never gets a height — see socials.js.
+   Same construction as a moment face: tint, scrim, cream text on top. */
+.ig-fallback{
+  position:relative; aspect-ratio:4/5; display:flex; flex-direction:column;
+  justify-content:flex-end; gap:.45rem; padding:1.2rem;
+  border-radius:14px; border:1px solid var(--line); overflow:hidden;
+  color:var(--paper); transition:transform .35s var(--ease), border-color .35s;
+}
+.ig-fallback:hover{ transform:translateY(-4px); border-color:var(--text-dim); }
+.ig-fallback::after{ content:''; position:absolute; inset:0; background:linear-gradient(0deg, rgba(35,40,31,.6), transparent 60%); }
+.ig-fallback > *{ position:relative; z-index:1; }
+.ig-fallback-note{ font-family:var(--label); font-size:.74rem; letter-spacing:.03em; opacity:.85; }
+.ig-fallback-link{ font-family:var(--display); font-size:1.2rem; }
+.ig-fallback:hover .ig-fallback-link{ text-decoration:underline; text-underline-offset:3px; }
+
+/* tints cycle, so even a run of failed embeds reads as a designed strip
+   rather than a wall of one colour */
+.ig-embed:nth-of-type(5n+1) .ig-fallback{ background:linear-gradient(160deg,var(--moss),var(--fern)); }
+.ig-embed:nth-of-type(5n+2) .ig-fallback{ background:linear-gradient(160deg,var(--bark),var(--clay)); }
+.ig-embed:nth-of-type(5n+3) .ig-fallback{ background:linear-gradient(160deg,var(--fern),var(--wheat)); }
+.ig-embed:nth-of-type(5n+4) .ig-fallback{ background:linear-gradient(160deg,var(--clay),var(--wheat)); }
+.ig-embed:nth-of-type(5n+5) .ig-fallback{ background:linear-gradient(160deg,var(--bark),var(--moss)); }
+
+/* ============================================================
    FOOTER
    ============================================================ */
 /* transparent for the same reason as .section-paper — the border-top is what
