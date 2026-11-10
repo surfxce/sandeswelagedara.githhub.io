@@ -18,6 +18,10 @@
    point `href` at it.
 */
 const POSTS = [
+  { tag:'Recipe', title:'Benny Cheesecake',
+    excerpt:'A pentuple chocolate cheesecake beautifully marbled throughout, slices cleanly, and named after my dog Benny (who also has a double choc combination going on).',
+    date:'November 2026', href:'benny-cheesecake/' },
+
   { tag:'Shopping', title:'My Half-Hearted Coles Boycott',
     excerpt:'Three scenarios from trying to spend as little as possible at Coles — avocados, minced beef, and being asked an actual question at a checkout.',
     date:'August 2026', href:'half-hearted-coles-boycott/' },

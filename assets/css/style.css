@@ -607,3 +607,363 @@ footer{ background:transparent; color:var(--text); padding:60px var(--pad) 40px;
 .footer-links a{ font-family:var(--label); font-size:0.8rem; opacity:0.8; transition:opacity .2s; }
 .footer-links a:hover{ opacity:1; }
 .footer-bottom{ max-width:var(--maxw); margin:2.4rem auto 0; padding-top:1.4rem; border-top:1px solid var(--line); font-family:var(--label); font-size:0.7rem; opacity:0.72; display:flex; justify-content:space-between; flex-wrap:wrap; gap:.6rem; }
+
+/* ============================================================
+   RECIPE CARD & INTERACTIVE WIDGETS
+   ============================================================ */
+.recipe-figure {
+  margin: 2.2rem 0;
+  padding: 0.85rem;
+  background: var(--paper-2);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  max-width: 480px;
+  box-shadow: 4px 4px 0 rgba(109,79,52,0.1);
+}
+.recipe-figure img {
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+  display: block;
+}
+.recipe-figure figcaption {
+  font-family: var(--label);
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  margin-top: 0.75rem;
+  text-align: center;
+  font-style: italic;
+}
+
+.recipe-box {
+  margin: 2.8rem 0;
+  padding: clamp(1.4rem, 3.5vw, 2.4rem);
+  border: 1.5px solid var(--bark);
+  border-radius: 20px;
+  background: var(--paper);
+  box-shadow: 6px 6px 0 rgba(109,79,52,0.15);
+}
+.recipe-box-header {
+  margin-bottom: 1.8rem;
+  padding-bottom: 1.4rem;
+  border-bottom: 1px solid var(--line);
+}
+.recipe-box-header h2 {
+  font-family: var(--display);
+  font-size: clamp(1.8rem, 4vw, 2.4rem);
+  margin: 0 0 0.5rem;
+  border: 0;
+  padding: 0;
+}
+.recipe-box-header .recipe-tagline {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  opacity: 0.85;
+  margin: 0;
+}
+
+/* Overview quick stats grid */
+.recipe-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 0.8rem;
+  margin: 1.4rem 0 2rem;
+  padding: 1.1rem 1.25rem;
+  background: var(--paper-2);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+.stat-label {
+  font-family: var(--label);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.7;
+}
+.stat-value {
+  font-family: var(--display);
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--moss);
+}
+
+/* Equipment pill row */
+.equipment-block {
+  margin-bottom: 2.2rem;
+  padding: 1.1rem 1.3rem;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--paper-2);
+}
+.equipment-block h4 {
+  font-family: var(--display);
+  font-size: 1.15rem;
+  margin: 0 0 0.75rem;
+  color: var(--bark);
+}
+.equipment-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.equipment-pill {
+  font-family: var(--label);
+  font-size: 0.8rem;
+  padding: 0.35rem 0.75rem;
+  border: 1px solid var(--line-2);
+  border-radius: 999px;
+  background: var(--paper);
+  color: var(--text);
+}
+
+/* Ingredients section */
+.ingredients-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin: 2rem 0 1.2rem;
+  padding-bottom: 0.8rem;
+  border-bottom: 1.5px solid var(--line-2);
+}
+.ingredients-header h3 {
+  font-family: var(--display);
+  font-size: 1.5rem;
+  margin: 0;
+  color: var(--bark);
+}
+.unit-toggle {
+  display: inline-flex;
+  border: 1.5px solid var(--line-2);
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--paper-2);
+  box-shadow: 0 1px 2px rgba(61,48,32,0.06);
+}
+.unit-btn {
+  background: none;
+  border: 0;
+  padding: 0.45rem 0.95rem;
+  font-family: var(--label);
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  color: var(--text);
+  opacity: 0.65;
+  transition: all 0.2s var(--ease);
+}
+.unit-btn:hover {
+  opacity: 0.95;
+}
+.unit-btn.is-active {
+  background: var(--moss);
+  color: var(--paper);
+  opacity: 1;
+  font-weight: 600;
+}
+.unit-btn:focus-visible {
+  outline: 2px solid var(--moss);
+  outline-offset: 2px;
+}
+
+/* Show/hide units based on container state */
+.recipe-box.show-metric .qty-cups { display: none !important; }
+.recipe-box.show-cups .qty-metric { display: none !important; }
+
+.ingredient-subgroup {
+  margin-bottom: 1.8rem;
+}
+.ingredient-subgroup-title {
+  font-family: var(--display);
+  font-size: 1.22rem;
+  margin: 0 0 0.8rem;
+  color: var(--clay);
+  font-weight: 600;
+}
+.ingredient-items {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.ingredient-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  padding: 0.6rem 0.4rem;
+  border-bottom: 1px dashed var(--line);
+  transition: opacity 0.2s, background 0.2s;
+  border-radius: 6px;
+}
+.ingredient-row:last-child {
+  border-bottom: none;
+}
+.ingredient-row input[type="checkbox"] {
+  accent-color: var(--moss);
+  width: 1.1rem;
+  height: 1.1rem;
+  cursor: pointer;
+  margin-top: 0.25rem;
+  flex-shrink: 0;
+}
+.ingredient-text {
+  flex: 1;
+  line-height: 1.55;
+  font-size: 0.98rem;
+}
+.ingredient-row.is-done .ingredient-text {
+  text-decoration: line-through;
+  opacity: 0.45;
+}
+.ingredient-qty {
+  font-weight: 600;
+  color: var(--moss);
+  margin-right: 0.35rem;
+}
+
+/* Note Pill Reference */
+.note-ref {
+  display: inline-block;
+  font-family: var(--label);
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.12rem 0.5rem;
+  background: var(--paper-2);
+  border: 1px solid var(--line-2);
+  border-radius: 999px;
+  color: var(--clay);
+  text-decoration: none !important;
+  vertical-align: middle;
+  margin-left: 0.35rem;
+  line-height: 1.3;
+  transition: all 0.2s var(--ease);
+}
+.note-ref:hover {
+  background: var(--clay);
+  color: var(--paper);
+  border-color: var(--clay);
+  transform: translateY(-1px);
+}
+
+/* Numbered Steps / Instructions */
+.steps-section-title {
+  font-family: var(--display);
+  font-size: 1.45rem;
+  margin: 2.6rem 0 1.2rem;
+  padding-top: 1.2rem;
+  border-top: 1px solid var(--line);
+  color: var(--bark);
+}
+.recipe-steps-list {
+  counter-reset: step-counter;
+  list-style: none;
+  padding: 0;
+  margin: 1.2rem 0 2rem;
+}
+.recipe-step-item {
+  position: relative;
+  padding-left: 3.2rem;
+  margin-bottom: 1.5rem;
+  line-height: 1.7;
+}
+.recipe-step-item::before {
+  counter-increment: step-counter;
+  content: counter(step-counter);
+  position: absolute;
+  left: 0;
+  top: 0.15rem;
+  width: 2.2rem;
+  height: 2.2rem;
+  border-radius: 50%;
+  background: var(--paper-2);
+  border: 1.5px solid var(--bark);
+  color: var(--bark);
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 1.05rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  box-shadow: 2px 2px 0 rgba(109,79,52,0.12);
+}
+.recipe-step-item strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* Alternate 2-bowl method box */
+.alternate-method-box {
+  margin: 2.6rem 0;
+  padding: 1.6rem 1.8rem;
+  background: var(--paper-2);
+  border: 1px solid var(--line-2);
+  border-left: 4px solid var(--moss);
+  border-radius: 16px;
+}
+.alternate-method-box h3 {
+  font-family: var(--display);
+  font-size: 1.4rem;
+  margin: 0 0 0.6rem;
+  color: var(--moss);
+}
+
+/* Notes section styling */
+.notes-container {
+  margin: 3rem 0;
+  padding-top: 1.8rem;
+  border-top: 1.5px solid var(--line-2);
+}
+.notes-container h3 {
+  font-family: var(--display);
+  font-size: 1.6rem;
+  margin-bottom: 1.2rem;
+  color: var(--bark);
+}
+.recipe-notes-grid {
+  display: grid;
+  gap: 1rem;
+}
+.recipe-note-card {
+  background: var(--paper-2);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--clay);
+  border-radius: 12px;
+  padding: 1.1rem 1.3rem;
+  font-size: 0.94rem;
+  line-height: 1.65;
+  transition: all 0.3s ease;
+}
+.recipe-note-card:target {
+  background: #fdfaf2;
+  border-left: 4px solid var(--moss);
+  border-color: var(--moss);
+  box-shadow: 0 0 0 3px rgba(74,97,70,0.22);
+}
+.note-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 0.4rem;
+}
+.note-title {
+  font-family: var(--display);
+  font-size: 1.12rem;
+  font-weight: 600;
+  color: var(--clay);
+}
+.note-backlink {
+  font-family: var(--label);
+  font-size: 0.74rem;
+  opacity: 0.6;
+  text-decoration: none !important;
+}
+.note-backlink:hover {
+  opacity: 1;
+  color: var(--moss);
+}
