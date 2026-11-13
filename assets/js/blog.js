@@ -19,7 +19,7 @@
 */
 const POSTS = [
   { tag:'Recipe', title:'Benny Cheesecake',
-    excerpt:'A pentuple chocolate cheesecake beautifully marbled throughout, slices cleanly, and named after my dog Benny (who also has a double choc combination going on).',
+    excerpt:'What could be better than a chocolate cheesecake? How about a pentuple chocolate cheesecake? Beautifully marbled throughout and slices cleanly. Yeah, enough said.',
     date:'November 2026', href:'benny-cheesecake/' },
 
   { tag:'Shopping', title:'My Half-Hearted Coles Boycott',

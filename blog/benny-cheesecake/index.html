@@ -1,22 +1,24 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-AU">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Benny Cheesecake — Sandes Welagedara</title>
-<meta name="description" content="What could be better than a chocolate cheesecake? A pentuple chocolate cheesecake, beautifully marbled and named after my dog Benny.">
+<meta name="description" content="What could be better than a chocolate cheesecake? How about a pentuple chocolate cheesecake? Beautifully marbled throughout and slices cleanly.">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&amp;family=Lora:ital,wght@0,400;0,500;0,600;1,400&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../assets/css/style.css?v=20261111a">
+<link rel="stylesheet" href="../../assets/css/style.css?v=20261113">
+<link rel="icon" type="image/png" sizes="64x64" href="../../assets/img/favicon-64.png">
+<link rel="apple-touch-icon" sizes="180x180" href="../../assets/img/apple-touch-icon.png">
 </head>
 <body>
 
 <div class="grain" aria-hidden="true"></div>
 
 <nav class="nav" id="mainNav">
-  <a href="../../" class="nav-logo">SW</a>
+  <a href="../../" class="nav-logo" aria-label="Sandes Welagedara — home"><img src="../../assets/img/sandes-icon.png" alt="" width="44" height="44"></a>
   <ul class="nav-links" id="navLinks">
     <li><a href="../../cv/" data-nav="cv">cv / resume</a></li>
     <li><a href="../../photos/" data-nav="photos">photos</a></li>
@@ -62,7 +64,7 @@
 <!-- ============ POST BODY ============ -->
 <article class="section section-paper" style="padding-top:20px;">
   <div class="wrap">
-    <div class="post-body">
+    <div class="post-body benny-post">
 
       <p>What could be better than a chocolate cheesecake? How about a pentuple chocolate cheesecake? Beautifully marbled throughout and slices cleanly. Yeah, enough said.</p>
 
@@ -75,479 +77,136 @@
 
       <p>This recipe was adapted from the <a href="https://www.recipetineats.com/baked-cheesecake/" target="_blank" rel="noopener">RecipeTinEats &ldquo;Baked Cheesecake&rdquo; recipe</a>. The original is an incredible recipe I could not recommend enough.</p>
 
-      <!-- ============ RECIPE CARD ============ -->
-      <div class="recipe-box show-metric" id="recipeBox">
-        <div class="recipe-box-header">
-          <h2>Benny Cheesecake</h2>
-          <p class="recipe-tagline">Pentuple chocolate cheesecake with caramelized brown butter crust, five silky marbled chocolate batters, and a glossy tri-color ganache.</p>
-
-          <!-- Quick Stats Grid -->
-          <div class="recipe-stats-grid">
-            <div class="stat-item">
-              <span class="stat-label">Prep Time</span>
-              <span class="stat-value">2.5 hrs</span>
-            </div>
-            <div class="stat-item">
-              <span class="stat-label">Cook Time</span>
-              <span class="stat-value">50 mins</span>
-            </div>
-            <div class="stat-item">
-              <span class="stat-label">Chill Time</span>
-              <span class="stat-value">Overnight</span>
-            </div>
-            <div class="stat-item">
-              <span class="stat-label">Servings</span>
-              <span class="stat-value">8–12 serves</span>
-            </div>
-            <div class="stat-item">
-              <span class="stat-label">Approx Cost</span>
-              <span class="stat-value">~$40ish</span>
-            </div>
-          </div>
-          <p style="font-family:var(--label); font-size:0.78rem; opacity:0.7; margin:0.4rem 0 0;">
-            <em>Note on prep time:</em> 2.5 hours (I&rsquo;m not lying like every other recipe out there!). <em>Servings:</em> Roughly 8 serves, or 12 stingy ones. Don&rsquo;t make me calculate nutrition.
-          </p>
-        </div>
-
-        <!-- Equipment -->
-        <div class="equipment-block">
-          <h4>Equipment Needed</h4>
-          <div class="equipment-pills">
-            <span class="equipment-pill">19–20cm circular springform tin</span>
-            <span class="equipment-pill">Balloon whisk</span>
-            <span class="equipment-pill">5 mixing bowls (or 2 for alternate method)</span>
-            <span class="equipment-pill">Oven</span>
-            <span class="equipment-pill">Blender / food processor (or ziplock &amp; rolling pin)</span>
-            <span class="equipment-pill">Kitchen scale</span>
-          </div>
-        </div>
-
-        <!-- Ingredients Header & Unit Switcher -->
-        <div class="ingredients-header" id="ingredients">
-          <h3>Ingredients</h3>
-          <div class="unit-toggle" role="group" aria-label="Ingredient unit switcher">
-            <button type="button" class="unit-btn is-active" id="unitMetricBtn" data-unit="metric">Grams / Metric</button>
-            <button type="button" class="unit-btn" id="unitCupsBtn" data-unit="cups">Cups / Spoons</button>
-          </div>
-        </div>
-
-        <!-- Crust Ingredients -->
-        <div class="ingredient-subgroup">
-          <h4 class="ingredient-subgroup-title">Crust</h4>
-          <ul class="ingredient-items">
-            <li class="ingredient-row">
-              <input type="checkbox" id="ing-crust-1" aria-label="Mark ingredient as measured">
-              <label for="ing-crust-1" class="ingredient-text">
-                <span class="ingredient-qty qty-metric">250g</span>
-                <span class="ingredient-qty qty-cups">2½ cups crushed (1 packet / 250g)</span>
-                Chocolate Ripple biscuits (or Marie biscuits)
-              </label>
-            </li>
-            <li class="ingredient-row">
-              <input type="checkbox" id="ing-crust-2" aria-label="Mark ingredient as measured">
-              <label for="ing-crust-2" class="ingredient-text">
-                <span class="ingredient-qty qty-metric">100g</span>
-                <span class="ingredient-qty qty-cups">7 tbsp</span>
-                melted butter, browned and caramelized (melt ~120g / ½ cup raw butter)
-                <a href="#note-1" class="note-ref">Note 1</a>
-              </label>
-            </li>
-          </ul>
-        </div>
-
-        <!-- Filling Ingredients -->
-        <div class="ingredient-subgroup">
-          <h4 class="ingredient-subgroup-title">Cheesecake Filling</h4>
-          <ul class="ingredient-items">
-            <li class="ingredient-row">
-              <input type="checkbox" id="ing-fill-1" aria-label="Mark ingredient as measured">
-              <label for="ing-fill-1" class="ingredient-text">
-                <span class="ingredient-qty qty-metric">500g</span>
-                <span class="ingredient-qty qty-cups">2 cups (two 250g / 8 oz blocks)</span>
-                cream cheese (in block form, at room temperature)
-              </label>
-            </li>
-            <li class="ingredient-row">
-              <input type="checkbox" id="ing-fill-2" aria-label="Mark ingredient as measured">
-              <label for="ing-fill-2" class="ingredient-text">
-                <span class="ingredient-qty qty-metric">220g</span>
-                <span class="ingredient-qty qty-cups">1 cup</span>
-                white sugar
-              </label>
-            </li>
-            <li class="ingredient-row">
-              <input type="checkbox" id="ing-fill-3" aria-label="Mark ingredient as measured">
-              <label for="ing-fill-3" class="ingredient-text">
-                <span class="ingredient-qty qty-metric">120g</span>
-                <span class="ingredient-qty qty-cups">½ cup</span>
-                sour cream
-                <a href="#note-9" class="note-ref">Note 9</a>
-              </label>
-            </li>
-            <li class="ingredient-row">
-              <input type="checkbox" id="ing-fill-4" aria-label="Mark ingredient as measured">
-              <label for="ing-fill-4" class="ingredient-text">
-                <span class="ingredient-qty qty-metric">16g</span>
-                <span class="ingredient-qty qty-cups">2 tbsp</span>
-                plain flour
-              </label>
-            </li>
-            <li class="ingredient-row">
-              <input type="checkbox" id="ing-fill-5" aria-label="Mark ingredient as measured">
-              <label for="ing-fill-5" class="ingredient-text">
-                <span class="ingredient-qty qty-metric">3 large</span>
-                <span class="ingredient-qty qty-cups">3 large</span>
-                eggs (at room temperature)
-              </label>
-            </li>
-            <li class="ingredient-row">
-              <input type="checkbox" id="ing-fill-6" aria-label="Mark ingredient as measured">
-              <label for="ing-fill-6" class="ingredient-text">
-                <span class="ingredient-qty qty-metric">8–10 ml</span>
-                <span class="ingredient-qty qty-cups">1.5–2 tsp</span>
-                vanilla or vanilla bean extract
-                <a href="#note-2" class="note-ref">Note 2</a>
-              </label>
-            </li>
-            <li class="ingredient-row">
-              <input type="checkbox" id="ing-fill-7" aria-label="Mark ingredient as measured">
-              <label for="ing-fill-7" class="ingredient-text">
-                <span class="ingredient-qty qty-metric">160g</span>
-                <span class="ingredient-qty qty-cups">1 cup chopped</span>
-                white chocolate (80g for blonde chocolate, 80g for white)
-                <a href="#note-3" class="note-ref">Note 3</a>
-                <a href="#note-11" class="note-ref">Note 11</a>
-              </label>
-            </li>
-            <li class="ingredient-row">
-              <input type="checkbox" id="ing-fill-8" aria-label="Mark ingredient as measured">
-              <label for="ing-fill-8" class="ingredient-text">
-                <span class="ingredient-qty qty-metric">80g</span>
-                <span class="ingredient-qty qty-cups">½ cup chopped</span>
-                milk chocolate (e.g. Whittaker&rsquo;s 33%)
-                <a href="#note-4" class="note-ref">Note 4</a>
-              </label>
-            </li>
-            <li class="ingredient-row">
-              <input type="checkbox" id="ing-fill-9" aria-label="Mark ingredient as measured">
-              <label for="ing-fill-9" class="ingredient-text">
-                <span class="ingredient-qty qty-metric">80g</span>
-                <span class="ingredient-qty qty-cups">½ cup chopped</span>
-                dark chocolate (50–70% cocoa)
-                <a href="#note-5" class="note-ref">Note 5</a>
-              </label>
-            </li>
-            <li class="ingredient-row">
-              <input type="checkbox" id="ing-fill-10" aria-label="Mark ingredient as measured">
-              <label for="ing-fill-10" class="ingredient-text">
-                <span class="ingredient-qty qty-metric">80g</span>
-                <span class="ingredient-qty qty-cups">½ cup chopped</span>
-                bittersweet chocolate (&gt;70% cocoa, e.g. Whittaker&rsquo;s 72%)
-                <a href="#note-6" class="note-ref">Note 6</a>
-              </label>
-            </li>
-            <li class="ingredient-row">
-              <input type="checkbox" id="ing-fill-11" aria-label="Mark ingredient as measured">
-              <label for="ing-fill-11" class="ingredient-text">
-                <span class="ingredient-qty qty-metric">1 shot (~15–20 ml)</span>
-                <span class="ingredient-qty qty-cups">1 shot (~1 tbsp / 2.5 tsp)</span>
-                fresh ristretto espresso (or 1 tsp instant coffee in 20ml water)
-                <a href="#note-7" class="note-ref">Note 7</a>
-              </label>
-            </li>
-          </ul>
-        </div>
-
-        <!-- Ganache Glaze Ingredients -->
-        <div class="ingredient-subgroup">
-          <h4 class="ingredient-subgroup-title">Tri-Chocolate Ganache Glaze (Optional)</h4>
-          <ul class="ingredient-items">
-            <li class="ingredient-row">
-              <input type="checkbox" id="ing-gan-1" aria-label="Mark ingredient as measured">
-              <label for="ing-gan-1" class="ingredient-text">
-                <span class="ingredient-qty qty-metric">100g</span>
-                <span class="ingredient-qty qty-cups">⅓ cup + 1 tbsp (~100 ml)</span>
-                thickened cream (heavy whipping cream)
-              </label>
-            </li>
-            <li class="ingredient-row">
-              <input type="checkbox" id="ing-gan-2" aria-label="Mark ingredient as measured">
-              <label for="ing-gan-2" class="ingredient-text">
-                <span class="ingredient-qty qty-metric">35g</span>
-                <span class="ingredient-qty qty-cups">2½ tbsp finely chopped</span>
-                dark chocolate
-              </label>
-            </li>
-            <li class="ingredient-row">
-              <input type="checkbox" id="ing-gan-3" aria-label="Mark ingredient as measured">
-              <label for="ing-gan-3" class="ingredient-text">
-                <span class="ingredient-qty qty-metric">35g</span>
-                <span class="ingredient-qty qty-cups">2½ tbsp finely chopped</span>
-                white chocolate
-              </label>
-            </li>
-            <li class="ingredient-row">
-              <input type="checkbox" id="ing-gan-4" aria-label="Mark ingredient as measured">
-              <label for="ing-gan-4" class="ingredient-text">
-                <span class="ingredient-qty qty-metric">25g</span>
-                <span class="ingredient-qty qty-cups">2 tbsp finely chopped</span>
-                milk chocolate
-              </label>
-            </li>
-          </ul>
-        </div>
-
-        <!-- ============ METHOD 1 ============ -->
-        <h3 class="steps-section-title">Method 1: The Pentuple Marbled Method (Classic 5-Bowl)</h3>
-
-        <h4 style="font-family:var(--display); font-size:1.25rem; margin:1.6rem 0 0.8rem; color:var(--bark);">Part 1: The Brown Butter Crust</h4>
-        <ol class="recipe-steps-list">
-          <li class="recipe-step-item">
-            <strong>Preheat your oven</strong> to 180°C standard (or 160°C fan-forced).
-          </li>
-          <li class="recipe-step-item">
-            <strong>Blitz the biscuits:</strong> Blitz 250g of Chocolate Ripple biscuits (or biscuit of your choice) in a blender or food processor. You want a uniform, fine crumb that is not chunky, yet not ground completely into a powdery dust.
-          </li>
-          <li class="recipe-step-item">
-            <strong>Hydrate with brown butter:</strong> Add a tablespoon of your browned butter <a href="#note-1" class="note-ref">Note 1</a> and continue to blitz. Keep titrating (adding a tablespoon at a time) until the crumb mixture is just hydrated enough to look like wet sand, but not so much that it starts looking shiny or greasy. (Chocolate Ripple is quite a dry biscuit, so it needs a fair bit of butter).
-          </li>
-          <li class="recipe-step-item">
-            <strong>Press into the tin:</strong> Pour the crust mixture into your 19–20cm circular springform tin (greasing or lining with baking paper is up to your discretion). Use the flat bottom of a cup or glass to press firmly and evenly into the base and slightly up the sides.
-          </li>
-          <li class="recipe-step-item">
-            <strong>Blind bake:</strong> Bake the empty crust for 10 minutes <a href="#note-8" class="note-ref">Note 8</a> to set it and make it crisp.
-          </li>
-          <li class="recipe-step-item">
-            <strong>Cool:</strong> Pull the tin out of the oven and allow the crust to cool completely while you prepare the filling.
-          </li>
-        </ol>
-
-        <h4 style="font-family:var(--display); font-size:1.25rem; margin:2.2rem 0 0.8rem; color:var(--bark);">Part 2: The 5-Chocolate Fillings</h4>
-        <ol class="recipe-steps-list" style="counter-reset: step-counter 6;">
-          <li class="recipe-step-item">
-            <strong>Bring cream cheese to room temperature:</strong> Ensure your 500g block cream cheese is truly at room temperature before starting (leaving it out on the counter for 2–3 hours is ideal).
-          </li>
-          <li class="recipe-step-item">
-            <strong>Cream the base batter:</strong> In a large mixing bowl, whisk together the cream cheese, sour cream, and sugar until completely smooth and homogenous. Whisk in the vanilla extract and the 2 tbsp plain flour.
-          </li>
-          <li class="recipe-step-item">
-            <strong>Incorporate eggs one by one:</strong> Add the 3 large eggs one at a time, fully whisking each egg into the batter before adding the next. <em>Do not overbeat</em> — we do not want to aerate the mixture; baked cheesecake should be dense, creamy, and velvety, not airy or spongy.
-          </li>
-          <li class="recipe-step-item">
-            <strong>Divide into 5 bowls:</strong> Divide the plain cheesecake batter evenly across 5 separate mixing bowls (roughly 200g per bowl, or ~190g allowing for residual bowl loss).
-          </li>
-          <li class="recipe-step-item">
-            <strong>Make the blonde chocolate:</strong> In a microwave-safe bowl, melt 80g of white chocolate in short bursts (start with 30–45s, then stir and continue in 5–15s increments). Keep stirring through the initial grainy stage until the chocolate turns a light golden caramel colour and smells toasty and nutty <a href="#note-11" class="note-ref">Note 11</a>.
-          </li>
-          <li class="recipe-step-item">
-            <strong>Melt remaining chocolates:</strong> In separate microwave-safe bowls, melt the other batches of chocolate <a href="#note-10" class="note-ref">Note 10</a>: 80g white chocolate, 80g milk chocolate, 80g dark chocolate, and 80g bittersweet chocolate. Microwave in 30-second intervals, stirring between bursts until smooth and runny.
-          </li>
-          <li class="recipe-step-item">
-            <strong>Mix each chocolate into its bowl:</strong>
-            <ul style="margin:0.5rem 0 0; padding-left:1.2rem; list-style:disc;">
-              <li><strong>Bowl 1:</strong> Fold in the melted blonde chocolate.</li>
-              <li><strong>Bowl 2:</strong> Fold in the melted white chocolate.</li>
-              <li><strong>Bowl 3:</strong> Fold in the melted milk chocolate.</li>
-              <li><strong>Bowl 4:</strong> Fold in the melted dark chocolate + 1 teaspoon of ristretto.</li>
-              <li><strong>Bowl 5:</strong> Fold in the melted bittersweet chocolate + 1.5 teaspoons of ristretto.</li>
-            </ul>
-            Stir each bowl thoroughly until uniform. Either wipe your spatula cleanly between bowls or use 5 separate spoons to avoid muddling the colours.
-          </li>
-        </ol>
-
-        <h4 style="font-family:var(--display); font-size:1.25rem; margin:2.2rem 0 0.8rem; color:var(--bark);">Part 3: Putting It Together (Natural &ldquo;Z&rdquo; Marbling)</h4>
-        <ol class="recipe-steps-list" style="counter-reset: step-counter 13;">
-          <li class="recipe-step-item">
-            <strong>First marbling pass:</strong> Take your cooled blind-baked crust. Pour half of the bittersweet chocolate batter in a bold &ldquo;Z&rdquo; zig-zag formation across the bottom.
-          </li>
-          <li class="recipe-step-item">
-            <strong>Rotate and layer for contrast:</strong> Rotate the cake tin roughly 70 degrees, and pour half of the white chocolate batter in a &ldquo;Z&rdquo; formation. Continue rotating ~70° and pouring half of each batter in this exact sequence:
-            <br>
-            <strong>Dark &rarr; Blonde &rarr; Milk</strong>
-            <br>
-            Then repeat with the second half of all batters in reverse contrast order:
-            <br>
-            <strong>White &rarr; Bittersweet &rarr; Blonde &rarr; Dark &rarr; Milk</strong>
-            <br>
-            This alternating high-contrast layering ensures a striking, marbled cross-section throughout the cake completely organically — you don&rsquo;t even need a skewer or swirl stick!
-          </li>
-        </ol>
-
-        <h4 style="font-family:var(--display); font-size:1.25rem; margin:2.2rem 0 0.8rem; color:var(--bark);">Part 4: Baking &amp; Chilling</h4>
-        <ol class="recipe-steps-list" style="counter-reset: step-counter 15;">
-          <li class="recipe-step-item">
-            <strong>Bake:</strong> Bake in the oven at 160°C fan-forced (180°C conventional) for 50 minutes, or until the edges are gently set, the top has taken on a gorgeous golden colour, and the centre still has a slight, soft wobble/jiggle.
-          </li>
-          <li class="recipe-step-item">
-            <strong>Gradual cooling:</strong> Turn the oven off and prop the oven door slightly ajar to let the cheesecake cool slowly for an hour. Then bring it to room temperature on the countertop, and finally transfer to the fridge to chill overnight. (Chilling overnight lets the cheesecake set cleanly for knife cuts and ensures the ganache won&rsquo;t melt upon application).
-          </li>
-        </ol>
-
-        <h4 style="font-family:var(--display); font-size:1.25rem; margin:2.2rem 0 0.8rem; color:var(--bark);">Part 5: Tri-Chocolate Ganache Glaze</h4>
-        <ol class="recipe-steps-list" style="counter-reset: step-counter 17;">
-          <li class="recipe-step-item">
-            <strong>Warm the cream:</strong> In a small saucepan over medium-low heat, warm 100g of thickened cream until it just starts to steam. Do not let it boil.
-          </li>
-          <li class="recipe-step-item">
-            <strong>Divide chocolates:</strong> In 3 small heatproof bowls, place 35g of white chocolate in one, 35g of milk chocolate in the second, and 35g (or 25g) of bittersweet/dark chocolate in the third.
-          </li>
-          <li class="recipe-step-item">
-            <strong>Emulsify:</strong> Pour equal amounts of the hot cream into each bowl. Let sit for 1 minute so the chocolate melts, then stir each gently until completely glossy, smooth, and homogenous.
-          </li>
-          <li class="recipe-step-item">
-            <strong>Decorate:</strong> Artistically drizzle, flick, or pipe patterns across the top of your chilled cheesecake using all three chocolates — let your creativity take over! Return to the fridge for 20 minutes to set the glaze, slice with a hot dry knife, and serve.
-          </li>
-        </ol>
-
-        <!-- ============ METHOD 2: 2-BOWL LAYERED ============ -->
-        <div class="alternate-method-box">
-          <h3>Alternate Method: The 2-Bowl Layered Cheesecake</h3>
-          <p>
-            Only have 2 bowls to spare? No problem! You can get the exact same delicious cheesecake in a beautiful layered formation — it just takes a tiny bit of bowl-washing along the way.
-          </p>
-          <p><em>Crust instructions are exactly the same as above.</em></p>
-
-          <ol class="recipe-steps-list" style="counter-reset: step-counter 0; margin-top:1.4rem;">
-            <li class="recipe-step-item">
-              <strong>Cream the main batter:</strong> In your large bowl, cream the room-temperature cream cheese, sour cream, and sugar together until completely homogenous. Add vanilla extract and flour, then beat in the 3 eggs one by one until smooth. Do not overbeat!
-            </li>
-            <li class="recipe-step-item">
-              <strong>Weigh out portions:</strong> You will have roughly 1000g of batter total. Divided by 5 is 200g, but accounting for bowl residue, aim for roughly <strong>190g of batter per chocolate layer</strong>.
-            </li>
-            <li class="recipe-step-item">
-              <strong>Layer 1 (Blonde):</strong> Take your second bowl (microwave-safe) and caramelize 80g of white chocolate in intervals until browned, golden, and toasty. Pour 190g of plain batter into it, whisk thoroughly, and pour evenly over the blind-baked crust.
-            </li>
-            <li class="recipe-step-item">
-              <strong>Wash &amp; dry thoroughly:</strong> Wash and dry the second bowl meticulously. Make sure there is not a single water droplet left on the bowl or spatula — any rogue droplet of water will cause subsequent chocolate to seize up into an unusable grainy lump!
-            </li>
-            <li class="recipe-step-item">
-              <strong>Layer 2 (Bittersweet + Ristretto):</strong> Melt the 80g bittersweet chocolate in 30-second bursts. Stir in 190g of batter plus 1 tsp of ristretto. Gently pour in an even layer directly over the blonde base.
-            </li>
-            <li class="recipe-step-item">
-              <strong>Layers 3, 4 &amp; 5:</strong> Repeat the melt-and-mix process in the washed and dried bowl for the remaining chocolates:
-              <ul style="margin:0.4rem 0 0; padding-left:1.2rem; list-style:disc;">
-                <li><strong>Milk chocolate:</strong> Melt 80g, mix with 190g batter, pour layer.</li>
-                <li><strong>White chocolate:</strong> Melt 80g, mix with 190g batter, pour layer.</li>
-                <li><strong>Dark chocolate:</strong> Melt 80g, mix with 190g batter (without ristretto), pour final top layer.</li>
-              </ul>
-            </li>
-            <li class="recipe-step-item">
-              <strong>Bake:</strong> Bake at 160°C fan (180°C standard) for 50 minutes until the top is golden and the centre has a gentle jiggle.
-            </li>
-            <li class="recipe-step-item">
-              <strong>Cool:</strong> You can choose to cool it slowly with the oven door ajar, but if that&rsquo;s too much faff, you can chuck the whole 1kg mass at 160°C straight into your mini fridge. Who cares about food safety and everything else melting!
-            </li>
-            <li class="recipe-step-item">
-              <strong>Glaze:</strong> Finish with the tri-chocolate ganache glaze as detailed in Method 1.
-            </li>
-          </ol>
-        </div>
-
-        <!-- ============ RECIPE NOTES ============ -->
-        <div class="notes-container" id="recipeNotes">
-          <h3>Recipe Notes &amp; Chef Tips</h3>
-          <div class="recipe-notes-grid">
-
-            <div class="recipe-note-card" id="note-1">
-              <div class="note-header">
-                <span class="note-title">1. Browning the Butter</span>
-                <a href="#ingredients" class="note-backlink">↑ back to ingredients</a>
-              </div>
-              <p>Melt 120 grams of butter over medium heat, and stir constantly until it starts to darken, foam, and smell nutty and caramelly. Immediately take off the heat and keep stirring to help cool it down and prevent burning.</p>
-            </div>
-
-            <div class="recipe-note-card" id="note-2">
-              <div class="note-header">
-                <span class="note-title">2. Vanilla Bean Extract</span>
-                <a href="#ingredients" class="note-backlink">↑ back to ingredients</a>
-              </div>
-              <p>I prefer to use vanilla bean extract with real seeds since it lends itself to a much more whole and complex vanilla flavour, but imitation and regular extract are completely fine.</p>
-            </div>
-
-            <div class="recipe-note-card" id="note-3">
-              <div class="note-header">
-                <span class="note-title">3. White &amp; Blonde Chocolate</span>
-                <a href="#ingredients" class="note-backlink">↑ back to ingredients</a>
-              </div>
-              <p>I used Whittaker&rsquo;s 28% Cocoa white chocolate, but any good quality white chocolate works. If you buy commercial blonde chocolate (like Cadbury&rsquo;s Caramilk) you save the step of needing to caramelise the white chocolate yourself — simply use 80g white chocolate and 80g blonde chocolate, and skip the caramelising steps.</p>
-            </div>
-
-            <div class="recipe-note-card" id="note-4">
-              <div class="note-header">
-                <span class="note-title">4. Milk Chocolate</span>
-                <a href="#ingredients" class="note-backlink">↑ back to ingredients</a>
-              </div>
-              <p>I used Whittaker&rsquo;s 33% milk chocolate, but any milk chocolate should be fine. Avoid Lindor blocks or truffles since the filling isn&rsquo;t pure chocolate and may interfere with how the cheesecake bakes and sets. Use only solid eating chocolate.</p>
-            </div>
-
-            <div class="recipe-note-card" id="note-5">
-              <div class="note-header">
-                <span class="note-title">5. Dark Chocolate</span>
-                <a href="#ingredients" class="note-backlink">↑ back to ingredients</a>
-              </div>
-              <p>Dark chocolate is between 50–70% cocoa, so I used Whittaker&rsquo;s 50% dark chocolate here for balance.</p>
-            </div>
-
-            <div class="recipe-note-card" id="note-6">
-              <div class="note-header">
-                <span class="note-title">6. Bittersweet Chocolate</span>
-                <a href="#ingredients" class="note-backlink">↑ back to ingredients</a>
-              </div>
-              <p>Bittersweet is defined as over 70% cocoa, so I used Whittaker&rsquo;s 72% Dark Ghana here for deep chocolate punch.</p>
-            </div>
-
-            <div class="recipe-note-card" id="note-7">
-              <div class="note-header">
-                <span class="note-title">7. Ristretto &amp; Coffee Substitutions</span>
-                <a href="#ingredients" class="note-backlink">↑ back to ingredients</a>
-              </div>
-              <p>Ristretto is a shorter, more concentrated version of espresso. Essentially, you pull a regular espresso shot with less liquid (~15–20ml). If you have a Nespresso machine, pull an espresso shot but stop it short halfway through. If you have a manual espresso machine, cut the shot short. If you only have instant coffee, dissolve 1 teaspoon of granules into 20mL of warm water (approx. 1 tablespoon).</p>
-            </div>
-
-            <div class="recipe-note-card" id="note-8">
-              <div class="note-header">
-                <span class="note-title">8. Blind Baking</span>
-                <a href="#ingredients" class="note-backlink">↑ back to ingredients</a>
-              </div>
-              <p>Blind baking is simply baking the biscuit crust on its own before adding any filling. This helps set the butter and biscuits so the crust stays crunchy and doesn&rsquo;t get soggy once the batter is poured in.</p>
-            </div>
-
-            <div class="recipe-note-card" id="note-9">
-              <div class="note-header">
-                <span class="note-title">9. Sour Cream Confession</span>
-                <a href="#ingredients" class="note-backlink">↑ back to ingredients</a>
-              </div>
-              <p>I made it without sour cream… because I forgot to add it… will update soon! (Cheesecake still turned out incredible, but sour cream adds that quintessential tangy balance).</p>
-            </div>
-
-            <div class="recipe-note-card" id="note-10">
-              <div class="note-header">
-                <span class="note-title">10. Microwave Melting Technique</span>
-                <a href="#ingredients" class="note-backlink">↑ back to ingredients</a>
-              </div>
-              <p>I used 30-second intervals at medium power, but if you have a higher power microwave use 15-second bursts. It&rsquo;s better to be cautious, as overheating chocolate can cause it to seize — turning into a weird, grainy, separated lump that has no business in this cheesecake!</p>
-            </div>
-
-            <div class="recipe-note-card" id="note-11">
-              <div class="note-header">
-                <span class="note-title">11. Caramelising White Chocolate (Blonde Chocolate)</span>
-                <a href="#ingredients" class="note-backlink">↑ back to ingredients</a>
-              </div>
-              <p>Blonde chocolate takes patience. I initially used 30-second intervals until I realised I was simply remelting the same white chocolate with no caramelisation occurring. I upped it to 45 seconds, and as soon as I mixed I saw beautiful golden streaks of chocolate. When making blonde chocolate it will turn into a weird grainy lump at the start — don&rsquo;t panic, keep stirring and it will turn runny and silky again. As soon as it darkens to a light tan/amber colour, stop. The more you blond it, the higher the risk it burns or seizes into an unusable mass.</p>
-            </div>
-
-          </div>
-        </div>
-
-      </div>
-      <!-- ============ END RECIPE CARD ============ -->
-
-      <p class="post-callout">
-        &ldquo;And now you have a Benny cheesecake! Beautifully marbled, rich, and five chocolates deep.&rdquo;
-      </p>
-
-      <p class="post-disclaimer">AI was not used to write the recipe or any anecdotes. Claude Opus was used to code this interactive recipe card and the unit switcher for my website because web development is not my forte.</p>
-
+<div class="recipe-overview">
+<p><strong>Prep time:</strong> 2.5 hours (I’m not lying like every other recipe out there!). <strong>Cook time:</strong> 50 minutes</p>
+<p><strong>Approx cost:</strong> $40ish. As of November 2026.</p>
+<p>Roughly 8 serves, or 12 stingy ones. Don’t make me calculate nutrition.</p>
+</div>
+<nav class="recipe-jumps" aria-label="Recipe sections">
+<a href="#ingredients">Ingredients</a><a href="#method">Method</a><a href="#alternate">2-bowl method</a><a href="#notes">Notes</a><a href="#photos">Photos</a>
+</nav>
+<section id="ingredients" class="recipe-section">
+<h2>For this recipe, you will need:</h2>
+<div class="recipe-ingredients">
+<div><h3>Crust</h3>
+<ul>
+<li>250g Chocolate Ripple Biscuits (or Marie)</li>
+<li>100g of melted butter, browned and caramelised (<a href="#note-1">note 1</a>)</li>
+ </ul>
+<h3>Glaze (optional)</h3>
+<ul>
+<li>100g thickened cream</li>
+<li>35g bittersweet chocolate</li>
+<li>35g white chocolate</li>
+<li>35g milk chocolate</li>
+ </ul>
+</div><div><h3>Filling</h3>
+<ul>
+<li>3 large eggs</li>
+<li>500g of cream cheese (in block form, at room temperature)</li>
+<li>2 tbsp plain flour</li>
+<li>1 cup white sugar</li>
+<li>1/2 cup sour cream (<a href="#note-9">note 9</a>)</li>
+<li>1.5–2 tsp vanilla/vanilla bean extract (<a href="#note-2">note 2</a>)</li>
+<li>160g white chocolate (<a href="#note-3">note 3</a>)</li>
+<li>80g milk chocolate (<a href="#note-4">note 4</a>)</li>
+<li>80g dark chocolate (<a href="#note-5">note 5</a>)</li>
+<li>80g bittersweet chocolate (<a href="#note-6">note 6</a>)</li>
+<li>1 shot of ristretto (<a href="#note-7">note 7</a>)</li>
+ </ul>
+</div></div>
+<h3>Equipment</h3>
+<ul>
+<li>19–20cm circular springform tray</li>
+<li>Whisk</li>
+<li>A few mixing bowls</li>
+<li>Oven</li>
+<li>Blender/food processor (or ziplock bag and a rolling pin)</li>
+<li>Scale (alternate method)</li>
+ </ul>
+</section>
+<section id="method" class="recipe-section"><h2>Crust</h2><ol>
+<li>Preheat oven to 180/160 fan-forced.</li>
+<li>Blitz 250g of Chocolate Ripple (or other biscuit of your choice) in a blender or food processor. Enough so that it is uniform and not chunky, yet not so much so it turns into a fine powder.</li>
+<li>Add a tablespoon of the brown butter and continue to blitz, titrating (or keep adding a tablespoon) until it is just hydrated enough that it looks like wet sand, but not so much so it starts to look shiny or greasy. (I had to add quite a bit of butter to Chocolate Ripple, it’s a pretty dry cookie.)</li>
+<li>Pour the crust mixture into the tin (I don’t usually oil or grease the pan, nor use baking paper, but it is up to your discretion) and use the bottom of a flat cup to press into the bottom and onto the sides, making sure the crust is uniform throughout.</li>
+<li>Blind bake the crust for 10 minutes (<a href="#note-8">note 8</a>).</li>
+<li>Pull out of the oven and allow it to cool.</li>
+ </ol>
+<h3>Filling</h3>
+<ol>
+<li>Ensure your cream cheese is at room temperature, leaving it out for 2–3 hours would be fine.</li>
+<li>In a large bowl, cream the cream cheese, sour cream and the sugar together, making sure they are homogeneous — utilising a whisk. Then add the vanilla extract and flour. Then add the 3 eggs, one by one and incorporate each one fully before adding the next. Don’t overbeat as to aerate the batter, cheesecake is not airy or spongy.</li>
+<li>Divide equally into 5 different bowls. (Alternate method will have 1-bowl method.)</li>
+<li>Melt 80g in a microwave, using 45-second increments. Keep microwaving until the chocolate turns a light golden colour and smells caramelly. This is blonde chocolate. (<a href="#note-11">note 11</a>)</li>
+<li>Melt 80g of white chocolate, 80g of bittersweet chocolate, 80g of dark chocolate and 80g of milk chocolate in separate batches. One method is to microwave for 30 seconds at a time, and then mix until it is runny. (<a href="#note-10">note 10</a>)</li>
+<li>To the first bowl, add the blonde chocolate. To the second, add the white chocolate. To the third, add the milk chocolate. To the fourth add the dark chocolate. To the 5th add the bittersweet and 1 teaspoon of ristretto.</li>
+<li>Mix each batch separately, preferring to either wipe your spoon in between batches or using 5 separate spoons.</li>
+ </ol>
+<h3>Putting it together</h3>
+<ol>
+<li>Get the blind-baked crust and pour half the bittersweet chocolate batter in a “Z” formation.</li>
+<li>Rotate the cake 70 degrees and pour half the white chocolate batter in a Z formation. Continue to do this for all the batters in this order: dark, blonde, milk. Then with the other half of the batter, in this order: white, bittersweet, blonde, dark, milk. This ensures striking contrast. This also means you don’t need to use a skewer or other object to marble, it is already marbled.</li>
+<li>Put it in the oven for 50 minutes or until the top is a beautiful golden colour and the centre is still jiggly.</li>
+<li>Keep the oven door open to allow it to cool in the oven, then cool on a countertop before allowing to chill in the fridge overnight. This allows the ganache to not melt.</li>
+ </ol>
+<h3>Ganache</h3>
+<ol>
+<li>Warm 100g of thickened cream over the stove until starting to steam.</li>
+<li>In 3 heatproof bowls, add 35g of white chocolate to one, 35g of milk chocolate to another and 35 grams of bittersweet chocolate to the last one.</li>
+<li>Add equal amounts of warmed thickened cream to each, and stir each one until the chocolate is fully incorporated.</li>
+<li>Artistically create a pattern on the top using all three, up to you what it is!</li>
+ </ol>
+</section>
+<section id="alternate" class="recipe-section"><h2>Alternate method (2-bowl)</h2>
+<p>Only have 2 bowls to spare? No problem! You can get the same delicious cheesecake in a beautiful layered formation, just might take a little longer.</p>
+<p>Crust instructions are exactly the same.</p>
+<h3>Filling</h3>
+<ol>
+<li>Ensure your cream cheese is at room temperature, leaving it out for 2–3 hours would be fine.</li>
+<li>In a large bowl, cream the cream cheese, sour cream and the sugar together, making sure they are homogeneous — utilising a whisk. Then add the vanilla extract and flour. Then add the 3 eggs, one by one and incorporate each one fully before adding the next. Don’t overbeat as to aerate the batter, cheesecake is not airy or spongy.</li>
+<li>You should have roughly 1000g of batter. Divided by 5 is 200, but a lot gets spilt or left in the bowl, so let’s say 190g per chocolate.</li>
+<li>Get your one other bowl (microwave-safe) and make the blonde chocolate in it, microwaving it in intervals until it browns and smells nice and toasty. Then pour 190g of plain batter into it. Mix thoroughly and add to the crust you’ve blind baked.</li>
+<li>Wash and dry thoroughly, making sure there’s not a single water droplet on the bowl or any mixing utensil. Water will cause chocolate to seize and it will be good for nothing.</li>
+<li>Melt the bittersweet chocolate (microwave in 30-second intervals) and add 190g of batter, plus 1 tsp of ristretto. Then pour in 1 even layer on top of the blonde chocolate. Keep doing this for milk, white and dark (without the ristretto).</li>
+<li>Put it in the oven for 50 minutes or until the top is a beautiful golden colour and the centre is still jiggly.</li>
+<li>You can choose to cool it with the oven door open, but I find that’s such a faff and just chuck the whole 1kg mass at 160 degrees Celsius in my mini fridge. Who cares about food safety and everything else melting!</li>
+ </ol>
+<h3>Ganache</h3>
+<ol>
+<li>Warm 100g of thickened cream over the stove until starting to steam.</li>
+<li>In 3 heatproof bowls, add 35g of white chocolate to one, 35g of milk chocolate to another and 35 grams of bittersweet chocolate to the last one.</li>
+<li>Add equal amounts of warmed thickened cream to each, and stir each one until the chocolate is fully incorporated.</li>
+<li>Artistically create a pattern on the top using all three, up to you what it is!</li>
+ </ol>
+</section>
+<section id="notes" class="recipe-section"><h2>Notes</h2><ol class="benny-notes">
+<li id="note-1">Melt 120 grams of butter over medium heat, and stir constantly until it starts to darken and smell of caramel. Immediately take off the heat and keep stirring to help cool it down.</li>
+<li id="note-2">I prefer to use vanilla bean extract with seeds since it lends itself to a much more whole and complex vanilla flavour, but imitation and regular extract are fine.</li>
+<li id="note-3">I used Whittaker’s 28% cocoa white chocolate, but any white chocolate should work. If you also buy blonde chocolate (like Cadbury’s Caramilk) you save the step of needing to caramelise the white chocolate, hence use only 80g white chocolate and 80g blonde chocolate, and skip the steps to caramelise the white chocolate.</li>
+<li id="note-4">I used Whittaker’s 33% milk chocolate but any milk chocolate should be fine. I would avoid the Lindor blocks/truffles since the filling isn’t pure chocolate and may interfere with how the cheesecake bakes and sets. Only solid chocolate.</li>
+<li id="note-5">Dark chocolate is between 50–70% cocoa, so I used Whittaker’s 50% dark chocolate here.</li>
+<li id="note-6">Bittersweet is defined as over 70% cocoa, so I used Whittaker’s 72% Dark Ghana.</li>
+<li id="note-7">Ristretto is a more concentrated version of espresso. Essentially, you pull a regular espresso shot but with less liquid. If you have a Nespresso machine, pull an espresso but stop it short. If you have a regular espresso machine, pull a shot but cut it short. If you only have instant coffee, mix 1 teaspoon into 20mL of water/a tablespoon.</li>
+<li id="note-8">Blind baking is simply baking the crust without any filling. This helps set the crust and make it more crispy.</li>
+<li id="note-9">One time I made it without sour cream…because I forgot to add it… It’s still delicious so it is not a dealbreaker, but the water from the sour cream makes the cake bake more lightly and less dense. Without it, it’s a deliciously fudgy, dense, melt-in-the-mouth truffle cake. Still yum, but also lacks the tanginess you’d come to expect from cheesecake.</li>
+<li id="note-10">I used 30-second intervals, but if you have a higher power microwave use 15. It’s better to be cautious as overheating the chocolate can cause it to seize and it won’t melt but rather clump into a weird grainy lump that has no business in this cheesecake!</li>
+<li id="note-11">Blonde chocolate takes a while to make, so be patient. I initially used 30-second intervals until I realised I was simply remelting the same white chocolate, with no caramelisation occurring. I upped to 45 seconds, and as soon as I mixed I saw these beautiful golden chunks of chocolate. When making blonde chocolate it will be a weird grainy lump at the start, but keep mixing and it turns runny again. As soon as it starts to darken or tan slightly, stop. The more you keep blonding the greater the chance it burns or completely seizes up and becomes completely unusable.</li>
+</ol></section>
+<p class="post-callout">And now you have a Benny cheesecake!</p>
+<section id="photos" class="recipe-section cake-gallery" aria-label="Benny cheesecake photos" aria-roledescription="carousel" tabindex="0">
+<h2>Photos</h2>
+<div class="cake-slides">
+<figure class="cake-slide"><img src="cake-whole.jpg" alt="Benny cheesecake in its pink springform tin, held up beside the kitchen window" width="1200" height="1600" loading="lazy"></figure>
+<figure class="cake-slide"><img src="cake-slice.jpg" alt="A slice of Benny cheesecake showing the contrasting chocolate layers" width="1200" height="1600" loading="lazy"></figure>
+<figure class="cake-slide"><img src="cake-sliced.jpg" alt="Five slices of Benny cheesecake arranged on baking paper" width="1200" height="1600" loading="lazy"></figure>
+</div>
+<div class="cake-gallery-controls" hidden>
+<button type="button" data-gallery-prev aria-label="Previous photo">←</button>
+<span data-gallery-status role="status" aria-live="polite" aria-atomic="true">1 / 3</span>
+<button type="button" data-gallery-next aria-label="Next photo">→</button>
+</div>
+</section>
       <div class="post-nav">
         <a href="../">← all posts</a>
         <a href="../../#connect">get in touch →</a>
@@ -572,54 +231,11 @@
   </div>
 </footer>
 
-<script src="../../assets/js/site.js?v=20261111a"></script>
+<script src="../../assets/js/site.js?v=20261113"></script>
+<script src="../../assets/js/cheesecake.js?v=20261113"></script>
 <script>
-  SW.initNav({ page: 'blog' });
-  document.getElementById('year').textContent = '© ' + new Date().getFullYear();
-
-  // Unit switcher logic (Grams vs Cups)
-  const recipeBox = document.getElementById('recipeBox');
-  const metricBtn = document.getElementById('unitMetricBtn');
-  const cupsBtn = document.getElementById('unitCupsBtn');
-
-  function setUnit(unit) {
-    if (unit === 'cups') {
-      recipeBox.classList.remove('show-metric');
-      recipeBox.classList.add('show-cups');
-      cupsBtn.classList.add('is-active');
-      metricBtn.classList.remove('is-active');
-      try { localStorage.setItem('sw_recipe_unit', 'cups'); } catch(e){}
-    } else {
-      recipeBox.classList.remove('show-cups');
-      recipeBox.classList.add('show-metric');
-      metricBtn.classList.add('is-active');
-      cupsBtn.classList.remove('is-active');
-      try { localStorage.setItem('sw_recipe_unit', 'metric'); } catch(e){}
-    }
-  }
-
-  metricBtn.addEventListener('click', () => setUnit('metric'));
-  cupsBtn.addEventListener('click', () => setUnit('cups'));
-
-  // Restore preferred unit from localStorage
-  try {
-    const saved = localStorage.getItem('sw_recipe_unit');
-    if (saved === 'cups') setUnit('cups');
-  } catch(e){}
-
-  // Checkbox strike-through
-  document.querySelectorAll('.ingredient-row input[type="checkbox"]').forEach(box => {
-    box.addEventListener('change', function() {
-      const row = this.closest('.ingredient-row');
-      if (row) {
-        if (this.checked) {
-          row.classList.add('is-done');
-        } else {
-          row.classList.remove('is-done');
-        }
-      }
-    });
-  });
+SW.initNav({ page: 'blog' });
+document.getElementById('year').textContent = '© ' + new Date().getFullYear();
 </script>
 </body>
 </html>
